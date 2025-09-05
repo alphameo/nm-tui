@@ -43,8 +43,11 @@ func (m *WifiStoredModel) Resize(width, height int) {
 	height -= styles.BorderOffset
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
-	offset := 4
-	ssidWidth := width - offset - conFlagColWidth
+
+	tableUtilityOffset := len(m.dataTable.Columns()) * 2
+
+	computedSsidWidth := width - tableUtilityOffset - conFlagColWidth
+	ssidWidth := max(computedSsidWidth, minSsidWidth)
 	m.pSsidCol.Width = ssidWidth
 }
 
