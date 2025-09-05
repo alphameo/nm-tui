@@ -39,6 +39,8 @@ func NewWifiStored() *WifiStoredModel {
 }
 
 func (m *WifiStoredModel) Resize(width, height int) {
+	width -= styles.BorderOffset
+	height -= styles.BorderOffset
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 	offset := 4
@@ -90,7 +92,7 @@ func (m *WifiStoredModel) View() string {
 	view := m.dataTable.View()
 
 	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s\n", view)
+	fmt.Fprintf(&sb, "%s", view)
 	return sb.String()
 }
 

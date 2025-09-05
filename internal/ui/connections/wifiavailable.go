@@ -22,6 +22,7 @@ const (
 	None
 	signalColWidth  int = 3
 	conFlagColWidth     = 1
+	indicatorHeight         = 1
 )
 
 func (s *wifiState) String() string {
@@ -74,6 +75,9 @@ func NewWifiAvailable() *WifiAvailableModel {
 }
 
 func (m *WifiAvailableModel) Resize(width, height int) {
+	width -= styles.BorderOffset
+	height -= styles.BorderOffset
+	height -= indicatorHeight
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 	offset := 8

@@ -19,6 +19,7 @@ type sessionState uint
 const (
 	wifiView sessionState = iota
 	timerView
+	stateViewHeight int = 2
 )
 
 type Model struct {
@@ -66,8 +67,7 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
+		m.Resize(msg.Width, msg.Height)
 		return m, nil
 	case controls.PopupContentMsg:
 		m.popup.Content = msg
@@ -87,14 +87,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, m.processCommonMsg(msg)
 }
 
+func (m *Model) Resize(width, height int) {
+	m.width = width
+	m.height = height
+	width -= styles.BorderOffset
+	height -= styles.BorderOffset
+	height -= stateViewHeight
+	m.connections.Resize(width, height)
+}
+
 func (m Model) View() string {
 	sb := strings.Builder{}
 	fmt.Fprintf(&sb, "%s\n\n state: %v", m.connections.View(), m.state)
 	view := sb.String()
 	style := lipgloss.NewStyle().
 		BorderStyle(styles.BorderStyle).
-		Width(m.width - 2).
-		Height(m.height - 2)
+		Width(m.width - styles.BorderOffset).
+		Height(m.height - styles.BorderOffset)
 	view = style.Render(view)
 
 	if m.popup.IsActive {

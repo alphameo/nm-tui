@@ -37,6 +37,7 @@ func New() *Model {
 }
 
 func (m *Model) Resize(width, height int) {
+	height -= styles.TabBarHeight
 	for _, t := range m.tabTables {
 		t.Resize(width, height)
 	}
