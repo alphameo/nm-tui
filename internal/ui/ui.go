@@ -48,7 +48,6 @@ func New() Model {
 	notification.EscapeKeys = escKeys
 	m := Model{
 		connections:  wifiTable,
-		timer:        timer,
 		popup:        popup,
 		notification: notification,
 	}
