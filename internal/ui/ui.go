@@ -34,7 +34,7 @@ type Model struct {
 }
 
 func New() Model {
-	wifiTable := *connections.New(51, 20)
+	wifiTable := *connections.New()
 	timer := timer.New(time.Hour)
 	escKeys := []string{"ctrl+q", "esc", "ctrl+c"}
 	popup := *overlay.New(nil)

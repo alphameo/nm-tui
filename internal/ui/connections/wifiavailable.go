@@ -46,7 +46,7 @@ type WifiAvailableModel struct {
 	pSecurityCol     *table.Column
 }
 
-func NewWifiAvailable(width, height int) *WifiAvailableModel {
+func NewWifiAvailable() *WifiAvailableModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: conFlagColWidth},
 		{Title: "SSID"},
@@ -70,7 +70,6 @@ func NewWifiAvailable(width, height int) *WifiAvailableModel {
 		pSsidCol:         ssidCol,
 		pSecurityCol:     securityCol,
 	}
-	m.Resize(width, height)
 	return m
 }
 

@@ -18,7 +18,7 @@ type WifiStoredModel struct {
 	pSsidCol   *table.Column
 }
 
-func NewWifiStored(width, height int) *WifiStoredModel {
+func NewWifiStored() *WifiStoredModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: conFlagColWidth},
 		{Title: "SSID"},
@@ -35,7 +35,6 @@ func NewWifiStored(width, height int) *WifiStoredModel {
 		storedInfo: *s,
 		pSsidCol:   ssidCol,
 	}
-	m.Resize(width, height)
 	return m
 }
 

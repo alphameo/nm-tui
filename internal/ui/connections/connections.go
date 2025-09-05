@@ -23,9 +23,9 @@ type ResizeableModel interface {
 	View() string
 }
 
-func New(width, height int) *Model {
-	wifiAvailable := NewWifiAvailable(width, height)
-	wifiStored := NewWifiStored(width, height)
+func New() *Model {
+	wifiAvailable := NewWifiAvailable()
+	wifiStored := NewWifiStored()
 	tabTables := []ResizeableModel{wifiAvailable, wifiStored}
 	tabTitles := &[]string{"Current", "Stored"}
 	m := &Model{
