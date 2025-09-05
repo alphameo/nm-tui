@@ -123,7 +123,6 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else {
 			cmd = tea.Sequence(
 				controls.Notify(msg.err.Error()),
-				controls.DeleteConnection(msg.ssid),
 			)
 		}
 		return m, tea.Sequence(cmd, SetWifiIndicatorState(None))
