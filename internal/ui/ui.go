@@ -4,14 +4,12 @@ package ui
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/alphameo/nm-tui/internal/ui/components/label"
 	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/connections"
 	"github.com/alphameo/nm-tui/internal/ui/controls"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -26,7 +24,6 @@ const (
 type Model struct {
 	state        sessionState
 	connections  connections.Model
-	timer        timer.Model
 	popup        overlay.Model
 	notification overlay.Model
 	width        int
@@ -35,7 +32,6 @@ type Model struct {
 
 func New() Model {
 	wifiTable := *connections.New()
-	timer := timer.New(time.Hour)
 	escKeys := []string{"ctrl+q", "esc", "ctrl+c"}
 	popup := *overlay.New(nil)
 	popup.Width = 100
@@ -61,7 +57,6 @@ func New() Model {
 
 func (m Model) Init() tea.Cmd {
 	return tea.Batch(
-		m.timer.Init(),
 		m.connections.Init(),
 		m.popup.Init(),
 		m.notification.Init(),
@@ -94,7 +89,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s\n%s\n state: %v", m.connections.View(), m.timer.View(), m.state)
+	fmt.Fprintf(&sb, "%s\n\n state: %v", m.connections.View(), m.state)
 	view := sb.String()
 	style := lipgloss.NewStyle().
 		BorderStyle(styles.BorderStyle).
@@ -139,10 +134,6 @@ func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 
 func (m *Model) processCommonMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
-	m.timer, cmd = m.timer.Update(msg)
-	if cmd != nil {
-		return cmd
-	}
 	var upd tea.Model
 	upd, cmd = m.connections.Update(msg)
 	m.connections = upd.(connections.Model)
