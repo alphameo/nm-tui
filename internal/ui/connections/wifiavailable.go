@@ -20,9 +20,12 @@ const (
 	Scanning wifiState = iota
 	Connecting
 	None
-	signalColWidth  int = 3
-	conFlagColWidth     = 1
-	indicatorHeight         = 1
+	signalColWidth      int     = 3
+	conFlagColWidth             = 1
+	securityWidthPart   float32 = 0.3
+	minSecurityColWidth         = 8
+	minSsidWidth                = 4
+	indicatorHeight             = 1
 )
 
 func (s *wifiState) String() string {
@@ -78,12 +81,15 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 	width -= styles.BorderOffset
 	height -= styles.BorderOffset
 	height -= indicatorHeight
+
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
-	offset := 8
-	securityWidth := 10
-	ssidWidth := width - signalColWidth - offset - conFlagColWidth - securityWidth
-	m.pSecurityCol.Width = securityWidth
+
+	tableUtilityOffset := len(m.dataTable.Columns()) * 2
+
+	security := max(int(float32(width)*securityWidthPart), minSecurityColWidth)
+	ssidWidth := width - signalColWidth - tableUtilityOffset - conFlagColWidth - security
+	m.pSecurityCol.Width = security
 	m.pSsidCol.Width = ssidWidth
 }
 
