@@ -49,6 +49,7 @@ func (m *WifiStoredModel) Resize(width, height int) {
 	computedSsidWidth := width - tableUtilityOffset - conFlagColWidth
 	ssidWidth := max(computedSsidWidth, minSsidWidth)
 	m.pSsidCol.Width = ssidWidth
+	m.dataTable.UpdateViewport()
 }
 
 func (m *WifiStoredModel) Init() tea.Cmd {
