@@ -91,6 +91,7 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 	ssidWidth := width - signalColWidth - tableUtilityOffset - conFlagColWidth - security
 	m.pSecurityCol.Width = security
 	m.pSsidCol.Width = ssidWidth
+	m.dataTable.UpdateViewport()
 }
 
 func (m *WifiAvailableModel) Init() tea.Cmd {
