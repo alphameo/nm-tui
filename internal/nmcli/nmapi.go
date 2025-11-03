@@ -127,7 +127,7 @@ func WifiGetConnected() ([]string, error) {
 		return nil, err
 	}
 	res := strings.Split(string(out), "\n")
-	logger.Informf("Got list of connetcted wifi-networks (%s %s)\n", nm, args)
+	logger.Informf("Got list of connected wifi-networks (%s %s)\n", nm, args)
 	return res, nil
 }
 
