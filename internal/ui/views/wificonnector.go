@@ -1,10 +1,10 @@
-package connections
+package views
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/alphameo/nm-tui/internal/nmcli"
+	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/controls"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -15,9 +15,10 @@ import (
 type WifiConnectorModel struct {
 	ssid     string
 	password textinput.Model
+	nm       infra.NetworkManager
 }
 
-func NewWifiConnector() *WifiConnectorModel {
+func NewWifiConnector(networkManager infra.NetworkManager) *WifiConnectorModel {
 	p := textinput.New()
 	p.Focus()
 	p.Width = 20
@@ -25,12 +26,12 @@ func NewWifiConnector() *WifiConnectorModel {
 	p.EchoMode = textinput.EchoPassword
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
-	return &WifiConnectorModel{password: p}
+	return &WifiConnectorModel{password: p, nm: networkManager}
 }
 
 func (m *WifiConnectorModel) setNew(ssid string) {
 	m.ssid = ssid
-	pw, err := nmcli.WifiGetPassword(ssid)
+	pw, err := m.nm.WifiGetPassword(ssid)
 	if err == nil {
 		m.password.SetValue(pw)
 	}
@@ -48,7 +49,7 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			pw := m.password.Value()
 			return m, tea.Sequence(
 				controls.SetPopupActivity(false),
-				WifiConnect(m.ssid, pw),
+				m.WifiConnect(m.ssid, pw),
 			)
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
@@ -72,4 +73,19 @@ func (m WifiConnectorModel) View() string {
 	sb := strings.Builder{}
 	fmt.Fprintf(&sb, "SSID: %s\n%v", m.ssid, inputField)
 	return sb.String()
+}
+
+type WifiConnectionMsg struct {
+	err  error
+	ssid string
+}
+
+func (m WifiConnectorModel) WifiConnect(ssid, password string) tea.Cmd {
+	return tea.Sequence(
+		SetWifiIndicatorState(Connecting),
+		func() tea.Msg {
+			err := m.nm.WifiConnect(ssid, password)
+			return WifiConnectionMsg{err: err, ssid: ssid}
+		},
+		SetWifiIndicatorState(None))
 }

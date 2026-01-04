@@ -1,11 +1,11 @@
-package connections
+package views
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/logger"
-	"github.com/alphameo/nm-tui/internal/nmcli"
 	"github.com/alphameo/nm-tui/internal/ui/controls"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/table"
@@ -16,9 +16,10 @@ type WifiStoredModel struct {
 	dataTable  table.Model
 	storedInfo WifiStoredInfoModel
 	pSsidCol   *table.Column
+	nm         infra.NetworkManager
 }
 
-func NewWifiStored() *WifiStoredModel {
+func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: conFlagColWidth},
 		{Title: "SSID"},
@@ -34,6 +35,7 @@ func NewWifiStored() *WifiStoredModel {
 		dataTable:  t,
 		storedInfo: *s,
 		pSsidCol:   ssidCol,
+		nm:         networkManager,
 	}
 	return m
 }
@@ -77,7 +79,12 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if cursor == len(m.dataTable.Rows())-1 {
 				m.dataTable.SetCursor(cursor - 1)
 			}
-			return m, tea.Sequence(controls.DeleteConnection(row[1]), m.UpdateRows())
+			return m, tea.Sequence(
+				func() tea.Msg {
+					m.nm.WifiDeleteConnection(row[1])
+					return nil
+				},
+				m.UpdateRows())
 		}
 	case storedRowsMsg:
 		m.dataTable.SetRows(msg)
@@ -102,7 +109,7 @@ func (m *WifiStoredModel) View() string {
 
 func (m WifiStoredModel) UpdateRows() tea.Cmd {
 	return func() tea.Msg {
-		list, err := nmcli.WifiStoredConnections()
+		list, err := m.nm.WifiStoredConnections()
 		if err != nil {
 			logger.Errln(fmt.Errorf("error: %s", err.Error()))
 		}
