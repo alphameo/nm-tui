@@ -2,7 +2,6 @@
 package controls
 
 import (
-	"github.com/alphameo/nm-tui/internal/nmcli"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -42,11 +41,4 @@ func SetNotificationActivity(isActive bool) tea.Cmd {
 
 func Notify(text string) tea.Cmd {
 	return tea.Batch(SetNotificationActivity(true), SetNotificationText(text))
-}
-
-func DeleteConnection(ssid string) tea.Cmd {
-	return func() tea.Msg {
-		nmcli.WifiDeleteConnection(ssid)
-		return nil
-	}
 }
