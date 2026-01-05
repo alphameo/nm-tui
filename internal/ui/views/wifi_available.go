@@ -6,8 +6,6 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/logger"
-	"github.com/alphameo/nm-tui/internal/ui/controls"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -64,7 +62,7 @@ func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 		table.WithColumns(cols),
 		table.WithFocused(true),
 	)
-	t.SetStyles(styles.TableStyle)
+	t.SetStyles(TableStyle)
 	s := spinner.New()
 	con := *NewWifiConnector(networkManager)
 	m := &WifiAvailableModel{
@@ -80,8 +78,8 @@ func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 }
 
 func (m *WifiAvailableModel) Resize(width, height int) {
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	width -= borderOffset
+	height -= borderOffset
 	height -= indicatorHeight
 
 	m.dataTable.SetWidth(width)
@@ -114,8 +112,8 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if row != nil {
 				m.connector.setNew(row[1])
 				return m, tea.Sequence(
-					controls.SetPopupActivity(true),
-					controls.SetPopupContent(m.connector),
+					SetPopupActivity(true),
+					SetPopupContent(m.connector),
 				)
 			}
 			return m, nil
@@ -135,7 +133,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmd = m.UpdateRows()
 		} else {
 			cmd = tea.Sequence(
-				controls.Notify(msg.err.Error()),
+				Notify(msg.err.Error()),
 			)
 		}
 		return m, tea.Sequence(cmd, SetWifiIndicatorState(None))

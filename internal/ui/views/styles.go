@@ -1,5 +1,4 @@
-// Package styles contains common styles for whole app
-package styles
+package views
 
 import (
 	"github.com/charmbracelet/bubbles/table"

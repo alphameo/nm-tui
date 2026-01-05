@@ -6,8 +6,6 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/logger"
-	"github.com/alphameo/nm-tui/internal/ui/controls"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -29,7 +27,7 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 		table.WithColumns(cols),
 		table.WithFocused(true),
 	)
-	t.SetStyles(styles.TableStyle)
+	t.SetStyles(TableStyle)
 	s := NewStoredInfoModel()
 	m := &WifiStoredModel{
 		dataTable:  t,
@@ -41,8 +39,8 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 }
 
 func (m *WifiStoredModel) Resize(width, height int) {
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	width -= borderOffset
+	height -= borderOffset
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 
@@ -68,7 +66,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			row := m.dataTable.SelectedRow()
 			if row != nil {
 				m.storedInfo.setNew(row[1])
-				return m, tea.Sequence(controls.SetPopupActivity(true), controls.SetPopupContent(m.storedInfo))
+				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(m.storedInfo))
 			}
 			return m, nil
 		case "r":

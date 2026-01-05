@@ -1,5 +1,4 @@
-// Package controls provides simple public controls of main ui
-package controls
+package views
 
 import (
 	tea "github.com/charmbracelet/bubbletea"

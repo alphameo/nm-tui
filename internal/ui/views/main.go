@@ -8,8 +8,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/label"
 	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
-	"github.com/alphameo/nm-tui/internal/ui/controls"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -20,6 +18,8 @@ const (
 	wifiView sessionState = iota
 	timerView
 	stateViewHeight int = 2
+	borderOffset    int = 2
+	tabBarHeight    int = 3
 )
 
 type MainModel struct {
@@ -68,16 +68,16 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
-	case controls.PopupContentMsg:
+	case PopupContentMsg:
 		m.popup.Content = msg
 		return m, m.popup.Content.Init()
-	case controls.PopupActivityMsg:
+	case PopupActivityMsg:
 		m.popup.IsActive = bool(msg)
 		return m, nil
-	case controls.NotificationTextMsg:
+	case NotificationTextMsg:
 		m.notification.Content = label.New(string(msg))
 		return m, nil
-	case controls.NotificationActivityMsg:
+	case NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)
 		return m, nil
 	case tea.KeyMsg:
@@ -89,8 +89,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *MainModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	width -= borderOffset
+	height -= borderOffset
 	height -= stateViewHeight
 	m.connections.Resize(width, height)
 }
@@ -100,16 +100,16 @@ func (m MainModel) View() string {
 	fmt.Fprintf(&sb, "%s\n\n state: %v", m.connections.View(), m.state)
 	view := sb.String()
 	style := lipgloss.NewStyle().
-		BorderStyle(styles.BorderStyle).
-		Width(m.width - styles.BorderOffset).
-		Height(m.height - styles.BorderOffset)
+		BorderStyle(BorderStyle).
+		Width(m.width - borderOffset).
+		Height(m.height - borderOffset)
 	view = style.Render(view)
 
 	if m.popup.IsActive {
-		view = m.popup.Place(view, styles.OverlayStyle)
+		view = m.popup.Place(view, OverlayStyle)
 	}
 	if m.notification.IsActive {
-		view = m.notification.Place(view, styles.OverlayStyle)
+		view = m.notification.Place(view, OverlayStyle)
 	}
 	return view
 }

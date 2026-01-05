@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -37,7 +36,7 @@ func NewConnectionsModel(networkManager infra.NetworkManager) *ConnectionsModel 
 }
 
 func (m *ConnectionsModel) Resize(width, height int) {
-	height -= styles.TabBarHeight
+	height -= tabBarHeight
 	for _, t := range m.tabTables {
 		t.Resize(width, height)
 	}
@@ -71,14 +70,14 @@ func (m ConnectionsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m ConnectionsModel) View() string {
 	view := m.tabTables[m.activeTab].View()
-	tabBar := styles.ConstructTabBar(
+	tabBar := ConstructTabBar(
 		m.tabTitles,
-		styles.ActiveTabStyle,
-		styles.InactiveTabStyle,
+		ActiveTabStyle,
+		InactiveTabStyle,
 		lipgloss.Width(view)+2,
 		m.activeTab,
 	)
-	borderStyle := styles.BorderStyle
+	borderStyle := BorderStyle
 	borderStyle.Top = ""
 	borderStyle.TopLeft = "│"
 	borderStyle.TopRight = "│"
