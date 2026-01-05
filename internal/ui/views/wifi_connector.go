@@ -29,7 +29,7 @@ func NewWifiConnector(networkManager infra.NetworkManager) *WifiConnectorModel {
 
 func (m *WifiConnectorModel) setNew(ssid string) {
 	m.ssid = ssid
-	pw, err := m.nm.WifiGetPassword(ssid)
+	pw, err := m.nm.GetWifiPassword(ssid)
 	if err == nil {
 		m.password.SetValue(pw)
 	}
@@ -82,7 +82,7 @@ func (m WifiConnectorModel) WifiConnect(ssid, password string) tea.Cmd {
 	return tea.Sequence(
 		SetWifiIndicatorState(Connecting),
 		func() tea.Msg {
-			err := m.nm.WifiConnect(ssid, password)
+			err := m.nm.ConnectWifi(ssid, password)
 			return WifiConnectionMsg{err: err, ssid: ssid}
 		},
 		SetWifiIndicatorState(None))

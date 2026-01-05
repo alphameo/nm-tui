@@ -79,7 +79,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, tea.Sequence(
 				func() tea.Msg {
-					m.nm.WifiDeleteConnection(row[1])
+					m.nm.DeleteWifiConnection(row[1])
 					return nil
 				},
 				m.UpdateRows())
@@ -107,7 +107,7 @@ func (m *WifiStoredModel) View() string {
 
 func (m WifiStoredModel) UpdateRows() tea.Cmd {
 	return func() tea.Msg {
-		list, err := m.nm.WifiStoredConnections()
+		list, err := m.nm.GetStoredWifi()
 		if err != nil {
 			logger.Errln(fmt.Errorf("error: %s", err.Error()))
 		}
