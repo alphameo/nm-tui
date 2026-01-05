@@ -1,16 +1,15 @@
-// Package connections provides tabbed tables with main iformation about variable connections
-package connections
+package views
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/infra"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-type Model struct {
+type ConnectionsModel struct {
 	tabTables []ResizeableModel
 	tabTitles []string
 	activeTab int
@@ -23,12 +22,12 @@ type ResizeableModel interface {
 	View() string
 }
 
-func New() *Model {
-	wifiAvailable := NewWifiAvailable()
-	wifiStored := NewWifiStored()
+func NewConnectionsModel(networkManager infra.NetworkManager) *ConnectionsModel {
+	wifiAvailable := NewWifiAvailable(networkManager)
+	wifiStored := NewWifiStored(networkManager)
 	tabTables := []ResizeableModel{wifiAvailable, wifiStored}
 	tabTitles := &[]string{"Current", "Stored"}
-	m := &Model{
+	m := &ConnectionsModel{
 		tabTables: tabTables,
 		tabTitles: *tabTitles,
 		activeTab: 0,
@@ -36,14 +35,14 @@ func New() *Model {
 	return m
 }
 
-func (m *Model) Resize(width, height int) {
-	height -= styles.TabBarHeight
+func (m *ConnectionsModel) Resize(width, height int) {
+	height -= tabBarHeight
 	for _, t := range m.tabTables {
 		t.Resize(width, height)
 	}
 }
 
-func (m Model) Init() tea.Cmd {
+func (m ConnectionsModel) Init() tea.Cmd {
 	var cmds []tea.Cmd
 	for _, t := range m.tabTables {
 		cmds = append(cmds, t.Init())
@@ -51,7 +50,7 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m ConnectionsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -69,16 +68,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) View() string {
+func (m ConnectionsModel) View() string {
 	view := m.tabTables[m.activeTab].View()
-	tabBar := styles.ConstructTabBar(
+	tabBar := ConstructTabBar(
 		m.tabTitles,
-		styles.ActiveTabStyle,
-		styles.InactiveTabStyle,
+		ActiveTabStyle,
+		InactiveTabStyle,
 		lipgloss.Width(view)+2,
 		m.activeTab,
 	)
-	borderStyle := styles.BorderStyle
+	borderStyle := BorderStyle
 	borderStyle.Top = ""
 	borderStyle.TopLeft = "│"
 	borderStyle.TopRight = "│"

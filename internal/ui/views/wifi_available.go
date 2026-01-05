@@ -1,13 +1,11 @@
-package connections
+package views
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/logger"
-	"github.com/alphameo/nm-tui/internal/nmcli"
-	"github.com/alphameo/nm-tui/internal/ui/controls"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -48,9 +46,10 @@ type WifiAvailableModel struct {
 	connector        WifiConnectorModel
 	pSsidCol         *table.Column
 	pSecurityCol     *table.Column
+	nm               infra.NetworkManager
 }
 
-func NewWifiAvailable() *WifiAvailableModel {
+func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: conFlagColWidth},
 		{Title: "SSID"},
@@ -63,9 +62,9 @@ func NewWifiAvailable() *WifiAvailableModel {
 		table.WithColumns(cols),
 		table.WithFocused(true),
 	)
-	t.SetStyles(styles.TableStyle)
+	t.SetStyles(TableStyle)
 	s := spinner.New()
-	con := *NewWifiConnector()
+	con := *NewWifiConnector(networkManager)
 	m := &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
@@ -73,13 +72,14 @@ func NewWifiAvailable() *WifiAvailableModel {
 		connector:        con,
 		pSsidCol:         ssidCol,
 		pSecurityCol:     securityCol,
+		nm:               networkManager,
 	}
 	return m
 }
 
 func (m *WifiAvailableModel) Resize(width, height int) {
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	width -= borderOffset
+	height -= borderOffset
 	height -= indicatorHeight
 
 	m.dataTable.SetWidth(width)
@@ -112,8 +112,8 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if row != nil {
 				m.connector.setNew(row[1])
 				return m, tea.Sequence(
-					controls.SetPopupActivity(true),
-					controls.SetPopupContent(m.connector),
+					SetPopupActivity(true),
+					SetPopupContent(m.connector),
 				)
 			}
 			return m, nil
@@ -133,7 +133,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmd = m.UpdateRows()
 		} else {
 			cmd = tea.Sequence(
-				controls.Notify(msg.err.Error()),
+				Notify(msg.err.Error()),
 			)
 		}
 		return m, tea.Sequence(cmd, SetWifiIndicatorState(None))
@@ -175,7 +175,7 @@ func (m WifiAvailableModel) UpdateRows() tea.Cmd {
 	return tea.Sequence(
 		SetWifiIndicatorState(Scanning),
 		func() tea.Msg {
-			list, err := nmcli.WifiScan()
+			list, err := m.nm.ScanWifi()
 			if err != nil {
 				logger.Errln(fmt.Errorf("error: %s", err.Error()))
 			}
@@ -198,19 +198,4 @@ func SetWifiIndicatorState(state wifiState) tea.Cmd {
 	return func() tea.Msg {
 		return WifiIndicatorStateMsg(state)
 	}
-}
-
-type WifiConnectionMsg struct {
-	err  error
-	ssid string
-}
-
-func WifiConnect(ssid, password string) tea.Cmd {
-	return tea.Sequence(
-		SetWifiIndicatorState(Connecting),
-		func() tea.Msg {
-			err := nmcli.WifiConnect(ssid, password)
-			return WifiConnectionMsg{err: err, ssid: ssid}
-		},
-		SetWifiIndicatorState(None))
 }

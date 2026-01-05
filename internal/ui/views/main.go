@@ -1,15 +1,13 @@
-// Package ui contains Model, which represents main window of TUI
-package ui
+// Package views provides various view models
+package views
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/label"
 	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
-	"github.com/alphameo/nm-tui/internal/ui/connections"
-	"github.com/alphameo/nm-tui/internal/ui/controls"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -20,19 +18,21 @@ const (
 	wifiView sessionState = iota
 	timerView
 	stateViewHeight int = 2
+	borderOffset    int = 2
+	tabBarHeight    int = 3
 )
 
-type Model struct {
+type MainModel struct {
 	state        sessionState
-	connections  connections.Model
+	connections  ConnectionsModel
 	popup        overlay.Model
 	notification overlay.Model
 	width        int
 	height       int
 }
 
-func New() Model {
-	wifiTable := *connections.New()
+func NewMainModel(networkManager infra.NetworkManager) MainModel {
+	wifiTable := *NewConnectionsModel(networkManager)
 	escKeys := []string{"ctrl+q", "esc", "ctrl+c"}
 	popup := *overlay.New(nil)
 	popup.Width = 100
@@ -46,7 +46,7 @@ func New() Model {
 	notification.Width = 100
 	notification.Height = 10
 	notification.EscapeKeys = escKeys
-	m := Model{
+	m := MainModel{
 		connections:  wifiTable,
 		popup:        popup,
 		notification: notification,
@@ -55,7 +55,7 @@ func New() Model {
 	return m
 }
 
-func (m Model) Init() tea.Cmd {
+func (m MainModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.connections.Init(),
 		m.popup.Init(),
@@ -63,21 +63,21 @@ func (m Model) Init() tea.Cmd {
 	)
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
-	case controls.PopupContentMsg:
+	case PopupContentMsg:
 		m.popup.Content = msg
 		return m, m.popup.Content.Init()
-	case controls.PopupActivityMsg:
+	case PopupActivityMsg:
 		m.popup.IsActive = bool(msg)
 		return m, nil
-	case controls.NotificationTextMsg:
+	case NotificationTextMsg:
 		m.notification.Content = label.New(string(msg))
 		return m, nil
-	case controls.NotificationActivityMsg:
+	case NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)
 		return m, nil
 	case tea.KeyMsg:
@@ -86,35 +86,35 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, m.processCommonMsg(msg)
 }
 
-func (m *Model) Resize(width, height int) {
+func (m *MainModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	width -= borderOffset
+	height -= borderOffset
 	height -= stateViewHeight
 	m.connections.Resize(width, height)
 }
 
-func (m Model) View() string {
+func (m MainModel) View() string {
 	sb := strings.Builder{}
 	fmt.Fprintf(&sb, "%s\n\n state: %v", m.connections.View(), m.state)
 	view := sb.String()
 	style := lipgloss.NewStyle().
-		BorderStyle(styles.BorderStyle).
-		Width(m.width - styles.BorderOffset).
-		Height(m.height - styles.BorderOffset)
+		BorderStyle(BorderStyle).
+		Width(m.width - borderOffset).
+		Height(m.height - borderOffset)
 	view = style.Render(view)
 
 	if m.popup.IsActive {
-		view = m.popup.Place(view, styles.OverlayStyle)
+		view = m.popup.Place(view, OverlayStyle)
 	}
 	if m.notification.IsActive {
-		view = m.notification.Place(view, styles.OverlayStyle)
+		view = m.notification.Place(view, OverlayStyle)
 	}
 	return view
 }
 
-func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
+func (m *MainModel) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	if m.notification.IsActive {
 		upd, cmd := m.notification.Update(keyMsg)
 		m.notification = upd.(overlay.Model)
@@ -136,15 +136,15 @@ func (m *Model) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 		return nil
 	}
 	upd, cmd := m.connections.Update(keyMsg)
-	m.connections = upd.(connections.Model)
+	m.connections = upd.(ConnectionsModel)
 	return cmd
 }
 
-func (m *Model) processCommonMsg(msg tea.Msg) tea.Cmd {
+func (m *MainModel) processCommonMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var upd tea.Model
 	upd, cmd = m.connections.Update(msg)
-	m.connections = upd.(connections.Model)
+	m.connections = upd.(ConnectionsModel)
 	if cmd != nil {
 		return cmd
 	}
