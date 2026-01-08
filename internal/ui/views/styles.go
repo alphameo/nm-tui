@@ -6,7 +6,10 @@ import (
 )
 
 var (
+	TextColor         = lipgloss.Color("#ffffff")
+	AccentColor       = lipgloss.Color("99")
 	BorderStyle       = lipgloss.RoundedBorder()
+	DividerColor      = lipgloss.Color("240")
 	TableStyle        = makeTableStyle()
 	InactiveTabBorder = makeTabBorderWithBottom("┴", "─", "┴")
 	ActiveTabBorder   = makeTabBorderWithBottom("┘", " ", "└")
@@ -15,19 +18,19 @@ var (
 	OverlayStyle      = lipgloss.NewStyle().
 				Border(lipgloss.RoundedBorder()).
 				Align(lipgloss.Center, lipgloss.Center).
-				Foreground(lipgloss.Color("#ffffff"))
+				Foreground(TextColor)
 )
 
 func makeTableStyle() table.Styles {
 	style := table.DefaultStyles()
 	style.Header = style.Header.
 		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("240")).
+		BorderForeground(DividerColor).
 		BorderBottom(true).
 		Bold(false)
 	style.Selected = style.Selected.
-		Foreground(lipgloss.Color("229")).
-		Background(lipgloss.Color("57")).
+		Foreground(TextColor).
+		Background(AccentColor).
 		Bold(false)
 	return style
 }

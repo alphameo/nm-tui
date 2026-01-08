@@ -85,9 +85,9 @@ func (m *WifiModel) View() string {
 		Height(m.stored.height)
 
 	if m.winIndex == 0 {
-		availableStyle = availableStyle.BorderForeground(lipgloss.Color("63"))
+		availableStyle = availableStyle.BorderForeground(AccentColor)
 	} else {
-		storedStyle = storedStyle.BorderForeground(lipgloss.Color("63"))
+		storedStyle = storedStyle.BorderForeground(AccentColor)
 	}
 
 	sb := strings.Builder{}
