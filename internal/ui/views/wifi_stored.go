@@ -15,6 +15,8 @@ type WifiStoredModel struct {
 	storedInfo WifiStoredInfoModel
 	pSsidCol   *table.Column
 	nm         infra.NetworkManager
+	width      int
+	height     int
 }
 
 func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
@@ -39,8 +41,8 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 }
 
 func (m *WifiStoredModel) Resize(width, height int) {
-	width -= borderOffset
-	height -= borderOffset
+	m.width = width
+	m.height = height
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 

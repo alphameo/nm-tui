@@ -9,7 +9,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/components/label"
 	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type sessionState uint
@@ -17,14 +16,14 @@ type sessionState uint
 const (
 	wifiView sessionState = iota
 	timerView
-	stateViewHeight int = 2
+	stateViewHeight int = 1
 	borderOffset    int = 2
 	tabBarHeight    int = 3
 )
 
 type MainModel struct {
 	state        sessionState
-	connections  ConnectionsModel
+	tabs         TabsModel
 	popup        overlay.Model
 	notification overlay.Model
 	width        int
@@ -47,17 +46,17 @@ func NewMainModel(networkManager infra.NetworkManager) MainModel {
 	notification.Height = 10
 	notification.EscapeKeys = escKeys
 	m := MainModel{
-		connections:  wifiTable,
+		tabs:         wifiTable,
 		popup:        popup,
 		notification: notification,
 	}
-	m.connections.Resize(51, 20)
+	m.tabs.Resize(51, 20)
 	return m
 }
 
 func (m MainModel) Init() tea.Cmd {
 	return tea.Batch(
-		m.connections.Init(),
+		m.tabs.Init(),
 		m.popup.Init(),
 		m.notification.Init(),
 	)
@@ -89,21 +88,16 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *MainModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
-	width -= borderOffset
-	height -= borderOffset
+
 	height -= stateViewHeight
-	m.connections.Resize(width, height)
+
+	m.tabs.Resize(width, height)
 }
 
 func (m MainModel) View() string {
 	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s\n\n state: %v", m.connections.View(), m.state)
+	fmt.Fprintf(&sb, "%s\n state: %v", m.tabs.View(), m.state)
 	view := sb.String()
-	style := lipgloss.NewStyle().
-		BorderStyle(BorderStyle).
-		Width(m.width - borderOffset).
-		Height(m.height - borderOffset)
-	view = style.Render(view)
 
 	if m.popup.IsActive {
 		view = m.popup.Place(view, OverlayStyle)
@@ -135,16 +129,16 @@ func (m *MainModel) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 		}
 		return nil
 	}
-	upd, cmd := m.connections.Update(keyMsg)
-	m.connections = upd.(ConnectionsModel)
+	upd, cmd := m.tabs.Update(keyMsg)
+	m.tabs = upd.(TabsModel)
 	return cmd
 }
 
 func (m *MainModel) processCommonMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var upd tea.Model
-	upd, cmd = m.connections.Update(msg)
-	m.connections = upd.(ConnectionsModel)
+	upd, cmd = m.tabs.Update(msg)
+	m.tabs = upd.(TabsModel)
 	if cmd != nil {
 		return cmd
 	}

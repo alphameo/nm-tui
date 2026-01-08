@@ -47,6 +47,8 @@ type WifiAvailableModel struct {
 	pSsidCol         *table.Column
 	pSecurityCol     *table.Column
 	nm               infra.NetworkManager
+	width            int
+	height           int
 }
 
 func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
@@ -78,8 +80,9 @@ func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 }
 
 func (m *WifiAvailableModel) Resize(width, height int) {
-	width -= borderOffset
-	height -= borderOffset
+	m.width = width
+	m.height = height
+
 	height -= indicatorHeight
 
 	m.dataTable.SetWidth(width)
