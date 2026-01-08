@@ -9,25 +9,24 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type ConnectionsModel struct {
+type TabsModel struct {
 	tabTables []ResizeableModel
 	tabTitles []string
 	activeTab int
+	width     int
+	height    int
 }
 
 type ResizeableModel interface {
+	tea.Model
 	Resize(width, height int)
-	Init() tea.Cmd
-	Update(tea.Msg) (tea.Model, tea.Cmd)
-	View() string
 }
 
-func NewConnectionsModel(networkManager infra.NetworkManager) *ConnectionsModel {
-	wifiAvailable := NewWifiAvailable(networkManager)
-	wifiStored := NewWifiStored(networkManager)
-	tabTables := []ResizeableModel{wifiAvailable, wifiStored}
-	tabTitles := &[]string{"Current", "Stored"}
-	m := &ConnectionsModel{
+func NewConnectionsModel(networkManager infra.NetworkManager) *TabsModel {
+	wifi := NewWifiModel(networkManager)
+	tabTables := []ResizeableModel{wifi, wifi}
+	tabTitles := &[]string{"Wi-Fi", "VPN"}
+	m := &TabsModel{
 		tabTables: tabTables,
 		tabTitles: *tabTitles,
 		activeTab: 0,
@@ -35,14 +34,16 @@ func NewConnectionsModel(networkManager infra.NetworkManager) *ConnectionsModel 
 	return m
 }
 
-func (m *ConnectionsModel) Resize(width, height int) {
+func (m *TabsModel) Resize(width, height int) {
+	m.width = width
+	m.height = height
 	height -= tabBarHeight
 	for _, t := range m.tabTables {
 		t.Resize(width, height)
 	}
 }
 
-func (m ConnectionsModel) Init() tea.Cmd {
+func (m TabsModel) Init() tea.Cmd {
 	var cmds []tea.Cmd
 	for _, t := range m.tabTables {
 		cmds = append(cmds, t.Init())
@@ -50,14 +51,14 @@ func (m ConnectionsModel) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m ConnectionsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "]", "tab":
+		case "]":
 			m.activeTab = min(m.activeTab+1, len(m.tabTitles)-1)
 			return m, m.tabTables[m.activeTab].Init()
-		case "[", "shift+tab":
+		case "[":
 			m.activeTab = max(m.activeTab-1, 0)
 			return m, m.tabTables[m.activeTab].Init()
 		}
@@ -68,7 +69,7 @@ func (m ConnectionsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m ConnectionsModel) View() string {
+func (m TabsModel) View() string {
 	view := m.tabTables[m.activeTab].View()
 	tabBar := ConstructTabBar(
 		m.tabTitles,
