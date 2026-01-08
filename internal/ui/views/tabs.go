@@ -37,7 +37,12 @@ func NewConnectionsModel(networkManager infra.NetworkManager) *TabsModel {
 func (m *TabsModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
+
+	width -= borderOffset
+	height -= borderOffset
+
 	height -= tabBarHeight
+
 	for _, t := range m.tabTables {
 		t.Resize(width, height)
 	}

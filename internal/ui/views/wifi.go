@@ -1,6 +1,9 @@
 package views
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/alphameo/nm-tui/internal/infra"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -71,22 +74,30 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *WifiModel) View() string {
-	defaultStyle := lipgloss.NewStyle().
+	availableStyle := lipgloss.NewStyle().
 		BorderStyle(BorderStyle).
 		Width(m.available.width).
 		Height(m.available.height)
 
-	selectedStyle := defaultStyle.BorderForeground(lipgloss.Color("63"))
-	var viewAvailable, viewStored string
+	storedStyle := lipgloss.NewStyle().
+		BorderStyle(BorderStyle).
+		Width(m.stored.width).
+		Height(m.stored.height)
+
 	if m.winIndex == 0 {
-		viewAvailable = selectedStyle.Render(m.available.View())
-		viewStored = defaultStyle.Render(m.stored.View())
+		availableStyle = availableStyle.BorderForeground(lipgloss.Color("63"))
 	} else {
-		viewAvailable = defaultStyle.Render(m.available.View())
-		viewStored = selectedStyle.Render(m.stored.View())
+		storedStyle = storedStyle.BorderForeground(lipgloss.Color("63"))
 	}
 
-	return viewAvailable + "\n" + viewStored
+	sb := strings.Builder{}
+	fmt.Fprintf(
+		&sb,
+		"%s\n%s",
+		availableStyle.Render(m.available.View()),
+		storedStyle.Render(m.stored.View()),
+	)
+	return sb.String()
 }
 
 func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {

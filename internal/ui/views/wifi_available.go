@@ -80,9 +80,6 @@ func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 }
 
 func (m *WifiAvailableModel) Resize(width, height int) {
-	width -= borderOffset
-	height -= borderOffset
-
 	m.width = width
 	m.height = height
 

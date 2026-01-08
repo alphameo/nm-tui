@@ -41,9 +41,6 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 }
 
 func (m *WifiStoredModel) Resize(width, height int) {
-	width -= borderOffset
-	height -= borderOffset
-
 	m.width = width
 	m.height = height
 	m.dataTable.SetWidth(width)

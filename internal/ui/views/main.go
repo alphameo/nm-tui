@@ -88,7 +88,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *MainModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
+
 	height -= stateViewHeight
+
 	m.tabs.Resize(width, height)
 }
 
