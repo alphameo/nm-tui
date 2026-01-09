@@ -1,6 +1,9 @@
 package views
 
 import (
+	"fmt"
+
+	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -84,4 +87,13 @@ func ConstructTabBar(
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
+}
+
+func ApplyStyleWithTitle(view, title, keybind string, style lipgloss.Style) string {
+	styledView := style.Render(view)
+	inlineTitle := fmt.Sprintf("%s%s",
+		lipgloss.NewStyle().Foreground(style.GetBorderTopForeground()).Render(fmt.Sprintf("[%s]%s", keybind, style.GetBorderStyle().Top)),
+		lipgloss.NewStyle().Foreground(AccentColor).Render(title),
+	)
+	return overlay.Compose(inlineTitle, styledView, overlay.Begin, overlay.Begin, 2, 0)
 }

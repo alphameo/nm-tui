@@ -52,6 +52,10 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "tab":
 			m.winIndex = (m.winIndex + 1) % maxWindows
+		case "1":
+			m.winIndex = 0
+		case "2":
+			m.winIndex = 1
 		default:
 			cmd := m.handleKeyMsg(msg)
 			return m, cmd
@@ -90,12 +94,26 @@ func (m *WifiModel) View() string {
 		storedStyle = storedStyle.BorderForeground(AccentColor)
 	}
 
+	availableView := ApplyStyleWithTitle(
+		m.available.View(),
+		"Available Wi-Fi",
+		"1",
+		availableStyle,
+	)
+
+	storedView := ApplyStyleWithTitle(
+		m.stored.View(),
+		"Stored Wi-Fi",
+		"2",
+		storedStyle,
+	)
+
 	sb := strings.Builder{}
 	fmt.Fprintf(
 		&sb,
 		"%s\n%s",
-		availableStyle.Render(m.available.View()),
-		storedStyle.Render(m.stored.View()),
+		availableView,
+		storedView,
 	)
 	return sb.String()
 }
