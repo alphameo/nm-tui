@@ -24,8 +24,8 @@ const (
 type MainModel struct {
 	state        sessionState
 	tabs         TabsModel
-	popup        overlay.Model
-	notification overlay.Model
+	popup        FloatingModel
+	notification FloatingModel
 	width        int
 	height       int
 }
@@ -33,13 +33,13 @@ type MainModel struct {
 func NewMainModel(networkManager infra.NetworkManager) MainModel {
 	wifiTable := *NewConnectionsModel(networkManager)
 	escKeys := []string{"ctrl+q", "esc", "ctrl+c"}
-	popup := *overlay.New(nil, "")
+	popup := *NewFloatingModel(nil, "")
 	popup.Width = 100
 	popup.Height = 10
 	popup.XAnchor = overlay.Center
 	popup.YAnchor = overlay.Center
 	popup.EscapeKeys = escKeys
-	notification := *overlay.New(nil, "Notification")
+	notification := *NewFloatingModel(nil, "Notification")
 	notification.XAnchor = overlay.Center
 	notification.YAnchor = overlay.Center
 	notification.Width = 100
@@ -112,11 +112,11 @@ func (m MainModel) View() string {
 func (m *MainModel) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	if m.notification.IsActive {
 		upd, cmd := m.notification.Update(keyMsg)
-		m.notification = upd.(overlay.Model)
+		m.notification = upd.(FloatingModel)
 		return cmd
 	} else if m.popup.IsActive {
 		upd, cmd := m.popup.Update(keyMsg)
-		m.popup = upd.(overlay.Model)
+		m.popup = upd.(FloatingModel)
 		return cmd
 	}
 	switch keyMsg.String() {
@@ -145,17 +145,58 @@ func (m *MainModel) processCommonMsg(msg tea.Msg) tea.Cmd {
 	}
 	if m.notification.IsActive {
 		upd, cmd = m.notification.Update(msg)
-		m.notification = upd.(overlay.Model)
+		m.notification = upd.(FloatingModel)
 		if cmd != nil {
 			return cmd
 		}
 	}
 	if m.popup.IsActive {
 		upd, cmd = m.popup.Update(msg)
-		m.popup = upd.(overlay.Model)
+		m.popup = upd.(FloatingModel)
 		if cmd != nil {
 			return cmd
 		}
 	}
 	return nil
+}
+
+type (
+	PopupContentMsg struct {
+		model tea.Model
+		title string
+	}
+	PopupActivityMsg bool
+)
+
+func SetPopupContent(content tea.Model, title string) tea.Cmd {
+	return func() tea.Msg {
+		return PopupContentMsg{content, title}
+	}
+}
+
+func SetPopupActivity(isActive bool) tea.Cmd {
+	return func() tea.Msg {
+		return PopupActivityMsg(isActive)
+	}
+}
+
+type (
+	NotificationTextMsg     string
+	NotificationActivityMsg bool
+)
+
+func SetNotificationText(text string) tea.Cmd {
+	return func() tea.Msg {
+		return NotificationTextMsg(text)
+	}
+}
+
+func SetNotificationActivity(isActive bool) tea.Cmd {
+	return func() tea.Msg {
+		return NotificationActivityMsg(isActive)
+	}
+}
+
+func Notify(text string) tea.Cmd {
+	return tea.Batch(SetNotificationActivity(true), SetNotificationText(text))
 }

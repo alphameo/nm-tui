@@ -7,6 +7,14 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
+type Anchor int
+
+const (
+	Begin Anchor = iota
+	Center
+	End
+)
+
 func resolvePos(fgW, fgH, bgW, bgH int, XAnch, YAnch Anchor, xOffset, yOffset int) (int, int) {
 	var xPos, yPos int
 	switch XAnch {
