@@ -5,13 +5,16 @@ import (
 )
 
 type (
-	PopupContentMsg  tea.Model
+	PopupContentMsg struct {
+		model tea.Model
+		title string
+	}
 	PopupActivityMsg bool
 )
 
-func SetPopupContent(content tea.Model) tea.Cmd {
+func SetPopupContent(content tea.Model, title string) tea.Cmd {
 	return func() tea.Msg {
-		return PopupContentMsg(content)
+		return PopupContentMsg{content, title}
 	}
 }
 

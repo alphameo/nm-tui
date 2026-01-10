@@ -68,7 +68,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			row := m.dataTable.SelectedRow()
 			if row != nil {
 				m.storedInfo.setNew(row[1])
-				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(m.storedInfo))
+				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(m.storedInfo, "Stored Wi-Fi info"))
 			}
 			return m, nil
 		case "r":

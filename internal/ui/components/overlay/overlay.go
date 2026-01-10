@@ -2,6 +2,7 @@
 package overlay
 
 import (
+	"fmt"
 	"slices"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,6 +28,7 @@ type Model struct {
 	XOffset    int       // Counts from the `XAnchor` (Default: `0`)
 	YOffset    int       // Counts from the `YAnchor` (Default: `0`)
 	EscapeKeys []string  // Keycombinations for close
+	Title      string
 }
 
 func (m Model) Init() tea.Cmd {
@@ -56,9 +58,10 @@ func (m Model) View() string {
 	return m.Content.View()
 }
 
-func New(content tea.Model) *Model {
+func New(content tea.Model, title string) *Model {
 	return &Model{
 		Content: content,
+		Title:   title,
 	}
 }
 
@@ -69,5 +72,12 @@ func (m *Model) Place(bg string, fgStyle lipgloss.Style) string {
 	if m.Height > 0 {
 		fgStyle = fgStyle.Height(m.Height)
 	}
-	return Compose(fgStyle.Render(m.View()), bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
+
+	fg := fgStyle.Render(m.View())
+	title := lipgloss.NewStyle().
+		Foreground(fgStyle.GetBorderTopForeground()).
+		Render(fmt.Sprintf("[ %s ]", m.Title))
+
+	fg = Compose(title, fg, Center, Begin, 0, 0)
+	return Compose(fg, bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
 }

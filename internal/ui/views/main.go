@@ -33,13 +33,13 @@ type MainModel struct {
 func NewMainModel(networkManager infra.NetworkManager) MainModel {
 	wifiTable := *NewConnectionsModel(networkManager)
 	escKeys := []string{"ctrl+q", "esc", "ctrl+c"}
-	popup := *overlay.New(nil)
+	popup := *overlay.New(nil, "")
 	popup.Width = 100
 	popup.Height = 10
 	popup.XAnchor = overlay.Center
 	popup.YAnchor = overlay.Center
 	popup.EscapeKeys = escKeys
-	notification := *overlay.New(nil)
+	notification := *overlay.New(nil, "Notification")
 	notification.XAnchor = overlay.Center
 	notification.YAnchor = overlay.Center
 	notification.Width = 100
@@ -68,7 +68,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
 	case PopupContentMsg:
-		m.popup.Content = msg
+		m.popup.Content = msg.model
+		m.popup.Title = msg.title
 		return m, m.popup.Content.Init()
 	case PopupActivityMsg:
 		m.popup.IsActive = bool(msg)

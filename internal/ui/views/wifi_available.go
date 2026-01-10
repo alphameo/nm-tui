@@ -116,7 +116,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.connector.setNew(row[1])
 				return m, tea.Sequence(
 					SetPopupActivity(true),
-					SetPopupContent(m.connector),
+					SetPopupContent(m.connector, "Wi-Fi Connector"),
 				)
 			}
 			return m, nil
