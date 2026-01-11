@@ -179,7 +179,7 @@ func (m WifiAvailableModel) UpdateRows() tea.Cmd {
 	return tea.Sequence(
 		SetWifiIndicatorState(Scanning),
 		func() tea.Msg {
-			list, err := m.nm.ScanWifi()
+			list, err := m.nm.GetAvailableWifi()
 			if err != nil {
 				logger.Errln(fmt.Errorf("error: %s", err.Error()))
 			}

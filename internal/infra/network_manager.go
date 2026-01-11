@@ -22,8 +22,8 @@ type WifiInfo struct {
 }
 
 type NetworkManager interface {
-	// ScanWifi shows list of wifi-networks able to be connected
-	ScanWifi() ([]*WifiScanned, error)
+	// GetAvailableWifi shows list of wifi-networks able to be connected
+	GetAvailableWifi() ([]*WifiScanned, error)
 
 	// GetStoredWifi shows list of stored connections and highlights the active one
 	GetStoredWifi() ([]*WifiStored, error)
