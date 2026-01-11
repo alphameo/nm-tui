@@ -21,6 +21,13 @@ type WifiInfo struct {
 	AutoconnectPriority int
 }
 
+type UpdateWifiInfo struct {
+	ID                  string
+	Password            string
+	Autoconnect         bool
+	AutoconnectPriority int
+}
+
 type NetworkManager interface {
 	// GetAvailableWifi shows list of wifi-networks able to be connected.
 	GetAvailableWifi() ([]*WifiScanned, error)
@@ -46,8 +53,8 @@ type NetworkManager interface {
 	// GetWifiInfo gives information about saved wifi-network with given name.
 	GetWifiInfo(name string) (*WifiInfo, error)
 
-	UpdateWifiInfo(info *WifiInfo) error
 	// UpdateWifiInfo updates information about wifi-network with given name.
+	UpdateWifiInfo(name string, info *UpdateWifiInfo) error
 
 	// DeleteWifiConnection removes wifi-network with given name from saved connections.
 	DeleteWifiConnection(name string) error

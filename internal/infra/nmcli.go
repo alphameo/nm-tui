@@ -185,6 +185,67 @@ func (Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
 	}, nil
 }
 
+// UpdateWifiInfo is not atomic
+func (n Nmcli) UpdateWifiInfo(id string, info *UpdateWifiInfo) error {
+	err := n.updateWifiID(id, info.ID)
+	if err != nil {
+		return err
+	}
+
+	err = n.updateWifiPassword(id, info.Password)
+	if err != nil {
+		return err
+	}
+
+	err = n.updateWifiAutoconnect(id, info.Autoconnect)
+	if err != nil {
+		return err
+	}
+
+	err = n.updateWifiAutoconnectPriority(id, info.AutoconnectPriority)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (Nmcli) updateWifiInfoField(id, field, value string) error {
+	// CMD: nmcli connection modify "<ID>" "<field>" "<value>"
+	args := []string{"connection", "modify", id, field, value}
+	out, err := exec.Command(nmcliCmdName, args...).Output()
+	if err == nil {
+		logger.Informf("Wifi %s was modified (%s %s): %s", id, nmcliCmdName, args, string(out))
+	} else {
+		logger.Errf("Error modifying wifi %s (%s %s): %s\n", id, nmcliCmdName, args, err.Error())
+	}
+
+	return err
+}
+
+func (n Nmcli) updateWifiID(id, newID string) error {
+	return n.updateWifiInfoField(id, "connection.id", newID)
+}
+
+func (n Nmcli) updateWifiPassword(id, password string) error {
+	return n.updateWifiInfoField(id, "802-11-wireless-security.psk", password)
+}
+
+func (n Nmcli) updateWifiAutoconnect(id string, autoconnect bool) error {
+	var autoconnectValue string
+	if autoconnect {
+		autoconnectValue = "yes"
+	} else {
+		autoconnectValue = "no"
+	}
+
+	return n.updateWifiInfoField(id, "connection.autoconnect", autoconnectValue)
+}
+
+func (n Nmcli) updateWifiAutoconnectPriority(id string, priority int) error {
+	return n.updateWifiInfoField(id, "connection.autoconnect-priority", strconv.Itoa(priority))
+}
+
 func (Nmcli) DeleteWifiConnection(id string) error {
 	// CMD: nmcli connection delete "<ID>"
 	args := []string{"connection", "delete", id}
