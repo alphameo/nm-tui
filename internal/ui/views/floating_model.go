@@ -11,15 +11,15 @@ import (
 
 // FloatingModel contains any tea.FloatingModel inside
 type FloatingModel struct {
-	Content    tea.Model      // Content of overlay
-	IsActive   bool           // Flag for upper composition (Default: `false`)
-	Width      int            // Set to positive if you want specific width (Default: `0`)
-	Height     int            // Set to positive if you want specific height (Default: `0`)
+	Content    tea.Model         // Content of overlay
+	IsActive   bool              // Flag for upper composition (Default: `false`)
+	Width      int               // Set to positive if you want specific width (Default: `0`)
+	Height     int               // Set to positive if you want specific height (Default: `0`)
 	XAnchor    compositor.Anchor // Start position (Default: `Begin` - very top)
 	YAnchor    compositor.Anchor // Start position (Default: `Begin` - very left)
-	XOffset    int            // Counts from the `XAnchor` (Default: `0`)
-	YOffset    int            // Counts from the `YAnchor` (Default: `0`)
-	EscapeKeys []string       // Keycombinations for close
+	XOffset    int               // Counts from the `XAnchor` (Default: `0`)
+	YOffset    int               // Counts from the `YAnchor` (Default: `0`)
+	EscapeKeys []string          // Keycombinations for close
 	Title      string
 }
 

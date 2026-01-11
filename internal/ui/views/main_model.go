@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
