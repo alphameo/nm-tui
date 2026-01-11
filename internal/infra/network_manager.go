@@ -14,10 +14,10 @@ type WifiStored struct {
 
 type NetworkManager interface {
 	// ScanWifi shows list of wifi-networks able to be connected
-	ScanWifi() ([]WifiScanned, error)
+	ScanWifi() ([]*WifiScanned, error)
 
 	// GetStoredWifi shows list of stored connections and highlights the active one
-	GetStoredWifi() ([]WifiStored, error)
+	GetStoredWifi() ([]*WifiStored, error)
 
 	// ConnectWifi connects to wifi-network with given ssid using given password.
 	ConnectWifi(ssid, password string) error

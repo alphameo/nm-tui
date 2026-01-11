@@ -17,7 +17,7 @@ func NewNMCLI() *Nmcli {
 
 const nmcliCmdName = "nmcli"
 
-func (Nmcli) ScanWifi() ([]WifiScanned, error) {
+func (Nmcli) ScanWifi() ([]*WifiScanned, error) {
 	// CMD: nmcli -t -f SSID,IN-USE,SECURITY,SIGNAL dev wifi
 	args := []string{"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL", "dev", "wifi"}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
@@ -25,7 +25,7 @@ func (Nmcli) ScanWifi() ([]WifiScanned, error) {
 		logger.Errf("Error scanning available wifi-networks (%s %s): %s\n", nmcliCmdName, args, err.Error())
 	}
 
-	var res []WifiScanned
+	var res []*WifiScanned
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
 		if line == "" {
@@ -38,7 +38,7 @@ func (Nmcli) ScanWifi() ([]WifiScanned, error) {
 		}
 
 		signal, _ := strconv.Atoi(parts[3])
-		res = append(res, WifiScanned{
+		res = append(res, &WifiScanned{
 			SSID:     parts[0],
 			Active:   parts[1] == "*",
 			Security: parts[2],
@@ -49,7 +49,7 @@ func (Nmcli) ScanWifi() ([]WifiScanned, error) {
 	return res, nil
 }
 
-func (Nmcli) GetStoredWifi() ([]WifiStored, error) {
+func (Nmcli) GetStoredWifi() ([]*WifiStored, error) {
 	// CMD: nmcli -t -f NAME,STATE connection show
 	args := []string{"-t", "-f", "NAME,STATE", "connection", "show"}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
@@ -57,7 +57,7 @@ func (Nmcli) GetStoredWifi() ([]WifiStored, error) {
 		logger.Errf("Error retreiving stored wifi-networks (%s %s): %s\n", nmcliCmdName, args, err.Error())
 	}
 
-	var res []WifiStored
+	var res []*WifiStored
 
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
@@ -73,8 +73,8 @@ func (Nmcli) GetStoredWifi() ([]WifiStored, error) {
 			continue
 		}
 
-		res = append(res, WifiStored{
-			Name:   parts[0],
+		res = append(res, &WifiStored{
+			SSID:   parts[0],
 			Active: parts[1] == "activated",
 		})
 	}
