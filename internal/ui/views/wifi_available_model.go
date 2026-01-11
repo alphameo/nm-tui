@@ -45,7 +45,7 @@ type WifiAvailableModel struct {
 	indicatorSpinner spinner.Model
 	indicatorState   wifiState
 	connector        WifiConnectorModel
-	pSsidCol         *table.Column
+	pSSIDCol         *table.Column
 	pSecurityCol     *table.Column
 	nm               infra.NetworkManager
 	width            int
@@ -73,7 +73,7 @@ func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 		indicatorSpinner: s,
 		indicatorState:   Scanning,
 		connector:        con,
-		pSsidCol:         ssidCol,
+		pSSIDCol:         ssidCol,
 		pSecurityCol:     securityCol,
 		nm:               networkManager,
 	}
@@ -94,7 +94,7 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 	security := max(int(float32(width)*securityWidthPart), minSecurityColWidth)
 	ssidWidth := width - signalColWidth - tableUtilityOffset - conFlagColWidth - security
 	m.pSecurityCol.Width = security
-	m.pSsidCol.Width = ssidWidth
+	m.pSSIDCol.Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
