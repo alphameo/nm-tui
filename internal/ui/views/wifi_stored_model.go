@@ -6,6 +6,7 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/logger"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -29,7 +30,7 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 		table.WithColumns(cols),
 		table.WithFocused(true),
 	)
-	t.SetStyles(TableStyle)
+	t.SetStyles(styles.TableStyle)
 	s := NewStoredInfoModel()
 	m := &WifiStoredModel{
 		dataTable:  t,
