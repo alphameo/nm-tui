@@ -24,25 +24,25 @@ type WifiStoredModel struct {
 func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: conFlagColWidth},
-		{Title: "Name"},
 		{Title: "SSID"},
+		{Title: "Name"},
 	}
-	nameCol := &cols[1]
-	ssidCol := &cols[2]
+	ssidCol := &cols[1]
+	nameCol := &cols[2]
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
 	)
 	t.SetStyles(styles.TableStyle)
 	s := NewStoredInfoModel()
-	m := &WifiStoredModel{
+
+	return &WifiStoredModel{
 		dataTable:  t,
 		storedInfo: *s,
 		pNameCol:   nameCol,
 		pSSIDCol:   ssidCol,
 		nm:         networkManager,
 	}
-	return m
 }
 
 func (m *WifiStoredModel) Resize(width, height int) {
@@ -54,11 +54,11 @@ func (m *WifiStoredModel) Resize(width, height int) {
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
 
 	computedWidth := width - tableUtilityOffset - conFlagColWidth
-	possibleSSIDWidth := computedWidth / 2
-	NameWidth := max(computedWidth-possibleSSIDWidth, minSsidWidth)
-	SSIDWidth := computedWidth - NameWidth
-	m.pNameCol.Width = NameWidth
-	m.pSSIDCol.Width = SSIDWidth
+	possibleNameWidth := computedWidth / 2
+	ssidWidth := max(computedWidth-possibleNameWidth, minSSIDWidth)
+	nameWidth := computedWidth - ssidWidth
+	m.pNameCol.Width = nameWidth
+	m.pSSIDCol.Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
@@ -127,7 +127,7 @@ func (m WifiStoredModel) UpdateRows() tea.Cmd {
 			if wifiStored.Active {
 				connectionFlag = ""
 			}
-			rows = append(rows, table.Row{connectionFlag, wifiStored.Name, wifiStored.SSID})
+			rows = append(rows, table.Row{connectionFlag, wifiStored.SSID, wifiStored.Name})
 		}
 		return storedRowsMsg(rows)
 	}
