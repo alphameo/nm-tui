@@ -8,12 +8,13 @@ type WifiScanned struct {
 }
 
 type WifiStored struct {
+	Name   string
 	SSID   string
 	Active bool
 }
 
 type WifiInfo struct {
-	ID                  string
+	Name                string
 	SSID                string
 	Password            string
 	Active              bool
@@ -22,7 +23,7 @@ type WifiInfo struct {
 }
 
 type UpdateWifiInfo struct {
-	ID                  string
+	Name                string
 	Password            string
 	Autoconnect         bool
 	AutoconnectPriority int

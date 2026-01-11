@@ -49,7 +49,7 @@ func (Nmcli) GetAvailableWifi() ([]*WifiScanned, error) {
 	return res, nil
 }
 
-func (Nmcli) GetStoredWifi() ([]*WifiStored, error) {
+func (n Nmcli) GetStoredWifi() ([]*WifiStored, error) {
 	// CMD: nmcli -t -f NAME,STATE connection show
 	args := []string{"-t", "-f", "NAME,STATE", "connection", "show"}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
@@ -74,10 +74,19 @@ func (Nmcli) GetStoredWifi() ([]*WifiStored, error) {
 		}
 
 		res = append(res, &WifiStored{
-			SSID:   parts[0],
+			Name:   parts[0],
 			Active: parts[1] == "activated",
 		})
 	}
+
+	for _, wifi := range res {
+		ssid, err := n.GetWifiSSID(wifi.Name)
+		if err != nil {
+			wifi.SSID = ""
+		}
+		wifi.SSID = ssid
+	}
+
 	logger.Informf("Got list of stored wifi-networks (%s %s)\n", nmcliCmdName, args)
 	return res, nil
 }
@@ -145,10 +154,21 @@ func (Nmcli) GetWifiPassword(id string) (string, error) {
 	return pw, nil
 }
 
+func (Nmcli) GetWifiSSID(id string) (string, error) {
+	// CMD: nmcli -s -m tabular -t -f 802-11-wireless.ssid connection show "<ID>"
+	args := []string{"-s", "-m", "tabular", "-t", "-f", "802-11-wireless.ssid", "connection", "show", id}
+	out, err := exec.Command(nmcliCmdName, args...).Output()
+	if err != nil {
+		logger.Errf("Error retrieving ssid for wifi %s (%s %s): %s\n", id, nmcliCmdName, args, err.Error())
+		return "", err
+	}
+	ssid := strings.Trim(string(out), " \n")
+	logger.Informf("Got password to wifi %s (%s %s)\n", id, nmcliCmdName, args)
+	return ssid, nil
+}
+
 func (Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
-	// CMD: nmcli -s -m tabular -t -f
-	// connection.id,802-11-wireless.ssid,802-11-wireless-security.psk,connection.autoconnect,connection.autoconnect-priority,GENERAL.STATE
-	// connection show "<ID>"
+	// CMD: nmcli -s -m tabular -t -f connection.id,802-11-wireless.ssid,802-11-wireless-security.psk,connection.autoconnect,connection.autoconnect-priority,GENERAL.STATE connection show "<ID>"
 	args := []string{
 		"-s",
 		"-m",
@@ -176,7 +196,7 @@ func (Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
 
 	logger.Informf("Got information about wifi %s (%s %s)\n", id, nmcliCmdName, args)
 	return &WifiInfo{
-		ID:                  lines[0],
+		Name:                lines[0],
 		SSID:                lines[1],
 		Password:            lines[2],
 		Autoconnect:         lines[3] == "yes",
@@ -187,7 +207,7 @@ func (Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
 
 // UpdateWifiInfo is not atomic
 func (n Nmcli) UpdateWifiInfo(id string, info *UpdateWifiInfo) error {
-	err := n.updateWifiID(id, info.ID)
+	err := n.updateWifiID(id, info.Name)
 	if err != nil {
 		return err
 	}
