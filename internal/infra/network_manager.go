@@ -31,8 +31,8 @@ type NetworkManager interface {
 	// ConnectWifi() connects to wifi-network with given ssid using given password.
 	ConnectWifi(ssid, password string) error
 
-	// ConnectSavedWifi() connects to wifi-network with given name if its password is saved.
-	ConnectSavedWifi(name string) error
+	// ConnectStoredWifi() connects to wifi-network with given name if its password is saved.
+	ConnectStoredWifi(name string) error
 
 	// DisconnectFromWifi() disconnects from wifi-network with given name.
 	DisconnectFromWifi(name string) error

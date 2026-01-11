@@ -95,7 +95,7 @@ func (n Nmcli) ConnectWifi(ssid, password string) error {
 	return err
 }
 
-func (Nmcli) ConnectSavedWifi(id string) error {
+func (Nmcli) ConnectStoredWifi(id string) error {
 	// CMD: nmcli connection up "<ID>"
 	args := []string{"connection", "up", id}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
