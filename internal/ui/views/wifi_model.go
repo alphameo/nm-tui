@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -79,29 +80,29 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *WifiModel) View() string {
 	availableStyle := lipgloss.NewStyle().
-		BorderStyle(BorderStyle).
+		BorderStyle(styles.BorderStyle).
 		Width(m.available.width).
 		Height(m.available.height)
 
 	storedStyle := lipgloss.NewStyle().
-		BorderStyle(BorderStyle).
+		BorderStyle(styles.BorderStyle).
 		Width(m.stored.width).
 		Height(m.stored.height)
 
 	if m.winIndex == 0 {
-		availableStyle = availableStyle.BorderForeground(AccentColor)
+		availableStyle = availableStyle.BorderForeground(styles.AccentColor)
 	} else {
-		storedStyle = storedStyle.BorderForeground(AccentColor)
+		storedStyle = storedStyle.BorderForeground(styles.AccentColor)
 	}
 
-	availableView := ApplyStyleWithTitle(
+	availableView := styles.ApplyStyleWithTitle(
 		m.available.View(),
 		"Available Wi-Fi",
 		"1",
 		availableStyle,
 	)
 
-	storedView := ApplyStyleWithTitle(
+	storedView := styles.ApplyStyleWithTitle(
 		m.stored.View(),
 		"Stored Wi-Fi",
 		"2",

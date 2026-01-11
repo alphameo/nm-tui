@@ -8,6 +8,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/label"
 	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -101,10 +102,10 @@ func (m MainModel) View() string {
 	view := sb.String()
 
 	if m.popup.IsActive {
-		view = m.popup.Place(view, OverlayStyle)
+		view = m.popup.Place(view, styles.OverlayStyle)
 	}
 	if m.notification.IsActive {
-		view = m.notification.Place(view, OverlayStyle)
+		view = m.notification.Place(view, styles.OverlayStyle)
 	}
 	return view
 }

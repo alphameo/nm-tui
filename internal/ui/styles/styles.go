@@ -1,4 +1,5 @@
-package views
+// Package styles provides styling for ui
+package styles
 
 import (
 	"fmt"

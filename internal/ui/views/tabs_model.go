@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -76,14 +77,14 @@ func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m TabsModel) View() string {
 	view := m.tabTables[m.activeTab].View()
-	tabBar := ConstructTabBar(
+	tabBar := styles.ConstructTabBar(
 		m.tabTitles,
-		ActiveTabStyle,
-		InactiveTabStyle,
+		styles.ActiveTabStyle,
+		styles.InactiveTabStyle,
 		lipgloss.Width(view)+2,
 		m.activeTab,
 	)
-	borderStyle := BorderStyle
+	borderStyle := styles.BorderStyle
 	borderStyle.Top = ""
 	borderStyle.TopLeft = "│"
 	borderStyle.TopRight = "│"
