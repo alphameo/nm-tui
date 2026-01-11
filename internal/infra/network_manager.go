@@ -25,6 +25,9 @@ type NetworkManager interface {
 	// ConnectSavedWifi connects to wifi-network with given ssid if its password is saved.
 	ConnectSavedWifi(ssid string) error
 
+	// DisconnectFromWifi() disconnects from wifi-network with given ssid.
+	DisconnectFromWifi(ssid string) error
+
 	// GetConnectedWifi gives table of saved connections.
 	GetConnectedWifi() ([]string, error)
 

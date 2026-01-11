@@ -107,6 +107,18 @@ func (Nmcli) ConnectSavedWifi(ssid string) error {
 	return err
 }
 
+func (Nmcli) DisconnectFromWifi(ssid string) error {
+	// CMD: nmcli connection down "<SSID>"
+	args := []string{"connection", "down", ssid}
+	out, err := exec.Command(nmcliCmdName, args...).Output()
+	if err == nil {
+		logger.Informf("Disconnected from wifi %s (%s %s): %s", ssid, nmcliCmdName, args, string(out))
+	} else {
+		logger.Errf("Error disconnecting from wifi %s (%s %s): %s\n", ssid, nmcliCmdName, args, err.Error())
+	}
+	return err
+}
+
 func (Nmcli) GetConnectedWifi() ([]string, error) {
 	// CMD: nmcli -t -f NAME connection show
 	args := []string{"-t", "-f", "NAME", "connection", "show"}
