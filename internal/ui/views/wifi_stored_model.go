@@ -120,7 +120,7 @@ func (m WifiStoredModel) UpdateRows() tea.Cmd {
 			if wifiStored.Active {
 				connectionFlag = ""
 			}
-			rows = append(rows, table.Row{connectionFlag, wifiStored.Name})
+			rows = append(rows, table.Row{connectionFlag, wifiStored.SSID})
 		}
 		return storedRowsMsg(rows)
 	}

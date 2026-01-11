@@ -8,8 +8,8 @@ type WifiScanned struct {
 }
 
 type WifiStored struct {
+	SSID   string
 	Active bool
-	Name   string
 }
 
 type NetworkManager interface {
