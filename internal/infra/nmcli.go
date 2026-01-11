@@ -95,26 +95,26 @@ func (n Nmcli) ConnectWifi(ssid, password string) error {
 	return err
 }
 
-func (Nmcli) ConnectSavedWifi(ssid string) error {
-	// CMD: nmcli connection up "<SSID>"
-	args := []string{"connection", "up", ssid}
+func (Nmcli) ConnectSavedWifi(id string) error {
+	// CMD: nmcli connection up "<ID>"
+	args := []string{"connection", "up", id}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
 	if err == nil {
-		logger.Informf("Connected to saved wifi %s (%s %s): %s", ssid, nmcliCmdName, args, string(out))
+		logger.Informf("Connected to saved wifi %s (%s %s): %s", id, nmcliCmdName, args, string(out))
 	} else {
-		logger.Errf("Error connecting to saved wifi %s (%s %s): %s\n", ssid, nmcliCmdName, args, err.Error())
+		logger.Errf("Error connecting to saved wifi %s (%s %s): %s\n", id, nmcliCmdName, args, err.Error())
 	}
 	return err
 }
 
-func (Nmcli) DisconnectFromWifi(ssid string) error {
-	// CMD: nmcli connection down "<SSID>"
-	args := []string{"connection", "down", ssid}
+func (Nmcli) DisconnectFromWifi(id string) error {
+	// CMD: nmcli connection down "<ID>"
+	args := []string{"connection", "down", id}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
 	if err == nil {
-		logger.Informf("Disconnected from wifi %s (%s %s): %s", ssid, nmcliCmdName, args, string(out))
+		logger.Informf("Disconnected from wifi %s (%s %s): %s", id, nmcliCmdName, args, string(out))
 	} else {
-		logger.Errf("Error disconnecting from wifi %s (%s %s): %s\n", ssid, nmcliCmdName, args, err.Error())
+		logger.Errf("Error disconnecting from wifi %s (%s %s): %s\n", id, nmcliCmdName, args, err.Error())
 	}
 	return err
 }
@@ -132,21 +132,23 @@ func (Nmcli) GetConnectedWifi() ([]string, error) {
 	return res, nil
 }
 
-func (Nmcli) GetWifiPassword(ssid string) (string, error) {
-	// CMD: nmcli -s -g 802-11-wireless-security.psk connection show "<SSID>"
-	args := []string{"-s", "-g", "802-11-wireless-security.psk", "connection", "show", ssid}
+func (Nmcli) GetWifiPassword(id string) (string, error) {
+	// CMD: nmcli -s -m tabular -t -f 802-11-wireless-security.psk connection show "<ID>"
+	args := []string{"-s", "-m", "tabular", "-t", "-f", "802-11-wireless-security.psk", "connection", "show", id}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
 	if err != nil {
-		logger.Errf("Error retrieving password to wifi %s (%s %s): %s\n", ssid, nmcliCmdName, args, err.Error())
+		logger.Errf("Error retrieving password to wifi %s (%s %s): %s\n", id, nmcliCmdName, args, err.Error())
 		return "", err
 	}
 	pw := strings.Trim(string(out), " \n")
-	logger.Informf("Got password to wifi %s (%s %s)\n", ssid, nmcliCmdName, args)
+	logger.Informf("Got password to wifi %s (%s %s)\n", id, nmcliCmdName, args)
 	return pw, nil
 }
 
-func (Nmcli) GetWifiInfo(ssid string) (*WifiInfo, error) {
-	// CMD: nmcli -s -m tabular -t -f connection.id,802-11-wireless.ssid,802-11-wireless-security.psk,connection.autoconnect,connection.autoconnect-priority,GENERAL.STATE connection show
+func (Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
+	// CMD: nmcli -s -m tabular -t -f
+	// connection.id,802-11-wireless.ssid,802-11-wireless-security.psk,connection.autoconnect,connection.autoconnect-priority,GENERAL.STATE
+	// connection show "<ID>"
 	args := []string{
 		"-s",
 		"-m",
@@ -156,23 +158,23 @@ func (Nmcli) GetWifiInfo(ssid string) (*WifiInfo, error) {
 		"connection.id,802-11-wireless.ssid,802-11-wireless-security.psk,connection.autoconnect,connection.autoconnect-priority,GENERAL.STATE",
 		"connection",
 		"show",
-		ssid,
+		id,
 	}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
 	if err != nil {
-		logger.Errf("Error retrieving information about wifi %s (%s %s): %s\n", ssid, nmcliCmdName, args, err.Error())
+		logger.Errf("Error retrieving information about wifi %s (%s %s): %s\n", id, nmcliCmdName, args, err.Error())
 		return nil, err
 	}
 	lines := strings.Split(string(out), "\n")
 	autoconnectPriority, err := strconv.Atoi(lines[4])
 	if err != nil {
-		logger.Errf("Error retrieving information about wifi %s (%s %s): %s\n", ssid, nmcliCmdName, args, err.Error())
+		logger.Errf("Error retrieving information about wifi %s (%s %s): %s\n", id, nmcliCmdName, args, err.Error())
 		return nil, err
 	}
 
 	active := len(lines) == 5
 
-	logger.Informf("Got information about wifi %s (%s %s)\n", ssid, nmcliCmdName, args)
+	logger.Informf("Got information about wifi %s (%s %s)\n", id, nmcliCmdName, args)
 	return &WifiInfo{
 		ID:                  lines[0],
 		SSID:                lines[1],
@@ -183,14 +185,14 @@ func (Nmcli) GetWifiInfo(ssid string) (*WifiInfo, error) {
 	}, nil
 }
 
-func (Nmcli) DeleteWifiConnection(ssid string) error {
-	// CMD: nmcli connection delete "<SSID>"
-	args := []string{"connection", "delete", ssid}
+func (Nmcli) DeleteWifiConnection(id string) error {
+	// CMD: nmcli connection delete "<ID>"
+	args := []string{"connection", "delete", id}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
 	if err == nil {
-		logger.Informf("Connection to wifi %s was deleted (%s %s): %s", ssid, nmcliCmdName, args, string(out))
+		logger.Informf("Connection to wifi %s was deleted (%s %s): %s", id, nmcliCmdName, args, string(out))
 	} else {
-		logger.Errf("Error deleting connection to wifi %s (%s %s): %s\n", ssid, nmcliCmdName, args, err.Error())
+		logger.Errf("Error deleting connection to wifi %s (%s %s): %s\n", id, nmcliCmdName, args, err.Error())
 	}
 	return err
 }
