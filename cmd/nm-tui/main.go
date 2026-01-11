@@ -27,7 +27,8 @@ func main() {
 	logger.Informln("The program is running")
 	defer logger.Informln("Program is closed")
 
-	p := tea.NewProgram(views.NewMainModel(infra.NewNMCLI()), tea.WithAltScreen())
+	nm := infra.NewNMCLI()
+	p := tea.NewProgram(views.NewMainModel(nm), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		logger.Errln(err)
 	}
