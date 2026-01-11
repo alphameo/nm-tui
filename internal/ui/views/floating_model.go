@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
+	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -15,8 +15,8 @@ type FloatingModel struct {
 	IsActive   bool           // Flag for upper composition (Default: `false`)
 	Width      int            // Set to positive if you want specific width (Default: `0`)
 	Height     int            // Set to positive if you want specific height (Default: `0`)
-	XAnchor    overlay.Anchor // Start position (Default: `Begin` - very top)
-	YAnchor    overlay.Anchor // Start position (Default: `Begin` - very left)
+	XAnchor    compositor.Anchor // Start position (Default: `Begin` - very top)
+	YAnchor    compositor.Anchor // Start position (Default: `Begin` - very left)
 	XOffset    int            // Counts from the `XAnchor` (Default: `0`)
 	YOffset    int            // Counts from the `YAnchor` (Default: `0`)
 	EscapeKeys []string       // Keycombinations for close
@@ -70,6 +70,6 @@ func (m *FloatingModel) Place(bg string, fgStyle lipgloss.Style) string {
 		Foreground(fgStyle.GetBorderTopForeground()).
 		Render(fmt.Sprintf("[ %s ]", m.Title))
 
-	fg = overlay.Compose(title, fg, overlay.Center, overlay.Begin, 0, 0)
-	return overlay.Compose(fg, bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
+	fg = compositor.Compose(title, fg, compositor.Center, compositor.Begin, 0, 0)
+	return compositor.Compose(fg, bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
 }

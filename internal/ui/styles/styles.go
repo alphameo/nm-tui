@@ -4,7 +4,7 @@ package styles
 import (
 	"fmt"
 
-	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
+	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -96,5 +96,5 @@ func ApplyStyleWithTitle(view, title, keybind string, style lipgloss.Style) stri
 		lipgloss.NewStyle().Foreground(style.GetBorderTopForeground()).Render(fmt.Sprintf("[%s]%s", keybind, style.GetBorderStyle().Top)),
 		lipgloss.NewStyle().Foreground(AccentColor).Render(title),
 	)
-	return overlay.Compose(inlineTitle, styledView, overlay.Begin, overlay.Begin, 2, 0)
+	return compositor.Compose(inlineTitle, styledView, compositor.Begin, compositor.Begin, 2, 0)
 }

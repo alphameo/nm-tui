@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
+	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -35,12 +35,12 @@ func NewMainModel(networkManager infra.NetworkManager) MainModel {
 	popup := *NewFloatingModel(nil, "")
 	popup.Width = 100
 	popup.Height = 10
-	popup.XAnchor = overlay.Center
-	popup.YAnchor = overlay.Center
+	popup.XAnchor = compositor.Center
+	popup.YAnchor = compositor.Center
 	popup.EscapeKeys = escKeys
 	notification := *NewFloatingModel(nil, "Notification")
-	notification.XAnchor = overlay.Center
-	notification.YAnchor = overlay.Center
+	notification.XAnchor = compositor.Center
+	notification.YAnchor = compositor.Center
 	notification.Width = 100
 	notification.Height = 10
 	notification.EscapeKeys = escKeys

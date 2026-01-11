@@ -1,4 +1,5 @@
-package overlay
+// Package compositor provides functions that place one TUI frame inside another
+package compositor
 
 import (
 	"strings"
