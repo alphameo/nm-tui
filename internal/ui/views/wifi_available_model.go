@@ -20,11 +20,11 @@ const (
 	Connecting
 	None
 	signalColWidth      int     = 3
-	conFlagColWidth             = 1
+	conFlagColWidth     int     = 1
 	securityWidthPart   float32 = 0.3
-	minSecurityColWidth         = 8
-	minSsidWidth                = 4
-	indicatorHeight             = 1
+	minSecurityColWidth int     = 8
+	minSSIDWidth        int     = 4
+	indicatorHeight     int     = 1
 )
 
 func (s *wifiState) String() string {
