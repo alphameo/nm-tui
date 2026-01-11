@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components/label"
 	"github.com/alphameo/nm-tui/internal/ui/components/overlay"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
@@ -75,7 +74,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.popup.IsActive = bool(msg)
 		return m, nil
 	case NotificationTextMsg:
-		m.notification.Content = label.New(string(msg))
+		m.notification.Content = NewTextModel(string(msg))
 		return m, nil
 	case NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)
