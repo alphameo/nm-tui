@@ -145,6 +145,44 @@ func (Nmcli) GetWifiPassword(ssid string) (string, error) {
 	return pw, nil
 }
 
+func (Nmcli) GetWifiInfo(ssid string) (*WifiInfo, error) {
+	// CMD: nmcli -s -m tabular -t -f connection.id,802-11-wireless.ssid,802-11-wireless-security.psk,connection.autoconnect,connection.autoconnect-priority,GENERAL.STATE connection show
+	args := []string{
+		"-s",
+		"-m",
+		"tabular",
+		"-t",
+		"-f",
+		"connection.id,802-11-wireless.ssid,802-11-wireless-security.psk,connection.autoconnect,connection.autoconnect-priority,GENERAL.STATE",
+		"connection",
+		"show",
+		ssid,
+	}
+	out, err := exec.Command(nmcliCmdName, args...).Output()
+	if err != nil {
+		logger.Errf("Error retrieving information about wifi %s (%s %s): %s\n", ssid, nmcliCmdName, args, err.Error())
+		return nil, err
+	}
+	lines := strings.Split(string(out), "\n")
+	autoconnectPriority, err := strconv.Atoi(lines[4])
+	if err != nil {
+		logger.Errf("Error retrieving information about wifi %s (%s %s): %s\n", ssid, nmcliCmdName, args, err.Error())
+		return nil, err
+	}
+
+	active := len(lines) == 5
+
+	logger.Informf("Got information about wifi %s (%s %s)\n", ssid, nmcliCmdName, args)
+	return &WifiInfo{
+		ID:                  lines[0],
+		SSID:                lines[1],
+		Password:            lines[2],
+		Autoconnect:         lines[3] == "yes",
+		AutoconnectPriority: autoconnectPriority,
+		Active:              active,
+	}, nil
+}
+
 func (Nmcli) DeleteWifiConnection(ssid string) error {
 	// CMD: nmcli connection delete "<SSID>"
 	args := []string{"connection", "delete", ssid}

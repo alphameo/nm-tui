@@ -12,6 +12,15 @@ type WifiStored struct {
 	Active bool
 }
 
+type WifiInfo struct {
+	ID                  string
+	SSID                string
+	Password            string
+	Active              bool
+	Autoconnect         bool
+	AutoconnectPriority int
+}
+
 type NetworkManager interface {
 	// ScanWifi shows list of wifi-networks able to be connected
 	ScanWifi() ([]*WifiScanned, error)
@@ -33,6 +42,9 @@ type NetworkManager interface {
 
 	// GetWifiPassword gives password of saved wifi-network with given ssid.
 	GetWifiPassword(ssid string) (string, error)
+
+	// GetWifiInfo gives information about saved wifi-network with given ssid.
+	GetWifiInfo(ssid string) (*WifiInfo, error)
 
 	// DeleteWifiConnection removes wifi-network with given ssid from saved connections.
 	DeleteWifiConnection(ssid string) error
