@@ -192,7 +192,10 @@ func (Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
 		return nil, err
 	}
 
-	active := len(lines) == 5
+	var active bool
+	if len(lines) > 5 {
+		active = lines[5] == "activated"
+	}
 
 	logger.Informf("Got information about wifi %s (%s %s)\n", id, nmcliCmdName, args)
 	return &WifiInfo{
