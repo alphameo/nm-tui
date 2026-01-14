@@ -12,6 +12,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const wifiInfoInputsCount int = 4
+
 type WifiStoredInfoModel struct {
 	ssid                string
 	name                textinput.Model
@@ -52,30 +54,60 @@ func (m *WifiStoredInfoModel) setNew(info *infra.WifiInfo) {
 	m.autoconnectPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
 }
 
-func (m WifiStoredInfoModel) Init() tea.Cmd {
+func (m *WifiStoredInfoModel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "r":
+			return m, nil
+		case "ctrl+j":
+			m.focusNext()
+			return m, nil
+		case "ctrl+k":
+			m.focusPrev()
 			return m, nil
 		}
 	}
 	return m, nil
 }
 
-func (m WifiStoredInfoModel) View() string {
+func (m *WifiStoredInfoModel) View() string {
 	inputStyle := lipgloss.
 		NewStyle().
 		BorderStyle(styles.BorderStyle)
 
-	nameBlock := lipgloss.JoinHorizontal(lipgloss.Center, "Name", inputStyle.Render(m.name.View()))
+	nameView := m.name.View()
+	if m.focusIndex == 0 {
+		nameView = inputStyle.BorderForeground(styles.AccentColor).Render(nameView)
+	} else {
+		nameView = inputStyle.Render(nameView)
+	}
+	nameView = lipgloss.JoinHorizontal(lipgloss.Center, "Name", nameView)
 
-	passwordBlock := lipgloss.JoinHorizontal(lipgloss.Center, "Password ", inputStyle.Render(m.password.View()))
-	autoconPriorityView := lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", inputStyle.Render(m.autoconnectPriority.View()))
+	passwordView := m.password.View()
+	if m.focusIndex == 1 {
+		passwordView = inputStyle.BorderForeground(styles.AccentColor).Render(passwordView)
+	} else {
+		passwordView = inputStyle.Render(passwordView)
+	}
+	passwordView = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", passwordView)
+
+	autoconnectCheckboxView := checkboxView(m.active)
+	if m.focusIndex == 2 {
+		autoconnectCheckboxView = lipgloss.NewStyle().Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
+	}
+
+	autoconPriorityView := m.autoconnectPriority.View()
+	if m.focusIndex == 3 {
+		autoconPriorityView = inputStyle.BorderForeground(styles.AccentColor).Render(autoconPriorityView)
+	} else {
+		autoconPriorityView = inputStyle.Render(autoconPriorityView)
+	}
+	autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", autoconPriorityView)
 
 	sb := strings.Builder{}
 	fmt.Fprintf(
@@ -83,17 +115,17 @@ func (m WifiStoredInfoModel) View() string {
 		"SSID: %s%s\n%s\n%s\nAutoconnect %s\n%s",
 		m.ssid,
 		m.connectionView(),
-		nameBlock,
-		passwordBlock,
-		checkboxView(m.active),
+		nameView,
+		passwordView,
+		autoconnectCheckboxView,
 		autoconPriorityView,
 	)
 	return sb.String()
 }
 
-func (m WifiStoredInfoModel) connectionView() string {
+func (m *WifiStoredInfoModel) connectionView() string {
 	if m.active {
-		return " (connected)"
+		return lipgloss.NewStyle().Foreground(styles.AccentColor).Render(" (connected)")
 	} else {
 		return ""
 	}
@@ -107,6 +139,14 @@ func checkboxView(value bool) string {
 	}
 }
 
-// func (m WifiStoredInfoModel) focusNext() {
-// 	m.focusIndex = min(m.focusIndex + 1, m.)
-// }
+func (m *WifiStoredInfoModel) focusNext() {
+	if m.focusIndex < wifiInfoInputsCount {
+		m.focusIndex++
+	}
+}
+
+func (m *WifiStoredInfoModel) focusPrev() {
+	if m.focusIndex > 0 {
+		m.focusIndex--
+	}
+}
