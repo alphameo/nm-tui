@@ -75,7 +75,13 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				m.storedInfo.setNew(row[1])
+				info, err := m.nm.GetWifiInfo(row[2])
+				if err != nil {
+					// TODO: resolve panic
+					logger.Debug(err.Error())
+					return nil, Notify(err.Error())
+				}
+				m.storedInfo.setNew(info)
 				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(m.storedInfo, "Stored Wi-Fi info"))
 			}
 			return m, nil
@@ -89,7 +95,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, tea.Sequence(
 				func() tea.Msg {
-					m.nm.DeleteWifiConnection(row[1])
+					m.nm.DeleteWifiConnection(row[2])
 					return nil
 				},
 				m.UpdateRows())
