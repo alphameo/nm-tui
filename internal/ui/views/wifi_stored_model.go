@@ -13,7 +13,7 @@ import (
 
 type WifiStoredModel struct {
 	dataTable  table.Model
-	storedInfo WifiStoredInfoModel
+	storedInfo *WifiStoredInfoModel
 	pSSIDCol   *table.Column
 	pNameCol   *table.Column
 	nm         infra.NetworkManager
@@ -38,7 +38,7 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 
 	return &WifiStoredModel{
 		dataTable:  t,
-		storedInfo: *s,
+		storedInfo: s,
 		pNameCol:   nameCol,
 		pSSIDCol:   ssidCol,
 		nm:         networkManager,
