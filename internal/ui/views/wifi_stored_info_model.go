@@ -38,15 +38,17 @@ type Focusable interface {
 type WifiStoredInfoModel struct {
 	ssid                string
 	active              bool
-	name                textinput.Model
+	name                string
+	nameInput           textinput.Model
 	password            textinput.Model
 	autoconnect         switcher
 	autoconnectPriority textinput.Model
 	inputs              []Focusable
 	focus               wifiStoredInfoFocusIndex
+	nm                  infra.NetworkManager
 }
 
-func NewStoredInfoModel() *WifiStoredInfoModel {
+func NewStoredInfoModel(networkManager infra.NetworkManager) *WifiStoredInfoModel {
 	n := textinput.New()
 	n.Width = 20
 	n.Prompt = ""
@@ -66,8 +68,14 @@ func NewStoredInfoModel() *WifiStoredInfoModel {
 	ap.Width = 4
 	ap.Prompt = ""
 
-	model := &WifiStoredInfoModel{name: n, password: p, autoconnect: a, autoconnectPriority: ap}
-	inp := []Focusable{&model.name, &model.password, &model.autoconnect, &model.autoconnectPriority}
+	model := &WifiStoredInfoModel{
+		nameInput:           n,
+		password:            p,
+		autoconnect:         a,
+		autoconnectPriority: ap,
+		nm:                  networkManager,
+	}
+	inp := []Focusable{&model.nameInput, &model.password, &model.autoconnect, &model.autoconnectPriority}
 	model.inputs = inp
 
 	return model
@@ -75,7 +83,8 @@ func NewStoredInfoModel() *WifiStoredInfoModel {
 
 func (m *WifiStoredInfoModel) setNew(info *infra.WifiInfo) {
 	m.ssid = info.SSID
-	m.name.SetValue(info.Name)
+	m.name = info.Name
+	m.nameInput.SetValue(info.Name)
 	m.password.SetValue(info.Password)
 	m.active = info.Active
 	m.autoconnect = switcher(info.Autoconnect)
@@ -101,6 +110,8 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.focusNext()
 		case "ctrl+k":
 			return m, m.focusPrev()
+		case "enter":
+			return m, tea.Sequence(SetPopupActivity(false), m.saveWifiInfo())
 		default:
 			return m.handleKey(msg)
 		}
@@ -114,13 +125,13 @@ func (m *WifiStoredInfoModel) View() string {
 		NewStyle().
 		BorderStyle(styles.BorderStyle)
 
-	nameView := m.name.View()
+	nameView := m.nameInput.View()
 	if m.focus == name {
 		nameView = inputStyle.BorderForeground(styles.AccentColor).Render(nameView)
 	} else {
 		nameView = inputStyle.Render(nameView)
 	}
-	nameView = lipgloss.JoinHorizontal(lipgloss.Center, "Name", nameView)
+	nameView = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", nameView)
 
 	passwordView := m.password.View()
 	if m.focus == password {
@@ -134,6 +145,7 @@ func (m *WifiStoredInfoModel) View() string {
 	if m.focus == autoconnect {
 		autoconnectCheckboxView = lipgloss.NewStyle().Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
 	}
+	autoconnectCheckboxView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect ", autoconnectCheckboxView)
 
 	autoconPriorityView := m.autoconnectPriority.View()
 	if m.focus == autoconnectPriority {
@@ -143,16 +155,15 @@ func (m *WifiStoredInfoModel) View() string {
 	}
 	autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", autoconPriorityView)
 
+	view := lipgloss.JoinVertical(lipgloss.Left, nameView, passwordView, autoconnectCheckboxView, autoconPriorityView)
+
 	sb := strings.Builder{}
 	fmt.Fprintf(
 		&sb,
-		"SSID: %s%s\n%s\n%s\nAutoconnect %s\n%s",
+		"SSID: %s%s\n%s",
 		m.ssid,
 		m.connectionView(),
-		nameView,
-		passwordView,
-		autoconnectCheckboxView,
-		autoconPriorityView,
+		view,
 	)
 	return sb.String()
 }
@@ -160,8 +171,8 @@ func (m *WifiStoredInfoModel) View() string {
 func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, tea.Cmd) {
 	switch m.focus {
 	case name:
-		upd, cmd := m.name.Update(key)
-		m.name = upd
+		upd, cmd := m.nameInput.Update(key)
+		m.nameInput = upd
 		return m, cmd
 	case password:
 		upd, cmd := m.password.Update(key)
@@ -184,8 +195,8 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 func (m *WifiStoredInfoModel) handleDefaultMessage(msg tea.Msg) (*WifiStoredInfoModel, tea.Cmd) {
 	switch m.focus {
 	case name:
-		upd, cmd := m.name.Update(msg)
-		m.name = upd
+		upd, cmd := m.nameInput.Update(msg)
+		m.nameInput = upd
 		return m, cmd
 	case password:
 		upd, cmd := m.password.Update(msg)
@@ -232,4 +243,24 @@ func (m *WifiStoredInfoModel) focusPrev() tea.Cmd {
 	m.inputs[m.focus].Blur()
 	m.focus--
 	return m.inputs[m.focus].Focus()
+}
+
+func (m *WifiStoredInfoModel) saveWifiInfo() tea.Cmd {
+	return func() tea.Msg {
+		ap, err := strconv.Atoi(m.autoconnectPriority.Value())
+		if err != nil {
+			SetNotificationText(err.Error())
+		}
+		info := &infra.UpdateWifiInfo{
+			Name:                m.nameInput.Value(),
+			Password:            m.password.Value(),
+			Autoconnect:         bool(m.autoconnect),
+			AutoconnectPriority: ap,
+		}
+		err = m.nm.UpdateWifiInfo(m.name, info)
+		if err != nil {
+			Notify(err.Error())
+		}
+		return nil
+	}
 }

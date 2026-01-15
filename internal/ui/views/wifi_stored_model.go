@@ -34,7 +34,7 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 		table.WithFocused(true),
 	)
 	t.SetStyles(styles.TableStyle)
-	s := NewStoredInfoModel()
+	s := NewStoredInfoModel(networkManager)
 
 	return &WifiStoredModel{
 		dataTable:  t,
