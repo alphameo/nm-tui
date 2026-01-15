@@ -90,7 +90,12 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "r":
+		case "ctrl+r":
+			if m.password.EchoMode == textinput.EchoPassword {
+				m.password.EchoMode = textinput.EchoNormal
+			} else {
+				m.password.EchoMode = textinput.EchoPassword
+			}
 			return m, nil
 		case "ctrl+j":
 			return m, m.focusNext()
