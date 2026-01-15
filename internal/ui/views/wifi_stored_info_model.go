@@ -96,9 +96,12 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.focusNext()
 		case "ctrl+k":
 			return m, m.focusPrev()
+		default:
+			return m.handleKey(msg)
 		}
+	default:
+		return m.handleDefaultMessage(msg)
 	}
-	return m, nil
 }
 
 func (m *WifiStoredInfoModel) View() string {
@@ -147,6 +150,49 @@ func (m *WifiStoredInfoModel) View() string {
 		autoconPriorityView,
 	)
 	return sb.String()
+}
+
+func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, tea.Cmd) {
+	switch m.focus {
+	case name:
+		upd, cmd := m.name.Update(key)
+		m.name = upd
+		return m, cmd
+	case password:
+		upd, cmd := m.password.Update(key)
+		m.password = upd
+		return m, cmd
+	case autoconnect:
+		if key.String() == "s" {
+			m.autoconnect = !m.autoconnect
+		}
+		return m, nil
+	case autoconnectPriority:
+		upd, cmd := m.autoconnectPriority.Update(key)
+		m.autoconnectPriority = upd
+		return m, cmd
+	default:
+		return m, nil
+	}
+}
+
+func (m *WifiStoredInfoModel) handleDefaultMessage(msg tea.Msg) (*WifiStoredInfoModel, tea.Cmd) {
+	switch m.focus {
+	case name:
+		upd, cmd := m.name.Update(msg)
+		m.name = upd
+		return m, cmd
+	case password:
+		upd, cmd := m.password.Update(msg)
+		m.password = upd
+		return m, cmd
+	case autoconnectPriority:
+		upd, cmd := m.autoconnectPriority.Update(msg)
+		m.autoconnectPriority = upd
+		return m, cmd
+	default:
+		return m, nil
+	}
 }
 
 func (m *WifiStoredInfoModel) connectionView() string {
