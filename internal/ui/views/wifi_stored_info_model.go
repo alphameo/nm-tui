@@ -12,16 +12,38 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const wifiInfoInputsCount int = 4
+type wifiStoredInfoFocusIndex int
+
+const (
+	name wifiStoredInfoFocusIndex = iota
+	password
+	autoconnect
+	autoconnectPriority
+)
+
+type switcher bool
+
+func (*switcher) Focus() tea.Cmd {
+	return nil
+}
+
+func (*switcher) Blur() {
+}
+
+type Focusable interface {
+	Focus() tea.Cmd
+	Blur()
+}
 
 type WifiStoredInfoModel struct {
 	ssid                string
+	active              bool
 	name                textinput.Model
 	password            textinput.Model
-	active              bool
-	autoconnect         bool
+	autoconnect         switcher
 	autoconnectPriority textinput.Model
-	focusIndex          int
+	inputs              []Focusable
+	focus               wifiStoredInfoFocusIndex
 }
 
 func NewStoredInfoModel() *WifiStoredInfoModel {
@@ -38,11 +60,17 @@ func NewStoredInfoModel() *WifiStoredInfoModel {
 	p.EchoCharacter = '•'
 	p.Placeholder = "password"
 
+	a := switcher(false)
+
 	ap := textinput.New()
 	ap.Width = 4
 	ap.Prompt = ""
 
-	return &WifiStoredInfoModel{name: n, password: p, autoconnectPriority: ap}
+	model := &WifiStoredInfoModel{name: n, password: p, autoconnect: a, autoconnectPriority: ap}
+	inp := []Focusable{&model.name, &model.password, &model.autoconnect, &model.autoconnectPriority}
+	model.inputs = inp
+
+	return model
 }
 
 func (m *WifiStoredInfoModel) setNew(info *infra.WifiInfo) {
@@ -50,7 +78,7 @@ func (m *WifiStoredInfoModel) setNew(info *infra.WifiInfo) {
 	m.name.SetValue(info.Name)
 	m.password.SetValue(info.Password)
 	m.active = info.Active
-	m.autoconnect = info.Autoconnect
+	m.autoconnect = switcher(info.Autoconnect)
 	m.autoconnectPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
 }
 
@@ -65,11 +93,9 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "r":
 			return m, nil
 		case "ctrl+j":
-			m.focusNext()
-			return m, nil
+			return m, m.focusNext()
 		case "ctrl+k":
-			m.focusPrev()
-			return m, nil
+			return m, m.focusPrev()
 		}
 	}
 	return m, nil
@@ -81,7 +107,7 @@ func (m *WifiStoredInfoModel) View() string {
 		BorderStyle(styles.BorderStyle)
 
 	nameView := m.name.View()
-	if m.focusIndex == 0 {
+	if m.focus == name {
 		nameView = inputStyle.BorderForeground(styles.AccentColor).Render(nameView)
 	} else {
 		nameView = inputStyle.Render(nameView)
@@ -89,7 +115,7 @@ func (m *WifiStoredInfoModel) View() string {
 	nameView = lipgloss.JoinHorizontal(lipgloss.Center, "Name", nameView)
 
 	passwordView := m.password.View()
-	if m.focusIndex == 1 {
+	if m.focus == password {
 		passwordView = inputStyle.BorderForeground(styles.AccentColor).Render(passwordView)
 	} else {
 		passwordView = inputStyle.Render(passwordView)
@@ -97,12 +123,12 @@ func (m *WifiStoredInfoModel) View() string {
 	passwordView = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", passwordView)
 
 	autoconnectCheckboxView := checkboxView(m.active)
-	if m.focusIndex == 2 {
+	if m.focus == autoconnect {
 		autoconnectCheckboxView = lipgloss.NewStyle().Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
 	}
 
 	autoconPriorityView := m.autoconnectPriority.View()
-	if m.focusIndex == 3 {
+	if m.focus == autoconnectPriority {
 		autoconPriorityView = inputStyle.BorderForeground(styles.AccentColor).Render(autoconPriorityView)
 	} else {
 		autoconPriorityView = inputStyle.Render(autoconPriorityView)
@@ -139,14 +165,20 @@ func checkboxView(value bool) string {
 	}
 }
 
-func (m *WifiStoredInfoModel) focusNext() {
-	if m.focusIndex < wifiInfoInputsCount {
-		m.focusIndex++
+func (m *WifiStoredInfoModel) focusNext() tea.Cmd {
+	if int(m.focus) >= len(m.inputs)-1 {
+		return nil
 	}
+	m.inputs[m.focus].Blur()
+	m.focus++
+	return m.inputs[m.focus].Focus()
 }
 
-func (m *WifiStoredInfoModel) focusPrev() {
-	if m.focusIndex > 0 {
-		m.focusIndex--
+func (m *WifiStoredInfoModel) focusPrev() tea.Cmd {
+	if m.focus <= 0 {
+		return nil
 	}
+	m.inputs[m.focus].Blur()
+	m.focus--
+	return m.inputs[m.focus].Focus()
 }
