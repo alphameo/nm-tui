@@ -130,7 +130,7 @@ func (m *WifiStoredInfoModel) View() string {
 	}
 	passwordView = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", passwordView)
 
-	autoconnectCheckboxView := checkboxView(m.active)
+	autoconnectCheckboxView := checkboxView(bool(m.autoconnect))
 	if m.focus == autoconnect {
 		autoconnectCheckboxView = lipgloss.NewStyle().Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
 	}
@@ -168,7 +168,7 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 		m.password = upd
 		return m, cmd
 	case autoconnect:
-		if key.String() == "s" {
+		if key.String() == " " {
 			m.autoconnect = !m.autoconnect
 		}
 		return m, nil
