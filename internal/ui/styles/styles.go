@@ -14,6 +14,7 @@ var (
 	AccentColor       = lipgloss.Color("99")
 	BorderStyle       = lipgloss.RoundedBorder()
 	DividerColor      = lipgloss.Color("240")
+	RedColor          = lipgloss.Color("#ff0000")
 	TableStyle        = makeTableStyle()
 	InactiveTabBorder = makeTabBorderWithBottom("┴", "─", "┴")
 	ActiveTabBorder   = makeTabBorderWithBottom("┘", " ", "└")

@@ -1,6 +1,7 @@
 package views
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -67,6 +68,7 @@ func NewStoredInfoModel(networkManager infra.NetworkManager) *WifiStoredInfoMode
 	ap := textinput.New()
 	ap.Width = 4
 	ap.Prompt = ""
+	ap.Validate = autoconnectPriorityValidator
 
 	model := &WifiStoredInfoModel{
 		nameInput:           n,
@@ -145,7 +147,7 @@ func (m *WifiStoredInfoModel) View() string {
 	if m.focus == autoconnect {
 		autoconnectCheckboxView = lipgloss.NewStyle().Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
 	}
-	autoconnectCheckboxView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect ", autoconnectCheckboxView)
+	autoconnectCheckboxView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconnectCheckboxView)
 
 	autoconPriorityView := m.autoconnectPriority.View()
 	if m.focus == autoconnectPriority {
@@ -154,6 +156,10 @@ func (m *WifiStoredInfoModel) View() string {
 		autoconPriorityView = inputStyle.Render(autoconPriorityView)
 	}
 	autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", autoconPriorityView)
+	if m.autoconnectPriority.Err != nil {
+		autoconPriorityErrView := lipgloss.NewStyle().Foreground(styles.RedColor).Render(m.autoconnectPriority.Err.Error())
+		autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, autoconPriorityView, autoconPriorityErrView)
+	}
 
 	view := lipgloss.JoinVertical(lipgloss.Left, nameView, passwordView, autoconnectCheckboxView, autoconPriorityView)
 
@@ -263,4 +269,12 @@ func (m *WifiStoredInfoModel) saveWifiInfo() tea.Cmd {
 		}
 		return nil
 	}
+}
+
+func autoconnectPriorityValidator(input string) error {
+	_, err := strconv.Atoi(input)
+	if err != nil {
+		return errors.New("✗")
+	}
+	return nil
 }
