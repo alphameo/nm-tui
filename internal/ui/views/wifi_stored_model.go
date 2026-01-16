@@ -156,6 +156,7 @@ func (m *WifiStoredModel) connectSelected() tea.Cmd {
 		if err != nil {
 			return Notify(err.Error())
 		}
+		m.dataTable.GotoTop()
 		return nil
 	}
 }
