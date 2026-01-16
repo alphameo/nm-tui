@@ -13,18 +13,23 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type wifiState int
+type (
+	wifiState                int
+	wifiAvailableColumnIndex int
+)
 
 const (
 	Scanning wifiState = iota
 	Connecting
 	None
-	signalColWidth      int     = 3
-	conFlagColWidth     int     = 1
-	securityWidthPart   float32 = 0.3
-	minSecurityColWidth int     = 8
-	minSSIDWidth        int     = 4
-	indicatorHeight     int     = 1
+	signalColWidth      int                      = 3
+	conFlagColWidth     int                      = 1
+	securityWidthPart   float32                  = 0.3
+	minSecurityColWidth int                      = 8
+	minSSIDWidth        int                      = 4
+	indicatorHeight     int                      = 1
+	ssidAvailCol        wifiAvailableColumnIndex = 1
+	securityCol         wifiAvailableColumnIndex = 2
 )
 
 func (s *wifiState) String() string {
@@ -45,8 +50,6 @@ type WifiAvailableModel struct {
 	indicatorSpinner spinner.Model
 	indicatorState   wifiState
 	connector        WifiConnectorModel
-	pSSIDCol         *table.Column
-	pSecurityCol     *table.Column
 	nm               infra.NetworkManager
 	width            int
 	height           int
@@ -59,8 +62,6 @@ func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 		{Title: "Security"},
 		{Title: "", Width: signalColWidth},
 	}
-	ssidCol := &cols[1]
-	securityCol := &cols[2]
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
@@ -73,8 +74,6 @@ func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 		indicatorSpinner: s,
 		indicatorState:   Scanning,
 		connector:        con,
-		pSSIDCol:         ssidCol,
-		pSecurityCol:     securityCol,
 		nm:               networkManager,
 	}
 	return m
@@ -93,8 +92,8 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 
 	security := max(int(float32(width)*securityWidthPart), minSecurityColWidth)
 	ssidWidth := width - signalColWidth - tableUtilityOffset - conFlagColWidth - security
-	m.pSecurityCol.Width = security
-	m.pSSIDCol.Width = ssidWidth
+	m.dataTable.Columns()[securityCol].Width = security
+	m.dataTable.Columns()[ssidAvailCol].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 

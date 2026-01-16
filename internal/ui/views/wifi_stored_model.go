@@ -14,12 +14,17 @@ import (
 type WifiStoredModel struct {
 	dataTable  table.Model
 	storedInfo *WifiStoredInfoModel
-	pSSIDCol   *table.Column
-	pNameCol   *table.Column
 	nm         infra.NetworkManager
 	width      int
 	height     int
 }
+
+type WifiStoredColumnIndex int
+
+const (
+	ssidCol WifiStoredColumnIndex = 1
+	nameCol WifiStoredColumnIndex = 2
+)
 
 func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 	cols := []table.Column{
@@ -27,8 +32,6 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 		{Title: "SSID"},
 		{Title: "Name"},
 	}
-	ssidCol := &cols[1]
-	nameCol := &cols[2]
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
@@ -39,8 +42,6 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 	return &WifiStoredModel{
 		dataTable:  t,
 		storedInfo: s,
-		pNameCol:   nameCol,
-		pSSIDCol:   ssidCol,
 		nm:         networkManager,
 	}
 }
@@ -57,8 +58,8 @@ func (m *WifiStoredModel) Resize(width, height int) {
 	possibleNameWidth := computedWidth / 2
 	ssidWidth := max(computedWidth-possibleNameWidth, minSSIDWidth)
 	nameWidth := computedWidth - ssidWidth
-	m.pNameCol.Width = nameWidth
-	m.pSSIDCol.Width = ssidWidth
+	m.dataTable.Columns()[nameCol].Width = nameWidth
+	m.dataTable.Columns()[ssidCol].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
