@@ -87,9 +87,9 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		case " ":
-			return m, m.ConnectSelected()
+			return m, tea.Sequence(m.connectSelected(), m.UpdateRows())
 		case "shift+ ":
-			return m, m.DisconnectFromSelected()
+			return m, tea.Sequence(m.disconnectFromSelected(), m.UpdateRows())
 		case "r":
 			return m, m.UpdateRows()
 		case "d":
@@ -128,7 +128,7 @@ func (m *WifiStoredModel) View() string {
 	return sb.String()
 }
 
-func (m WifiStoredModel) UpdateRows() tea.Cmd {
+func (m *WifiStoredModel) UpdateRows() tea.Cmd {
 	return func() tea.Msg {
 		list, err := m.nm.GetStoredWifi()
 		if err != nil {
@@ -146,7 +146,7 @@ func (m WifiStoredModel) UpdateRows() tea.Cmd {
 	}
 }
 
-func (m *WifiStoredModel) ConnectSelected() tea.Cmd {
+func (m *WifiStoredModel) connectSelected() tea.Cmd {
 	return func() tea.Msg {
 		err := m.nm.ConnectStoredWifi(m.dataTable.SelectedRow()[2])
 		if err != nil {
@@ -156,7 +156,7 @@ func (m *WifiStoredModel) ConnectSelected() tea.Cmd {
 	}
 }
 
-func (m *WifiStoredModel) DisconnectFromSelected() tea.Cmd {
+func (m *WifiStoredModel) disconnectFromSelected() tea.Cmd {
 	return func() tea.Msg {
 		err := m.nm.DisconnectFromWifi(m.dataTable.SelectedRow()[2])
 		if err != nil {
