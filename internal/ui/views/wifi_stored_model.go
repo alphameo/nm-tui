@@ -77,9 +77,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if row != nil {
 				info, err := m.nm.GetWifiInfo(row[2])
 				if err != nil {
-					// TODO: resolve panic
-					logger.Debug(err.Error())
-					return nil, Notify(err.Error())
+					return m, Notify(err.Error())
 				}
 				m.storedInfo.setNew(info)
 				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(m.storedInfo, "Stored Wi-Fi info"))
