@@ -83,6 +83,10 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(m.storedInfo, "Stored Wi-Fi info"))
 			}
 			return m, nil
+		case " ":
+			return m, m.ConnectSelected()
+		case "shift+ ":
+			return m, m.DisconnectFromSelected()
 		case "r":
 			return m, m.UpdateRows()
 		case "d":
@@ -134,5 +138,25 @@ func (m WifiStoredModel) UpdateRows() tea.Cmd {
 			rows = append(rows, table.Row{connectionFlag, wifiStored.SSID, wifiStored.Name})
 		}
 		return storedRowsMsg(rows)
+	}
+}
+
+func (m *WifiStoredModel) ConnectSelected() tea.Cmd {
+	return func() tea.Msg {
+		err := m.nm.ConnectStoredWifi(m.dataTable.SelectedRow()[2])
+		if err != nil {
+			return Notify(err.Error())
+		}
+		return nil
+	}
+}
+
+func (m *WifiStoredModel) DisconnectFromSelected() tea.Cmd {
+	return func() tea.Msg {
+		err := m.nm.DisconnectFromWifi(m.dataTable.SelectedRow()[2])
+		if err != nil {
+			return Notify(err.Error())
+		}
+		return nil
 	}
 }
