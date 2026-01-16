@@ -13,7 +13,7 @@ import (
 
 type WifiStoredModel struct {
 	dataTable  table.Model
-	storedInfo WifiStoredInfoModel
+	storedInfo *WifiStoredInfoModel
 	pSSIDCol   *table.Column
 	pNameCol   *table.Column
 	nm         infra.NetworkManager
@@ -34,11 +34,11 @@ func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 		table.WithFocused(true),
 	)
 	t.SetStyles(styles.TableStyle)
-	s := NewStoredInfoModel()
+	s := NewStoredInfoModel(networkManager)
 
 	return &WifiStoredModel{
 		dataTable:  t,
-		storedInfo: *s,
+		storedInfo: s,
 		pNameCol:   nameCol,
 		pSSIDCol:   ssidCol,
 		nm:         networkManager,
@@ -66,7 +66,10 @@ func (m *WifiStoredModel) Init() tea.Cmd {
 	return m.UpdateRows()
 }
 
-type storedRowsMsg []table.Row
+type (
+	storedRowsMsg []table.Row
+	UpdateInfoMsg bool
+)
 
 func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -75,10 +78,18 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				m.storedInfo.setNew(row[1])
+				info, err := m.nm.GetWifiInfo(row[2])
+				if err != nil {
+					return m, Notify(err.Error())
+				}
+				m.storedInfo.setNew(info)
 				return m, tea.Sequence(SetPopupActivity(true), SetPopupContent(m.storedInfo, "Stored Wi-Fi info"))
 			}
 			return m, nil
+		case " ":
+			return m, tea.Sequence(m.connectSelected(), m.UpdateRows())
+		case "shift+ ":
+			return m, tea.Sequence(m.disconnectFromSelected(), m.UpdateRows())
 		case "r":
 			return m, m.UpdateRows()
 		case "d":
@@ -89,7 +100,10 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, tea.Sequence(
 				func() tea.Msg {
-					m.nm.DeleteWifiConnection(row[1])
+					err := m.nm.DeleteWifiConnection(row[2])
+					if err != nil {
+						return Notify(err.Error())
+					}
 					return nil
 				},
 				m.UpdateRows())
@@ -97,6 +111,8 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case storedRowsMsg:
 		m.dataTable.SetRows(msg)
 		return m, nil
+	case UpdateInfoMsg:
+		return m, m.UpdateRows()
 	}
 
 	var cmd tea.Cmd
@@ -115,7 +131,7 @@ func (m *WifiStoredModel) View() string {
 	return sb.String()
 }
 
-func (m WifiStoredModel) UpdateRows() tea.Cmd {
+func (m *WifiStoredModel) UpdateRows() tea.Cmd {
 	return func() tea.Msg {
 		list, err := m.nm.GetStoredWifi()
 		if err != nil {
@@ -130,5 +146,31 @@ func (m WifiStoredModel) UpdateRows() tea.Cmd {
 			rows = append(rows, table.Row{connectionFlag, wifiStored.SSID, wifiStored.Name})
 		}
 		return storedRowsMsg(rows)
+	}
+}
+
+func (m *WifiStoredModel) connectSelected() tea.Cmd {
+	return func() tea.Msg {
+		err := m.nm.ConnectStoredWifi(m.dataTable.SelectedRow()[2])
+		if err != nil {
+			return Notify(err.Error())
+		}
+		return nil
+	}
+}
+
+func (m *WifiStoredModel) disconnectFromSelected() tea.Cmd {
+	return func() tea.Msg {
+		err := m.nm.DisconnectFromWifi(m.dataTable.SelectedRow()[2])
+		if err != nil {
+			return Notify(err.Error())
+		}
+		return nil
+	}
+}
+
+func UpdateWifiStoredRows() tea.Cmd {
+	return func() tea.Msg {
+		return UpdateInfoMsg(true)
 	}
 }

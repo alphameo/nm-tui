@@ -136,9 +136,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err == nil {
 			cmd = m.UpdateRows()
 		} else {
-			cmd = tea.Sequence(
-				Notify(msg.err.Error()),
-			)
+			cmd = Notify(msg.err.Error())
 		}
 		return m, tea.Sequence(cmd, SetWifiIndicatorState(None))
 	}

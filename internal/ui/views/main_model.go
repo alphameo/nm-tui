@@ -79,6 +79,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)
 		return m, nil
+	case tea.Cmd:
+		return m, tea.Cmd(msg)
 	case tea.KeyMsg:
 		return m, m.processKeyMsg(msg)
 	}
@@ -197,5 +199,5 @@ func SetNotificationActivity(isActive bool) tea.Cmd {
 }
 
 func Notify(text string) tea.Cmd {
-	return tea.Batch(SetNotificationActivity(true), SetNotificationText(text))
+	return tea.Sequence(SetNotificationText(text), SetNotificationActivity(true))
 }
