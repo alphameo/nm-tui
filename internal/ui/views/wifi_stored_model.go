@@ -66,7 +66,10 @@ func (m *WifiStoredModel) Init() tea.Cmd {
 	return m.UpdateRows()
 }
 
-type storedRowsMsg []table.Row
+type (
+	storedRowsMsg []table.Row
+	UpdateInfoMsg bool
+)
 
 func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -105,6 +108,8 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case storedRowsMsg:
 		m.dataTable.SetRows(msg)
 		return m, nil
+	case UpdateInfoMsg:
+		return m, m.UpdateRows()
 	}
 
 	var cmd tea.Cmd
@@ -158,5 +163,11 @@ func (m *WifiStoredModel) DisconnectFromSelected() tea.Cmd {
 			return Notify(err.Error())
 		}
 		return nil
+	}
+}
+
+func UpdateWifiStoredRows() tea.Cmd {
+	return func() tea.Msg {
+		return UpdateInfoMsg(true)
 	}
 }

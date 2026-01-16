@@ -113,7 +113,7 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+k":
 			return m, m.focusPrev()
 		case "enter":
-			return m, tea.Sequence(SetPopupActivity(false), m.saveWifiInfo())
+			return m, tea.Sequence(SetPopupActivity(false), m.saveWifiInfo(), UpdateWifiStoredRows())
 		default:
 			return m.handleKey(msg)
 		}
