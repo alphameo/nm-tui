@@ -96,3 +96,7 @@ func lines(s string) []string {
 	s = strings.ReplaceAll(s, "\r\n", "\n")
 	return strings.Split(s, "\n")
 }
+
+func PlaceTitle(view, title string) string {
+	return Compose(title, view, Begin, Begin, 2, 0)
+}

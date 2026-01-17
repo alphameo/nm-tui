@@ -2,9 +2,6 @@
 package styles
 
 import (
-	"fmt"
-
-	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -68,59 +65,4 @@ func tabbedViewBorder(border lipgloss.Border) lipgloss.Border {
 	border.TopLeft = border.Left
 	border.TopRight = border.Right
 	return border
-}
-
-func RenderTabBar(
-	titles []string,
-	activeStyle,
-	inactiveStyle lipgloss.Style,
-	fullWidth int,
-	active int,
-) string {
-	tabCount := len(titles)
-	tabWidth := fullWidth/tabCount - 2
-	tail := fullWidth % tabCount
-	var renderedTabs []string
-	for i, t := range titles {
-		var style lipgloss.Style
-		isFirst, isLast, isActive := i == 0, i == len(titles)-1, i == active
-		if isActive {
-			style = activeStyle
-		} else {
-			style = inactiveStyle
-		}
-		border, _, _, _, _ := style.GetBorder()
-		if isFirst && isActive {
-			border.BottomLeft = border.Left
-		} else if isFirst && !isActive {
-			border.BottomLeft = border.MiddleLeft
-		} else if isLast && isActive {
-			border.BottomRight = border.Right
-		} else if isLast && !isActive {
-			border.BottomRight = border.MiddleRight
-		}
-		style = style.Border(border)
-		if tail > 0 {
-			style = style.Width(tabWidth + 1)
-			tail--
-		} else {
-			style = style.Width(tabWidth)
-		}
-		tabView := style.Render(t)
-		renderedTabs = append(renderedTabs, tabView)
-	}
-
-	return lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
-}
-
-func RenderBorderTitleWithKeybind(view, title, keybind string, border *lipgloss.Style) string {
-	styledView := border.Render(view)
-	keybindStyle := lipgloss.NewStyle().Foreground(border.GetBorderTopForeground())
-	titleStyle := lipgloss.NewStyle().Foreground(AccentColor)
-	keybind = fmt.Sprintf("[%s]%s", keybind, border.GetBorderStyle().Top)
-	inlineTitle := fmt.Sprintf("%s%s",
-		keybindStyle.Render(keybind),
-		titleStyle.Render(title),
-	)
-	return compositor.Compose(inlineTitle, styledView, compositor.Begin, compositor.Begin, 2, 0)
 }

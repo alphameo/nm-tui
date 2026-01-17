@@ -6,6 +6,7 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -77,7 +78,7 @@ func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m TabsModel) View() string {
 	view := m.tabTables[m.activeTab].View()
-	tabBar := styles.RenderTabBar(
+	tabBar := renderer.RenderTabBar(
 		m.tabTitles,
 		styles.TabTabBorderActiveStyle,
 		styles.TabTabBorderInactiveStyle,

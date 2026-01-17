@@ -6,6 +6,7 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -92,18 +93,20 @@ func (m *WifiModel) View() string {
 		storedStyle = storedStyle.BorderForeground(styles.AccentColor)
 	}
 
-	availableView := styles.RenderBorderTitleWithKeybind(
+	availableView := renderer.RenderWithTitleAndKeybind(
 		m.available.View(),
 		"Available Wi-Fi",
 		"1",
 		&availableStyle,
+		styles.AccentColor,
 	)
 
-	storedView := styles.RenderBorderTitleWithKeybind(
+	storedView := renderer.RenderWithTitleAndKeybind(
 		m.stored.View(),
 		"Stored Wi-Fi",
 		"2",
 		&storedStyle,
+		styles.AccentColor,
 	)
 
 	sb := strings.Builder{}
