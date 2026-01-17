@@ -1,3 +1,4 @@
+// Package renderer provides methods for help to rendering app components
 package renderer
 
 import (
