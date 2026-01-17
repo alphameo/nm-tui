@@ -7,7 +7,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 const maxWindows int = 2
@@ -79,13 +78,11 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *WifiModel) View() string {
-	availableStyle := lipgloss.NewStyle().
-		BorderStyle(styles.BorderStyle).
+	availableStyle := styles.BorderedStyle.
 		Width(m.available.width).
 		Height(m.available.height)
 
-	storedStyle := lipgloss.NewStyle().
-		BorderStyle(styles.BorderStyle).
+	storedStyle := styles.BorderedStyle.
 		Width(m.stored.width).
 		Height(m.stored.height)
 

@@ -123,9 +123,7 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *WifiStoredInfoModel) View() string {
-	inputStyle := lipgloss.
-		NewStyle().
-		BorderStyle(styles.BorderStyle)
+	inputStyle := styles.BorderedStyle
 
 	nameView := m.nameInput.View()
 	if m.focus == name {
@@ -145,7 +143,7 @@ func (m *WifiStoredInfoModel) View() string {
 
 	autoconnectCheckboxView := checkboxView(bool(m.autoconnect))
 	if m.focus == autoconnect {
-		autoconnectCheckboxView = lipgloss.NewStyle().Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
+		autoconnectCheckboxView = styles.DefaultStyle.Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
 	}
 	autoconnectCheckboxView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconnectCheckboxView)
 
@@ -157,7 +155,7 @@ func (m *WifiStoredInfoModel) View() string {
 	}
 	autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", autoconPriorityView)
 	if m.autoconnectPriority.Err != nil {
-		autoconPriorityErrView := lipgloss.NewStyle().Foreground(styles.RedColor).Render(m.autoconnectPriority.Err.Error())
+		autoconPriorityErrView := styles.DefaultStyle.Foreground(styles.RedColor).Render(m.autoconnectPriority.Err.Error())
 		autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, autoconPriorityView, autoconPriorityErrView)
 	}
 
@@ -219,7 +217,7 @@ func (m *WifiStoredInfoModel) handleDefaultMessage(msg tea.Msg) (*WifiStoredInfo
 
 func (m *WifiStoredInfoModel) connectionView() string {
 	if m.active {
-		return lipgloss.NewStyle().Foreground(styles.AccentColor).Render(" (connected)")
+		return styles.DefaultStyle.Foreground(styles.AccentColor).Render(" (connected)")
 	} else {
 		return ""
 	}

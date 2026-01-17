@@ -10,27 +10,36 @@ import (
 )
 
 var (
-	TextColor         = lipgloss.Color("#ffffff")
-	AccentColor       = lipgloss.Color("99")
-	BorderStyle       = lipgloss.RoundedBorder()
-	DividerColor      = lipgloss.Color("240")
-	RedColor          = lipgloss.Color("#ff0000")
-	TableStyle        = makeTableStyle()
-	InactiveTabBorder = makeTabBorderWithBottom("┴", "─", "┴")
-	ActiveTabBorder   = makeTabBorderWithBottom("┘", " ", "└")
-	InactiveTabStyle  = lipgloss.NewStyle().Border(InactiveTabBorder, true).Padding(0, 1)
-	ActiveTabStyle    = InactiveTabStyle.Border(ActiveTabBorder, true)
-	OverlayStyle      = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder()).
-				Align(lipgloss.Center, lipgloss.Center).
-				Foreground(TextColor)
+	TextColor   = lipgloss.Color("#cbcbcb")
+	AccentColor = lipgloss.Color("#865fff")
+	MutedColor  = lipgloss.Color("#595959")
+	RedColor    = lipgloss.Color("#ff0000")
+
+	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor)
+
+	Border        = lipgloss.RoundedBorder()
+	BorderedStyle = DefaultStyle.Border(Border)
+
+	TableStyle = tableStyle()
+
+	TabTabBorderInactive      = tabBorderInactive(Border)
+	TabTabBorderActive        = tabBorderActive(Border)
+	TabScreenBorder           = tabbedViewBorder(Border)
+	TabScreenBorderStyle      = DefaultStyle.Border(TabScreenBorder)
+	TabTabBorderInactiveStyle = DefaultStyle.Border(TabTabBorderInactive, true).Padding(0, 1)
+	TabTabBorderActiveStyle   = TabTabBorderInactiveStyle.Border(TabTabBorderActive, true)
+
+	OverlayStyle = DefaultStyle.
+			Border(Border).
+			Align(lipgloss.Center, lipgloss.Center).
+			Foreground(TextColor)
 )
 
-func makeTableStyle() table.Styles {
+func tableStyle() table.Styles {
 	style := table.DefaultStyles()
 	style.Header = style.Header.
 		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(DividerColor).
+		BorderForeground(MutedColor).
 		BorderBottom(true).
 		Bold(false)
 	style.Selected = style.Selected.
@@ -40,15 +49,28 @@ func makeTableStyle() table.Styles {
 	return style
 }
 
-func makeTabBorderWithBottom(left, middle, right string) lipgloss.Border {
-	border := lipgloss.RoundedBorder()
-	border.BottomLeft = left
-	border.Bottom = middle
-	border.BottomRight = right
+func tabBorderInactive(border lipgloss.Border) lipgloss.Border {
+	border.BottomLeft = border.MiddleBottom
+	border.BottomRight = border.MiddleBottom
 	return border
 }
 
-func ConstructTabBar(
+func tabBorderActive(border lipgloss.Border) lipgloss.Border {
+	lBot := border.BottomRight
+	border.BottomRight = border.BottomLeft
+	border.BottomLeft = lBot
+	border.Bottom = " "
+	return border
+}
+
+func tabbedViewBorder(border lipgloss.Border) lipgloss.Border {
+	border.Top = " "
+	border.TopLeft = border.Left
+	border.TopRight = border.Right
+	return border
+}
+
+func TabBarView(
 	titles []string,
 	activeStyle,
 	inactiveStyle lipgloss.Style,
@@ -69,13 +91,13 @@ func ConstructTabBar(
 		}
 		border, _, _, _, _ := style.GetBorder()
 		if isFirst && isActive {
-			border.BottomLeft = "│"
+			border.BottomLeft = border.Left
 		} else if isFirst && !isActive {
-			border.BottomLeft = "├"
+			border.BottomLeft = border.MiddleLeft
 		} else if isLast && isActive {
-			border.BottomRight = "│"
+			border.BottomRight = border.Right
 		} else if isLast && !isActive {
-			border.BottomRight = "┤"
+			border.BottomRight = border.MiddleRight
 		}
 		style = style.Border(border)
 		if tail > 0 {

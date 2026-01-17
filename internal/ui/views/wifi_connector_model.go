@@ -8,7 +8,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type WifiConnectorModel struct {
@@ -65,10 +64,7 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m WifiConnectorModel) View() string {
-	inputField := lipgloss.
-		NewStyle().
-		BorderStyle(styles.BorderStyle).
-		Render(m.password.View())
+	inputField := styles.BorderedStyle.Render(m.password.View())
 	sb := strings.Builder{}
 	fmt.Fprintf(&sb, "SSID: %s\n%v", m.ssid, inputField)
 	return sb.String()

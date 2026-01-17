@@ -77,21 +77,16 @@ func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m TabsModel) View() string {
 	view := m.tabTables[m.activeTab].View()
-	tabBar := styles.ConstructTabBar(
+	tabBar := styles.TabBarView(
 		m.tabTitles,
-		styles.ActiveTabStyle,
-		styles.InactiveTabStyle,
+		styles.TabTabBorderActiveStyle,
+		styles.TabTabBorderInactiveStyle,
 		lipgloss.Width(view)+2,
 		m.activeTab,
 	)
-	borderStyle := styles.BorderStyle
-	borderStyle.Top = ""
-	borderStyle.TopLeft = "│"
-	borderStyle.TopRight = "│"
-	style := lipgloss.NewStyle().Border(borderStyle)
-	styledView := style.Render(view)
+	view = styles.TabScreenBorderStyle.Render(view)
 
 	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s\n%s", tabBar, styledView)
+	fmt.Fprintf(&sb, "%s\n%s", tabBar, view)
 	return sb.String()
 }

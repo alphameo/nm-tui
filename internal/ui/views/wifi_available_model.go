@@ -39,7 +39,7 @@ func (s *wifiState) String() string {
 	case Connecting:
 		return "Connecting"
 	case None:
-		return ""
+		return "󰄬"
 	default:
 		return "Undefined!!!"
 	}
@@ -157,13 +157,13 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *WifiAvailableModel) View() string {
 	view := m.dataTable.View()
 
-	var symbol string
+	var statusline string
 	if m.indicatorState != None {
-		symbol = fmt.Sprintf("%s %s", m.indicatorState.String(), m.indicatorSpinner.View())
+		statusline = fmt.Sprintf("%s %s", m.indicatorState.String(), m.indicatorSpinner.View())
 	} else {
-		symbol = "󰄬"
+		statusline = m.indicatorState.String()
 	}
-	statusline := lipgloss.Place(m.dataTable.Width(), 1, lipgloss.Center, lipgloss.Center, symbol)
+	statusline = lipgloss.Place(m.dataTable.Width(), 1, lipgloss.Center, lipgloss.Center, statusline)
 
 	sb := strings.Builder{}
 	fmt.Fprintf(&sb, "%s\n%s", view, statusline)
