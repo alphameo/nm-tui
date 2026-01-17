@@ -70,7 +70,7 @@ func tabbedViewBorder(border lipgloss.Border) lipgloss.Border {
 	return border
 }
 
-func TabBarView(
+func RenderTabBar(
 	titles []string,
 	activeStyle,
 	inactiveStyle lipgloss.Style,

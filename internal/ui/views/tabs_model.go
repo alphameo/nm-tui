@@ -77,7 +77,7 @@ func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m TabsModel) View() string {
 	view := m.tabTables[m.activeTab].View()
-	tabBar := styles.TabBarView(
+	tabBar := styles.RenderTabBar(
 		m.tabTitles,
 		styles.TabTabBorderActiveStyle,
 		styles.TabTabBorderInactiveStyle,
