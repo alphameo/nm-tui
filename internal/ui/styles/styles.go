@@ -113,11 +113,14 @@ func TabBarView(
 	return lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
 }
 
-func ApplyStyleWithTitle(view, title, keybind string, style lipgloss.Style) string {
-	styledView := style.Render(view)
+func RenderBorderTitleWithKeybind(view, title, keybind string, border *lipgloss.Style) string {
+	styledView := border.Render(view)
+	keybindStyle := lipgloss.NewStyle().Foreground(border.GetBorderTopForeground())
+	titleStyle := lipgloss.NewStyle().Foreground(AccentColor)
+	keybind = fmt.Sprintf("[%s]%s", keybind, border.GetBorderStyle().Top)
 	inlineTitle := fmt.Sprintf("%s%s",
-		lipgloss.NewStyle().Foreground(style.GetBorderTopForeground()).Render(fmt.Sprintf("[%s]%s", keybind, style.GetBorderStyle().Top)),
-		lipgloss.NewStyle().Foreground(AccentColor).Render(title),
+		keybindStyle.Render(keybind),
+		titleStyle.Render(title),
 	)
 	return compositor.Compose(inlineTitle, styledView, compositor.Begin, compositor.Begin, 2, 0)
 }

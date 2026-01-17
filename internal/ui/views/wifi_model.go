@@ -92,18 +92,18 @@ func (m *WifiModel) View() string {
 		storedStyle = storedStyle.BorderForeground(styles.AccentColor)
 	}
 
-	availableView := styles.ApplyStyleWithTitle(
+	availableView := styles.RenderBorderTitleWithKeybind(
 		m.available.View(),
 		"Available Wi-Fi",
 		"1",
-		availableStyle,
+		&availableStyle,
 	)
 
-	storedView := styles.ApplyStyleWithTitle(
+	storedView := styles.RenderBorderTitleWithKeybind(
 		m.stored.View(),
 		"Stored Wi-Fi",
 		"2",
-		storedStyle,
+		&storedStyle,
 	)
 
 	sb := strings.Builder{}
