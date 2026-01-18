@@ -61,21 +61,18 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmd := m.handleKeyMsg(msg)
 			return m, cmd
 		}
-	default:
-		var cmds []tea.Cmd
-
-		upd, cmd := m.available.Update(msg)
-		m.available = upd.(*WifiAvailableModel)
-		cmds = append(cmds, cmd)
-
-		upd, cmd = m.stored.Update(msg)
-		m.stored = upd.(*WifiStoredModel)
-		cmds = append(cmds, cmd)
-
-		return m, tea.Batch(cmds...)
 	}
+	var cmds []tea.Cmd
 
-	return m, nil
+	upd, cmd := m.available.Update(msg)
+	m.available = upd.(*WifiAvailableModel)
+	cmds = append(cmds, cmd)
+
+	upd, cmd = m.stored.Update(msg)
+	m.stored = upd.(*WifiStoredModel)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m *WifiModel) View() string {
