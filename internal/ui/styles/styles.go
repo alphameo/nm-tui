@@ -10,7 +10,7 @@ var (
 	TextColor   = lipgloss.Color("#cbcbcb")
 	AccentColor = lipgloss.Color("#865fff")
 	MutedColor  = lipgloss.Color("#595959")
-	ErrorColor    = lipgloss.Color("#ff0000")
+	ErrorColor  = lipgloss.Color("#ff0000")
 
 	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor)
 
