@@ -19,6 +19,7 @@ const nmcliCmdName = "nmcli"
 
 func (Nmcli) GetAvailableWifi() ([]*WifiScanned, error) {
 	// CMD: nmcli -t -f SSID,IN-USE,SECURITY,SIGNAL dev wifi
+	// TODO: nmcli -t -f SSID,IN-USE,SECURITY,SIGNAL,FREQ,RATE,BANDWIDTH dev wifi
 	args := []string{"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL", "dev", "wifi"}
 	out, err := exec.Command(nmcliCmdName, args...).Output()
 	if err != nil {
