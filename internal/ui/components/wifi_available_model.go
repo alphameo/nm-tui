@@ -49,7 +49,7 @@ type WifiAvailableModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
 	indicatorState   wifiState
-	connector        WifiConnectorModel
+	connector        *WifiConnectorModel
 	nm               infra.NetworkManager
 	width            int
 	height           int
@@ -68,7 +68,7 @@ func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	con := *NewWifiConnector(networkManager)
+	con := NewWifiConnector(networkManager)
 	m := &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
@@ -98,7 +98,7 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 }
 
 func (m *WifiAvailableModel) Init() tea.Cmd {
-	return m.UpdateRowsCmd()
+	return m.updateRowsCmd()
 }
 
 func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -109,11 +109,11 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.indicatorState != None {
 				return m, nil
 			}
-			return m, m.UpdateRowsCmd()
+			return m, m.updateRowsCmd()
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				m.connector.setNew(row[1])
+				m.connector.setNew(row[ssidAvailCol])
 				return m, tea.Sequence(
 					SetPopupActivityCmd(true),
 					SetPopupContentCmd(m.connector, "Wi-Fi Connector"),
@@ -121,23 +121,8 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
-	case scannedRowsMsg:
-		m.dataTable.SetRows(msg)
-		return m, nil
 	case WifiIndicatorStateMsg:
-		m.indicatorState = wifiState(msg)
-		if m.indicatorState == None {
-			return m, nil
-		}
-		return m, m.indicatorSpinner.Tick
-	case WifiConnectionMsg:
-		var cmd tea.Cmd
-		if msg.err == nil {
-			cmd = m.UpdateRowsCmd()
-		} else {
-			cmd = NotifyCmd(msg.err.Error())
-		}
-		return m, tea.Sequence(cmd, SetWifiIndicatorStateCmd(None))
+		return m, m.setWifiIndicatorStateCmd(wifiState(msg))
 	}
 
 	var cmd tea.Cmd
@@ -170,15 +155,14 @@ func (m *WifiAvailableModel) View() string {
 	return sb.String()
 }
 
-type scannedRowsMsg []table.Row
-
-func (m WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
+func (m *WifiAvailableModel) updateRowsCmd() tea.Cmd {
 	return tea.Sequence(
-		SetWifiIndicatorStateCmd(Scanning),
+		m.setWifiIndicatorStateCmd(Scanning),
 		func() tea.Msg {
 			list, err := m.nm.GetAvailableWifi()
 			if err != nil {
 				logger.Errln(fmt.Errorf("error: %s", err.Error()))
+				return NotifyCmd(err.Error())
 			}
 			rows := []table.Row{}
 			for _, wifiNet := range list {
@@ -188,12 +172,26 @@ func (m WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 				}
 				rows = append(rows, table.Row{connectionFlag, wifiNet.SSID, wifiNet.Security, fmt.Sprint(wifiNet.Signal)})
 			}
-			return scannedRowsMsg(rows)
+
+			m.dataTable.SetRows(rows)
+			return nil
 		},
-		SetWifiIndicatorStateCmd(None))
+		m.setWifiIndicatorStateCmd(None))
 }
 
 type WifiIndicatorStateMsg wifiState
+
+func (m *WifiAvailableModel) setWifiIndicatorStateCmd(state wifiState) tea.Cmd {
+	updCmd := func() tea.Msg {
+		m.indicatorState = state
+		return nil
+	}
+	if state == None {
+		return updCmd
+	} else {
+		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
+	}
+}
 
 func SetWifiIndicatorStateCmd(state wifiState) tea.Cmd {
 	return func() tea.Msg {

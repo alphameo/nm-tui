@@ -70,17 +70,15 @@ func (m WifiConnectorModel) View() string {
 	return sb.String()
 }
 
-type WifiConnectionMsg struct {
-	err  error
-	ssid string
-}
-
 func (m *WifiConnectorModel) ConnectToWifiCmd(ssid, password string) tea.Cmd {
 	return tea.Sequence(
 		SetWifiIndicatorStateCmd(Connecting),
 		func() tea.Msg {
 			err := m.nm.ConnectWifi(ssid, password)
-			return WifiConnectionMsg{err: err, ssid: ssid}
+			if err != nil {
+				return NotifyCmd(err.Error())
+			}
+			return nil
 		},
 		SetWifiIndicatorStateCmd(None))
 }
