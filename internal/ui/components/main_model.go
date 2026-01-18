@@ -82,9 +82,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.Cmd:
 		return m, tea.Cmd(msg)
 	case tea.KeyMsg:
-		return m, m.processKeyMsg(msg)
+		return m, m.handleKeyMsg(msg)
 	}
-	return m, m.processCommonMsg(msg)
+	return m, m.handleMsg(msg)
 }
 
 func (m *MainModel) Resize(width, height int) {
@@ -110,7 +110,7 @@ func (m MainModel) View() string {
 	return view
 }
 
-func (m *MainModel) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
+func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	if m.notification.IsActive {
 		upd, cmd := m.notification.Update(keyMsg)
 		m.notification = upd.(FloatingModel)
@@ -136,7 +136,7 @@ func (m *MainModel) processKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	return cmd
 }
 
-func (m *MainModel) processCommonMsg(msg tea.Msg) tea.Cmd {
+func (m *MainModel) handleMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var upd tea.Model
 	upd, cmd = m.tabs.Update(msg)
@@ -169,13 +169,13 @@ type (
 	PopupActivityMsg bool
 )
 
-func SetPopupContent(content tea.Model, title string) tea.Cmd {
+func SetPopupContentCmd(content tea.Model, title string) tea.Cmd {
 	return func() tea.Msg {
 		return PopupContentMsg{content, title}
 	}
 }
 
-func SetPopupActivity(isActive bool) tea.Cmd {
+func SetPopupActivityCmd(isActive bool) tea.Cmd {
 	return func() tea.Msg {
 		return PopupActivityMsg(isActive)
 	}
@@ -186,18 +186,18 @@ type (
 	NotificationActivityMsg bool
 )
 
-func SetNotificationText(text string) tea.Cmd {
+func SetNotificationTextCmd(text string) tea.Cmd {
 	return func() tea.Msg {
 		return NotificationTextMsg(text)
 	}
 }
 
-func SetNotificationActivity(isActive bool) tea.Cmd {
+func SetNotificationActivityCmd(isActive bool) tea.Cmd {
 	return func() tea.Msg {
 		return NotificationActivityMsg(isActive)
 	}
 }
 
-func Notify(text string) tea.Cmd {
-	return tea.Sequence(SetNotificationText(text), SetNotificationActivity(true))
+func NotifyCmd(text string) tea.Cmd {
+	return tea.Sequence(SetNotificationTextCmd(text), SetNotificationActivityCmd(true))
 }

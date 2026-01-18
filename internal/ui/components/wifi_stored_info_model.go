@@ -109,16 +109,16 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		case "ctrl+j":
-			return m, m.focusNext()
+			return m, m.focusNextCmd()
 		case "ctrl+k":
-			return m, m.focusPrev()
+			return m, m.focusPrevCmd()
 		case "enter":
-			return m, tea.Sequence(SetPopupActivity(false), m.saveWifiInfo(), UpdateWifiStoredRows())
+			return m, tea.Sequence(SetPopupActivityCmd(false), m.saveWifiInfoCmd(), UpdateWifiStoredRowsCmd())
 		default:
 			return m.handleKey(msg)
 		}
 	default:
-		return m.handleDefaultMessage(msg)
+		return m.handleMsg(msg)
 	}
 }
 
@@ -196,7 +196,7 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 	}
 }
 
-func (m *WifiStoredInfoModel) handleDefaultMessage(msg tea.Msg) (*WifiStoredInfoModel, tea.Cmd) {
+func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.Cmd) {
 	switch m.focus {
 	case name:
 		upd, cmd := m.nameInput.Update(msg)
@@ -231,7 +231,7 @@ func checkboxView(value bool) string {
 	}
 }
 
-func (m *WifiStoredInfoModel) focusNext() tea.Cmd {
+func (m *WifiStoredInfoModel) focusNextCmd() tea.Cmd {
 	if int(m.focus) >= len(m.inputs)-1 {
 		return nil
 	}
@@ -240,7 +240,7 @@ func (m *WifiStoredInfoModel) focusNext() tea.Cmd {
 	return m.inputs[m.focus].Focus()
 }
 
-func (m *WifiStoredInfoModel) focusPrev() tea.Cmd {
+func (m *WifiStoredInfoModel) focusPrevCmd() tea.Cmd {
 	if m.focus <= 0 {
 		return nil
 	}
@@ -249,11 +249,11 @@ func (m *WifiStoredInfoModel) focusPrev() tea.Cmd {
 	return m.inputs[m.focus].Focus()
 }
 
-func (m *WifiStoredInfoModel) saveWifiInfo() tea.Cmd {
+func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 	return func() tea.Msg {
 		ap, err := strconv.Atoi(m.autoconnectPriority.Value())
 		if err != nil {
-			return SetNotificationText(err.Error())
+			return SetNotificationTextCmd(err.Error())
 		}
 		info := &infra.UpdateWifiInfo{
 			Name:                m.nameInput.Value(),
@@ -263,7 +263,7 @@ func (m *WifiStoredInfoModel) saveWifiInfo() tea.Cmd {
 		}
 		err = m.nm.UpdateWifiInfo(m.name, info)
 		if err != nil {
-			return Notify(err.Error())
+			return NotifyCmd(err.Error())
 		}
 		return nil
 	}

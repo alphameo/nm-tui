@@ -46,8 +46,8 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEnter:
 			pw := m.password.Value()
 			return m, tea.Sequence(
-				SetPopupActivity(false),
-				m.Connect(m.ssid, pw),
+				SetPopupActivityCmd(false),
+				m.ConnectToWifiCmd(m.ssid, pw),
 			)
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
@@ -75,12 +75,12 @@ type WifiConnectionMsg struct {
 	ssid string
 }
 
-func (m *WifiConnectorModel) Connect(ssid, password string) tea.Cmd {
+func (m *WifiConnectorModel) ConnectToWifiCmd(ssid, password string) tea.Cmd {
 	return tea.Sequence(
-		SetWifiIndicatorState(Connecting),
+		SetWifiIndicatorStateCmd(Connecting),
 		func() tea.Msg {
 			err := m.nm.ConnectWifi(ssid, password)
 			return WifiConnectionMsg{err: err, ssid: ssid}
 		},
-		SetWifiIndicatorState(None))
+		SetWifiIndicatorStateCmd(None))
 }

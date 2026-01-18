@@ -98,7 +98,7 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 }
 
 func (m *WifiAvailableModel) Init() tea.Cmd {
-	return m.UpdateRows()
+	return m.UpdateRowsCmd()
 }
 
 func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -109,14 +109,14 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.indicatorState != None {
 				return m, nil
 			}
-			return m, m.UpdateRows()
+			return m, m.UpdateRowsCmd()
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
 				m.connector.setNew(row[1])
 				return m, tea.Sequence(
-					SetPopupActivity(true),
-					SetPopupContent(m.connector, "Wi-Fi Connector"),
+					SetPopupActivityCmd(true),
+					SetPopupContentCmd(m.connector, "Wi-Fi Connector"),
 				)
 			}
 			return m, nil
@@ -133,11 +133,11 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case WifiConnectionMsg:
 		var cmd tea.Cmd
 		if msg.err == nil {
-			cmd = m.UpdateRows()
+			cmd = m.UpdateRowsCmd()
 		} else {
-			cmd = Notify(msg.err.Error())
+			cmd = NotifyCmd(msg.err.Error())
 		}
-		return m, tea.Sequence(cmd, SetWifiIndicatorState(None))
+		return m, tea.Sequence(cmd, SetWifiIndicatorStateCmd(None))
 	}
 
 	var cmd tea.Cmd
@@ -172,9 +172,9 @@ func (m *WifiAvailableModel) View() string {
 
 type scannedRowsMsg []table.Row
 
-func (m WifiAvailableModel) UpdateRows() tea.Cmd {
+func (m WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 	return tea.Sequence(
-		SetWifiIndicatorState(Scanning),
+		SetWifiIndicatorStateCmd(Scanning),
 		func() tea.Msg {
 			list, err := m.nm.GetAvailableWifi()
 			if err != nil {
@@ -190,12 +190,12 @@ func (m WifiAvailableModel) UpdateRows() tea.Cmd {
 			}
 			return scannedRowsMsg(rows)
 		},
-		SetWifiIndicatorState(None))
+		SetWifiIndicatorStateCmd(None))
 }
 
 type WifiIndicatorStateMsg wifiState
 
-func SetWifiIndicatorState(state wifiState) tea.Cmd {
+func SetWifiIndicatorStateCmd(state wifiState) tea.Cmd {
 	return func() tea.Msg {
 		return WifiIndicatorStateMsg(state)
 	}
