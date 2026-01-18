@@ -22,15 +22,6 @@ const (
 	autoconnectPriorityFocus
 )
 
-type switcher bool
-
-func (*switcher) Focus() tea.Cmd {
-	return nil
-}
-
-func (*switcher) Blur() {
-}
-
 type Focusable interface {
 	Focus() tea.Cmd
 	Blur()
@@ -42,7 +33,7 @@ type WifiStoredInfoModel struct {
 	name                string
 	nameInput           textinput.Model
 	password            textinput.Model
-	autoconnect         switcher
+	autoconnect         *ToggleModel
 	autoconnectPriority textinput.Model
 	inputs              []Focusable
 	focus               wifiStoredInfoFocusIndex
@@ -63,7 +54,7 @@ func NewStoredInfoModel(networkManager infra.NetworkManager) *WifiStoredInfoMode
 	p.EchoCharacter = '•'
 	p.Placeholder = "password"
 
-	a := switcher(false)
+	t := NewToggleModel(false)
 
 	ap := textinput.New()
 	ap.Width = 4
@@ -73,11 +64,11 @@ func NewStoredInfoModel(networkManager infra.NetworkManager) *WifiStoredInfoMode
 	model := &WifiStoredInfoModel{
 		nameInput:           n,
 		password:            p,
-		autoconnect:         a,
+		autoconnect:         t,
 		autoconnectPriority: ap,
 		nm:                  networkManager,
 	}
-	inp := []Focusable{&model.nameInput, &model.password, &model.autoconnect, &model.autoconnectPriority}
+	inp := []Focusable{&model.nameInput, &model.password, model.autoconnect, &model.autoconnectPriority}
 	model.inputs = inp
 
 	return model
@@ -89,7 +80,7 @@ func (m *WifiStoredInfoModel) setNew(info *infra.WifiInfo) {
 	m.nameInput.SetValue(info.Name)
 	m.password.SetValue(info.Password)
 	m.active = info.Active
-	m.autoconnect = switcher(info.Autoconnect)
+	m.autoconnect.SetValue(info.Autoconnect)
 	m.autoconnectPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
 }
 
@@ -141,10 +132,7 @@ func (m *WifiStoredInfoModel) View() string {
 	}
 	passwordView = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", passwordView)
 
-	autoconnectCheckboxView := renderer.RenderCheckbox(bool(m.autoconnect))
-	if m.focus == autoconnectFocus {
-		autoconnectCheckboxView = styles.DefaultStyle.Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
-	}
+	autoconnectCheckboxView := m.autoconnect.View()
 	autoconnectCheckboxView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconnectCheckboxView)
 
 	autoconPriorityView := m.autoconnectPriority.View()
@@ -183,10 +171,9 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 		m.password = upd
 		return m, cmd
 	case autoconnectFocus:
-		if key.String() == " " {
-			m.autoconnect = !m.autoconnect
-		}
-		return m, nil
+		upd, cmd := m.autoconnect.Update(key)
+		m.autoconnect = upd
+		return m, cmd
 	case autoconnectPriorityFocus:
 		upd, cmd := m.autoconnectPriority.Update(key)
 		m.autoconnectPriority = upd
@@ -205,6 +192,10 @@ func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.
 	case passwordFocus:
 		upd, cmd := m.password.Update(msg)
 		m.password = upd
+		return m, cmd
+	case autoconnectFocus:
+		upd, cmd := m.autoconnect.Update(msg)
+		m.autoconnect = upd
 		return m, cmd
 	case autoconnectPriorityFocus:
 		upd, cmd := m.autoconnectPriority.Update(msg)
@@ -250,7 +241,7 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 		info := &infra.UpdateWifiInfo{
 			Name:                m.nameInput.Value(),
 			Password:            m.password.Value(),
-			Autoconnect:         bool(m.autoconnect),
+			Autoconnect:         m.autoconnect.Value(),
 			AutoconnectPriority: ap,
 		}
 		err = m.nm.UpdateWifiInfo(m.name, info)
