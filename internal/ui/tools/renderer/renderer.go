@@ -63,3 +63,11 @@ func RenderWithTitleAndKeybind(view, title, keybind string, style *lipgloss.Styl
 	extendedTitle := fmt.Sprintf("%s%s%s", keybind, divider, title)
 	return compositor.PlaceTitle(view, extendedTitle)
 }
+
+func RenderCheckbox(value bool) string {
+	if value {
+		return "[⏺]"
+	} else {
+		return "[ ]"
+	}
+}

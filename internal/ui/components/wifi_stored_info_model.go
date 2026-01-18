@@ -1,13 +1,13 @@
 package views
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -141,7 +141,7 @@ func (m *WifiStoredInfoModel) View() string {
 	}
 	passwordView = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", passwordView)
 
-	autoconnectCheckboxView := checkboxView(bool(m.autoconnect))
+	autoconnectCheckboxView := renderer.RenderCheckbox(bool(m.autoconnect))
 	if m.focus == autoconnect {
 		autoconnectCheckboxView = styles.DefaultStyle.Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
 	}
@@ -155,7 +155,7 @@ func (m *WifiStoredInfoModel) View() string {
 	}
 	autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", autoconPriorityView)
 	if m.autoconnectPriority.Err != nil {
-		autoconPriorityErrView := styles.DefaultStyle.Foreground(styles.RedColor).Render(m.autoconnectPriority.Err.Error())
+		autoconPriorityErrView := renderer.ErrSymbol
 		autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, autoconPriorityView, autoconPriorityErrView)
 	}
 
@@ -223,14 +223,6 @@ func (m *WifiStoredInfoModel) connectionView() string {
 	}
 }
 
-func checkboxView(value bool) string {
-	if value {
-		return "[⏺]"
-	} else {
-		return "[ ]"
-	}
-}
-
 func (m *WifiStoredInfoModel) focusNextCmd() tea.Cmd {
 	if int(m.focus) >= len(m.inputs)-1 {
 		return nil
@@ -272,7 +264,7 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 func autoconnectPriorityValidator(input string) error {
 	_, err := strconv.Atoi(input)
 	if err != nil {
-		return errors.New("✗")
+		return fmt.Errorf("priority parsing error: %w", err)
 	}
 	return nil
 }
