@@ -11,7 +11,7 @@ import (
 )
 
 type WifiConnectorModel struct {
-	ssid     string
+	wifiName string
 	password textinput.Model
 	nm       infra.NetworkManager
 }
@@ -27,9 +27,9 @@ func NewWifiConnector(networkManager infra.NetworkManager) *WifiConnectorModel {
 	return &WifiConnectorModel{password: p, nm: networkManager}
 }
 
-func (m *WifiConnectorModel) setNew(ssid string) {
-	m.ssid = ssid
-	pw, err := m.nm.GetWifiPassword(ssid)
+func (m *WifiConnectorModel) setNew(wifiName string) {
+	m.wifiName = wifiName
+	pw, err := m.nm.GetWifiPassword(wifiName)
 	if err == nil {
 		m.password.SetValue(pw)
 	}
@@ -47,7 +47,7 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			pw := m.password.Value()
 			return m, tea.Sequence(
 				SetPopupActivityCmd(false),
-				m.ConnectToWifiCmd(m.ssid, pw),
+				m.ConnectToWifiCmd(m.wifiName, pw),
 			)
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
@@ -66,7 +66,7 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m WifiConnectorModel) View() string {
 	inputField := styles.BorderedStyle.Render(m.password.View())
 	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "SSID: %s\n%v", m.ssid, inputField)
+	fmt.Fprintf(&sb, "SSID: %s\n%v", m.wifiName, inputField)
 	return sb.String()
 }
 
