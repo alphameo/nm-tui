@@ -23,7 +23,7 @@ func main() {
 	}
 
 	logger.FilePath(logPath)
-	logger.Level = logger.ErrorsLvl
+	logger.Level = logger.ErrorsLevel
 	logger.Informln("The program is running")
 	defer logger.Informln("Program is closed")
 

@@ -16,10 +16,10 @@ import (
 type wifiStoredInfoFocusIndex int
 
 const (
-	name wifiStoredInfoFocusIndex = iota
-	password
-	autoconnect
-	autoconnectPriority
+	nameFocus wifiStoredInfoFocusIndex = iota
+	passwordFocus
+	autoconnectFocus
+	autoconnectPriorityFocus
 )
 
 type switcher bool
@@ -126,7 +126,7 @@ func (m *WifiStoredInfoModel) View() string {
 	inputStyle := styles.BorderedStyle
 
 	nameView := m.nameInput.View()
-	if m.focus == name {
+	if m.focus == nameFocus {
 		nameView = inputStyle.BorderForeground(styles.AccentColor).Render(nameView)
 	} else {
 		nameView = inputStyle.Render(nameView)
@@ -134,7 +134,7 @@ func (m *WifiStoredInfoModel) View() string {
 	nameView = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", nameView)
 
 	passwordView := m.password.View()
-	if m.focus == password {
+	if m.focus == passwordFocus {
 		passwordView = inputStyle.BorderForeground(styles.AccentColor).Render(passwordView)
 	} else {
 		passwordView = inputStyle.Render(passwordView)
@@ -142,20 +142,20 @@ func (m *WifiStoredInfoModel) View() string {
 	passwordView = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", passwordView)
 
 	autoconnectCheckboxView := renderer.RenderCheckbox(bool(m.autoconnect))
-	if m.focus == autoconnect {
+	if m.focus == autoconnectFocus {
 		autoconnectCheckboxView = styles.DefaultStyle.Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
 	}
 	autoconnectCheckboxView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconnectCheckboxView)
 
 	autoconPriorityView := m.autoconnectPriority.View()
-	if m.focus == autoconnectPriority {
+	if m.focus == autoconnectPriorityFocus {
 		autoconPriorityView = inputStyle.BorderForeground(styles.AccentColor).Render(autoconPriorityView)
 	} else {
 		autoconPriorityView = inputStyle.Render(autoconPriorityView)
 	}
 	autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", autoconPriorityView)
 	if m.autoconnectPriority.Err != nil {
-		autoconPriorityErrView := renderer.ErrSymbol
+		autoconPriorityErrView := renderer.ErrorSymbolColored
 		autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, autoconPriorityView, autoconPriorityErrView)
 	}
 
@@ -174,20 +174,20 @@ func (m *WifiStoredInfoModel) View() string {
 
 func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, tea.Cmd) {
 	switch m.focus {
-	case name:
+	case nameFocus:
 		upd, cmd := m.nameInput.Update(key)
 		m.nameInput = upd
 		return m, cmd
-	case password:
+	case passwordFocus:
 		upd, cmd := m.password.Update(key)
 		m.password = upd
 		return m, cmd
-	case autoconnect:
+	case autoconnectFocus:
 		if key.String() == " " {
 			m.autoconnect = !m.autoconnect
 		}
 		return m, nil
-	case autoconnectPriority:
+	case autoconnectPriorityFocus:
 		upd, cmd := m.autoconnectPriority.Update(key)
 		m.autoconnectPriority = upd
 		return m, cmd
@@ -198,15 +198,15 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 
 func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.Cmd) {
 	switch m.focus {
-	case name:
+	case nameFocus:
 		upd, cmd := m.nameInput.Update(msg)
 		m.nameInput = upd
 		return m, cmd
-	case password:
+	case passwordFocus:
 		upd, cmd := m.password.Update(msg)
 		m.password = upd
 		return m, cmd
-	case autoconnectPriority:
+	case autoconnectPriorityFocus:
 		upd, cmd := m.autoconnectPriority.Update(msg)
 		m.autoconnectPriority = upd
 		return m, cmd

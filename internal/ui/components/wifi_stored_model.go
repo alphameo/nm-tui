@@ -22,13 +22,13 @@ type WifiStoredModel struct {
 type WifiStoredColumnIndex int
 
 const (
-	ssidCol WifiStoredColumnIndex = 1
-	nameCol WifiStoredColumnIndex = 2
+	ssidColumn WifiStoredColumnIndex = 1
+	nameColumn WifiStoredColumnIndex = 2
 )
 
 func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
 	cols := []table.Column{
-		{Title: "󱘖", Width: conFlagColWidth},
+		{Title: "󱘖", Width: conectionFlagColumnWidth},
 		{Title: "SSID"},
 		{Title: "Name"},
 	}
@@ -54,12 +54,12 @@ func (m *WifiStoredModel) Resize(width, height int) {
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
 
-	computedWidth := width - tableUtilityOffset - conFlagColWidth
+	computedWidth := width - tableUtilityOffset - conectionFlagColumnWidth
 	possibleNameWidth := computedWidth / 2
 	ssidWidth := max(computedWidth-possibleNameWidth, minSSIDWidth)
 	nameWidth := computedWidth - ssidWidth
-	m.dataTable.Columns()[nameCol].Width = nameWidth
-	m.dataTable.Columns()[ssidCol].Width = ssidWidth
+	m.dataTable.Columns()[nameColumn].Width = nameWidth
+	m.dataTable.Columns()[ssidColumn].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 

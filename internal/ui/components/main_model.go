@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	borderOffset int = 2
-	tabBarHeight int = 3
+	BorderOffset int = 2
+	TabBarHeight int = 3
 )
 
 type MainModel struct {

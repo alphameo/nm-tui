@@ -13,23 +13,28 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type (
-	wifiState                int
-	wifiAvailableColumnIndex int
-)
+type wifiState int
 
 const (
 	Scanning wifiState = iota
 	Connecting
 	None
-	signalColWidth      int                      = 3
-	conFlagColWidth     int                      = 1
-	securityWidthPart   float32                  = 0.3
-	minSecurityColWidth int                      = 8
-	minSSIDWidth        int                      = 4
-	indicatorHeight     int                      = 1
-	ssidAvailCol        wifiAvailableColumnIndex = 1
-	securityCol         wifiAvailableColumnIndex = 2
+)
+
+type wifiAvailableColumnIndex int
+
+const (
+	ssidAvailableColumn wifiAvailableColumnIndex = 1
+	securityColumn      wifiAvailableColumnIndex = 2
+)
+
+const (
+	signalColumnWidth        int     = 3
+	conectionFlagColumnWidth int     = 1
+	securityWidthProportion  float32 = 0.3
+	minSecurityColumnWidth   int     = 8
+	minSSIDWidth             int     = 4
+	indicatorStateHeight     int     = 1
 )
 
 func (s *wifiState) String() string {
@@ -57,10 +62,10 @@ type WifiAvailableModel struct {
 
 func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
 	cols := []table.Column{
-		{Title: "󱘖", Width: conFlagColWidth},
+		{Title: "󱘖", Width: conectionFlagColumnWidth},
 		{Title: "SSID"},
 		{Title: "Security"},
-		{Title: "", Width: signalColWidth},
+		{Title: "", Width: signalColumnWidth},
 	}
 	t := table.New(
 		table.WithColumns(cols),
@@ -83,17 +88,17 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
-	height -= indicatorHeight
+	height -= indicatorStateHeight
 
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
 
-	security := max(int(float32(width)*securityWidthPart), minSecurityColWidth)
-	ssidWidth := width - signalColWidth - tableUtilityOffset - conFlagColWidth - security
-	m.dataTable.Columns()[securityCol].Width = security
-	m.dataTable.Columns()[ssidAvailCol].Width = ssidWidth
+	security := max(int(float32(width)*securityWidthProportion), minSecurityColumnWidth)
+	ssidWidth := width - signalColumnWidth - tableUtilityOffset - conectionFlagColumnWidth - security
+	m.dataTable.Columns()[securityColumn].Width = security
+	m.dataTable.Columns()[ssidAvailableColumn].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
@@ -113,7 +118,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				return m, m.callConnector(row[ssidAvailCol])
+				return m, m.callConnector(row[ssidAvailableColumn])
 			}
 			return m, nil
 		}

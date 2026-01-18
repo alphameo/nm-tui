@@ -4,7 +4,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
-var (
-	errSymbol = "✗"
-	ErrSymbol = styles.DefaultStyle.Foreground(styles.ErrorColor).Render(errSymbol)
-)
+const ErrorSymbol = "✗"
+
+var ErrorSymbolColored = styles.DefaultStyle.Foreground(styles.ErrorColor).Render(ErrorSymbol)

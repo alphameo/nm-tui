@@ -10,7 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-const maxWindows int = 2
+const wifiWindowsCount int = 2
 
 type WifiModel struct {
 	available *WifiAvailableModel
@@ -34,9 +34,9 @@ func (m *WifiModel) Resize(width, height int) {
 	storedHeight := height / 2
 	availableHeight := height - storedHeight
 
-	width -= borderOffset
-	storedHeight -= borderOffset
-	availableHeight -= borderOffset
+	width -= BorderOffset
+	storedHeight -= BorderOffset
+	availableHeight -= BorderOffset
 
 	m.available.Resize(width, availableHeight)
 	m.stored.Resize(width, storedHeight)
@@ -52,7 +52,7 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "tab":
-			m.winIndex = (m.winIndex + 1) % maxWindows
+			m.winIndex = (m.winIndex + 1) % wifiWindowsCount
 		case "1":
 			m.winIndex = 0
 		case "2":
