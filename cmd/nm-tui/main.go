@@ -7,7 +7,7 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/logger"
-	"github.com/alphameo/nm-tui/internal/ui/views"
+	"github.com/alphameo/nm-tui/internal/ui/components"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
