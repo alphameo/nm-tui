@@ -80,5 +80,6 @@ func (m *WifiConnectorModel) ConnectToWifiCmd(ssid, password string) tea.Cmd {
 			}
 			return nil
 		},
+		UpdateWifiAvailableCmd(),
 		SetWifiIndicatorStateCmd(None))
 }

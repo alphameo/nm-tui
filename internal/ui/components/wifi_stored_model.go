@@ -68,7 +68,6 @@ func (m *WifiStoredModel) Init() tea.Cmd {
 }
 
 type (
-	storedRowsMsg []table.Row
 	UpdateInfoMsg bool
 )
 
@@ -109,9 +108,6 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				},
 				m.UpdateRowsCmd())
 		}
-	case storedRowsMsg:
-		m.dataTable.SetRows(msg)
-		return m, nil
 	case UpdateInfoMsg:
 		return m, m.UpdateRowsCmd()
 	}
@@ -137,6 +133,7 @@ func (m *WifiStoredModel) UpdateRowsCmd() tea.Cmd {
 		list, err := m.nm.GetStoredWifi()
 		if err != nil {
 			logger.Errln(fmt.Errorf("error: %s", err.Error()))
+			return NotifyCmd(err.Error())
 		}
 		rows := []table.Row{}
 		for _, wifiStored := range list {
@@ -146,7 +143,10 @@ func (m *WifiStoredModel) UpdateRowsCmd() tea.Cmd {
 			}
 			rows = append(rows, table.Row{connectionFlag, wifiStored.SSID, wifiStored.Name})
 		}
-		return storedRowsMsg(rows)
+
+		m.dataTable.SetRows(rows)
+		m.dataTable.UpdateViewport()
+		return UpdateMsg
 	}
 }
 

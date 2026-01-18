@@ -119,6 +119,8 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case WifiIndicatorStateMsg:
 		return m, m.setWifiIndicatorStateCmd(wifiState(msg))
+	case UpdateWifiAvailableMsg:
+		return m, m.updateRowsCmd()
 	}
 
 	var cmd tea.Cmd
@@ -170,9 +172,19 @@ func (m *WifiAvailableModel) updateRowsCmd() tea.Cmd {
 			}
 
 			m.dataTable.SetRows(rows)
-			return nil
+			m.dataTable.UpdateViewport()
+			return UpdateMsg
 		},
-		m.setWifiIndicatorStateCmd(None))
+		m.setWifiIndicatorStateCmd(None),
+	)
+}
+
+type UpdateWifiAvailableMsg bool
+
+func UpdateWifiAvailableCmd() tea.Cmd {
+	return func() tea.Msg {
+		return UpdateWifiAvailableMsg(true)
+	}
 }
 
 type WifiIndicatorStateMsg wifiState
