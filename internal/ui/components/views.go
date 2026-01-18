@@ -1,2 +1,2 @@
-// Package views provides various view models
-package views
+// Package components provides various view models
+package components

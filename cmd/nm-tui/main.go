@@ -28,7 +28,7 @@ func main() {
 	defer logger.Informln("Program is closed")
 
 	nm := infra.NewNMCLI()
-	p := tea.NewProgram(views.NewMainModel(nm), tea.WithAltScreen())
+	p := tea.NewProgram(components.NewMainModel(nm), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		logger.Errln(err)
 	}
