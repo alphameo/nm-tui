@@ -10,21 +10,27 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-const wifiWindowsCount int = 2
+type WifiWindowIndex int
+
+const (
+	wifiAvailableWindowIndex WifiWindowIndex = 0
+	wifiStoredWindowIndex    WifiWindowIndex = 1
+)
 
 type WifiModel struct {
-	available *WifiAvailableModel
-	stored    *WifiStoredModel
-	winIndex  int
-	width     int
-	height    int
+	windows            []SizedModel
+	focusedWindowIndex WifiWindowIndex
+	width              int
+	height             int
 }
 
 func NewWifiModel(networkManager infra.NetworkManager) *WifiModel {
 	wifiAvailable := NewWifiAvailableModel(networkManager)
 	wifiStored := NewWifiStoredModel(networkManager)
 
-	return &WifiModel{available: wifiAvailable, stored: wifiStored}
+	w := []SizedModel{wifiAvailable, wifiStored}
+
+	return &WifiModel{windows: w}
 }
 
 func (m *WifiModel) Resize(width, height int) {
@@ -38,13 +44,24 @@ func (m *WifiModel) Resize(width, height int) {
 	storedHeight -= BorderOffset
 	availableHeight -= BorderOffset
 
-	m.available.Resize(width, availableHeight)
-	m.stored.Resize(width, storedHeight)
+	m.windows[wifiAvailableWindowIndex].Resize(width, availableHeight)
+	m.windows[wifiStoredWindowIndex].Resize(width, storedHeight)
+}
+
+func (m *WifiModel) Width() int {
+	return m.width
+}
+
+func (m *WifiModel) Height() int {
+	return m.height
 }
 
 func (m *WifiModel) Init() tea.Cmd {
-	cmd := []tea.Cmd{m.available.Init(), m.stored.Init()}
-	return tea.Batch(cmd...)
+	var cmds []tea.Cmd
+	for _, window := range m.windows {
+		cmds = append(cmds, window.Init())
+	}
+	return tea.Batch(cmds...)
 }
 
 func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -52,11 +69,12 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "tab":
-			m.winIndex = (m.winIndex + 1) % wifiWindowsCount
+			nextIndex := int(m.focusedWindowIndex + 1)
+			m.focusedWindowIndex = WifiWindowIndex(nextIndex % len(m.windows))
 		case "1":
-			m.winIndex = 0
+			m.focusedWindowIndex = 0
 		case "2":
-			m.winIndex = 1
+			m.focusedWindowIndex = 1
 		default:
 			cmd := m.handleKeyMsg(msg)
 			return m, cmd
@@ -64,12 +82,12 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	var cmds []tea.Cmd
 
-	upd, cmd := m.available.Update(msg)
-	m.available = upd.(*WifiAvailableModel)
+	upd, cmd := m.windows[wifiAvailableWindowIndex].Update(msg)
+	m.windows[wifiAvailableWindowIndex] = upd.(*WifiAvailableModel)
 	cmds = append(cmds, cmd)
 
-	upd, cmd = m.stored.Update(msg)
-	m.stored = upd.(*WifiStoredModel)
+	upd, cmd = m.windows[wifiStoredWindowIndex].Update(msg)
+	m.windows[wifiStoredWindowIndex] = upd.(*WifiStoredModel)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
@@ -77,21 +95,21 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *WifiModel) View() string {
 	availableStyle := styles.BorderedStyle.
-		Width(m.available.width).
-		Height(m.available.height)
+		Width(m.windows[wifiAvailableWindowIndex].Width()).
+		Height(m.windows[wifiAvailableWindowIndex].Height())
 
 	storedStyle := styles.BorderedStyle.
-		Width(m.stored.width).
-		Height(m.stored.height)
+		Width(m.windows[wifiStoredWindowIndex].Width()).
+		Height(m.windows[wifiStoredWindowIndex].Height())
 
-	if m.winIndex == 0 {
+	if m.focusedWindowIndex == 0 {
 		availableStyle = availableStyle.BorderForeground(styles.AccentColor)
 	} else {
 		storedStyle = storedStyle.BorderForeground(styles.AccentColor)
 	}
 
 	availableView := renderer.RenderWithTitleAndKeybind(
-		m.available.View(),
+		m.windows[wifiAvailableWindowIndex].View(),
 		"Available Wi-Fi",
 		"1",
 		&availableStyle,
@@ -99,7 +117,7 @@ func (m *WifiModel) View() string {
 	)
 
 	storedView := renderer.RenderWithTitleAndKeybind(
-		m.stored.View(),
+		m.windows[wifiStoredWindowIndex].View(),
 		"Stored Wi-Fi",
 		"2",
 		&storedStyle,
@@ -119,13 +137,13 @@ func (m *WifiModel) View() string {
 func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var upd tea.Model
-	switch m.winIndex {
+	switch m.focusedWindowIndex {
 	case 0:
-		upd, cmd = m.available.Update(msg)
-		m.available = upd.(*WifiAvailableModel)
+		upd, cmd = m.windows[wifiAvailableWindowIndex].Update(msg)
+		m.windows[wifiAvailableWindowIndex] = upd.(*WifiAvailableModel)
 	case 1:
-		upd, cmd = m.stored.Update(msg)
-		m.stored = upd.(*WifiStoredModel)
+		upd, cmd = m.windows[wifiStoredWindowIndex].Update(msg)
+		m.windows[wifiStoredWindowIndex] = upd.(*WifiStoredModel)
 	}
 	return cmd
 }
