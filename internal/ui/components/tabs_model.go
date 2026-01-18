@@ -12,21 +12,16 @@ import (
 )
 
 type TabsModel struct {
-	tabTables []ResizeableModel
+	tabTables []SizedModel
 	tabTitles []string
 	activeTab int
 	width     int
 	height    int
 }
 
-type ResizeableModel interface {
-	tea.Model
-	Resize(width, height int)
-}
-
 func NewConnectionsModel(networkManager infra.NetworkManager) *TabsModel {
 	wifi := NewWifiModel(networkManager)
-	tabTables := []ResizeableModel{wifi, wifi}
+	tabTables := []SizedModel{wifi, wifi}
 	tabTitles := &[]string{"Wi-Fi", "VPN"}
 	m := &TabsModel{
 		tabTables: tabTables,
@@ -72,7 +67,7 @@ func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	upd, cmd := m.tabTables[m.activeTab].Update(msg)
-	m.tabTables[m.activeTab] = upd.(ResizeableModel)
+	m.tabTables[m.activeTab] = upd.(SizedModel)
 	return m, cmd
 }
 

@@ -60,7 +60,7 @@ type WifiAvailableModel struct {
 	height           int
 }
 
-func NewWifiAvailable(networkManager infra.NetworkManager) *WifiAvailableModel {
+func NewWifiAvailableModel(networkManager infra.NetworkManager) *WifiAvailableModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: conectionFlagColumnWidth},
 		{Title: "SSID"},
@@ -100,6 +100,14 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 	m.dataTable.Columns()[securityColumn].Width = security
 	m.dataTable.Columns()[ssidAvailableColumn].Width = ssidWidth
 	m.dataTable.UpdateViewport()
+}
+
+func (m *WifiAvailableModel) Width() int {
+	return m.width
+}
+
+func (m *WifiAvailableModel) Height() int {
+	return m.height
 }
 
 func (m *WifiAvailableModel) Init() tea.Cmd {

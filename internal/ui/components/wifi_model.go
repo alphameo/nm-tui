@@ -21,8 +21,8 @@ type WifiModel struct {
 }
 
 func NewWifiModel(networkManager infra.NetworkManager) *WifiModel {
-	wifiAvailable := NewWifiAvailable(networkManager)
-	wifiStored := NewWifiStored(networkManager)
+	wifiAvailable := NewWifiAvailableModel(networkManager)
+	wifiStored := NewWifiStoredModel(networkManager)
 
 	return &WifiModel{available: wifiAvailable, stored: wifiStored}
 }

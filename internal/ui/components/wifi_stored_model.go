@@ -26,7 +26,7 @@ const (
 	nameColumn WifiStoredColumnIndex = 2
 )
 
-func NewWifiStored(networkManager infra.NetworkManager) *WifiStoredModel {
+func NewWifiStoredModel(networkManager infra.NetworkManager) *WifiStoredModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: conectionFlagColumnWidth},
 		{Title: "SSID"},
@@ -61,6 +61,13 @@ func (m *WifiStoredModel) Resize(width, height int) {
 	m.dataTable.Columns()[nameColumn].Width = nameWidth
 	m.dataTable.Columns()[ssidColumn].Width = ssidWidth
 	m.dataTable.UpdateViewport()
+}
+func (m *WifiStoredModel) Width() int {
+	return m.width
+}
+
+func (m *WifiStoredModel) Height() int {
+	return m.height
 }
 
 func (m *WifiStoredModel) Init() tea.Cmd {
