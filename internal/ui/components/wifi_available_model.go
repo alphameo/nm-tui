@@ -113,11 +113,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				m.connector.setNew(row[ssidAvailCol])
-				return m, tea.Sequence(
-					SetPopupActivityCmd(true),
-					SetPopupContentCmd(m.connector, "Wi-Fi Connector"),
-				)
+				return m, m.callConnector(row[ssidAvailCol])
 			}
 			return m, nil
 		}
@@ -191,6 +187,14 @@ func (m *WifiAvailableModel) setWifiIndicatorStateCmd(state wifiState) tea.Cmd {
 	} else {
 		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 	}
+}
+
+func (m *WifiAvailableModel) callConnector(wifiName string) tea.Cmd {
+	m.connector.setNew(wifiName)
+	return tea.Sequence(
+		SetPopupActivityCmd(true),
+		SetPopupContentCmd(m.connector, "Wi-Fi Connector"),
+	)
 }
 
 func SetWifiIndicatorStateCmd(state wifiState) tea.Cmd {
