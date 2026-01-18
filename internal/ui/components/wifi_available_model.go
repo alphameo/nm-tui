@@ -119,7 +119,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case WifiIndicatorStateMsg:
 		return m, m.setWifiIndicatorStateCmd(wifiState(msg))
-	case UpdateWifiAvailableMsg:
+	case updateWifiAvailableMsg:
 		return m, m.updateRowsCmd()
 	}
 
@@ -179,11 +179,14 @@ func (m *WifiAvailableModel) updateRowsCmd() tea.Cmd {
 	)
 }
 
-type UpdateWifiAvailableMsg bool
+type updateWifiAvailableMsg struct{}
+
+// UpdateWifiAvailableMsg is used to avoid extra instantiatons
+var UpdateWifiAvailableMsg = updateWifiAvailableMsg{}
 
 func UpdateWifiAvailableCmd() tea.Cmd {
 	return func() tea.Msg {
-		return UpdateWifiAvailableMsg(true)
+		return UpdateWifiAvailableMsg
 	}
 }
 

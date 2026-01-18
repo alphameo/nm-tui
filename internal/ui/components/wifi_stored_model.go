@@ -67,9 +67,10 @@ func (m *WifiStoredModel) Init() tea.Cmd {
 	return m.UpdateRowsCmd()
 }
 
-type (
-	UpdateInfoMsg bool
-)
+type updateWifiStoredMsg struct{}
+
+// UpdateWifiStoredMsg is used to avoid extra instantiatons
+var UpdateWifiStoredMsg = updateWifiStoredMsg{}
 
 func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -108,7 +109,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				},
 				m.UpdateRowsCmd())
 		}
-	case UpdateInfoMsg:
+	case updateWifiStoredMsg:
 		return m, m.UpdateRowsCmd()
 	}
 
@@ -173,6 +174,6 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 
 func UpdateWifiStoredRowsCmd() tea.Cmd {
 	return func() tea.Msg {
-		return UpdateInfoMsg(true)
+		return UpdateWifiStoredMsg
 	}
 }
