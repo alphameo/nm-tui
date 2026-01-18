@@ -71,7 +71,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.notification.IsActive = bool(msg)
 		return m, nil
 	case tea.Cmd:
-		return m, tea.Cmd(msg)
+		return m, msg
 	case tea.KeyMsg:
 		return m, m.handleKeyMsg(msg)
 	}
