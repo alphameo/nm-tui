@@ -13,10 +13,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type wifiStoredInfoFocusIndex int
+type wifiStoredInfoInputIndex int
 
 const (
-	nameFocus wifiStoredInfoFocusIndex = iota
+	nameFocus wifiStoredInfoInputIndex = iota
 	passwordFocus
 	autoconnectFocus
 	autoconnectPriorityFocus
@@ -36,7 +36,7 @@ type WifiStoredInfoModel struct {
 	autoconnect         *ToggleModel
 	autoconnectPriority textinput.Model
 	inputs              []Focusable
-	focus               wifiStoredInfoFocusIndex
+	focusedInputIndex   wifiStoredInfoInputIndex
 	nm                  infra.NetworkManager
 }
 
@@ -117,7 +117,7 @@ func (m *WifiStoredInfoModel) View() string {
 	inputStyle := styles.BorderedStyle
 
 	nameView := m.nameInput.View()
-	if m.focus == nameFocus {
+	if m.focusedInputIndex == nameFocus {
 		nameView = inputStyle.BorderForeground(styles.AccentColor).Render(nameView)
 	} else {
 		nameView = inputStyle.Render(nameView)
@@ -125,7 +125,7 @@ func (m *WifiStoredInfoModel) View() string {
 	nameView = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", nameView)
 
 	passwordView := m.password.View()
-	if m.focus == passwordFocus {
+	if m.focusedInputIndex == passwordFocus {
 		passwordView = inputStyle.BorderForeground(styles.AccentColor).Render(passwordView)
 	} else {
 		passwordView = inputStyle.Render(passwordView)
@@ -136,7 +136,7 @@ func (m *WifiStoredInfoModel) View() string {
 	autoconnectCheckboxView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconnectCheckboxView)
 
 	autoconPriorityView := m.autoconnectPriority.View()
-	if m.focus == autoconnectPriorityFocus {
+	if m.focusedInputIndex == autoconnectPriorityFocus {
 		autoconPriorityView = inputStyle.BorderForeground(styles.AccentColor).Render(autoconPriorityView)
 	} else {
 		autoconPriorityView = inputStyle.Render(autoconPriorityView)
@@ -161,7 +161,7 @@ func (m *WifiStoredInfoModel) View() string {
 }
 
 func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, tea.Cmd) {
-	switch m.focus {
+	switch m.focusedInputIndex {
 	case nameFocus:
 		upd, cmd := m.nameInput.Update(key)
 		m.nameInput = upd
@@ -184,7 +184,7 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 }
 
 func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.Cmd) {
-	switch m.focus {
+	switch m.focusedInputIndex {
 	case nameFocus:
 		upd, cmd := m.nameInput.Update(msg)
 		m.nameInput = upd
@@ -215,21 +215,21 @@ func (m *WifiStoredInfoModel) connectionView() string {
 }
 
 func (m *WifiStoredInfoModel) focusNextCmd() tea.Cmd {
-	if int(m.focus) >= len(m.inputs)-1 {
+	if int(m.focusedInputIndex) >= len(m.inputs)-1 {
 		return nil
 	}
-	m.inputs[m.focus].Blur()
-	m.focus++
-	return m.inputs[m.focus].Focus()
+	m.inputs[m.focusedInputIndex].Blur()
+	m.focusedInputIndex++
+	return m.inputs[m.focusedInputIndex].Focus()
 }
 
 func (m *WifiStoredInfoModel) focusPrevCmd() tea.Cmd {
-	if m.focus <= 0 {
+	if m.focusedInputIndex <= 0 {
 		return nil
 	}
-	m.inputs[m.focus].Blur()
-	m.focus--
-	return m.inputs[m.focus].Focus()
+	m.inputs[m.focusedInputIndex].Blur()
+	m.focusedInputIndex--
+	return m.inputs[m.focusedInputIndex].Focus()
 }
 
 func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {

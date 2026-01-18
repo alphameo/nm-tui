@@ -24,17 +24,17 @@ const (
 type wifiAvailableColumnIndex int
 
 const (
-	ssidAvailableColumn wifiAvailableColumnIndex = 1
-	securityColumn      wifiAvailableColumnIndex = 2
+	ssidAvailable  wifiAvailableColumnIndex = 1
+	securityColumn wifiAvailableColumnIndex = 2
 )
 
 const (
-	signalColumnWidth        int     = 3
-	conectionFlagColumnWidth int     = 1
-	securityWidthProportion  float32 = 0.3
-	minSecurityColumnWidth   int     = 8
-	minSSIDWidth             int     = 4
-	indicatorStateHeight     int     = 1
+	signalColumnWidth         int     = 3
+	connectionFlagColumnWidth int     = 1
+	securityWidthProportion   float32 = 0.3
+	minSecurityColumnWidth    int     = 8
+	minSSIDWidth              int     = 4
+	indicatorStateHeight      int     = 1
 )
 
 func (s *wifiState) String() string {
@@ -62,7 +62,7 @@ type WifiAvailableModel struct {
 
 func NewWifiAvailableModel(networkManager infra.NetworkManager) *WifiAvailableModel {
 	cols := []table.Column{
-		{Title: "󱘖", Width: conectionFlagColumnWidth},
+		{Title: "󱘖", Width: connectionFlagColumnWidth},
 		{Title: "SSID"},
 		{Title: "Security"},
 		{Title: "", Width: signalColumnWidth},
@@ -96,9 +96,9 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
 
 	security := max(int(float32(width)*securityWidthProportion), minSecurityColumnWidth)
-	ssidWidth := width - signalColumnWidth - tableUtilityOffset - conectionFlagColumnWidth - security
+	ssidWidth := width - signalColumnWidth - tableUtilityOffset - connectionFlagColumnWidth - security
 	m.dataTable.Columns()[securityColumn].Width = security
-	m.dataTable.Columns()[ssidAvailableColumn].Width = ssidWidth
+	m.dataTable.Columns()[ssidAvailable].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
@@ -126,7 +126,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				return m, m.callConnector(row[ssidAvailableColumn])
+				return m, m.callConnector(row[ssidAvailable])
 			}
 			return m, nil
 		}

@@ -13,8 +13,8 @@ import (
 type WifiWindowIndex int
 
 const (
-	wifiAvailableWindowIndex WifiWindowIndex = 0
-	wifiStoredWindowIndex    WifiWindowIndex = 1
+	wifiAvailableWindowIndex WifiWindowIndex = iota
+	wifiStoredWindowIndex
 )
 
 type WifiModel struct {
