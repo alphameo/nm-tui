@@ -1,27 +1,18 @@
 package views
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type sessionState uint
-
 const (
-	wifiView sessionState = iota
-	timerView
-	stateViewHeight int = 1
-	borderOffset    int = 2
-	tabBarHeight    int = 3
+	borderOffset int = 2
+	tabBarHeight int = 3
 )
 
 type MainModel struct {
-	state        sessionState
 	tabs         TabsModel
 	popup        FloatingModel
 	notification FloatingModel
@@ -91,15 +82,11 @@ func (m *MainModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
-	height -= stateViewHeight
-
 	m.tabs.Resize(width, height)
 }
 
 func (m MainModel) View() string {
-	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s\n state: %v", m.tabs.View(), m.state)
-	view := sb.String()
+	view := m.tabs.View()
 
 	if m.popup.IsActive {
 		view = m.popup.Place(view, styles.OverlayStyle)
@@ -123,13 +110,6 @@ func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	switch keyMsg.String() {
 	case "q", "ctrl+q", "esc", "ctrl+c":
 		return tea.Quit
-	case "s":
-		if m.state == wifiView {
-			m.state = timerView
-		} else {
-			m.state = wifiView
-		}
-		return nil
 	}
 	upd, cmd := m.tabs.Update(keyMsg)
 	m.tabs = upd.(TabsModel)
