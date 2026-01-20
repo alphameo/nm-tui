@@ -72,6 +72,9 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmd := m.handleKeyMsg(msg)
 			return m, cmd
 		}
+	case updateWifiMsg:
+		cmds := []tea.Cmd{m.wifiAvailable.UpdateRowsCmd(), m.wifiStored.UpdateRowsCmd()}
+		return m, tea.Batch(cmds...)
 	}
 	var cmds []tea.Cmd
 
@@ -132,4 +135,15 @@ func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
 		m.wifiStored = upd.(*WifiStoredModel)
 	}
 	return cmd
+}
+
+type updateWifiMsg struct{}
+
+// UpdateWifiMsg is used to avoid extra instantiatons
+var UpdateWifiMsg = updateWifiMsg{}
+
+func UpdateWifiCmd() tea.Cmd {
+	return func() tea.Msg {
+		return UpdateWifiAvailableMsg
+	}
 }

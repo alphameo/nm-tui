@@ -156,24 +156,27 @@ func (m *WifiStoredModel) UpdateRowsCmd() tea.Cmd {
 }
 
 func (m *WifiStoredModel) connectSelectedCmd() tea.Cmd {
-	return func() tea.Msg {
+	return tea.Sequence(func() tea.Msg {
 		err := m.nm.ConnectStoredWifi(m.dataTable.SelectedRow()[2])
 		if err != nil {
 			return NotifyCmd(err.Error())
 		}
 		m.dataTable.GotoTop()
 		return nil
-	}
+	},
+		UpdateWifiCmd(),
+	)
 }
 
 func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
-	return func() tea.Msg {
+	return tea.Sequence(func() tea.Msg {
 		err := m.nm.DisconnectFromWifi(m.dataTable.SelectedRow()[2])
 		if err != nil {
 			return NotifyCmd(err.Error())
 		}
 		return nil
-	}
+	},
+		UpdateWifiCmd())
 }
 
 func UpdateWifiStoredRowsCmd() tea.Cmd {

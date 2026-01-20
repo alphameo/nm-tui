@@ -110,7 +110,7 @@ func (m *WifiAvailableModel) Height() int {
 }
 
 func (m *WifiAvailableModel) Init() tea.Cmd {
-	return m.updateRowsCmd()
+	return m.UpdateRowsCmd()
 }
 
 func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -121,7 +121,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.indicatorState != None {
 				return m, nil
 			}
-			return m, m.updateRowsCmd()
+			return m, m.UpdateRowsCmd()
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
@@ -132,7 +132,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case WifiIndicatorStateMsg:
 		return m, m.setWifiIndicatorStateCmd(wifiState(msg))
 	case updateWifiAvailableMsg:
-		return m, m.updateRowsCmd()
+		return m, m.UpdateRowsCmd()
 	}
 
 	var cmd tea.Cmd
@@ -161,7 +161,7 @@ func (m *WifiAvailableModel) View() string {
 	return lipgloss.JoinVertical(lipgloss.Center, view, statusline)
 }
 
-func (m *WifiAvailableModel) updateRowsCmd() tea.Cmd {
+func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setWifiIndicatorStateCmd(Scanning),
 		func() tea.Msg {
