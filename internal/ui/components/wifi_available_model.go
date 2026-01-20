@@ -76,14 +76,13 @@ func NewWifiAvailableModel(networkManager infra.NetworkManager) *WifiAvailableMo
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
 	con := NewWifiConnector(networkManager)
-	m := &WifiAvailableModel{
+	return &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
 		indicatorState:   DoneInAvailable,
 		connector:        con,
 		nm:               networkManager,
 	}
-	return m
 }
 
 func (m *WifiAvailableModel) Resize(width, height int) {
