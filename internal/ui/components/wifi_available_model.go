@@ -130,7 +130,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case WifiIndicatorStateMsg:
-		return m, m.setWifiIndicatorStateCmd(wifiState(msg))
+		return m, m.setWifiStateCmd(wifiAvailableState(msg))
 	case updateWifiAvailableMsg:
 		return m, m.UpdateRowsCmd()
 	}
@@ -163,7 +163,7 @@ func (m *WifiAvailableModel) View() string {
 
 func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setWifiIndicatorStateCmd(Scanning),
+		m.setWifiStateCmd(Scanning),
 		func() tea.Msg {
 			list, err := m.nm.GetAvailableWifi()
 			if err != nil {
@@ -183,7 +183,7 @@ func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 			m.dataTable.UpdateViewport()
 			return UpdateMsg
 		},
-		m.setWifiIndicatorStateCmd(None),
+		m.setWifiStateCmd(None),
 	)
 }
 
@@ -200,7 +200,7 @@ func UpdateWifiAvailableCmd() tea.Cmd {
 
 type WifiIndicatorStateMsg wifiState
 
-func (m *WifiAvailableModel) setWifiIndicatorStateCmd(state wifiState) tea.Cmd {
+func (m *WifiAvailableModel) setWifiStateCmd(state wifiAvailableState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return nil
