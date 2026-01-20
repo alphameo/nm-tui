@@ -53,10 +53,13 @@ type WifiAvailableModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
 	indicatorState   wifiState
-	connector        *WifiConnectorModel
-	nm               infra.NetworkManager
-	width            int
-	height           int
+
+	connector *WifiConnectorModel
+
+	nm infra.NetworkManager
+
+	width  int
+	height int
 }
 
 func NewWifiAvailableModel(networkManager infra.NetworkManager) *WifiAvailableModel {
