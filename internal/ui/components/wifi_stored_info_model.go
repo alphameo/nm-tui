@@ -133,6 +133,11 @@ func (m *WifiStoredInfoModel) View() string {
 	passwordView = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", passwordView)
 
 	autoconnectCheckboxView := m.autoconnect.View()
+	if m.focusedInputIndex == autoconnectFocus {
+		autoconnectCheckboxView = styles.DefaultStyle.Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
+	} else {
+		autoconnectCheckboxView = styles.DefaultStyle.Render(autoconnectCheckboxView)
+	}
 	autoconnectCheckboxView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconnectCheckboxView)
 
 	autoconPriorityView := m.autoconnectPriority.View()

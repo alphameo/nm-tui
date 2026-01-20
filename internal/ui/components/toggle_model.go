@@ -1,14 +1,23 @@
 package components
 
 import (
-	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type ToggleModelSymbols struct {
+	Activated   string
+	Deactivated string
+}
+
+var DefaultToggleModelSymbols = &ToggleModelSymbols{
+	Activated:   "[⏺]",
+	Deactivated: "[ ]",
+}
+
 type ToggleModel struct {
 	value   bool
-	focused bool
+	Focused bool
+	Symbols *ToggleModelSymbols
 }
 
 func NewToggleModel(initial bool) *ToggleModel {
@@ -37,19 +46,31 @@ func (t *ToggleModel) Update(msg tea.Msg) (*ToggleModel, tea.Cmd) {
 	return t, nil
 }
 
-func (t *ToggleModel) View() string {
-	checkbox := renderer.RenderCheckbox(t.value)
-	if t.focused {
-		checkbox = styles.DefaultStyle.Foreground(styles.AccentColor).Render(checkbox)
+func RenderCheckbox(value bool) string {
+	if value {
+		return "[⏺]"
+	} else {
+		return "[ ]"
 	}
-	return checkbox
+}
+
+func (t *ToggleModel) View() string {
+	symbols := t.Symbols
+	if symbols == nil {
+		symbols = DefaultToggleModelSymbols
+	}
+	if t.value {
+		return symbols.Activated
+	} else {
+		return symbols.Deactivated
+	}
 }
 
 func (t *ToggleModel) Focus() tea.Cmd {
-	t.focused = true
+	t.Focused = true
 	return nil
 }
 
 func (t *ToggleModel) Blur() {
-	t.focused = false
+	t.Focused = false
 }
