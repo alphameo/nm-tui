@@ -12,13 +12,26 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type wifiState int
+type wifiAvailableState int
 
 const (
-	Scanning wifiState = iota
-	Connecting
-	None
+	ScanningAvailable wifiAvailableState = iota
+	ConnectingAvailable
+	DoneInAvailable
 )
+
+func (s *wifiAvailableState) String() string {
+	switch *s {
+	case ScanningAvailable:
+		return "Scanning"
+	case ConnectingAvailable:
+		return "Connecting"
+	case DoneInAvailable:
+		return "󰄬"
+	default:
+		return "Undefined!!!"
+	}
+}
 
 type wifiAvailableColumnIndex int
 
@@ -36,23 +49,10 @@ const (
 	indicatorStateHeight      int     = 1
 )
 
-func (s *wifiState) String() string {
-	switch *s {
-	case Scanning:
-		return "Scanning"
-	case Connecting:
-		return "Connecting"
-	case None:
-		return "󰄬"
-	default:
-		return "Undefined!!!"
-	}
-}
-
 type WifiAvailableModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
-	indicatorState   wifiState
+	indicatorState   wifiAvailableState
 
 	connector *WifiConnectorModel
 
@@ -79,7 +79,7 @@ func NewWifiAvailableModel(networkManager infra.NetworkManager) *WifiAvailableMo
 	m := &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
-		indicatorState:   Scanning,
+		indicatorState:   DoneInAvailable,
 		connector:        con,
 		nm:               networkManager,
 	}
@@ -121,7 +121,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "r":
-			if m.indicatorState != None {
+			if m.indicatorState != DoneInAvailable {
 				return m, nil
 			}
 			return m, m.UpdateRowsCmd()
@@ -132,14 +132,14 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
-	case WifiIndicatorStateMsg:
+	case WifiAvialableStateMsg:
 		return m, m.setWifiStateCmd(wifiAvailableState(msg))
 	case updateWifiAvailableMsg:
 		return m, m.UpdateRowsCmd()
 	}
 
 	var cmd tea.Cmd
-	if m.indicatorState != None {
+	if m.indicatorState != DoneInAvailable {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		if cmd != nil {
 			return m, cmd
@@ -156,7 +156,7 @@ func (m *WifiAvailableModel) View() string {
 	view := m.dataTable.View()
 
 	var statusline string
-	if m.indicatorState != None {
+	if m.indicatorState != DoneInAvailable {
 		statusline = fmt.Sprintf("%s %s", m.indicatorState.String(), m.indicatorSpinner.View())
 	} else {
 		statusline = m.indicatorState.String()
@@ -166,7 +166,7 @@ func (m *WifiAvailableModel) View() string {
 
 func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setWifiStateCmd(Scanning),
+		m.setWifiStateCmd(ScanningAvailable),
 		func() tea.Msg {
 			list, err := m.nm.GetAvailableWifi()
 			if err != nil {
@@ -186,7 +186,7 @@ func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 			m.dataTable.UpdateViewport()
 			return UpdateMsg
 		},
-		m.setWifiStateCmd(None),
+		m.setWifiStateCmd(DoneInAvailable),
 	)
 }
 
@@ -201,17 +201,23 @@ func UpdateWifiAvailableCmd() tea.Cmd {
 	}
 }
 
-type WifiIndicatorStateMsg wifiState
+type WifiAvialableStateMsg wifiAvailableState
 
 func (m *WifiAvailableModel) setWifiStateCmd(state wifiAvailableState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return nil
 	}
-	if state == None {
+	if state == DoneInAvailable {
 		return updCmd
 	} else {
 		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
+	}
+}
+
+func SetWifiAvailableStateCmd(state wifiAvailableState) tea.Cmd {
+	return func() tea.Msg {
+		return WifiAvialableStateMsg(state)
 	}
 }
 
@@ -221,10 +227,4 @@ func (m *WifiAvailableModel) callConnector(wifiName string) tea.Cmd {
 		SetPopupActivityCmd(true),
 		SetPopupContentCmd(m.connector, "Wi-Fi Connector"),
 	)
-}
-
-func SetWifiIndicatorStateCmd(state wifiState) tea.Cmd {
-	return func() tea.Msg {
-		return WifiIndicatorStateMsg(state)
-	}
 }

@@ -6,16 +6,44 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
+type wifiStoredState int
+
+const (
+	ScanningStored wifiStoredState = iota
+	ConnectingStored
+	DoneInStored
+)
+
+func (s *wifiStoredState) String() string {
+	switch *s {
+	case ScanningStored:
+		return "Scanning"
+	case ConnectingStored:
+		return "Connecting"
+	case DoneInStored:
+		return "󰄬"
+	default:
+		return "Undefined!!!"
+	}
+}
+
 type WifiStoredModel struct {
-	dataTable  table.Model
+	dataTable        table.Model
+	indicatorSpinner spinner.Model
+	indicatorState   wifiStoredState
+
 	storedInfo *WifiStoredInfoModel
-	nm         infra.NetworkManager
-	width      int
-	height     int
+
+	nm infra.NetworkManager
+
+	width  int
+	height int
 }
 
 type WifiStoredColumnIndex int
@@ -36,18 +64,24 @@ func NewWifiStoredModel(networkManager infra.NetworkManager) *WifiStoredModel {
 		table.WithFocused(true),
 	)
 	t.SetStyles(styles.TableStyle)
-	s := NewStoredInfoModel(networkManager)
+	s := spinner.New()
+	info := NewStoredInfoModel(networkManager)
 
 	return &WifiStoredModel{
-		dataTable:  t,
-		storedInfo: s,
-		nm:         networkManager,
+		dataTable:        t,
+		indicatorSpinner: s,
+		indicatorState:   DoneInStored,
+		storedInfo:       info,
+		nm:               networkManager,
 	}
 }
 
 func (m *WifiStoredModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
+
+	height -= indicatorStateHeight
+
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 
@@ -125,7 +159,14 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *WifiStoredModel) View() string {
 	view := m.dataTable.View()
-	return view
+
+	var statusline string
+	if m.indicatorState != DoneInStored {
+		statusline = fmt.Sprintf("%s %s", m.indicatorState.String(), m.indicatorSpinner.View())
+	} else {
+		statusline = m.indicatorState.String()
+	}
+	return lipgloss.JoinVertical(lipgloss.Center, view, statusline)
 }
 
 type updateWifiStoredMsg struct{}
@@ -158,6 +199,26 @@ func (m *WifiStoredModel) UpdateRowsCmd() tea.Cmd {
 		m.dataTable.SetRows(rows)
 		m.dataTable.UpdateViewport()
 		return UpdateMsg
+	}
+}
+
+type WifiStoredStateMsg wifiStoredState
+
+func (m *WifiStoredModel) setWifiStateCmd(state wifiStoredState) tea.Cmd {
+	updCmd := func() tea.Msg {
+		m.indicatorState = state
+		return nil
+	}
+	if state == DoneInStored {
+		return updCmd
+	} else {
+		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
+	}
+}
+
+func SetWifiStoredStateCmd(state wifiStoredState) tea.Cmd {
+	return func() tea.Msg {
+		return WifiAvialableStateMsg(state)
 	}
 }
 
