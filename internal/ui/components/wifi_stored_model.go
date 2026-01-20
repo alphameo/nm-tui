@@ -150,6 +150,12 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
+	if m.indicatorState != DoneInStored {
+		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
+		if cmd != nil {
+			return m, cmd
+		}
+	}
 	m.dataTable, cmd = m.dataTable.Update(msg)
 	if cmd != nil {
 		return m, cmd
