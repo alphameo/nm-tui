@@ -133,6 +133,12 @@ func (m *WifiStoredModel) View() string {
 	return view
 }
 
+func UpdateWifiStoredCmd() tea.Cmd {
+	return func() tea.Msg {
+		return UpdateWifiStoredMsg
+	}
+}
+
 func (m *WifiStoredModel) UpdateRowsCmd() tea.Cmd {
 	return func() tea.Msg {
 		list, err := m.nm.GetStoredWifi()
@@ -177,10 +183,4 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 		return nil
 	},
 		UpdateWifiCmd())
-}
-
-func UpdateWifiStoredRowsCmd() tea.Cmd {
-	return func() tea.Msg {
-		return UpdateWifiStoredMsg
-	}
 }
