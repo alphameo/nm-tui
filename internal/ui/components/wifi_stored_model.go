@@ -2,7 +2,6 @@ package components
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/logger"
@@ -131,10 +130,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *WifiStoredModel) View() string {
 	view := m.dataTable.View()
-
-	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s", view)
-	return sb.String()
+	return view
 }
 
 func (m *WifiStoredModel) UpdateRowsCmd() tea.Cmd {

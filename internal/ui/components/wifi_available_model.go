@@ -2,7 +2,6 @@ package components
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/logger"
@@ -159,11 +158,7 @@ func (m *WifiAvailableModel) View() string {
 	} else {
 		statusline = m.indicatorState.String()
 	}
-	statusline = lipgloss.Place(m.dataTable.Width(), 1, lipgloss.Center, lipgloss.Center, statusline)
-
-	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s\n%s", view, statusline)
-	return sb.String()
+	return lipgloss.JoinVertical(lipgloss.Center, view, statusline)
 }
 
 func (m *WifiAvailableModel) updateRowsCmd() tea.Cmd {

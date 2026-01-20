@@ -1,13 +1,11 @@
 package components
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type WifiModel struct {
@@ -119,14 +117,7 @@ func (m *WifiModel) View() string {
 		styles.AccentColor,
 	)
 
-	sb := strings.Builder{}
-	fmt.Fprintf(
-		&sb,
-		"%s\n%s",
-		availableView,
-		storedView,
-	)
-	return sb.String()
+	return lipgloss.JoinVertical(lipgloss.Center, availableView, storedView)
 }
 
 func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {

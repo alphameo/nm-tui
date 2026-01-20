@@ -1,9 +1,6 @@
 package components
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
@@ -72,17 +69,15 @@ func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TabsModel) View() string {
-	view := m.tabTables[m.activeTab].View()
+	tabView := m.tabTables[m.activeTab].View()
 	tabBar := renderer.RenderTabBar(
 		m.tabTitles,
 		styles.TabTabBorderActiveStyle,
 		styles.TabTabBorderInactiveStyle,
-		lipgloss.Width(view)+2,
+		lipgloss.Width(tabView)+2,
 		m.activeTab,
 	)
-	view = styles.TabScreenBorderStyle.Render(view)
+	tabView = styles.TabScreenBorderStyle.Render(tabView)
 
-	sb := strings.Builder{}
-	fmt.Fprintf(&sb, "%s\n%s", tabBar, view)
-	return sb.String()
+	return lipgloss.JoinVertical(lipgloss.Center, tabBar, tabView)
 }

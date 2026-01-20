@@ -114,6 +114,16 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *WifiStoredInfoModel) View() string {
+	sb := strings.Builder{}
+	fmt.Fprintf(
+		&sb,
+		"SSID      %s%s",
+		m.ssid,
+		m.connectionView(),
+	)
+
+	ssidView := sb.String()
+
 	inputStyle := styles.BorderedStyle
 
 	nameView := m.nameInput.View()
@@ -152,17 +162,14 @@ func (m *WifiStoredInfoModel) View() string {
 		autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, autoconPriorityView, autoconPriorityErrView)
 	}
 
-	view := lipgloss.JoinVertical(lipgloss.Left, nameView, passwordView, autoconnectCheckboxView, autoconPriorityView)
-
-	sb := strings.Builder{}
-	fmt.Fprintf(
-		&sb,
-		"SSID: %s%s\n%s",
-		m.ssid,
-		m.connectionView(),
-		view,
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		ssidView,
+		nameView,
+		passwordView,
+		autoconnectCheckboxView,
+		autoconPriorityView,
 	)
-	return sb.String()
 }
 
 func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, tea.Cmd) {
