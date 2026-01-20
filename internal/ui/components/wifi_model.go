@@ -65,7 +65,7 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "tab":
-			m.focusedWindowIndex = (m.focusedWindowIndex + 1%len(m.windows))
+			m.focusedWindowIndex = (m.focusedWindowIndex + 1) % len(m.windows)
 		case "1":
 			m.focusedWindowIndex = 0
 		case "2":
