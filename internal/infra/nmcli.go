@@ -216,17 +216,17 @@ func (n Nmcli) UpdateWifiInfo(id string, info *UpdateWifiInfo) error {
 		return err
 	}
 
-	err = n.updateWifiPassword(id, info.Password)
+	err = n.updateWifiPassword(info.Name, info.Password)
 	if err != nil {
 		return err
 	}
 
-	err = n.updateWifiAutoconnect(id, info.Autoconnect)
+	err = n.updateWifiAutoconnect(info.Name, info.Autoconnect)
 	if err != nil {
 		return err
 	}
 
-	err = n.updateWifiAutoconnectPriority(id, info.AutoconnectPriority)
+	err = n.updateWifiAutoconnectPriority(info.Name, info.AutoconnectPriority)
 	if err != nil {
 		return err
 	}
@@ -252,6 +252,7 @@ func (n Nmcli) updateWifiID(id, newID string) error {
 }
 
 func (n Nmcli) updateWifiPassword(id, password string) error {
+	logger.Debugln("pivo")
 	return n.updateWifiInfoField(id, "802-11-wireless-security.psk", password)
 }
 
