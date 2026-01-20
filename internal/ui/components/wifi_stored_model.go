@@ -74,11 +74,6 @@ func (m *WifiStoredModel) Init() tea.Cmd {
 	return m.UpdateRowsCmd()
 }
 
-type updateWifiStoredMsg struct{}
-
-// UpdateWifiStoredMsg is used to avoid extra instantiatons
-var UpdateWifiStoredMsg = updateWifiStoredMsg{}
-
 func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -132,6 +127,11 @@ func (m *WifiStoredModel) View() string {
 	view := m.dataTable.View()
 	return view
 }
+
+type updateWifiStoredMsg struct{}
+
+// UpdateWifiStoredMsg is used to avoid extra instantiatons
+var UpdateWifiStoredMsg = updateWifiStoredMsg{}
 
 func UpdateWifiStoredCmd() tea.Cmd {
 	return func() tea.Msg {
