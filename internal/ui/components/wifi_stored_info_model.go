@@ -104,7 +104,10 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+k":
 			return m, m.focusPrevCmd()
 		case "enter":
-			return m, tea.Sequence(SetPopupActivityCmd(false), m.saveWifiInfoCmd(), UpdateWifiStoredCmd())
+			return m, tea.Batch(
+				SetPopupActivityCmd(false),
+				m.saveWifiInfoCmd(),
+			)
 		default:
 			return m.handleKey(msg)
 		}
@@ -245,23 +248,26 @@ func (m *WifiStoredInfoModel) focusPrevCmd() tea.Cmd {
 }
 
 func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
-	return func() tea.Msg {
-		ap, err := strconv.Atoi(m.autoconnectPriority.Value())
-		if err != nil {
-			return SetNotificationTextCmd(err.Error())
-		}
-		info := &infra.UpdateWifiInfo{
-			Name:                m.nameInput.Value(),
-			Password:            m.password.Value(),
-			Autoconnect:         m.autoconnect.Value(),
-			AutoconnectPriority: ap,
-		}
-		err = m.nm.UpdateWifiInfo(m.name, info)
-		if err != nil {
-			return NotifyCmd(err.Error())
-		}
-		return nil
-	}
+	return CmdChain(
+		func() tea.Msg {
+			ap, err := strconv.Atoi(m.autoconnectPriority.Value())
+			if err != nil {
+				return NotifyCmd(err.Error())
+			}
+			info := &infra.UpdateWifiInfo{
+				Name:                m.nameInput.Value(),
+				Password:            m.password.Value(),
+				Autoconnect:         m.autoconnect.Value(),
+				AutoconnectPriority: ap,
+			}
+			err = m.nm.UpdateWifiInfo(m.name, info)
+			if err != nil {
+				return NotifyCmd(err.Error())
+			}
+			return UpdateMsg
+		},
+		UpdateWifiCmd(),
+	)
 }
 
 func autoconnectPriorityValidator(input string) error {
