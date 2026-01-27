@@ -144,6 +144,6 @@ var UpdateWifiMsg = updateWifiMsg{}
 
 func UpdateWifiCmd() tea.Cmd {
 	return func() tea.Msg {
-		return UpdateWifiAvailableMsg
+		return UpdateWifiMsg
 	}
 }

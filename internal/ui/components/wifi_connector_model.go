@@ -46,9 +46,9 @@ func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEnter:
 			pw := m.password.Value()
-			return m, tea.Sequence(
+			return m, tea.Batch(
 				SetPopupActivityCmd(false),
-				m.ConnectToWifiCmd(m.wifiName, pw),
+				m.connectToWifiCmd(m.wifiName, pw),
 			)
 		case tea.KeyCtrlR:
 			if m.password.EchoMode == textinput.EchoPassword {
@@ -74,17 +74,16 @@ func (m WifiConnectorModel) View() string {
 	return lipgloss.JoinVertical(lipgloss.Left, wifiName, password)
 }
 
-func (m *WifiConnectorModel) ConnectToWifiCmd(ssid, password string) tea.Cmd {
-	return tea.Sequence(
+func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {
+	return CmdChain(
 		SetWifiAvailableStateCmd(ConnectingAvailable),
 		func() tea.Msg {
 			err := m.nm.ConnectWifi(ssid, password)
 			if err != nil {
 				return NotifyCmd(err.Error())
 			}
-			return nil
+			return UpdateCmd()
 		},
-		SetWifiAvailableStateCmd(DoneInAvailable),
 		UpdateWifiCmd(),
 	)
 }

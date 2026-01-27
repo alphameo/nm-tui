@@ -132,7 +132,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case WifiAvialableStateMsg:
-		return m, m.SetWifiStateCmd(wifiAvailableState(msg))
+		return m, m.SetStateCmd(wifiAvailableState(msg))
 	case updateWifiAvailableMsg:
 		return m, m.UpdateRowsCmd()
 	}
@@ -164,8 +164,8 @@ func (m *WifiAvailableModel) View() string {
 }
 
 func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
-	return tea.Sequence(
-		m.SetWifiStateCmd(ScanningAvailable),
+	return CmdChain(
+		SetWifiAvailableStateCmd(ScanningAvailable),
 		func() tea.Msg {
 			list, err := m.nm.GetAvailableWifi()
 			if err != nil {
@@ -182,10 +182,11 @@ func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 			}
 
 			m.dataTable.SetRows(rows)
+			m.dataTable.GotoTop()
 			m.dataTable.UpdateViewport()
 			return UpdateMsg
 		},
-		m.SetWifiStateCmd(DoneInAvailable),
+		SetWifiAvailableStateCmd(DoneInAvailable),
 	)
 }
 
@@ -202,7 +203,7 @@ func UpdateWifiAvailableCmd() tea.Cmd {
 
 type WifiAvialableStateMsg wifiAvailableState
 
-func (m *WifiAvailableModel) SetWifiStateCmd(state wifiAvailableState) tea.Cmd {
+func (m *WifiAvailableModel) SetStateCmd(state wifiAvailableState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return nil
