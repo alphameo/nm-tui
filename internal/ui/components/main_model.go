@@ -12,6 +12,17 @@ const (
 	TabBarHeight int = 3
 )
 
+type CmdChainMsg struct {
+	cmds    []tea.Cmd
+	lastMsg tea.Msg
+}
+
+func CmdChain(cmds ...tea.Cmd) tea.Cmd {
+	return func() tea.Msg {
+		return CmdChainMsg{cmds: cmds}
+	}
+}
+
 type MainModel struct {
 	tabs         TabsModel
 	popup        FloatingModel
@@ -77,6 +88,23 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, msg
 	case tea.KeyMsg:
 		return m, m.handleKeyMsg(msg)
+	case CmdChainMsg:
+		lastCmd := func() tea.Msg {
+			return msg.lastMsg
+		}
+
+		if len(msg.cmds) < 1 {
+			return m, lastCmd
+		}
+
+		return m, tea.Batch(
+			lastCmd,
+			func() tea.Msg {
+				msg.lastMsg = msg.cmds[0]()
+				msg.cmds = msg.cmds[1:]
+				return msg
+			},
+		)
 	}
 	return m, m.handleMsg(msg)
 }
