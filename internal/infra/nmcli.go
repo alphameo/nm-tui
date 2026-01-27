@@ -252,7 +252,6 @@ func (n Nmcli) updateWifiID(id, newID string) error {
 }
 
 func (n Nmcli) updateWifiPassword(id, password string) error {
-	logger.Debugln("pivo")
 	return n.updateWifiInfoField(id, "802-11-wireless-security.psk", password)
 }
 
