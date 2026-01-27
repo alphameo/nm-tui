@@ -64,7 +64,12 @@ func (m MainModel) Init() tea.Cmd {
 }
 
 // UpdateMsg is fictive variable, which used to send as tea.Msg instead of nil to trigger main window re-render
-var UpdateMsg = struct{}{}
+var (
+	UpdateMsg = updateMsg{}
+	UpdateCmd = func() tea.Msg {
+		return UpdateMsg
+	}
+)
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
