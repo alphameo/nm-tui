@@ -31,7 +31,7 @@ type MainModel struct {
 	height       int
 }
 
-func NewMainModel(networkManager infra.NetworkManager) MainModel {
+func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	wifiTable := *NewConnectionsModel(networkManager)
 	escKeys := []string{"ctrl+q", "esc", "ctrl+c"}
 	popup := *NewFloatingModel(nil, "")
@@ -46,7 +46,7 @@ func NewMainModel(networkManager infra.NetworkManager) MainModel {
 	notification.Width = 100
 	notification.Height = 10
 	notification.EscapeKeys = escKeys
-	m := MainModel{
+	m := &MainModel{
 		tabs:         wifiTable,
 		popup:        popup,
 		notification: notification,
