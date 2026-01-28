@@ -108,7 +108,7 @@ func (m *WifiStoredModel) Height() int {
 }
 
 func (m *WifiStoredModel) Init() tea.Cmd {
-	return m.UpdateRowsCmd()
+	return m.updateRowsCmd()
 }
 
 func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -118,12 +118,15 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				info, err := m.nm.GetWifiInfo(row[2])
+				info, err := m.nm.GetWifiInfo(row[storedNameColumn])
 				if err != nil {
 					return m, NotifyCmd(err.Error())
 				}
 				m.storedInfo.setNew(info)
-				return m, tea.Sequence(SetPopupActivityCmd(true), SetPopupContentCmd(m.storedInfo, "Stored Wi-Fi info"))
+				return m, tea.Sequence(
+					SetPopupActivityCmd(true),
+					SetPopupContentCmd(m.storedInfo, "Stored Wi-Fi info"),
+				)
 			}
 			return m, nil
 		case " ":
@@ -131,7 +134,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "shift+ ":
 			return m, m.disconnectFromSelectedCmd()
 		case "r":
-			return m, m.UpdateRowsCmd()
+			return m, m.updateRowsCmd()
 		case "d":
 			row := m.dataTable.SelectedRow()
 			cursor := m.dataTable.Cursor()
@@ -149,7 +152,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				UpdateWifiStoredCmd())
 		}
 	case updateWifiStoredMsg:
-		return m, m.UpdateRowsCmd()
+		return m, m.updateRowsCmd()
 	case WifiStoredStateMsg:
 		return m, m.setStateCmd(wifiStoredState(msg))
 	}
@@ -191,7 +194,7 @@ func UpdateWifiStoredCmd() tea.Cmd {
 	}
 }
 
-func (m *WifiStoredModel) UpdateRowsCmd() tea.Cmd {
+func (m *WifiStoredModel) updateRowsCmd() tea.Cmd {
 	return CmdChain(
 		m.setStateCmd(ScanningStored),
 		func() tea.Msg {
@@ -210,10 +213,9 @@ func (m *WifiStoredModel) UpdateRowsCmd() tea.Cmd {
 			}
 
 			m.dataTable.SetRows(rows)
-			m.dataTable.GotoTop()
-			m.dataTable.UpdateViewport()
-			return m.setStateCmd(DoneInStored)
+			return UpdateCmd
 		},
+		m.setStateCmd(DoneInStored),
 	)
 }
 
@@ -250,7 +252,15 @@ func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
 		},
 		SetWifiStoredStateCmd(DoneInStored),
 		UpdateWifiCmd(),
+		m.gotoTop(),
 	)
+}
+
+func (m *WifiStoredModel) gotoTop() tea.Cmd {
+	return func() tea.Msg {
+		m.dataTable.GotoTop()
+		return UpdateCmd
+	}
 }
 
 func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {

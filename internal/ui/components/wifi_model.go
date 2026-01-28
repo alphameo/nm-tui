@@ -73,7 +73,7 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 	case updateWifiMsg:
-		cmds := []tea.Cmd{m.wifiAvailable.UpdateRowsCmd(), m.wifiStored.UpdateRowsCmd()}
+		cmds := []tea.Cmd{UpdateWifiStoredCmd(), UpdateWifiAvailableCmd()}
 		return m, tea.Batch(cmds...)
 	}
 	var cmds []tea.Cmd
