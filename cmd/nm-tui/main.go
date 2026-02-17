@@ -3,10 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/ui/components"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -21,15 +21,24 @@ func main() {
 			os.Exit(1)
 		}
 	}
+	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
+	if err != nil {
+		panic(err)
+	}
+	opts := &slog.HandlerOptions{
+		Level:     slog.LevelDebug,
+		AddSource: true,
+	}
+	logger := slog.New(slog.NewJSONHandler(f, opts))
+	slog.Debug("yappi")
 
-	logger.FilePath(logPath)
-	logger.Level = logger.ErrorsLevel
-	logger.Informln("The program is running")
-	defer logger.Informln("Program is closed")
+	slog.Info("The program is running")
+	slog.SetDefault(logger)
+	defer slog.Info("Program is closed")
 
 	nm := infra.NewNMCLI()
 	p := tea.NewProgram(components.NewMainModel(nm), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
-		logger.Errln(err)
+		slog.Error(err.Error())
 	}
 }

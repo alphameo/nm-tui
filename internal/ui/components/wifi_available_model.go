@@ -2,9 +2,9 @@ package components
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/logger"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
@@ -169,7 +169,7 @@ func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 		func() tea.Msg {
 			list, err := m.nm.GetAvailableWifi()
 			if err != nil {
-				logger.Errln(fmt.Errorf("error: %s", err.Error()))
+				slog.Error(err.Error())
 				return NotifyCmd(err.Error())
 			}
 			rows := []table.Row{}

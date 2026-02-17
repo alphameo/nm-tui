@@ -2,11 +2,11 @@
 package infra
 
 import (
+	"fmt"
+	"log/slog"
 	"os/exec"
 	"strconv"
 	"strings"
-
-	"github.com/alphameo/nm-tui/internal/logger"
 )
 
 type Nmcli struct{}
@@ -23,7 +23,8 @@ func (Nmcli) GetAvailableWifi() ([]*WifiScanned, error) {
 	args := []string{"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL", "dev", "wifi"}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err != nil {
-		logger.Errf("Error scanning available wifi-networks (%s %s): %s\n", NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error scanning available wifi-networks (%s %s): %s", NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 	}
 
 	var res []*WifiScanned
@@ -46,7 +47,8 @@ func (Nmcli) GetAvailableWifi() ([]*WifiScanned, error) {
 			Signal:   signal,
 		})
 	}
-	logger.Informf("Got list of available wifi-networks (%s %s)\n", NmcliCommandName, args)
+	msg := fmt.Sprintf("Got list of available wifi-networks (%s %s)", NmcliCommandName, args)
+	slog.Info(msg)
 	return res, nil
 }
 
@@ -55,7 +57,8 @@ func (n Nmcli) GetStoredWifi() ([]*WifiStored, error) {
 	args := []string{"-t", "-f", "NAME,STATE", "connection", "show"}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err != nil {
-		logger.Errf("Error retreiving stored wifi-networks (%s %s): %s\n", NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error retreiving stored wifi-networks (%s %s): %s", NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 	}
 
 	var res []*WifiStored
@@ -88,19 +91,25 @@ func (n Nmcli) GetStoredWifi() ([]*WifiStored, error) {
 		wifi.SSID = ssid
 	}
 
-	logger.Informf("Got list of stored wifi-networks (%s %s)\n", NmcliCommandName, args)
+	msg := fmt.Sprintf("Got list of stored wifi-networks (%s %s)", NmcliCommandName, args)
+	slog.Info(msg)
 	return res, nil
 }
 
 func (n Nmcli) ConnectWifi(ssid, password string) error {
 	// CMD: nmcli device wifi connect "<SSID>" password "<PASSWORD>"
-	n.DeleteWifiConnection(ssid) // FIX: after nmcli 1.48.10 connection via password not able with saved networks
+	err := n.DeleteWifiConnection(ssid) // FIX: after nmcli 1.48.10 connection via password not able with saved networks
+	if err != nil {
+		return err
+	}
 	args := []string{"device", "wifi", "connect", ssid, "password", password}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err == nil {
-		logger.Informf("Connected to wifi %s (%s %s): %s", ssid, NmcliCommandName, args, string(out))
+		msg := fmt.Sprintf("Connected to wifi %s (%s %s): %s", ssid, NmcliCommandName, args, string(out))
+		slog.Info(msg)
 	} else {
-		logger.Errf("Error connecting to wifi %s (%s %s): %s\n", ssid, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error connecting to wifi %s (%s %s): %s", ssid, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 	}
 	return err
 }
@@ -110,9 +119,11 @@ func (Nmcli) ConnectStoredWifi(id string) error {
 	args := []string{"connection", "up", id}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err == nil {
-		logger.Informf("Connected to saved wifi %s (%s %s): %s", id, NmcliCommandName, args, string(out))
+		msg := fmt.Sprintf("Connected to saved wifi %s (%s %s): %s", id, NmcliCommandName, args, string(out))
+		slog.Info(msg)
 	} else {
-		logger.Errf("Error connecting to saved wifi %s (%s %s): %s\n", id, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error connecting to saved wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Info(msg)
 	}
 	return err
 }
@@ -122,9 +133,11 @@ func (Nmcli) DisconnectFromWifi(id string) error {
 	args := []string{"connection", "down", id}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err == nil {
-		logger.Informf("Disconnected from wifi %s (%s %s): %s", id, NmcliCommandName, args, string(out))
+		msg := fmt.Sprintf("Disconnected from wifi %s (%s %s): %s", id, NmcliCommandName, args, string(out))
+		slog.Info(msg)
 	} else {
-		logger.Errf("Error disconnecting from wifi %s (%s %s): %s\n", id, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error disconnecting from wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 	}
 	return err
 }
@@ -134,11 +147,13 @@ func (Nmcli) GetConnectedWifi() ([]string, error) {
 	args := []string{"-t", "-f", "NAME", "connection", "show"}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err != nil {
-		logger.Errf("Error retreiving list of connected wifi-networks (%s %s): %s\n", NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error retreiving list of connected wifi-networks (%s %s): %s", NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 		return nil, err
 	}
 	res := strings.Split(string(out), "\n")
-	logger.Informf("Got list of connetcted wifi-networks (%s %s)\n", NmcliCommandName, args)
+	msg := fmt.Sprintf("Got list of connetcted wifi-networks (%s %s)", NmcliCommandName, args)
+	slog.Info(msg)
 	return res, nil
 }
 
@@ -147,11 +162,13 @@ func (Nmcli) GetWifiPassword(id string) (string, error) {
 	args := []string{"-s", "-m", "tabular", "-t", "-f", "802-11-wireless-security.psk", "connection", "show", id}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err != nil {
-		logger.Errf("Error retrieving password to wifi %s (%s %s): %s\n", id, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error retrieving password to wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Info(msg)
 		return "", err
 	}
 	pw := strings.Trim(string(out), " \n")
-	logger.Informf("Got password to wifi %s (%s %s)\n", id, NmcliCommandName, args)
+	msg := fmt.Sprintf("Got password to wifi %s (%s %s)", id, NmcliCommandName, args)
+	slog.Info(msg)
 	return pw, nil
 }
 
@@ -160,11 +177,13 @@ func (Nmcli) GetWifiSSID(id string) (string, error) {
 	args := []string{"-s", "-m", "tabular", "-t", "-f", "802-11-wireless.ssid", "connection", "show", id}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err != nil {
-		logger.Errf("Error retrieving ssid for wifi %s (%s %s): %s\n", id, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error retrieving ssid for wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 		return "", err
 	}
 	ssid := strings.Trim(string(out), " \n")
-	logger.Informf("Got password to wifi %s (%s %s)\n", id, NmcliCommandName, args)
+	msg := fmt.Sprintf("Got password to wifi %s (%s %s)", id, NmcliCommandName, args)
+	slog.Info(msg)
 	return ssid, nil
 }
 
@@ -183,13 +202,15 @@ func (Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
 	}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err != nil {
-		logger.Errf("Error retrieving information about wifi %s (%s %s): %s\n", id, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error retrieving information about wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 		return nil, err
 	}
 	lines := strings.Split(string(out), "\n")
 	autoconnectPriority, err := strconv.Atoi(lines[4])
 	if err != nil {
-		logger.Errf("Error retrieving information about wifi %s (%s %s): %s\n", id, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error retrieving information about wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 		return nil, err
 	}
 
@@ -198,7 +219,8 @@ func (Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
 		active = lines[5] == "activated"
 	}
 
-	logger.Informf("Got information about wifi %s (%s %s)\n", id, NmcliCommandName, args)
+	msg := fmt.Sprintf("Got information about wifi %s (%s %s)", id, NmcliCommandName, args)
+	slog.Info(msg)
 	return &WifiInfo{
 		Name:                lines[0],
 		SSID:                lines[1],
@@ -239,9 +261,11 @@ func (Nmcli) updateWifiInfoField(id, field, value string) error {
 	args := []string{"connection", "modify", id, field, value}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err == nil {
-		logger.Informf("Wifi %s was modified (%s %s): %s", id, NmcliCommandName, args, string(out))
+		msg := fmt.Sprintf("Wifi %s was modified (%s %s): %s", id, NmcliCommandName, args, string(out))
+		slog.Info(msg)
 	} else {
-		logger.Errf("Error modifying wifi %s (%s %s): %s\n", id, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error modifying wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 	}
 
 	return err
@@ -275,9 +299,11 @@ func (Nmcli) DeleteWifiConnection(id string) error {
 	args := []string{"connection", "delete", id}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err == nil {
-		logger.Informf("Connection to wifi %s was deleted (%s %s): %s", id, NmcliCommandName, args, string(out))
+		msg := fmt.Sprintf("Connection to wifi %s was deleted (%s %s): %s", id, NmcliCommandName, args, string(out))
+		slog.Info(msg)
 	} else {
-		logger.Errf("Error deleting connection to wifi %s (%s %s): %s\n", id, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error deleting connection to wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 	}
 	return err
 }
@@ -287,9 +313,11 @@ func (Nmcli) ConnectVPN(vpnName string) error {
 	args := []string{"connection", "up", "id", vpnName}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err == nil {
-		logger.Informf("Connected to VPN %s (%s %s): %s", vpnName, NmcliCommandName, args, string(out))
+		msg := fmt.Sprintf("Connected to VPN %s (%s %s): %s", vpnName, NmcliCommandName, args, string(out))
+		slog.Info(msg)
 	} else {
-		logger.Errf("Error connecting to VPN %s (%s %s): %s\n", vpnName, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error connecting to VPN %s (%s %s): %s", vpnName, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
 	}
 	return err
 }
