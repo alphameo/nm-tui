@@ -77,7 +77,7 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmd := m.handleKeyMsg(msg)
 			return m, cmd
 		}
-	case updateWifiMsg:
+	case UpdateWifiMsg:
 		return m, tea.Batch(
 			UpdateWifiStoredCmd(),
 			UpdateWifiAvailableCmd(),
@@ -144,13 +144,12 @@ func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-type updateWifiMsg struct{}
 
-// UpdateWifiMsg is used to avoid extra instantiatons
-var UpdateWifiMsg = updateWifiMsg{}
+// UpdateWifiMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
+type UpdateWifiMsg struct{}
 
 func UpdateWifiCmd() tea.Cmd {
 	return func() tea.Msg {
-		return UpdateWifiMsg
+		return UpdateWifiMsg{}
 	}
 }

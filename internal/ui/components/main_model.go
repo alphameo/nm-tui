@@ -52,15 +52,12 @@ func (m MainModel) Init() tea.Cmd {
 	)
 }
 
-type updateMsg struct{}
+// UpdateMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
+type UpdateMsg struct{}
 
-// UpdateMsg is fictive variable, which used to send as tea.Msg instead of nil to trigger main window re-render
-var (
-	UpdateMsg = updateMsg{}
-	UpdateCmd = func() tea.Msg {
-		return UpdateMsg
-	}
-)
+var UpdateCmd = func() tea.Msg {
+	return UpdateMsg{}
+}
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {

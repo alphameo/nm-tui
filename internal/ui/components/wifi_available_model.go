@@ -133,7 +133,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case WifiAvialableStateMsg:
 		return m, m.SetStateCmd(wifiAvailableState(msg))
-	case updateWifiAvailableMsg:
+	case UpdateWifiAvailableMsg:
 		return m, m.UpdateRowsCmd()
 	}
 
@@ -192,14 +192,12 @@ func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 	)
 }
 
-type updateWifiAvailableMsg struct{}
-
-// UpdateWifiAvailableMsg is used to avoid extra instantiatons
-var UpdateWifiAvailableMsg = updateWifiAvailableMsg{}
+// UpdateWifiAvailableMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
+type UpdateWifiAvailableMsg struct{}
 
 func UpdateWifiAvailableCmd() tea.Cmd {
 	return func() tea.Msg {
-		return UpdateWifiAvailableMsg
+		return UpdateWifiAvailableMsg{}
 	}
 }
 

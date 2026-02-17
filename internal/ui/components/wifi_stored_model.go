@@ -141,7 +141,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "d":
 			return m, m.deleteSelectedCmd()
 		}
-	case updateWifiStoredMsg:
+	case UpdateWifiStoredMsg:
 		return m, m.updateRowsCmd()
 	case WifiStoredStateMsg:
 		return m, m.setStateCmd(wifiStoredState(msg))
@@ -173,14 +173,12 @@ func (m *WifiStoredModel) View() string {
 	return lipgloss.JoinVertical(lipgloss.Center, view, statusline)
 }
 
-type updateWifiStoredMsg struct{}
-
-// UpdateWifiStoredMsg is used to avoid extra instantiatons
-var UpdateWifiStoredMsg = updateWifiStoredMsg{}
+// UpdateWifiStoredMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
+type UpdateWifiStoredMsg struct{}
 
 func UpdateWifiStoredCmd() tea.Cmd {
 	return func() tea.Msg {
-		return UpdateWifiStoredMsg
+		return UpdateWifiStoredMsg{}
 	}
 }
 
@@ -217,7 +215,7 @@ type WifiStoredStateMsg wifiStoredState
 func (m *WifiStoredModel) setStateCmd(state wifiStoredState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
-		return UpdateMsg
+		return UpdateMsg{}
 	}
 
 	if state == DoneInStored {
@@ -258,7 +256,7 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 		if err != nil {
 			return NotifyCmd(err.Error())
 		}
-		return UpdateMsg
+		return UpdateMsg{}
 	}
 }
 
@@ -273,6 +271,6 @@ func (m *WifiStoredModel) deleteSelectedCmd() tea.Cmd {
 		if cursor == len(m.dataTable.Rows())-1 {
 			m.dataTable.SetCursor(cursor - 1)
 		}
-		return UpdateMsg
+		return UpdateMsg{}
 	}
 }
