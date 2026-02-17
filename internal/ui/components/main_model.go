@@ -13,8 +13,9 @@ const (
 )
 
 type CmdChainMsg struct {
-	cmds    []tea.Cmd
-	lastMsg tea.Msg
+	cmds       []tea.Cmd
+	resultCmd  tea.Cmd
+	modelState tea.Model
 }
 
 func CmdChain(cmds ...tea.Cmd) tea.Cmd {
@@ -96,22 +97,28 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		return m, m.handleKeyMsg(msg)
 	case CmdChainMsg:
-		lastCmd := func() tea.Msg {
-			return msg.lastMsg
+		var model tea.Model
+		resultCmd := msg.resultCmd
+		if msg.modelState == nil {
+			model = m
+		} else {
+			model = msg.modelState
 		}
 
-		if len(msg.cmds) < 1 {
-			return m, lastCmd
+		if len(msg.cmds) == 0 {
+			return msg.modelState, msg.resultCmd
 		}
 
-		return m, tea.Batch(
-			lastCmd,
-			func() tea.Msg {
-				msg.lastMsg = msg.cmds[0]()
+		return model,
+			tea.Batch(func() tea.Msg {
+				lastMsg := msg.cmds[0]
 				msg.cmds = msg.cmds[1:]
+				msg.modelState, msg.resultCmd = m.Update(lastMsg)
+
 				return msg
 			},
-		)
+				resultCmd,
+			)
 	}
 	return m, m.handleMsg(msg)
 }
