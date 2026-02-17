@@ -68,6 +68,11 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.focusedWindowIndex = 0
 		case "2":
 			m.focusedWindowIndex = 1
+		case "ctrl+r":
+			return m, tea.Batch(
+				UpdateWifiStoredCmd(),
+				UpdateWifiAvailableCmd(),
+			)
 		default:
 			cmd := m.handleKeyMsg(msg)
 			return m, cmd
