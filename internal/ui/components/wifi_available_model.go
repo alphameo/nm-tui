@@ -164,7 +164,7 @@ func (m *WifiAvailableModel) View() string {
 }
 
 func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
-	return CmdChain(
+	return tea.Sequence(
 		SetWifiAvailableStateCmd(ScanningAvailable),
 		func() tea.Msg {
 			list, err := m.nm.GetAvailableWifi()
@@ -184,9 +184,11 @@ func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 			m.dataTable.SetRows(rows)
 			m.dataTable.GotoTop()
 			m.dataTable.UpdateViewport()
-			return UpdateMsg
+			return tea.BatchMsg{
+				UpdateCmd,
+				m.SetStateCmd(DoneInAvailable),
+			}
 		},
-		SetWifiAvailableStateCmd(DoneInAvailable),
 	)
 }
 

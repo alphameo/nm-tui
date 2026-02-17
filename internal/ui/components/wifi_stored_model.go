@@ -131,22 +131,15 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			)
 
 		case " ":
-			return m, CmdChain(
-				m.connectToSelectedCmd(),
-				UpdateWifiCmd(),
-				m.gotoTop(),
-			)
+			return m, m.connectToSelectedCmd()
+
 		case "shift+ ":
-			return m, CmdChain(
-				m.disconnectFromSelectedCmd(),
-				UpdateWifiCmd(),
-			)
+			return m,
+				m.disconnectFromSelectedCmd()
 		case "r":
 			return m, UpdateWifiStoredCmd()
 		case "d":
-			return m, CmdChain(
-				m.deleteSelectedCmd(),
-				m.updateRowsCmd())
+			return m, m.deleteSelectedCmd()
 		}
 	case updateWifiStoredMsg:
 		return m, m.updateRowsCmd()
@@ -192,7 +185,7 @@ func UpdateWifiStoredCmd() tea.Cmd {
 }
 
 func (m *WifiStoredModel) updateRowsCmd() tea.Cmd {
-	return CmdChain(
+	return tea.Sequence(
 		m.setStateCmd(ScanningStored),
 		func() tea.Msg {
 			list, err := m.nm.GetStoredWifi()
@@ -210,9 +203,12 @@ func (m *WifiStoredModel) updateRowsCmd() tea.Cmd {
 			}
 
 			m.dataTable.SetRows(rows)
-			return UpdateCmd
+
+			return tea.BatchMsg{
+				m.setStateCmd(DoneInStored),
+				UpdateCmd,
+			}
 		},
-		m.setStateCmd(DoneInStored),
 	)
 }
 
@@ -232,16 +228,20 @@ func (m *WifiStoredModel) setStateCmd(state wifiStoredState) tea.Cmd {
 }
 
 func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
-	return CmdChain(
+	return tea.Sequence(
 		m.setStateCmd(ConnectingStored),
 		func() tea.Msg {
 			err := m.nm.ConnectStoredWifi(m.dataTable.SelectedRow()[storedNameColumn])
 			if err != nil {
 				return NotifyCmd(err.Error())
 			}
-			return UpdateMsg
+			logger.Debugln("upd")
+			return tea.BatchMsg{
+				m.setStateCmd(DoneInStored),
+				m.gotoTop(),
+				UpdateWifiCmd(),
+			}
 		},
-		m.setStateCmd(DoneInStored),
 	)
 }
 

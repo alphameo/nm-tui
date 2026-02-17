@@ -75,7 +75,7 @@ func (m WifiConnectorModel) View() string {
 }
 
 func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {
-	return CmdChain(
+	return tea.Sequence(
 		SetWifiAvailableStateCmd(ConnectingAvailable),
 		func() tea.Msg {
 			err := m.nm.ConnectWifi(ssid, password)
@@ -84,6 +84,5 @@ func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {
 			}
 			return UpdateCmd()
 		},
-		UpdateWifiCmd(),
 	)
 }

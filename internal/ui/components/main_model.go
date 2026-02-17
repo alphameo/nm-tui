@@ -12,18 +12,6 @@ const (
 	TabBarHeight int = 3
 )
 
-type CmdChainMsg struct {
-	cmds       []tea.Cmd
-	resultCmd  tea.Cmd
-	modelState tea.Model
-}
-
-func CmdChain(cmds ...tea.Cmd) tea.Cmd {
-	return func() tea.Msg {
-		return CmdChainMsg{cmds: cmds}
-	}
-}
-
 type MainModel struct {
 	tabs         TabsModel
 	popup        FloatingModel
@@ -96,29 +84,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, msg
 	case tea.KeyMsg:
 		return m, m.handleKeyMsg(msg)
-	case CmdChainMsg:
-		var model tea.Model
-		resultCmd := msg.resultCmd
-		if msg.modelState == nil {
-			model = m
-		} else {
-			model = msg.modelState
-		}
-
-		if len(msg.cmds) == 0 {
-			return msg.modelState, msg.resultCmd
-		}
-
-		return model,
-			tea.Batch(func() tea.Msg {
-				lastMsg := msg.cmds[0]
-				msg.cmds = msg.cmds[1:]
-				msg.modelState, msg.resultCmd = m.Update(lastMsg)
-
-				return msg
-			},
-				resultCmd,
-			)
 	}
 	return m, m.handleMsg(msg)
 }
