@@ -233,7 +233,6 @@ func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
 			if err != nil {
 				return NotifyCmd(err.Error())
 			}
-			logger.Debugln("upd")
 			return tea.BatchMsg{
 				m.setStateCmd(DoneInStored),
 				m.gotoTop(),
