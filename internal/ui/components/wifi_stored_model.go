@@ -221,7 +221,7 @@ func (m *WifiStoredModel) setStateCmd(state wifiStoredState) tea.Cmd {
 	if state == DoneInStored {
 		return updCmd
 	} else {
-		return tea.Batch(updCmd, m.indicatorSpinner.Tick)
+		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 	}
 }
 

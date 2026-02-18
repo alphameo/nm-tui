@@ -26,7 +26,7 @@ func main() {
 		panic(err)
 	}
 	opts := &slog.HandlerOptions{
-		Level:     slog.LevelDebug,
+		Level:     slog.LevelError,
 		AddSource: true,
 	}
 	logger := slog.New(slog.NewJSONHandler(f, opts))
