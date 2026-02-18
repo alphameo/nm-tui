@@ -132,7 +132,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case WifiAvialableStateMsg:
-		return m, m.SetStateCmd(wifiAvailableState(msg))
+		return m, m.setStateCmd(wifiAvailableState(msg))
 	case UpdateWifiAvailableMsg:
 		return m, m.UpdateRowsCmd()
 	}
@@ -165,7 +165,7 @@ func (m *WifiAvailableModel) View() string {
 
 func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 	return tea.Sequence(
-		SetWifiAvailableStateCmd(ScanningAvailable),
+		m.setStateCmd(ScanningAvailable),
 		func() tea.Msg {
 			list, err := m.nm.GetAvailableWifi()
 			if err != nil {
@@ -185,14 +185,13 @@ func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 			m.dataTable.GotoTop()
 			m.dataTable.UpdateViewport()
 			return tea.BatchMsg{
-				UpdateCmd,
-				m.SetStateCmd(DoneInAvailable),
+				NilCmd,
+				m.setStateCmd(DoneInAvailable),
 			}
 		},
 	)
 }
 
-// UpdateWifiAvailableMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
 type UpdateWifiAvailableMsg struct{}
 
 func UpdateWifiAvailableCmd() tea.Cmd {
@@ -203,7 +202,7 @@ func UpdateWifiAvailableCmd() tea.Cmd {
 
 type WifiAvialableStateMsg wifiAvailableState
 
-func (m *WifiAvailableModel) SetStateCmd(state wifiAvailableState) tea.Cmd {
+func (m *WifiAvailableModel) setStateCmd(state wifiAvailableState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return nil

@@ -173,7 +173,6 @@ func (m *WifiStoredModel) View() string {
 	return lipgloss.JoinVertical(lipgloss.Center, view, statusline)
 }
 
-// UpdateWifiStoredMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
 type UpdateWifiStoredMsg struct{}
 
 func UpdateWifiStoredCmd() tea.Cmd {
@@ -202,10 +201,7 @@ func (m *WifiStoredModel) updateRowsCmd() tea.Cmd {
 
 			m.dataTable.SetRows(rows)
 
-			return tea.BatchMsg{
-				m.setStateCmd(DoneInStored),
-				UpdateCmd,
-			}
+			return m.setStateCmd(DoneInStored)
 		},
 	)
 }
@@ -215,7 +211,7 @@ type WifiStoredStateMsg wifiStoredState
 func (m *WifiStoredModel) setStateCmd(state wifiStoredState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
-		return UpdateMsg{}
+		return NilMsg{}
 	}
 
 	if state == DoneInStored {
@@ -245,7 +241,7 @@ func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
 func (m *WifiStoredModel) gotoTop() tea.Cmd {
 	return func() tea.Msg {
 		m.dataTable.GotoTop()
-		return UpdateCmd
+		return NilCmd
 	}
 }
 
@@ -255,7 +251,7 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 		if err != nil {
 			return NotifyCmd(err.Error())
 		}
-		return UpdateMsg{}
+		return NilMsg{}
 	}
 }
 
@@ -270,6 +266,6 @@ func (m *WifiStoredModel) deleteSelectedCmd() tea.Cmd {
 		if cursor == len(m.dataTable.Rows())-1 {
 			m.dataTable.SetCursor(cursor - 1)
 		}
-		return UpdateMsg{}
+		return NilMsg{}
 	}
 }

@@ -263,7 +263,7 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 		if err != nil {
 			return NotifyCmd(err.Error())
 		}
-		return UpdateMsg{}
+		return UpdateWifiStoredMsg{}
 	}
 }
 

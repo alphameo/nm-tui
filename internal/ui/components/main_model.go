@@ -52,11 +52,12 @@ func (m MainModel) Init() tea.Cmd {
 	)
 }
 
-// UpdateMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
-type UpdateMsg struct{}
+// NilMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
+type NilMsg struct{}
 
-var UpdateCmd = func() tea.Msg {
-	return UpdateMsg{}
+// NilCmd is a function, which returns fictive Msg to trigger Model Update
+var NilCmd = func() tea.Msg {
+	return NilMsg{}
 }
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
