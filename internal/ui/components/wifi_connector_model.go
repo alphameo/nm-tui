@@ -82,7 +82,7 @@ func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {
 			if err != nil {
 				return NotifyCmd(err.Error())
 			}
-			return NilCmd()
+			return SetWifiAvailableStateCmd(DoneInAvailable)
 		},
 	)
 }
