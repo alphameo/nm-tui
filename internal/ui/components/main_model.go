@@ -28,9 +28,9 @@ func (k *mainKeyMap) FullHelp() [][]key.Binding {
 }
 
 type MainModel struct {
-	tabs         *TabsModel
-	popup        *floating.Model
-	notification *floating.Model
+	tabs         TabsModel
+	popup        floating.Model
+	notification floating.Model
 
 	keys *mainKeyMap
 	help help.Model
@@ -42,22 +42,27 @@ type MainModel struct {
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
 	wifiTable := NewTabsModel(networkManager, keys)
-	popup := floating.NewFloatingModel(nil, "")
+	popup := floating.New(nil)
+	popup.Title = "Popup"
 	popup.Keys = keys.floating
 	popup.Width = 100
 	popup.Height = 10
 	popup.XAnchor = floating.Center
 	popup.YAnchor = floating.Center
-	notification := floating.NewFloatingModel(nil, "Notification")
+	popup.ContentAlignHorizontal = lipgloss.Center
+	popup.ContentAlignVertical = lipgloss.Center
+	notification := floating.New(nil)
 	notification.Keys = keys.floating
 	notification.XAnchor = floating.Center
 	notification.YAnchor = floating.Center
 	notification.Width = 100
 	notification.Height = 10
+	notification.ContentAlignHorizontal = lipgloss.Center
+	notification.ContentAlignVertical = lipgloss.Center
 	m := &MainModel{
-		tabs:         wifiTable,
-		popup:        popup,
-		notification: notification,
+		tabs:         *wifiTable,
+		popup:        *popup,
+		notification: *notification,
 		keys:         keys.main,
 		help:         help.New(),
 	}
@@ -131,19 +136,19 @@ func (m MainModel) View() string {
 func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	if m.notification.IsActive {
 		upd, cmd := m.notification.Update(keyMsg)
-		m.notification = upd.(*floating.Model)
+		m.notification = upd.(floating.Model)
 		return cmd
 	}
 	if m.popup.IsActive {
 		upd, cmd := m.popup.Update(keyMsg)
-		m.popup = upd.(*floating.Model)
+		m.popup = upd.(floating.Model)
 		return cmd
 	}
 	if key.Matches(keyMsg, m.keys.quit) {
 		return tea.Quit
 	}
 	upd, cmd := m.tabs.Update(keyMsg)
-	m.tabs = upd.(*TabsModel)
+	m.tabs = upd.(TabsModel)
 	return cmd
 }
 
@@ -151,20 +156,20 @@ func (m *MainModel) handleMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var upd tea.Model
 	upd, cmd = m.tabs.Update(msg)
-	m.tabs = upd.(*TabsModel)
+	m.tabs = upd.(TabsModel)
 	if cmd != nil {
 		return cmd
 	}
 	if m.notification.IsActive {
 		upd, cmd = m.notification.Update(msg)
-		m.notification = upd.(*floating.Model)
+		m.notification = upd.(floating.Model)
 		if cmd != nil {
 			return cmd
 		}
 	}
 	if m.popup.IsActive {
 		upd, cmd = m.popup.Update(msg)
-		m.popup = upd.(*floating.Model)
+		m.popup = upd.(floating.Model)
 		if cmd != nil {
 			return cmd
 		}

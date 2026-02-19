@@ -2,8 +2,6 @@
 package floating
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -11,11 +9,14 @@ import (
 
 // Model contains any tea.Model inside
 type Model struct {
-	Title    string    // Overlay title
+	Title    string
 	Content  tea.Model // Content of overlay
 	IsActive bool      // Flag for upper composition (Default: `false`)
 
 	Keys *FloatingKeyMap // Keycombinations for overlay
+
+	ContentAlignHorizontal lipgloss.Position // Horizontal position of content
+	ContentAlignVertical   lipgloss.Position // Vertical position of content
 
 	Width   int    // Set to positive if you want specific width (Default: `0`)
 	Height  int    // Set to positive if you want specific height (Default: `0`)
@@ -25,10 +26,9 @@ type Model struct {
 	YOffset int    // Counts from the `YAnchor` (Default: `0`)
 }
 
-func NewFloatingModel(content tea.Model, title string) *Model {
+func New(content tea.Model) *Model {
 	return &Model{
 		Content: content,
-		Title:   title,
 		Keys:    defaultFloatingKeys,
 	}
 }
@@ -55,25 +55,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	if m.Content == nil {
-		return ""
-	}
-	return m.Content.View()
-}
-
-func (m *Model) Place(bg string, fgStyle lipgloss.Style) string {
+	style := lipgloss.NewStyle()
+	style = style.Align(m.ContentAlignHorizontal, m.ContentAlignVertical)
 	if m.Width > 0 {
-		fgStyle = fgStyle.Width(m.Width)
+		style = style.Width(m.Width)
 	}
 	if m.Height > 0 {
-		fgStyle = fgStyle.Height(m.Height)
+		style = style.Height(m.Height)
+	}
+	var view string
+	if m.Content != nil {
+		view = m.Content.View()
 	}
 
-	fg := fgStyle.Render(m.View())
-	title := lipgloss.NewStyle().
-		Foreground(fgStyle.GetBorderTopForeground()).
-		Render(fmt.Sprintf("[ %s ]", m.Title))
+	return style.Render(view)
+}
 
-	fg = Compose(title, fg, Center, Begin, 0, 0)
-	return Compose(fg, bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
+func (m *Model) Place(bg string, style lipgloss.Style) string {
+	view := m.View()
+	view = style.Render(view)
+	view = Compose(m.Title, view, Center, Begin, 0, 0)
+	return Compose(view, bg, m.XAnchor, m.YAnchor, m.XOffset, m.YOffset)
 }
