@@ -1,6 +1,8 @@
 package components
 
 import (
+	"time"
+
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
@@ -13,6 +15,8 @@ import (
 const (
 	BorderOffset int = 2
 	TabBarHeight int = 3
+
+	NotificationCloseTime int = 5
 )
 
 type mainKeyMap struct {
@@ -95,7 +99,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case NotificationActivityMsg:
 		m.notification.active = bool(msg)
-		return m, nil
+		return m, DeferedCloseNotificationCmd()
 	case tea.Cmd:
 		return m, msg
 	case tea.KeyMsg:
@@ -213,4 +217,11 @@ func SetNotificationActivityCmd(isActive bool) tea.Cmd {
 
 func NotifyCmd(text string) tea.Cmd {
 	return tea.Sequence(SetNotificationTextCmd(text), SetNotificationActivityCmd(true))
+}
+
+func DeferedCloseNotificationCmd() tea.Cmd {
+	return func() tea.Msg {
+		time.Sleep(time.Second * time.Duration(NotificationCloseTime))
+		return NotificationActivityMsg(false)
+	}
 }
