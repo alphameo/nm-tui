@@ -46,21 +46,27 @@ var mainKeys = mainKeyMap{
 	),
 }
 
+var floatingKeys = floatingKeyMap{
+	quit: key.NewBinding(
+		key.WithKeys("ctrl+q", "esc", "ctrl+c"),
+		key.WithHelp("esc/^Q/^C", "quit"),
+	),
+}
+
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	wifiTable := *NewConnectionsModel(networkManager)
-	escKeys := []string{"ctrl+q", "esc", "ctrl+c"}
 	popup := *NewFloatingModel(nil, "")
 	popup.Width = 100
 	popup.Height = 10
 	popup.XAnchor = compositor.Center
 	popup.YAnchor = compositor.Center
-	popup.EscapeKeys = escKeys
+	popup.keys = floatingKeys
 	notification := *NewFloatingModel(nil, "Notification")
 	notification.XAnchor = compositor.Center
 	notification.YAnchor = compositor.Center
 	notification.Width = 100
 	notification.Height = 10
-	notification.EscapeKeys = escKeys
+	notification.keys = floatingKeys
 	m := &MainModel{
 		tabs:         wifiTable,
 		popup:        popup,
@@ -141,7 +147,8 @@ func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 		upd, cmd := m.notification.Update(keyMsg)
 		m.notification = upd.(FloatingModel)
 		return cmd
-	} else if m.popup.IsActive {
+	}
+	if m.popup.IsActive {
 		upd, cmd := m.popup.Update(keyMsg)
 		m.popup = upd.(FloatingModel)
 		return cmd
