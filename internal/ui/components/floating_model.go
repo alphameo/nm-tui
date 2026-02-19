@@ -27,7 +27,7 @@ type FloatingModel struct {
 	Content  tea.Model // Content of overlay
 	IsActive bool      // Flag for upper composition (Default: `false`)
 
-	keys floatingKeyMap // Keycombinations for overlay
+	keys *floatingKeyMap // Keycombinations for overlay
 
 	Width   int               // Set to positive if you want specific width (Default: `0`)
 	Height  int               // Set to positive if you want specific height (Default: `0`)

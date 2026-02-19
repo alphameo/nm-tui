@@ -19,11 +19,11 @@ type mainKeyMap struct {
 	quit key.Binding
 }
 
-func (k mainKeyMap) ShortHelp() []key.Binding {
+func (k *mainKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.quit}
 }
 
-func (k mainKeyMap) FullHelp() [][]key.Binding {
+func (k *mainKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.quit}}
 }
 
@@ -32,21 +32,21 @@ type MainModel struct {
 	popup        FloatingModel
 	notification FloatingModel
 
-	keys mainKeyMap
+	keys *mainKeyMap
 	help help.Model
 
 	width  int
 	height int
 }
 
-var mainKeys = mainKeyMap{
+var mainKeys = &mainKeyMap{
 	quit: key.NewBinding(
 		key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),
 		key.WithHelp("esc/q/^Q/^C", "quit"),
 	),
 }
 
-var floatingKeys = floatingKeyMap{
+var floatingKeys = &floatingKeyMap{
 	quit: key.NewBinding(
 		key.WithKeys("ctrl+q", "esc", "ctrl+c"),
 		key.WithHelp("esc/^Q/^C", "quit"),
