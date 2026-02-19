@@ -143,11 +143,10 @@ func (m MainModel) View() string {
 	}
 	if m.notification.active {
 		notificationView := m.notification.message
-		style := styles.OverlayStyle.
-			Align(lipgloss.Center)
+		style := styles.NotifBorderedStyle
 		notificationView = style.Render(notificationView)
 		notificationView = compositor.Compose(m.notification.title, notificationView, compositor.Center, compositor.Begin, 0, 0)
-		view = compositor.Compose(notificationView, view, compositor.End, compositor.Begin, 0, 0)
+		view = compositor.Compose(notificationView, view, compositor.End, compositor.Begin, -1, 1)
 	}
 	help := m.help.View(m.keys)
 

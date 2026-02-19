@@ -11,6 +11,7 @@ var (
 	AccentColor = lipgloss.Color("#865fff")
 	MutedColor  = lipgloss.Color("#595959")
 	ErrorColor  = lipgloss.Color("#ff0000")
+	NotifColor  = lipgloss.Color("#e4bf7a")
 
 	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor)
 
@@ -28,8 +29,8 @@ var (
 
 	OverlayStyle = DefaultStyle.
 			Border(*Border).
-			Align(lipgloss.Center, lipgloss.Center).
-			Foreground(TextColor)
+			Align(lipgloss.Center)
+	NotifBorderedStyle = OverlayStyle.BorderForeground(NotifColor)
 )
 
 func tableStyle() table.Styles {
