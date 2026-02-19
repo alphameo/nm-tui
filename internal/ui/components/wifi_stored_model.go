@@ -37,7 +37,7 @@ func (s *wifiStoredState) String() string {
 	}
 }
 
-type WifiStoredKeyMap struct {
+type wifiStoredKeyMap struct {
 	edit       key.Binding
 	connect    key.Binding
 	disconnect key.Binding
@@ -45,11 +45,11 @@ type WifiStoredKeyMap struct {
 	delete     key.Binding
 }
 
-func (k *WifiStoredKeyMap) ShortHelp() []key.Binding {
+func (k *wifiStoredKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.edit, k.connect, k.disconnect, k.update, k.delete}
 }
 
-func (k *WifiStoredKeyMap) FullHelp() [][]key.Binding {
+func (k *wifiStoredKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.edit, k.connect, k.disconnect, k.update, k.delete}}
 }
 
@@ -60,7 +60,7 @@ type WifiStoredModel struct {
 
 	storedInfo *WifiStoredInfoModel
 
-	keys *WifiStoredKeyMap
+	keys *wifiStoredKeyMap
 
 	nm infra.NetworkManager
 
@@ -75,7 +75,7 @@ const (
 	storedNameColumn WifiStoredColumnIndex = 2
 )
 
-func NewWifiStoredModel(networkManager infra.NetworkManager, keys *WifiStoredKeyMap) *WifiStoredModel {
+func NewWifiStoredModel(networkManager infra.NetworkManager, keys *wifiStoredKeyMap) *WifiStoredModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: connectionFlagColumnWidth},
 		{Title: "SSID"},

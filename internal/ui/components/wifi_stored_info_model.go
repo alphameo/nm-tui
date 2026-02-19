@@ -32,7 +32,7 @@ type wifiStoredInfoKeyMap struct {
 	togglePasswordVisibility key.Binding
 	up                       key.Binding
 	down                     key.Binding
-	submit                     key.Binding
+	submit                   key.Binding
 }
 
 func (k wifiStoredInfoKeyMap) ShortHelp() []key.Binding {
