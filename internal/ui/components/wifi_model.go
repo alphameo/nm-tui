@@ -17,11 +17,21 @@ type wifiKeyMap struct {
 }
 
 func (k *wifiKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.nextWindow, k.firstWindow, k.secondWindow, k.rescan}
+	return []key.Binding{
+		k.nextWindow,
+		k.firstWindow,
+		k.secondWindow,
+		k.rescan,
+	}
 }
 
 func (k *wifiKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.nextWindow, k.firstWindow, k.secondWindow, k.rescan}}
+	return [][]key.Binding{{
+		k.nextWindow,
+		k.firstWindow,
+		k.secondWindow,
+		k.rescan,
+	}}
 }
 
 type WifiModel struct {
@@ -89,17 +99,17 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.focusedWindowIndex = 1
 		case key.Matches(msg, m.keys.rescan):
 			return m, tea.Batch(
-				UpdateWifiStoredCmd(),
-				UpdateWifiAvailableCmd(),
+				RescanWifiStoredCmd(),
+				RescanWifiAvailableCmd(),
 			)
 		default:
 			cmd := m.handleKeyMsg(msg)
 			return m, cmd
 		}
-	case UpdateWifiMsg:
+	case RescanWifiMsg:
 		return m, tea.Batch(
-			UpdateWifiStoredCmd(),
-			UpdateWifiAvailableCmd(),
+			RescanWifiStoredCmd(),
+			RescanWifiAvailableCmd(),
 		)
 	}
 	var cmds []tea.Cmd
@@ -146,7 +156,11 @@ func (m *WifiModel) View() string {
 		styles.AccentColor,
 	)
 
-	return lipgloss.JoinVertical(lipgloss.Center, availableView, storedView)
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		availableView,
+		storedView,
+	)
 }
 
 func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
@@ -163,11 +177,11 @@ func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-// UpdateWifiMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
-type UpdateWifiMsg struct{}
+// RescanWifiMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
+type RescanWifiMsg struct{}
 
-func UpdateWifiCmd() tea.Cmd {
+func RescanWifiCmd() tea.Cmd {
 	return func() tea.Msg {
-		return UpdateWifiMsg{}
+		return RescanWifiMsg{}
 	}
 }

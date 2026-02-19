@@ -92,7 +92,12 @@ func NewStoredInfoModel(networkManager infra.NetworkManager, keys *keyMaps) *Wif
 		keys:                keys.wifiStoredInfo,
 		nm:                  networkManager,
 	}
-	inp := []Focusable{&model.nameInput, &model.password, model.autoconnect, &model.autoconnectPriority}
+	inp := []Focusable{
+		&model.nameInput,
+		&model.password,
+		model.autoconnect,
+		&model.autoconnectPriority,
+	}
 	model.inputs = inp
 
 	return model
@@ -155,38 +160,67 @@ func (m *WifiStoredInfoModel) View() string {
 
 	nameView := m.nameInput.View()
 	if m.focusedInputIndex == nameFocus {
-		nameView = inputStyle.BorderForeground(styles.AccentColor).Render(nameView)
+		nameView = inputStyle.
+			BorderForeground(styles.AccentColor).
+			Render(nameView)
 	} else {
 		nameView = inputStyle.Render(nameView)
 	}
-	nameView = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", nameView)
+	nameView = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"Name     ",
+		nameView,
+	)
 
 	passwordView := m.password.View()
 	if m.focusedInputIndex == passwordFocus {
-		passwordView = inputStyle.BorderForeground(styles.AccentColor).Render(passwordView)
+		passwordView = inputStyle.
+			BorderForeground(styles.AccentColor).
+			Render(passwordView)
 	} else {
 		passwordView = inputStyle.Render(passwordView)
 	}
-	passwordView = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", passwordView)
+	passwordView = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"Password ",
+		passwordView,
+	)
 
 	autoconnectCheckboxView := m.autoconnect.View()
 	if m.focusedInputIndex == autoconnectFocus {
-		autoconnectCheckboxView = styles.DefaultStyle.Foreground(styles.AccentColor).Render(autoconnectCheckboxView)
+		autoconnectCheckboxView = styles.DefaultStyle.
+			Foreground(styles.AccentColor).
+			Render(autoconnectCheckboxView)
 	} else {
-		autoconnectCheckboxView = styles.DefaultStyle.Render(autoconnectCheckboxView)
+		autoconnectCheckboxView = styles.DefaultStyle.
+			Render(autoconnectCheckboxView)
 	}
-	autoconnectCheckboxView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconnectCheckboxView)
+	autoconnectCheckboxView = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"Autoconnect          ",
+		autoconnectCheckboxView,
+	)
 
 	autoconPriorityView := m.autoconnectPriority.View()
 	if m.focusedInputIndex == autoconnectPriorityFocus {
-		autoconPriorityView = inputStyle.BorderForeground(styles.AccentColor).Render(autoconPriorityView)
+		autoconPriorityView = inputStyle.
+			BorderForeground(styles.AccentColor).
+			Render(autoconPriorityView)
 	} else {
 		autoconPriorityView = inputStyle.Render(autoconPriorityView)
 	}
-	autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", autoconPriorityView)
+	autoconPriorityView = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"Autoconnect priority ",
+		autoconPriorityView,
+	)
 	if m.autoconnectPriority.Err != nil {
 		autoconPriorityErrView := renderer.ErrorSymbolColored
-		autoconPriorityView = lipgloss.JoinHorizontal(lipgloss.Center, autoconPriorityView, autoconPriorityErrView)
+		autoconPriorityView = lipgloss.JoinHorizontal(
+			lipgloss.Center,
+			autoconPriorityView,
+			autoconPriorityErrView,
+		)
 	}
 
 	return lipgloss.JoinVertical(
@@ -247,7 +281,9 @@ func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.
 
 func (m *WifiStoredInfoModel) connectionView() string {
 	if m.active {
-		return styles.DefaultStyle.Foreground(styles.AccentColor).Render(" (connected)")
+		return styles.DefaultStyle.
+			Foreground(styles.AccentColor).
+			Render(" (connected)")
 	} else {
 		return ""
 	}
@@ -287,7 +323,7 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 		if err != nil {
 			return NotifyCmd(err.Error())
 		}
-		return UpdateWifiStoredMsg{}
+		return RescanWifiStoredMsg{}
 	}
 }
 

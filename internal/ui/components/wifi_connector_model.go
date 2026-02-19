@@ -90,9 +90,17 @@ func (m WifiConnectorModel) View() string {
 	fmt.Fprintf(&sb, "SSID      %s", m.wifiName)
 	wifiName := sb.String()
 	password := styles.BorderedStyle.Render(m.password.View())
-	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
+	password = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"Password ",
+		password,
+	)
 
-	return lipgloss.JoinVertical(lipgloss.Left, wifiName, password)
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		wifiName,
+		password,
+	)
 }
 
 func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {

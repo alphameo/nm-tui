@@ -97,5 +97,9 @@ func (m TabsModel) View() string {
 	)
 	tabView = styles.TabScreenBorderStyle.Render(tabView)
 
-	return lipgloss.JoinVertical(lipgloss.Center, tabBar, tabView)
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		tabBar,
+		tabView,
+	)
 }

@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"log/slog"
+	"strconv"
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -129,7 +130,7 @@ func (m *WifiAvailableModel) Height() int {
 }
 
 func (m *WifiAvailableModel) Init() tea.Cmd {
-	return m.UpdateRowsCmd()
+	return m.RescanCmd()
 }
 
 func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -140,7 +141,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.indicatorState != DoneInAvailable {
 				return m, nil
 			}
-			return m, m.UpdateRowsCmd()
+			return m, m.RescanCmd()
 		case key.Matches(msg, m.keys.openConnector):
 			row := m.dataTable.SelectedRow()
 			if row != nil {
@@ -150,8 +151,8 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case WifiAvialableStateMsg:
 		return m, m.setStateCmd(wifiAvailableState(msg))
-	case UpdateWifiAvailableMsg:
-		return m, m.UpdateRowsCmd()
+	case RescanWifiAvailableMsg:
+		return m, m.RescanCmd()
 	}
 
 	var cmd tea.Cmd
@@ -173,14 +174,22 @@ func (m *WifiAvailableModel) View() string {
 
 	var statusline string
 	if m.indicatorState != DoneInAvailable {
-		statusline = fmt.Sprintf("%s %s", m.indicatorState.String(), m.indicatorSpinner.View())
+		statusline = fmt.Sprintf(
+			"%s %s",
+			m.indicatorState.String(),
+			m.indicatorSpinner.View(),
+		)
 	} else {
 		statusline = m.indicatorState.String()
 	}
-	return lipgloss.JoinVertical(lipgloss.Center, view, statusline)
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		view,
+		statusline,
+	)
 }
 
-func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
+func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ScanningAvailable),
 		func() tea.Msg {
@@ -195,7 +204,12 @@ func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 				if wifiNet.Active {
 					connectionFlag = ""
 				}
-				rows = append(rows, table.Row{connectionFlag, wifiNet.SSID, wifiNet.Security, fmt.Sprint(wifiNet.Signal)})
+				rows = append(rows, table.Row{
+					connectionFlag,
+					wifiNet.SSID,
+					wifiNet.Security,
+					strconv.Itoa(wifiNet.Signal),
+				})
 			}
 
 			m.dataTable.SetRows(rows)
@@ -209,11 +223,11 @@ func (m *WifiAvailableModel) UpdateRowsCmd() tea.Cmd {
 	)
 }
 
-type UpdateWifiAvailableMsg struct{}
+type RescanWifiAvailableMsg struct{}
 
-func UpdateWifiAvailableCmd() tea.Cmd {
+func RescanWifiAvailableCmd() tea.Cmd {
 	return func() tea.Msg {
-		return UpdateWifiAvailableMsg{}
+		return RescanWifiAvailableMsg{}
 	}
 }
 

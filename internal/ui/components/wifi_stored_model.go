@@ -46,11 +46,23 @@ type wifiStoredKeyMap struct {
 }
 
 func (k *wifiStoredKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.edit, k.connect, k.disconnect, k.update, k.delete}
+	return []key.Binding{
+		k.edit,
+		k.connect,
+		k.disconnect,
+		k.update,
+		k.delete,
+	}
 }
 
 func (k *wifiStoredKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.edit, k.connect, k.disconnect, k.update, k.delete}}
+	return [][]key.Binding{{
+		k.edit,
+		k.connect,
+		k.disconnect,
+		k.update,
+		k.delete,
+	}}
 }
 
 type WifiStoredModel struct {
@@ -128,7 +140,7 @@ func (m *WifiStoredModel) Height() int {
 }
 
 func (m *WifiStoredModel) Init() tea.Cmd {
-	return m.updateRowsCmd()
+	return m.RescanCmd()
 }
 
 func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -157,12 +169,12 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m,
 				m.disconnectFromSelectedCmd()
 		case "r":
-			return m, UpdateWifiStoredCmd()
+			return m, RescanWifiStoredCmd()
 		case "d":
 			return m, m.deleteSelectedCmd()
 		}
-	case UpdateWifiStoredMsg:
-		return m, m.updateRowsCmd()
+	case RescanWifiStoredMsg:
+		return m, m.RescanCmd()
 	case WifiStoredStateMsg:
 		return m, m.setStateCmd(wifiStoredState(msg))
 	}
@@ -186,22 +198,30 @@ func (m *WifiStoredModel) View() string {
 
 	var statusline string
 	if m.indicatorState != DoneInStored {
-		statusline = fmt.Sprintf("%s %s", m.indicatorState.String(), m.indicatorSpinner.View())
+		statusline = fmt.Sprintf(
+			"%s %s",
+			m.indicatorState.String(),
+			m.indicatorSpinner.View(),
+		)
 	} else {
 		statusline = m.indicatorState.String()
 	}
-	return lipgloss.JoinVertical(lipgloss.Center, view, statusline)
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		view,
+		statusline,
+	)
 }
 
-type UpdateWifiStoredMsg struct{}
+type RescanWifiStoredMsg struct{}
 
-func UpdateWifiStoredCmd() tea.Cmd {
+func RescanWifiStoredCmd() tea.Cmd {
 	return func() tea.Msg {
-		return UpdateWifiStoredMsg{}
+		return RescanWifiStoredMsg{}
 	}
 }
 
-func (m *WifiStoredModel) updateRowsCmd() tea.Cmd {
+func (m *WifiStoredModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ScanningStored),
 		func() tea.Msg {
@@ -216,7 +236,11 @@ func (m *WifiStoredModel) updateRowsCmd() tea.Cmd {
 				if wifiStored.Active {
 					connectionFlag = ""
 				}
-				rows = append(rows, table.Row{connectionFlag, wifiStored.SSID, wifiStored.Name})
+				rows = append(rows, table.Row{
+					connectionFlag,
+					wifiStored.SSID,
+					wifiStored.Name,
+				})
 			}
 
 			m.dataTable.SetRows(rows)
@@ -252,7 +276,7 @@ func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
 			return tea.BatchMsg{
 				m.setStateCmd(DoneInStored),
 				m.gotoTop(),
-				UpdateWifiCmd(),
+				RescanWifiCmd(),
 			}
 		},
 	)

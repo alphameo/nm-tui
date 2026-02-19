@@ -127,15 +127,43 @@ func (m MainModel) View() string {
 
 		popupView = style.Render(popupView)
 
-		popupView = compositor.Compose(m.popup.title, popupView, compositor.Center, compositor.Begin, 0, 0)
-		view = compositor.Compose(popupView, view, compositor.Center, compositor.Center, 0, 0)
+		popupView = compositor.Compose(
+			m.popup.title,
+			popupView,
+			compositor.Center,
+			compositor.Begin,
+			0,
+			0,
+		)
+		view = compositor.Compose(
+			popupView,
+			view,
+			compositor.Center,
+			compositor.Center,
+			0,
+			0,
+		)
 	}
 	if m.notification.active {
 		notificationView := m.notification.message
 		style := styles.NotifBorderedStyle
 		notificationView = style.Render(notificationView)
-		notificationView = compositor.Compose(m.notification.title, notificationView, compositor.Center, compositor.Begin, 0, 0)
-		view = compositor.Compose(notificationView, view, compositor.End, compositor.Begin, -1, 1)
+		notificationView = compositor.Compose(
+			m.notification.title,
+			notificationView,
+			compositor.Center,
+			compositor.Begin,
+			0,
+			0,
+		)
+		view = compositor.Compose(
+			notificationView,
+			view,
+			compositor.End,
+			compositor.Begin,
+			-1,
+			1,
+		)
 	}
 	help := m.help.View(m.keys)
 
@@ -216,7 +244,10 @@ func SetNotificationActivityCmd(isActive bool) tea.Cmd {
 }
 
 func NotifyCmd(text string) tea.Cmd {
-	return tea.Sequence(SetNotificationTextCmd(text), SetNotificationActivityCmd(true))
+	return tea.Sequence(
+		SetNotificationTextCmd(text),
+		SetNotificationActivityCmd(true),
+	)
 }
 
 func DeferedCloseNotificationCmd() tea.Cmd {
