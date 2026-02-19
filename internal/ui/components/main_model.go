@@ -3,6 +3,7 @@ package components
 import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/floating"
+	"github.com/alphameo/nm-tui/internal/ui/components/text"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -98,7 +99,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.popup.IsActive = bool(msg)
 		return m, nil
 	case NotificationTextMsg:
-		m.notification.Content = NewTextModel(string(msg))
+		m.notification.Content = text.New(string(msg))
 		return m, nil
 	case NotificationActivityMsg:
 		m.notification.IsActive = bool(msg)

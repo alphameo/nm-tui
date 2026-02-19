@@ -1,10 +1,11 @@
-package components
+// Package text provides simple text component
+package text
 
 import tea "github.com/charmbracelet/bubbletea"
 
 type TextModel string
 
-func NewTextModel(label string) TextModel {
+func New(label string) TextModel {
 	return TextModel(label)
 }
 
