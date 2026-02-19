@@ -4,7 +4,10 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 const (
@@ -12,12 +15,35 @@ const (
 	TabBarHeight int = 3
 )
 
+type mainKeyMap struct {
+	quit key.Binding
+}
+
+func (k mainKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.quit}
+}
+
+func (k mainKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.quit}}
+}
+
 type MainModel struct {
 	tabs         TabsModel
 	popup        FloatingModel
 	notification FloatingModel
-	width        int
-	height       int
+
+	keys mainKeyMap
+	help help.Model
+
+	width  int
+	height int
+}
+
+var mainKeys = mainKeyMap{
+	quit: key.NewBinding(
+		key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),
+		key.WithHelp("esc/q/^Q/^C", "quit"),
+	),
 }
 
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
@@ -39,6 +65,8 @@ func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 		tabs:         wifiTable,
 		popup:        popup,
 		notification: notification,
+		keys:         mainKeys,
+		help:         help.New(),
 	}
 	m.tabs.Resize(51, 20)
 	return m
@@ -102,6 +130,9 @@ func (m MainModel) View() string {
 	if m.notification.IsActive {
 		view = m.notification.Place(view, styles.OverlayStyle)
 	}
+	help := m.help.View(m.keys)
+
+	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	return view
 }
 
@@ -115,8 +146,7 @@ func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 		m.popup = upd.(FloatingModel)
 		return cmd
 	}
-	switch keyMsg.String() {
-	case "q", "ctrl+q", "esc", "ctrl+c":
+	if key.Matches(keyMsg, m.keys.quit) {
 		return tea.Quit
 	}
 	upd, cmd := m.tabs.Update(keyMsg)
