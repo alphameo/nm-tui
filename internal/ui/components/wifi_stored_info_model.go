@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	"github.com/charmbracelet/bubbles/key"
@@ -50,7 +51,7 @@ type WifiStoredInfoModel struct {
 
 	nameInput           textinput.Model
 	password            textinput.Model
-	autoconnect         *ToggleModel
+	autoconnect         *toggle.ToggleModel
 	autoconnectPriority textinput.Model
 
 	inputs            []Focusable // used for batch operations on input focusable elements
@@ -75,7 +76,7 @@ func NewStoredInfoModel(networkManager infra.NetworkManager, keys *keyMaps) *Wif
 	p.EchoCharacter = '•'
 	p.Placeholder = "password"
 
-	t := NewToggleModel(false)
+	t := toggle.New(false)
 	t.Keys = keys.toggle
 
 	ap := textinput.New()

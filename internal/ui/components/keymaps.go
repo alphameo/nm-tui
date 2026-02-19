@@ -2,6 +2,7 @@ package components
 
 import (
 	"github.com/alphameo/nm-tui/internal/ui/components/floating"
+	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/charmbracelet/bubbles/key"
 )
 
@@ -16,7 +17,7 @@ type keyMaps struct {
 	main           *mainKeyMap
 	floating       *floating.FloatingKeyMap
 	tabs           *tabsKeyMap
-	toggle         *toggleKeyMap
+	toggle         *toggle.KeyMap
 	wifi           *wifiKeyMap
 	wifiStored     *wifiStoredKeyMap
 	wifiStoredInfo *wifiStoredInfoKeyMap
@@ -61,8 +62,8 @@ var tabsKeys = &tabsKeyMap{
 	),
 }
 
-var toggleKeys = &toggleKeyMap{
-	toggle: key.NewBinding(
+var toggleKeys = &toggle.KeyMap{
+	Toggle: key.NewBinding(
 		key.WithKeys(" "),
 		key.WithHelp(" ", "toggle"),
 	),
