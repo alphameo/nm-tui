@@ -94,6 +94,25 @@ var wifiStoredKeys = &WifiStoredKeyMap{
 	),
 }
 
+var wifiStoredInfoKeys = &wifiStoredInfoKeyMap{
+	togglePasswordVisibility: key.NewBinding(
+		key.WithKeys("ctrl+r"),
+		key.WithHelp("^R", "toggle password visibility"),
+	),
+	up: key.NewBinding(
+		key.WithKeys("ctrl+k"),
+		key.WithHelp("^K", "up"),
+	),
+	down: key.NewBinding(
+		key.WithKeys("ctrl+j"),
+		key.WithHelp("^J", "down"),
+	),
+	submit: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "submit"),
+	),
+}
+
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	wifiTable := *NewTabsModel(networkManager, tabsKeys)
 	popup := *NewFloatingModel(nil, "")

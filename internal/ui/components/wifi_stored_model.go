@@ -87,7 +87,7 @@ func NewWifiStoredModel(networkManager infra.NetworkManager, keys *WifiStoredKey
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	info := NewStoredInfoModel(networkManager)
+	info := NewStoredInfoModel(networkManager, wifiStoredInfoKeys)
 
 	return &WifiStoredModel{
 		dataTable:        t,
