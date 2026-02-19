@@ -132,6 +132,17 @@ var wifiKeys = &wifiKeyMap{
 	),
 }
 
+var wifiAvailableKeys = &wifiAvailableKeyMap{
+	rescan: key.NewBinding(
+		key.WithKeys("r"),
+		key.WithHelp("r", "rescan"),
+	),
+	openConnector: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "open connector"),
+	),
+}
+
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	wifiTable := *NewTabsModel(networkManager, tabsKeys)
 	popup := *NewFloatingModel(nil, "")

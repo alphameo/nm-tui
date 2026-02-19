@@ -6,6 +6,7 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -49,6 +50,19 @@ const (
 	indicatorStateHeight      int     = 1
 )
 
+type wifiAvailableKeyMap struct {
+	rescan        key.Binding
+	openConnector key.Binding
+}
+
+func (k *wifiAvailableKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.rescan, k.openConnector}
+}
+
+func (k *wifiAvailableKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.rescan, k.openConnector}}
+}
+
 type WifiAvailableModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
@@ -56,13 +70,15 @@ type WifiAvailableModel struct {
 
 	connector *WifiConnectorModel
 
+	keys *wifiAvailableKeyMap
+
 	nm infra.NetworkManager
 
 	width  int
 	height int
 }
 
-func NewWifiAvailableModel(networkManager infra.NetworkManager) *WifiAvailableModel {
+func NewWifiAvailableModel(networkManager infra.NetworkManager, keys *wifiAvailableKeyMap) *WifiAvailableModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: connectionFlagColumnWidth},
 		{Title: "SSID"},
@@ -81,6 +97,7 @@ func NewWifiAvailableModel(networkManager infra.NetworkManager) *WifiAvailableMo
 		indicatorSpinner: s,
 		indicatorState:   DoneInAvailable,
 		connector:        con,
+		keys:             keys,
 		nm:               networkManager,
 	}
 }
@@ -118,13 +135,13 @@ func (m *WifiAvailableModel) Init() tea.Cmd {
 func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "r":
+		switch {
+		case key.Matches(msg, m.keys.rescan):
 			if m.indicatorState != DoneInAvailable {
 				return m, nil
 			}
 			return m, m.UpdateRowsCmd()
-		case "enter":
+		case key.Matches(msg, m.keys.openConnector):
 			row := m.dataTable.SelectedRow()
 			if row != nil {
 				return m, m.callConnector(row[ssidAvailable])
