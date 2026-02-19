@@ -71,6 +71,29 @@ var toggleKeys = &toggleKeyMap{
 	),
 }
 
+var wifiStoredKeys = &WifiStoredKeyMap{
+	edit: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "edit"),
+	),
+	connect: key.NewBinding(
+		key.WithKeys(" "),
+		key.WithHelp(" ", "connect"),
+	),
+	disconnect: key.NewBinding(
+		key.WithKeys("shift+"),
+		key.WithHelp("shift+ ", "disconnect"),
+	),
+	update: key.NewBinding(
+		key.WithKeys("r"),
+		key.WithHelp("r", "rescan stored"),
+	),
+	delete: key.NewBinding(
+		key.WithKeys("d"),
+		key.WithHelp("d", "delete"),
+	),
+}
+
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	wifiTable := *NewTabsModel(networkManager, tabsKeys)
 	popup := *NewFloatingModel(nil, "")

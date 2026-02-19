@@ -19,7 +19,7 @@ type WifiModel struct {
 
 func NewWifiModel(networkManager infra.NetworkManager) *WifiModel {
 	a := NewWifiAvailableModel(networkManager)
-	s := NewWifiStoredModel(networkManager)
+	s := NewWifiStoredModel(networkManager, wifiStoredKeys)
 	w := &WifiModel{wifiAvailable: a, wifiStored: s}
 
 	wins := []SizedModel{w.wifiAvailable, w.wifiStored}
@@ -143,7 +143,6 @@ func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
 	}
 	return cmd
 }
-
 
 // UpdateWifiMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
 type UpdateWifiMsg struct{}

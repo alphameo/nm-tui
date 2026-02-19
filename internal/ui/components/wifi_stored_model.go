@@ -6,6 +6,7 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -36,12 +37,30 @@ func (s *wifiStoredState) String() string {
 	}
 }
 
+type WifiStoredKeyMap struct {
+	edit       key.Binding
+	connect    key.Binding
+	disconnect key.Binding
+	update     key.Binding
+	delete     key.Binding
+}
+
+func (k *WifiStoredKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.edit, k.connect, k.disconnect, k.update, k.delete}
+}
+
+func (k *WifiStoredKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.edit, k.connect, k.disconnect, k.update, k.delete}}
+}
+
 type WifiStoredModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
 	indicatorState   wifiStoredState
 
 	storedInfo *WifiStoredInfoModel
+
+	keys *WifiStoredKeyMap
 
 	nm infra.NetworkManager
 
@@ -56,7 +75,7 @@ const (
 	storedNameColumn WifiStoredColumnIndex = 2
 )
 
-func NewWifiStoredModel(networkManager infra.NetworkManager) *WifiStoredModel {
+func NewWifiStoredModel(networkManager infra.NetworkManager, keys *WifiStoredKeyMap) *WifiStoredModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: connectionFlagColumnWidth},
 		{Title: "SSID"},
@@ -75,6 +94,7 @@ func NewWifiStoredModel(networkManager infra.NetworkManager) *WifiStoredModel {
 		indicatorSpinner: s,
 		indicatorState:   DoneInStored,
 		storedInfo:       info,
+		keys:             keys,
 		nm:               networkManager,
 	}
 }
