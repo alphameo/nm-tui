@@ -34,7 +34,7 @@ type TabsModel struct {
 }
 
 func NewTabsModel(networkManager infra.NetworkManager, keys *tabsKeyMap) *TabsModel {
-	wifi := NewWifiModel(networkManager)
+	wifi := NewWifiModel(networkManager, wifiKeys)
 	tabTables := []SizedModel{wifi, wifi}
 	tabTitles := &[]string{"Wi-Fi", "VPN"}
 	m := &TabsModel{

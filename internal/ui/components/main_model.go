@@ -113,6 +113,25 @@ var wifiStoredInfoKeys = &wifiStoredInfoKeyMap{
 	),
 }
 
+var wifiKeys = &wifiKeyMap{
+	nextWindow: key.NewBinding(
+		key.WithKeys("tab"),
+		key.WithHelp("tab", "next window"),
+	),
+	firstWindow: key.NewBinding(
+		key.WithKeys("1"),
+		key.WithHelp("1", "first window"),
+	),
+	secondWindow: key.NewBinding(
+		key.WithKeys("2"),
+		key.WithHelp("2", "second window"),
+	),
+	rescan: key.NewBinding(
+		key.WithKeys("ctrl+r"),
+		key.WithHelp("^R", "rescan"),
+	),
+}
+
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	wifiTable := *NewTabsModel(networkManager, tabsKeys)
 	popup := *NewFloatingModel(nil, "")
