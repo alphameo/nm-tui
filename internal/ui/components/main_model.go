@@ -17,6 +17,8 @@ const (
 	BorderOffset int = 2
 	TabBarHeight int = 3
 
+	HelpHeight int = 1
+
 	NotificationCloseTime int = 5
 )
 
@@ -111,9 +113,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *MainModel) Resize(width, height int) {
 	m.width = width
-	m.height = height
+	m.height = height - HelpHeight
 
-	m.tabs.Resize(width, height)
+	m.tabs.Resize(m.width, m.height)
 }
 
 func (m MainModel) View() string {
@@ -168,8 +170,8 @@ func (m MainModel) View() string {
 			1,
 		)
 	}
-	help := m.help.View(m.keys)
 
+	help := m.help.View(m.keys)
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	return view
 }
