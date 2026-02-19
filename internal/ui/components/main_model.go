@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/alphameo/nm-tui/internal/infra"
@@ -127,8 +128,10 @@ func (m MainModel) View() string {
 
 		popupView = style.Render(popupView)
 
+		title := fmt.Sprintf("[ %s ]", m.popup.title)
+
 		popupView = compositor.Compose(
-			m.popup.title,
+			title,
 			popupView,
 			compositor.Center,
 			compositor.Begin,
