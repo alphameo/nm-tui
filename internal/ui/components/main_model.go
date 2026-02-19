@@ -55,22 +55,7 @@ func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
 	wifiTable := NewTabsModel(networkManager, keys)
 	p := &Popup{active: false}
-	// popup.Keys = keys.compositor
-	// popup.Width = 100
-	// popup.Height = 10
-	// popup.XAnchor = compositor.Center
-	// popup.YAnchor = compositor.Center
-	// popup.ContentAlignHorizontal = lipgloss.Center
-	// popup.ContentAlignVertical = lipgloss.Center
 	n := &Notification{}
-	// notification := compositor.New(nil)
-	// notification.Keys = keys.compositor
-	// notification.XAnchor = compositor.Center
-	// notification.YAnchor = compositor.Center
-	// notification.Width = 100
-	// notification.Height = 10
-	// notification.ContentAlignHorizontal = lipgloss.Center
-	// notification.ContentAlignVertical = lipgloss.Center
 	m := &MainModel{
 		tabs:         *wifiTable,
 		popup:        p,
