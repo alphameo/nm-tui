@@ -64,6 +64,13 @@ var tabsKeys = &tabsKeyMap{
 	),
 }
 
+var toggleKeys = &toggleKeyMap{
+	toggle: key.NewBinding(
+		key.WithKeys(" "),
+		key.WithHelp(" ", "toggle"),
+	),
+}
+
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	wifiTable := *NewTabsModel(networkManager, tabsKeys)
 	popup := *NewFloatingModel(nil, "")

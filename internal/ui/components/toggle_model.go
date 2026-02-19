@@ -1,6 +1,7 @@
 package components
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -14,14 +15,31 @@ var DefaultToggleModelSymbols = &ToggleModelSymbols{
 	Deactivated: "[ ]",
 }
 
+type toggleKeyMap struct {
+	toggle key.Binding
+}
+
+func (k *toggleKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.toggle}
+}
+
+func (k *toggleKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.toggle}}
+}
+
 type ToggleModel struct {
 	value   bool
 	Focused bool
 	Symbols *ToggleModelSymbols
+
+	keys *toggleKeyMap
 }
 
-func NewToggleModel(initial bool) *ToggleModel {
-	return &ToggleModel{value: initial}
+func NewToggleModel(initial bool, keys *toggleKeyMap) *ToggleModel {
+	return &ToggleModel{
+		value: initial,
+		keys:  keys,
+	}
 }
 
 func (t *ToggleModel) SetValue(value bool) {
@@ -39,7 +57,7 @@ func (t *ToggleModel) Init() tea.Cmd {
 func (t *ToggleModel) Update(msg tea.Msg) (*ToggleModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if msg.String() == " " {
+		if key.Matches(msg, t.keys.toggle) {
 			t.value = !t.value
 		}
 	}
