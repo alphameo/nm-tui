@@ -30,7 +30,6 @@ func main() {
 		AddSource: true,
 	}
 	logger := slog.New(slog.NewJSONHandler(f, opts))
-	slog.Debug("yappi")
 
 	slog.Info("The program is running")
 	slog.SetDefault(logger)
