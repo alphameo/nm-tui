@@ -91,7 +91,7 @@ func NewWifiAvailableModel(networkManager infra.NetworkManager, keys *wifiAvaila
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	con := NewWifiConnector(networkManager)
+	con := NewWifiConnector(networkManager, wifiConnectorKeys)
 	return &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
