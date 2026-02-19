@@ -2,8 +2,8 @@ package components
 
 import (
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/floating"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,9 +28,9 @@ func (k *mainKeyMap) FullHelp() [][]key.Binding {
 }
 
 type MainModel struct {
-	tabs         TabsModel
-	popup        FloatingModel
-	notification FloatingModel
+	tabs         *TabsModel
+	popup        *floating.Model
+	notification *floating.Model
 
 	keys *mainKeyMap
 	help help.Model
@@ -41,17 +41,17 @@ type MainModel struct {
 
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
-	wifiTable := *NewTabsModel(networkManager, keys)
-	popup := *NewFloatingModel(nil, "")
+	wifiTable := NewTabsModel(networkManager, keys)
+	popup := floating.NewFloatingModel(nil, "")
 	popup.Keys = keys.floating
 	popup.Width = 100
 	popup.Height = 10
-	popup.XAnchor = compositor.Center
-	popup.YAnchor = compositor.Center
-	notification := *NewFloatingModel(nil, "Notification")
+	popup.XAnchor = floating.Center
+	popup.YAnchor = floating.Center
+	notification := floating.NewFloatingModel(nil, "Notification")
 	notification.Keys = keys.floating
-	notification.XAnchor = compositor.Center
-	notification.YAnchor = compositor.Center
+	notification.XAnchor = floating.Center
+	notification.YAnchor = floating.Center
 	notification.Width = 100
 	notification.Height = 10
 	m := &MainModel{
@@ -131,19 +131,19 @@ func (m MainModel) View() string {
 func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	if m.notification.IsActive {
 		upd, cmd := m.notification.Update(keyMsg)
-		m.notification = upd.(FloatingModel)
+		m.notification = upd.(*floating.Model)
 		return cmd
 	}
 	if m.popup.IsActive {
 		upd, cmd := m.popup.Update(keyMsg)
-		m.popup = upd.(FloatingModel)
+		m.popup = upd.(*floating.Model)
 		return cmd
 	}
 	if key.Matches(keyMsg, m.keys.quit) {
 		return tea.Quit
 	}
 	upd, cmd := m.tabs.Update(keyMsg)
-	m.tabs = upd.(TabsModel)
+	m.tabs = upd.(*TabsModel)
 	return cmd
 }
 
@@ -151,20 +151,20 @@ func (m *MainModel) handleMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var upd tea.Model
 	upd, cmd = m.tabs.Update(msg)
-	m.tabs = upd.(TabsModel)
+	m.tabs = upd.(*TabsModel)
 	if cmd != nil {
 		return cmd
 	}
 	if m.notification.IsActive {
 		upd, cmd = m.notification.Update(msg)
-		m.notification = upd.(FloatingModel)
+		m.notification = upd.(*floating.Model)
 		if cmd != nil {
 			return cmd
 		}
 	}
 	if m.popup.IsActive {
 		upd, cmd = m.popup.Update(msg)
-		m.popup = upd.(FloatingModel)
+		m.popup = upd.(*floating.Model)
 		if cmd != nil {
 			return cmd
 		}

@@ -1,6 +1,9 @@
 package components
 
-import "github.com/charmbracelet/bubbles/key"
+import (
+	"github.com/alphameo/nm-tui/internal/ui/components/floating"
+	"github.com/charmbracelet/bubbles/key"
+)
 
 func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
 	return key.NewBinding(
@@ -11,7 +14,7 @@ func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
 
 type keyMaps struct {
 	main           *mainKeyMap
-	floating       *floatingKeyMap
+	floating       *floating.FloatingKeyMap
 	tabs           *tabsKeyMap
 	toggle         *toggleKeyMap
 	wifi           *wifiKeyMap
@@ -40,8 +43,8 @@ var mainKeys = &mainKeyMap{
 	),
 }
 
-var floatingKeys = &floatingKeyMap{
-	quit: key.NewBinding(
+var floatingKeys = &floating.FloatingKeyMap{
+	Quit: key.NewBinding(
 		key.WithKeys("ctrl+q", "esc", "ctrl+c"),
 		key.WithHelp("esc/^Q/^C", "quit"),
 	),
