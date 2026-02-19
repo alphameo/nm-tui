@@ -33,15 +33,15 @@ type TabsModel struct {
 	height int
 }
 
-func NewTabsModel(networkManager infra.NetworkManager, keys *tabsKeyMap) *TabsModel {
-	wifi := NewWifiModel(networkManager, wifiKeys)
+func NewTabsModel(networkManager infra.NetworkManager, keys *keyMaps) *TabsModel {
+	wifi := NewWifiModel(networkManager, keys)
 	tabTables := []SizedModel{wifi, wifi}
 	tabTitles := &[]string{"Wi-Fi", "VPN"}
 	m := &TabsModel{
 		tabTables: tabTables,
 		tabTitles: *tabTitles,
 		activeTab: 0,
-		keys:      keys,
+		keys:      keys.tabs,
 	}
 	return m
 }

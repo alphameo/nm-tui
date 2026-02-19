@@ -36,10 +36,10 @@ type WifiModel struct {
 	height int
 }
 
-func NewWifiModel(networkManager infra.NetworkManager, keys *wifiKeyMap) *WifiModel {
-	a := NewWifiAvailableModel(networkManager, wifiAvailableKeys)
-	s := NewWifiStoredModel(networkManager, wifiStoredKeys)
-	w := &WifiModel{wifiAvailable: a, wifiStored: s, keys: keys}
+func NewWifiModel(networkManager infra.NetworkManager, keys *keyMaps) *WifiModel {
+	a := NewWifiAvailableModel(networkManager, keys)
+	s := NewWifiStoredModel(networkManager, keys)
+	w := &WifiModel{wifiAvailable: a, wifiStored: s, keys: keys.wifi}
 
 	wins := []SizedModel{w.wifiAvailable, w.wifiStored}
 	w.windows = wins

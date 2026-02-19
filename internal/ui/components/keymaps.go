@@ -2,6 +2,37 @@ package components
 
 import "github.com/charmbracelet/bubbles/key"
 
+func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
+	return key.NewBinding(
+		key.WithKeys(keys...),
+		key.WithHelp(keyHelp, desc),
+	)
+}
+
+type keyMaps struct {
+	main           *mainKeyMap
+	floating       *floatingKeyMap
+	tabs           *tabsKeyMap
+	toggle         *toggleKeyMap
+	wifi           *wifiKeyMap
+	wifiStored     *wifiStoredKeyMap
+	wifiStoredInfo *wifiStoredInfoKeyMap
+	wifiAvailable  *wifiAvailableKeyMap
+	wifiConnector  *wifiConnectorKeyMap
+}
+
+var defaultKeyMap = &keyMaps{
+	main:           mainKeys,
+	floating:       floatingKeys,
+	tabs:           tabsKeys,
+	toggle:         toggleKeys,
+	wifi:           wifiKeys,
+	wifiStored:     wifiStoredKeys,
+	wifiStoredInfo: wifiStoredInfoKeys,
+	wifiAvailable:  wifiAvailableKeys,
+	wifiConnector:  wifiConnectorKeys,
+}
+
 var mainKeys = &mainKeyMap{
 	quit: key.NewBinding(
 		key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),

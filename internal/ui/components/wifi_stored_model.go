@@ -75,7 +75,7 @@ const (
 	storedNameColumn WifiStoredColumnIndex = 2
 )
 
-func NewWifiStoredModel(networkManager infra.NetworkManager, keys *wifiStoredKeyMap) *WifiStoredModel {
+func NewWifiStoredModel(networkManager infra.NetworkManager, keys *keyMaps) *WifiStoredModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: connectionFlagColumnWidth},
 		{Title: "SSID"},
@@ -87,14 +87,14 @@ func NewWifiStoredModel(networkManager infra.NetworkManager, keys *wifiStoredKey
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	info := NewStoredInfoModel(networkManager, wifiStoredInfoKeys)
+	info := NewStoredInfoModel(networkManager, keys)
 
 	return &WifiStoredModel{
 		dataTable:        t,
 		indicatorSpinner: s,
 		indicatorState:   DoneInStored,
 		storedInfo:       info,
-		keys:             keys,
+		keys:             keys.wifiStored,
 		nm:               networkManager,
 	}
 }

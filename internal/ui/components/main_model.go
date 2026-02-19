@@ -40,27 +40,27 @@ type MainModel struct {
 }
 
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
-	wifiTable := *NewTabsModel(networkManager, tabsKeys)
+	keys := defaultKeyMap
+	wifiTable := *NewTabsModel(networkManager, keys)
 	popup := *NewFloatingModel(nil, "")
+	popup.Keys = keys.floating
 	popup.Width = 100
 	popup.Height = 10
 	popup.XAnchor = compositor.Center
 	popup.YAnchor = compositor.Center
-	popup.keys = floatingKeys
 	notification := *NewFloatingModel(nil, "Notification")
+	notification.Keys = keys.floating
 	notification.XAnchor = compositor.Center
 	notification.YAnchor = compositor.Center
 	notification.Width = 100
 	notification.Height = 10
-	notification.keys = floatingKeys
 	m := &MainModel{
 		tabs:         wifiTable,
 		popup:        popup,
 		notification: notification,
-		keys:         mainKeys,
+		keys:         keys.main,
 		help:         help.New(),
 	}
-	m.tabs.Resize(51, 20)
 	return m
 }
 

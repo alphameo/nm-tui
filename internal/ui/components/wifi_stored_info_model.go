@@ -61,7 +61,7 @@ type WifiStoredInfoModel struct {
 	nm infra.NetworkManager
 }
 
-func NewStoredInfoModel(networkManager infra.NetworkManager, keys *wifiStoredInfoKeyMap) *WifiStoredInfoModel {
+func NewStoredInfoModel(networkManager infra.NetworkManager, keys *keyMaps) *WifiStoredInfoModel {
 	n := textinput.New()
 	n.Width = 20
 	n.Prompt = ""
@@ -75,7 +75,8 @@ func NewStoredInfoModel(networkManager infra.NetworkManager, keys *wifiStoredInf
 	p.EchoCharacter = '•'
 	p.Placeholder = "password"
 
-	t := NewToggleModel(false, toggleKeys)
+	t := NewToggleModel(false)
+	t.Keys = keys.toggle
 
 	ap := textinput.New()
 	ap.Width = 4
@@ -87,7 +88,7 @@ func NewStoredInfoModel(networkManager infra.NetworkManager, keys *wifiStoredInf
 		password:            p,
 		autoconnect:         t,
 		autoconnectPriority: ap,
-		keys:                keys,
+		keys:                keys.wifiStoredInfo,
 		nm:                  networkManager,
 	}
 	inp := []Focusable{&model.nameInput, &model.password, model.autoconnect, &model.autoconnectPriority}

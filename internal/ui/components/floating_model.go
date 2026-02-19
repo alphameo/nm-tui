@@ -21,13 +21,20 @@ func (k floatingKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.quit}}
 }
 
+var defaultFloatingKeys = &floatingKeyMap{
+	quit: key.NewBinding(
+		key.WithKeys("q", "esc"),
+		key.WithHelp("q/^c", "quit"),
+	),
+}
+
 // FloatingModel contains any tea.FloatingModel inside
 type FloatingModel struct {
 	Title    string    // Overlay title
 	Content  tea.Model // Content of overlay
 	IsActive bool      // Flag for upper composition (Default: `false`)
 
-	keys *floatingKeyMap // Keycombinations for overlay
+	Keys *floatingKeyMap // Keycombinations for overlay
 
 	Width   int               // Set to positive if you want specific width (Default: `0`)
 	Height  int               // Set to positive if you want specific height (Default: `0`)
@@ -41,6 +48,7 @@ func NewFloatingModel(content tea.Model, title string) *FloatingModel {
 	return &FloatingModel{
 		Content: content,
 		Title:   title,
+		Keys:    defaultFloatingKeys,
 	}
 }
 
@@ -55,7 +63,7 @@ func (m FloatingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if key.Matches(msg, m.keys.quit) {
+		if key.Matches(msg, m.Keys.quit) {
 			m.IsActive = false
 			return m, nil
 		}

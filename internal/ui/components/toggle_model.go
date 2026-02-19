@@ -15,6 +15,13 @@ var DefaultToggleModelSymbols = &ToggleModelSymbols{
 	Deactivated: "[ ]",
 }
 
+var defaultToggleKeys = &toggleKeyMap{
+	toggle: key.NewBinding(
+		key.WithKeys(" "),
+		key.WithHelp(" ", "toggle"),
+	),
+}
+
 type toggleKeyMap struct {
 	toggle key.Binding
 }
@@ -32,13 +39,13 @@ type ToggleModel struct {
 	Focused bool
 	Symbols *ToggleModelSymbols
 
-	keys *toggleKeyMap
+	Keys *toggleKeyMap
 }
 
-func NewToggleModel(initial bool, keys *toggleKeyMap) *ToggleModel {
+func NewToggleModel(initial bool) *ToggleModel {
 	return &ToggleModel{
 		value: initial,
-		keys:  keys,
+		Keys:  defaultToggleKeys,
 	}
 }
 
@@ -57,19 +64,11 @@ func (t *ToggleModel) Init() tea.Cmd {
 func (t *ToggleModel) Update(msg tea.Msg) (*ToggleModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if key.Matches(msg, t.keys.toggle) {
+		if key.Matches(msg, t.Keys.toggle) {
 			t.value = !t.value
 		}
 	}
 	return t, nil
-}
-
-func RenderCheckbox(value bool) string {
-	if value {
-		return "[⏺]"
-	} else {
-		return "[ ]"
-	}
 }
 
 func (t *ToggleModel) View() string {
