@@ -53,8 +53,19 @@ var floatingKeys = floatingKeyMap{
 	),
 }
 
+var tabsKeys = &tabsKeyMap{
+	tabNext: key.NewBinding(
+		key.WithKeys("]"),
+		key.WithHelp("]", "next tab"),
+	),
+	tabPrev: key.NewBinding(
+		key.WithKeys("["),
+		key.WithHelp("[", "previous tab"),
+	),
+}
+
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
-	wifiTable := *NewConnectionsModel(networkManager)
+	wifiTable := *NewTabsModel(networkManager, tabsKeys)
 	popup := *NewFloatingModel(nil, "")
 	popup.Width = 100
 	popup.Height = 10
