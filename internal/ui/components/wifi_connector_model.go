@@ -6,18 +6,35 @@ import (
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
+type wifiConnectorKeyMap struct {
+	connect                  key.Binding
+	togglePasswordVisibility key.Binding
+}
+
+func (k *wifiConnectorKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.connect, k.togglePasswordVisibility}
+}
+
+func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.connect, k.togglePasswordVisibility}}
+}
+
 type WifiConnectorModel struct {
 	wifiName string
 	password textinput.Model
-	nm       infra.NetworkManager
+
+	keys *wifiConnectorKeyMap
+
+	nm infra.NetworkManager
 }
 
-func NewWifiConnector(networkManager infra.NetworkManager) *WifiConnectorModel {
+func NewWifiConnector(networkManager infra.NetworkManager, keys *wifiConnectorKeyMap) *WifiConnectorModel {
 	p := textinput.New()
 	p.Focus()
 	p.Width = 20
@@ -25,7 +42,11 @@ func NewWifiConnector(networkManager infra.NetworkManager) *WifiConnectorModel {
 	p.EchoMode = textinput.EchoPassword
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
-	return &WifiConnectorModel{password: p, nm: networkManager}
+	return &WifiConnectorModel{
+		password: p,
+		keys:     keys,
+		nm:       networkManager,
+	}
 }
 
 func (m *WifiConnectorModel) setNew(wifiName string) {
@@ -43,14 +64,14 @@ func (m WifiConnectorModel) Init() tea.Cmd {
 func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEnter:
+		switch {
+		case key.Matches(msg, m.keys.connect):
 			pw := m.password.Value()
 			return m, tea.Batch(
 				SetPopupActivityCmd(false),
 				m.connectToWifiCmd(m.wifiName, pw),
 			)
-		case tea.KeyCtrlR:
+		case key.Matches(msg, m.keys.togglePasswordVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
 			} else {

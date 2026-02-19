@@ -8,6 +8,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -27,20 +28,40 @@ type Focusable interface {
 	Blur()
 }
 
+type wifiStoredInfoKeyMap struct {
+	togglePasswordVisibility key.Binding
+	up                       key.Binding
+	down                     key.Binding
+	submit                   key.Binding
+}
+
+func (k wifiStoredInfoKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.togglePasswordVisibility, k.up, k.down, k.submit}
+}
+
+func (k wifiStoredInfoKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.togglePasswordVisibility, k.up, k.down, k.submit}}
+}
+
 type WifiStoredInfoModel struct {
-	ssid                string
-	active              bool
-	name                string
+	ssid   string
+	active bool
+	name   string
+
 	nameInput           textinput.Model
 	password            textinput.Model
 	autoconnect         *ToggleModel
 	autoconnectPriority textinput.Model
-	inputs              []Focusable // used for batch operations on input focusable elements
-	focusedInputIndex   wifiStoredInfoInputIndex
-	nm                  infra.NetworkManager
+
+	inputs            []Focusable // used for batch operations on input focusable elements
+	focusedInputIndex wifiStoredInfoInputIndex
+
+	keys *wifiStoredInfoKeyMap
+
+	nm infra.NetworkManager
 }
 
-func NewStoredInfoModel(networkManager infra.NetworkManager) *WifiStoredInfoModel {
+func NewStoredInfoModel(networkManager infra.NetworkManager, keys *keyMaps) *WifiStoredInfoModel {
 	n := textinput.New()
 	n.Width = 20
 	n.Prompt = ""
@@ -55,6 +76,7 @@ func NewStoredInfoModel(networkManager infra.NetworkManager) *WifiStoredInfoMode
 	p.Placeholder = "password"
 
 	t := NewToggleModel(false)
+	t.Keys = keys.toggle
 
 	ap := textinput.New()
 	ap.Width = 4
@@ -66,6 +88,7 @@ func NewStoredInfoModel(networkManager infra.NetworkManager) *WifiStoredInfoMode
 		password:            p,
 		autoconnect:         t,
 		autoconnectPriority: ap,
+		keys:                keys.wifiStoredInfo,
 		nm:                  networkManager,
 	}
 	inp := []Focusable{&model.nameInput, &model.password, model.autoconnect, &model.autoconnectPriority}
@@ -91,19 +114,19 @@ func (m *WifiStoredInfoModel) Init() tea.Cmd {
 func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+r":
+		switch {
+		case key.Matches(msg, m.keys.togglePasswordVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
 			} else {
 				m.password.EchoMode = textinput.EchoPassword
 			}
 			return m, nil
-		case "ctrl+j":
+		case key.Matches(msg, m.keys.down):
 			return m, m.focusNextCmd()
-		case "ctrl+k":
+		case key.Matches(msg, m.keys.up):
 			return m, m.focusPrevCmd()
-		case "enter":
+		case key.Matches(msg, m.keys.submit):
 			return m, tea.Sequence(
 				SetPopupActivityCmd(false),
 				m.saveWifiInfoCmd(),

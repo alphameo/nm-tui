@@ -4,23 +4,42 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
+
+type wifiKeyMap struct {
+	nextWindow   key.Binding
+	firstWindow  key.Binding
+	secondWindow key.Binding
+	rescan       key.Binding
+}
+
+func (k *wifiKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.nextWindow, k.firstWindow, k.secondWindow, k.rescan}
+}
+
+func (k *wifiKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.nextWindow, k.firstWindow, k.secondWindow, k.rescan}}
+}
 
 type WifiModel struct {
 	windows            []SizedModel // used for batch operations for wifi models
 	wifiAvailable      *WifiAvailableModel
 	wifiStored         *WifiStoredModel
 	focusedWindowIndex int
-	width              int
-	height             int
+
+	keys *wifiKeyMap
+
+	width  int
+	height int
 }
 
-func NewWifiModel(networkManager infra.NetworkManager) *WifiModel {
-	a := NewWifiAvailableModel(networkManager)
-	s := NewWifiStoredModel(networkManager)
-	w := &WifiModel{wifiAvailable: a, wifiStored: s}
+func NewWifiModel(networkManager infra.NetworkManager, keys *keyMaps) *WifiModel {
+	a := NewWifiAvailableModel(networkManager, keys)
+	s := NewWifiStoredModel(networkManager, keys)
+	w := &WifiModel{wifiAvailable: a, wifiStored: s, keys: keys.wifi}
 
 	wins := []SizedModel{w.wifiAvailable, w.wifiStored}
 	w.windows = wins
@@ -61,14 +80,14 @@ func (m *WifiModel) Init() tea.Cmd {
 func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "tab":
+		switch {
+		case key.Matches(msg, m.keys.nextWindow):
 			m.focusedWindowIndex = (m.focusedWindowIndex + 1) % len(m.windows)
-		case "1":
+		case key.Matches(msg, m.keys.firstWindow):
 			m.focusedWindowIndex = 0
-		case "2":
+		case key.Matches(msg, m.keys.secondWindow):
 			m.focusedWindowIndex = 1
-		case "ctrl+r":
+		case key.Matches(msg, m.keys.rescan):
 			return m, tea.Batch(
 				UpdateWifiStoredCmd(),
 				UpdateWifiAvailableCmd(),
@@ -114,7 +133,7 @@ func (m *WifiModel) View() string {
 	availableView := renderer.RenderWithTitleAndKeybind(
 		m.wifiAvailable.View(),
 		"Available Wi-Fi",
-		"1",
+		m.keys.firstWindow.Help().Key,
 		&availableStyle,
 		styles.AccentColor,
 	)
@@ -122,7 +141,7 @@ func (m *WifiModel) View() string {
 	storedView := renderer.RenderWithTitleAndKeybind(
 		m.wifiStored.View(),
 		"Stored Wi-Fi",
-		"2",
+		m.keys.secondWindow.Help().Key,
 		&storedStyle,
 		styles.AccentColor,
 	)
@@ -143,7 +162,6 @@ func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
 	}
 	return cmd
 }
-
 
 // UpdateWifiMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
 type UpdateWifiMsg struct{}
