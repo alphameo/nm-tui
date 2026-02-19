@@ -1,4 +1,5 @@
-package floating
+// Package compositor provides composition methods
+package compositor
 
 import (
 	"strings"

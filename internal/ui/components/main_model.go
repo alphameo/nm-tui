@@ -2,9 +2,8 @@ package components
 
 import (
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components/floating"
-	"github.com/alphameo/nm-tui/internal/ui/components/text"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -17,7 +16,8 @@ const (
 )
 
 type mainKeyMap struct {
-	quit key.Binding
+	quit       key.Binding
+	closePopup key.Binding
 }
 
 func (k *mainKeyMap) ShortHelp() []key.Binding {
@@ -28,10 +28,21 @@ func (k *mainKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.quit}}
 }
 
+type Popup struct {
+	content tea.Model
+	active  bool
+	title   string
+}
+type Notification struct {
+	message string
+	active  bool
+	title   string
+}
+
 type MainModel struct {
 	tabs         TabsModel
-	popup        floating.Model
-	notification floating.Model
+	popup        *Popup
+	notification *Notification
 
 	keys *mainKeyMap
 	help help.Model
@@ -43,27 +54,27 @@ type MainModel struct {
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
 	wifiTable := NewTabsModel(networkManager, keys)
-	popup := floating.New(nil)
-	popup.Title = "Popup"
-	popup.Keys = keys.floating
-	popup.Width = 100
-	popup.Height = 10
-	popup.XAnchor = floating.Center
-	popup.YAnchor = floating.Center
-	popup.ContentAlignHorizontal = lipgloss.Center
-	popup.ContentAlignVertical = lipgloss.Center
-	notification := floating.New(nil)
-	notification.Keys = keys.floating
-	notification.XAnchor = floating.Center
-	notification.YAnchor = floating.Center
-	notification.Width = 100
-	notification.Height = 10
-	notification.ContentAlignHorizontal = lipgloss.Center
-	notification.ContentAlignVertical = lipgloss.Center
+	p := &Popup{active: false}
+	// popup.Keys = keys.compositor
+	// popup.Width = 100
+	// popup.Height = 10
+	// popup.XAnchor = compositor.Center
+	// popup.YAnchor = compositor.Center
+	// popup.ContentAlignHorizontal = lipgloss.Center
+	// popup.ContentAlignVertical = lipgloss.Center
+	n := &Notification{}
+	// notification := compositor.New(nil)
+	// notification.Keys = keys.compositor
+	// notification.XAnchor = compositor.Center
+	// notification.YAnchor = compositor.Center
+	// notification.Width = 100
+	// notification.Height = 10
+	// notification.ContentAlignHorizontal = lipgloss.Center
+	// notification.ContentAlignVertical = lipgloss.Center
 	m := &MainModel{
 		tabs:         *wifiTable,
-		popup:        *popup,
-		notification: *notification,
+		popup:        p,
+		notification: n,
 		keys:         keys.main,
 		help:         help.New(),
 	}
@@ -71,11 +82,7 @@ func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 }
 
 func (m MainModel) Init() tea.Cmd {
-	return tea.Batch(
-		m.tabs.Init(),
-		m.popup.Init(),
-		m.notification.Init(),
-	)
+	return m.tabs.Init()
 }
 
 // NilMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
@@ -92,17 +99,17 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
 	case PopupContentMsg:
-		m.popup.Content = msg.model
-		m.popup.Title = msg.title
-		return m, m.popup.Content.Init()
+		m.popup.content = msg.model
+		m.popup.title = msg.title
+		return m, m.popup.content.Init()
 	case PopupActivityMsg:
-		m.popup.IsActive = bool(msg)
+		m.popup.active = bool(msg)
 		return m, nil
 	case NotificationTextMsg:
-		m.notification.Content = text.New(string(msg))
+		m.notification.message = string(msg)
 		return m, nil
 	case NotificationActivityMsg:
-		m.notification.IsActive = bool(msg)
+		m.notification.active = bool(msg)
 		return m, nil
 	case tea.Cmd:
 		return m, msg
@@ -122,11 +129,25 @@ func (m *MainModel) Resize(width, height int) {
 func (m MainModel) View() string {
 	view := m.tabs.View()
 
-	if m.popup.IsActive {
-		view = m.popup.Place(view, styles.OverlayStyle)
+	if m.popup.active {
+		popupView := m.popup.content.View()
+		style := styles.OverlayStyle.
+			Align(lipgloss.Center).
+			Width(100).
+			Height(10)
+
+		popupView = style.Render(popupView)
+
+		popupView = compositor.Compose(m.popup.title, popupView, compositor.Center, compositor.Begin, 0, 0)
+		view = compositor.Compose(popupView, view, compositor.Center, compositor.Center, 0, 0)
 	}
-	if m.notification.IsActive {
-		view = m.notification.Place(view, styles.OverlayStyle)
+	if m.notification.active {
+		notificationView := m.notification.message
+		style := styles.OverlayStyle.
+			Align(lipgloss.Center)
+		notificationView = style.Render(notificationView)
+		notificationView = compositor.Compose(m.notification.title, notificationView, compositor.Center, compositor.Begin, 0, 0)
+		view = compositor.Compose(notificationView, view, compositor.End, compositor.Begin, 0, 0)
 	}
 	help := m.help.View(m.keys)
 
@@ -135,14 +156,12 @@ func (m MainModel) View() string {
 }
 
 func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
-	if m.notification.IsActive {
-		upd, cmd := m.notification.Update(keyMsg)
-		m.notification = upd.(floating.Model)
-		return cmd
-	}
-	if m.popup.IsActive {
-		upd, cmd := m.popup.Update(keyMsg)
-		m.popup = upd.(floating.Model)
+	if m.popup.active {
+		if key.Matches(keyMsg, m.keys.closePopup) {
+			return SetPopupActivityCmd(false)
+		}
+		upd, cmd := m.popup.content.Update(keyMsg)
+		m.popup.content = upd
 		return cmd
 	}
 	if key.Matches(keyMsg, m.keys.quit) {
@@ -161,16 +180,9 @@ func (m *MainModel) handleMsg(msg tea.Msg) tea.Cmd {
 	if cmd != nil {
 		return cmd
 	}
-	if m.notification.IsActive {
-		upd, cmd = m.notification.Update(msg)
-		m.notification = upd.(floating.Model)
-		if cmd != nil {
-			return cmd
-		}
-	}
-	if m.popup.IsActive {
-		upd, cmd = m.popup.Update(msg)
-		m.popup = upd.(floating.Model)
+	if m.popup.active {
+		upd, cmd = m.popup.content.Update(msg)
+		m.popup.content = upd
 		if cmd != nil {
 			return cmd
 		}

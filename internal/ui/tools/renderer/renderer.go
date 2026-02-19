@@ -4,7 +4,7 @@ package renderer
 import (
 	"fmt"
 
-	"github.com/alphameo/nm-tui/internal/ui/components/floating"
+	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -61,11 +61,11 @@ func RenderWithTitleAndKeybind(view, title, keybind string, style *lipgloss.Styl
 	divider := keybindStyle.Render(style.GetBorderStyle().Top)
 	keybind = keybindStyle.Render(keybind)
 	extendedTitle := fmt.Sprintf("%s%s%s", keybind, divider, title)
-	return floating.Compose(
+	return compositor.Compose(
 		extendedTitle,
 		view,
-		floating.Begin,
-		floating.Begin,
+		compositor.Begin,
+		compositor.Begin,
 		2,
 		0,
 	)
