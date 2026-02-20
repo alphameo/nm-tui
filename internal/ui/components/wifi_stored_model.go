@@ -156,10 +156,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, NotifyCmd(err.Error())
 			}
 			m.storedInfo.setNew(info)
-			return m, tea.Sequence(
-				SetPopupContentCmd(m.storedInfo, "Stored Wi-Fi info"),
-				SetPopupActivityCmd(true),
-			)
+			return m, OpenPopup(m.storedInfo, "Stored Wi-Fi info")
 
 		case " ":
 			return m, m.connectToSelectedCmd()

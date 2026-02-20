@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/alphameo/nm-tui/internal/infra"
@@ -70,7 +71,7 @@ type MainModel struct {
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
 
-	con := NewWifiConnector(networkManager, keys.wifiConnector)
+	con := NewWifiConnector(keys.wifiConnector, networkManager)
 	a := NewWifiAvailableModel(con, keys.wifiAvailable, networkManager)
 
 	info := NewStoredInfoModel(keys.wifiStoredInfo, networkManager)
@@ -114,6 +115,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case PopupContentMsg:
 		m.popup.content = msg.model
 		m.popup.title = msg.title
+		slog.Debug("contented")
 		return m, m.popup.content.Init()
 	case PopupActivityMsg:
 		m.popup.active = bool(msg)
@@ -254,6 +256,13 @@ func SetPopupActivityCmd(isActive bool) tea.Cmd {
 	return func() tea.Msg {
 		return PopupActivityMsg(isActive)
 	}
+}
+
+func OpenPopup(content tea.Model, title string) tea.Cmd {
+	return tea.Sequence(
+		SetPopupContentCmd(content, title),
+		SetPopupActivityCmd(true),
+	)
 }
 
 type (

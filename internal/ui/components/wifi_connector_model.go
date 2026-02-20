@@ -34,7 +34,7 @@ type WifiConnectorModel struct {
 	nm infra.NetworkManager
 }
 
-func NewWifiConnector(networkManager infra.NetworkManager, keys *wifiConnectorKeyMap) *WifiConnectorModel {
+func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.NetworkManager) *WifiConnectorModel {
 	p := textinput.New()
 	p.Focus()
 	p.Width = 20

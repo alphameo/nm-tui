@@ -144,6 +144,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.openConnector):
 			row := m.dataTable.SelectedRow()
 			if row != nil {
+				slog.Debug("call")
 				return m, m.callConnector(row[ssidAvailable])
 			}
 			return m, nil
@@ -252,8 +253,6 @@ func SetWifiAvailableStateCmd(state wifiAvailableState) tea.Cmd {
 
 func (m *WifiAvailableModel) callConnector(wifiName string) tea.Cmd {
 	m.connector.setNew(wifiName)
-	return tea.Sequence(
-		SetPopupActivityCmd(true),
-		SetPopupContentCmd(m.connector, "Wi-Fi Connector"),
-	)
+	slog.Debug("named")
+	return OpenPopup(m.connector, "Wi-Fi Connector")
 }
