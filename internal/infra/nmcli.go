@@ -182,52 +182,95 @@ func (Nmcli) GetWifiSSID(id string) (string, error) {
 		return "", err
 	}
 	ssid := strings.Trim(string(out), " \n")
-	msg := fmt.Sprintf("Got password to wifi %s (%s %s)", id, NmcliCommandName, args)
+	msg := fmt.Sprintf("Got password for wifi %s (%s %s)", id, NmcliCommandName, args)
 	slog.Info(msg)
 	return ssid, nil
 }
 
-func (Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
-	// CMD: nmcli -s -m tabular -t -f connection.id,802-11-wireless.ssid,802-11-wireless-security.psk,connection.autoconnect,connection.autoconnect-priority,GENERAL.STATE connection show "<ID>"
-	args := []string{
-		"-s",
-		"-m",
-		"tabular",
-		"-t",
-		"-f",
-		"connection.id,802-11-wireless.ssid,802-11-wireless-security.psk,connection.autoconnect,connection.autoconnect-priority,GENERAL.STATE",
-		"connection",
-		"show",
-		id,
-	}
+func (Nmcli) GetWifiAutoconnect(id string) (bool, error) {
+	// CMD: nmcli -s -m tabular -t -f connection.autoconnect connection show "<ID>"
+	args := []string{"-s", "-m", "tabular", "-t", "-f", "connection.autoconnect", "connection", "show", id}
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err != nil {
-		msg := fmt.Sprintf("Error retrieving information about wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		msg := fmt.Sprintf("Error retrieving autoconnect state for wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
 		slog.Error(msg)
-		return nil, err
+		return false, err
 	}
-	lines := strings.Split(string(out), "\n")
-	autoconnectPriority, err := strconv.Atoi(lines[4])
-	if err != nil {
-		msg := fmt.Sprintf("Error retrieving information about wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
-		slog.Error(msg)
-		return nil, err
-	}
-
-	var active bool
-	if len(lines) > 5 {
-		active = lines[5] == "activated"
-	}
-
-	msg := fmt.Sprintf("Got information about wifi %s (%s %s)", id, NmcliCommandName, args)
+	autoconnectResp := strings.Trim(string(out), " \n")
+	msg := fmt.Sprintf("Got autoconnect state for wifi %s (%s %s)", id, NmcliCommandName, args)
 	slog.Info(msg)
+	return autoconnectResp == "yes", nil
+}
+
+func (Nmcli) GetWifiAutoconnectPriority(id string) (int, error) {
+	// CMD: nmcli -s -m tabular -t -f connection.autoconnect-priority connection show "<ID>"
+	args := []string{"-s", "-m", "tabular", "-t", "-f", "connection.autoconnect-priority", "connection", "show", id}
+	out, err := exec.Command(NmcliCommandName, args...).Output()
+	if err != nil {
+		msg := fmt.Sprintf("Error retrieving autoconnect priority for wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
+		return 0, err
+	}
+	autoconnectResp := strings.Trim(string(out), " \n")
+	autoconnectPriority, err := strconv.Atoi(autoconnectResp)
+	if err != nil {
+		msg := fmt.Sprintf("Error retrieving autoconnect priority for wifi %s (%s %s): %w", id, NmcliCommandName, args, err)
+		slog.Error(msg)
+		return 0, err
+	}
+	msg := fmt.Sprintf("Got autoconnect priority for wifi %s (%s %s)", id, NmcliCommandName, args)
+	slog.Info(msg)
+	return autoconnectPriority, nil
+}
+
+func (Nmcli) GetWifiActivity(id string) (bool, error) {
+	// CMD: nmcli -s -m tabular -t -f GENERAL.STATE connection show "<ID>"
+	args := []string{"-s", "-m", "tabular", "-t", "-f", "GENERAL.STATE", "connection", "show", id}
+	out, err := exec.Command(NmcliCommandName, args...).Output()
+	if err != nil {
+		msg := fmt.Sprintf("Error retrieving activity state for wifi %s (%s %s): %s", id, NmcliCommandName, args, err.Error())
+		slog.Error(msg)
+		return false, err
+	}
+	activityResp := strings.Trim(string(out), " \n")
+	msg := fmt.Sprintf("Got activity state for wifi %s (%s %s)", id, NmcliCommandName, args)
+	slog.Info(msg)
+	return activityResp == "activated", nil
+}
+
+func (n *Nmcli) GetWifiInfo(id string) (*WifiInfo, error) {
+	ssid, err := n.GetWifiSSID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	password, err := n.GetWifiPassword(id)
+	if err != nil {
+		return nil, err
+	}
+
+	autoconnect, err := n.GetWifiAutoconnect(id)
+	if err != nil {
+		return nil, err
+	}
+
+	autoconnectPriority, err := n.GetWifiAutoconnectPriority(id)
+	if err != nil {
+		return nil, err
+	}
+
+	activated, err := n.GetWifiActivity(id)
+	if err != nil {
+		return nil, err
+	}
+
 	return &WifiInfo{
-		Name:                lines[0],
-		SSID:                lines[1],
-		Password:            lines[2],
-		Autoconnect:         lines[3] == "yes",
+		Name:                id,
+		SSID:                ssid,
+		Password:            password,
+		Autoconnect:         autoconnect,
 		AutoconnectPriority: autoconnectPriority,
-		Active:              active,
+		Active:              activated,
 	}, nil
 }
 
