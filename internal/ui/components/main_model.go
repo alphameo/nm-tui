@@ -146,7 +146,7 @@ func (m MainModel) View() string {
 	if m.popup.active {
 		popupView := m.popup.content.View()
 		style := styles.OverlayStyle.
-			Align(lipgloss.Center).
+			Align(lipgloss.Center, lipgloss.Center).
 			Width(100).
 			Height(10)
 
