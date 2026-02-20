@@ -79,7 +79,7 @@ type WifiAvailableModel struct {
 	height int
 }
 
-func NewWifiAvailableModel(networkManager infra.NetworkManager, keys *keyMapManager) *WifiAvailableModel {
+func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailableKeyMap, networkManager infra.NetworkManager) *WifiAvailableModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: connectionFlagColumnWidth},
 		{Title: "SSID"},
@@ -92,13 +92,12 @@ func NewWifiAvailableModel(networkManager infra.NetworkManager, keys *keyMapMana
 	)
 	t.SetStyles(styles.TableStyle)
 	s := spinner.New()
-	con := NewWifiConnector(networkManager, keys.wifiConnector)
 	return &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
 		indicatorState:   DoneInAvailable,
-		connector:        con,
-		keys:             keys.wifiAvailable,
+		connector:        wifiConnector,
+		keys:             keys,
 		nm:               networkManager,
 	}
 }

@@ -60,19 +60,29 @@ type MainModel struct {
 
 func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
-	wifiTable := NewTabsModel(networkManager, keys)
+
+	con := NewWifiConnector(networkManager, keys.wifiConnector)
+	a := NewWifiAvailableModel(con, keys.wifiAvailable, networkManager)
+
+	info := NewStoredInfoModel(keys.wifiStoredInfo, networkManager)
+	s := NewWifiStoredModel(info, keys.wifiStored, networkManager)
+
+	wifi := NewWifiModel(a, s, keys.wifi, networkManager)
+
+	wifiTable := NewTabsModel([]TabModel{wifi}, keys.tabs, networkManager)
+
 	p := &Popup{active: false}
 	n := &Notification{}
 	help := help.New()
 	help.ShowAll = true
-	m := &MainModel{
+
+	return &MainModel{
 		tabs:         *wifiTable,
 		popup:        p,
 		notification: n,
 		keyMngr:      keys,
 		help:         help,
 	}
-	return m
 }
 
 func (m MainModel) Init() tea.Cmd {

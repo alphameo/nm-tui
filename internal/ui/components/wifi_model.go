@@ -46,10 +46,12 @@ type WifiModel struct {
 	height int
 }
 
-func NewWifiModel(networkManager infra.NetworkManager, keys *keyMapManager) *WifiModel {
-	a := NewWifiAvailableModel(networkManager, keys)
-	s := NewWifiStoredModel(networkManager, keys)
-	w := &WifiModel{wifiAvailable: a, wifiStored: s, keys: keys.wifi}
+func NewWifiModel(wifiAvailable *WifiAvailableModel, wifiStored *WifiStoredModel, keys *wifiKeyMap, networkManager infra.NetworkManager) *WifiModel {
+	w := &WifiModel{
+		wifiAvailable: wifiAvailable,
+		wifiStored:    wifiStored,
+		keys:          keys,
+	}
 
 	wins := []SizedModel{w.wifiAvailable, w.wifiStored}
 	w.windows = wins
@@ -77,6 +79,10 @@ func (m *WifiModel) Width() int {
 
 func (m *WifiModel) Height() int {
 	return m.height
+}
+
+func (m *WifiModel) Title() string {
+	return "Wi-Fi"
 }
 
 func (m *WifiModel) Init() tea.Cmd {

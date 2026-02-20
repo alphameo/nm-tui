@@ -22,8 +22,13 @@ func (k *tabsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.tabNext, k.tabPrev}}
 }
 
+type TabModel interface {
+	SizedModel
+	Title() string
+}
+
 type TabsModel struct {
-	tabTables []SizedModel
+	tabTables []TabModel
 	tabTitles []string
 	activeTab int
 
@@ -33,15 +38,16 @@ type TabsModel struct {
 	height int
 }
 
-func NewTabsModel(networkManager infra.NetworkManager, keys *keyMapManager) *TabsModel {
-	wifi := NewWifiModel(networkManager, keys)
-	tabTables := []SizedModel{wifi, wifi}
-	tabTitles := &[]string{"Wi-Fi", "VPN"}
+func NewTabsModel(tabs []TabModel, keys *tabsKeyMap, networkManager infra.NetworkManager) *TabsModel {
+	tabTitles := []string{}
+	for _, t := range tabs {
+		tabTitles = append(tabTitles, t.Title())
+	}
 	m := &TabsModel{
-		tabTables: tabTables,
-		tabTitles: *tabTitles,
+		tabTables: tabs,
+		tabTitles: tabTitles,
 		activeTab: 0,
-		keys:      keys.tabs,
+		keys:      keys,
 	}
 	return m
 }
@@ -82,7 +88,7 @@ func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	upd, cmd := m.tabTables[m.activeTab].Update(msg)
-	m.tabTables[m.activeTab] = upd.(SizedModel)
+	m.tabTables[m.activeTab] = upd.(TabModel)
 	return m, cmd
 }
 
