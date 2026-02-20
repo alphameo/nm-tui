@@ -2,7 +2,6 @@ package components
 
 import (
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/alphameo/nm-tui/internal/infra"
@@ -115,7 +114,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case PopupContentMsg:
 		m.popup.content = msg.model
 		m.popup.title = msg.title
-		slog.Debug("contented")
 		return m, m.popup.content.Init()
 	case PopupActivityMsg:
 		m.popup.active = bool(msg)

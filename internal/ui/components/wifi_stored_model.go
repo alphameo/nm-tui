@@ -2,7 +2,6 @@ package components
 
 import (
 	"fmt"
-	"log/slog"
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -223,7 +222,6 @@ func (m *WifiStoredModel) RescanCmd() tea.Cmd {
 		func() tea.Msg {
 			list, err := m.nm.GetStoredWifi()
 			if err != nil {
-				slog.Error(err.Error())
 				return NotifyCmd(err.Error())
 			}
 			rows := []table.Row{}
