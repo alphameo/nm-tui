@@ -17,8 +17,6 @@ const (
 	BorderOffset int = 2
 	TabBarHeight int = 3
 
-	HelpHeight int = 1
-
 	NotificationCloseTime int = 5
 )
 
@@ -125,7 +123,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *MainModel) Resize(width, height int) {
 	m.width = width
-	m.height = height - HelpHeight
+	helpHeight := lipgloss.Height(m.help.View(m.keyMngr))
+	m.height = height - helpHeight
 
 	m.tabs.Resize(m.width, m.height)
 }
