@@ -14,6 +14,7 @@ func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
 
 type keyMapManager struct {
 	main           *mainKeyMap
+	popup          *popupKeyMap
 	tabs           *tabsKeyMap
 	toggle         *toggle.KeyMap
 	wifi           *wifiKeyMap
@@ -24,15 +25,24 @@ type keyMapManager struct {
 }
 
 func (k *keyMapManager) ShortHelp() []key.Binding {
-	return []key.Binding{k.main.quit, k.main.closePopup}
+	return []key.Binding{k.main.quit}
 }
 
 func (k *keyMapManager) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.main.quit, k.main.closePopup}}
+	return [][]key.Binding{
+		{
+			k.main.quit,
+		},
+		{
+			k.tabs.tabNext,
+			k.tabs.tabPrev,
+		},
+	}
 }
 
 var defaultKeyMap = &keyMapManager{
 	main:           mainKeys,
+	popup:          popupKeys,
 	tabs:           tabsKeys,
 	toggle:         toggleKeys,
 	wifi:           wifiKeys,
@@ -47,9 +57,12 @@ var mainKeys = &mainKeyMap{
 		key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),
 		key.WithHelp("esc/q/^Q/^C", "quit"),
 	),
-	closePopup: key.NewBinding(
+}
+
+var popupKeys = &popupKeyMap{
+	close: key.NewBinding(
 		key.WithKeys("ctrl+q", "esc", "ctrl+c"),
-		key.WithHelp("esc/^Q/^C", "quit"),
+		key.WithHelp("esc/^Q/^C", "close popup"),
 	),
 }
 

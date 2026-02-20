@@ -21,16 +21,15 @@ const (
 )
 
 type mainKeyMap struct {
-	quit       key.Binding
-	closePopup key.Binding
+	quit key.Binding
 }
 
 func (k *mainKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.quit, k.closePopup}
+	return []key.Binding{k.quit}
 }
 
 func (k *mainKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.quit, k.closePopup}}
+	return [][]key.Binding{{k.quit}}
 }
 
 type Popup struct {
@@ -38,6 +37,18 @@ type Popup struct {
 	active  bool
 	title   string
 }
+type popupKeyMap struct {
+	close key.Binding
+}
+
+func (k *popupKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.close}
+}
+
+func (k *popupKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.close}}
+}
+
 type Notification struct {
 	message string
 	active  bool
@@ -183,13 +194,16 @@ func (m MainModel) View() string {
 	}
 
 	help := m.help.View(m.keyMngr)
+	if m.popup.active {
+		help = m.help.View(m.keyMngr.popup)
+	}
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	return view
 }
 
 func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	if m.popup.active {
-		if key.Matches(keyMsg, m.keyMngr.main.closePopup) {
+		if key.Matches(keyMsg, m.keyMngr.popup.close) {
 			return SetPopupActivityCmd(false)
 		}
 		upd, cmd := m.popup.content.Update(keyMsg)
