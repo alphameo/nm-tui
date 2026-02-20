@@ -46,7 +46,7 @@ type WifiModel struct {
 	height int
 }
 
-func NewWifiModel(networkManager infra.NetworkManager, keys *keyMaps) *WifiModel {
+func NewWifiModel(networkManager infra.NetworkManager, keys *keyMapManager) *WifiModel {
 	a := NewWifiAvailableModel(networkManager, keys)
 	s := NewWifiStoredModel(networkManager, keys)
 	w := &WifiModel{wifiAvailable: a, wifiStored: s, keys: keys.wifi}

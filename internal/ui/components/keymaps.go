@@ -12,7 +12,7 @@ func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
 	)
 }
 
-type keyMaps struct {
+type keyMapManager struct {
 	main           *mainKeyMap
 	tabs           *tabsKeyMap
 	toggle         *toggle.KeyMap
@@ -23,7 +23,15 @@ type keyMaps struct {
 	wifiConnector  *wifiConnectorKeyMap
 }
 
-var defaultKeyMap = &keyMaps{
+func (k *keyMapManager) ShortHelp() []key.Binding {
+	return []key.Binding{k.main.quit, k.main.closePopup}
+}
+
+func (k *keyMapManager) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.main.quit, k.main.closePopup}}
+}
+
+var defaultKeyMap = &keyMapManager{
 	main:           mainKeys,
 	tabs:           tabsKeys,
 	toggle:         toggleKeys,

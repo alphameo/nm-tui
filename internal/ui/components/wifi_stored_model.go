@@ -87,7 +87,7 @@ const (
 	storedNameColumn WifiStoredColumnIndex = 2
 )
 
-func NewWifiStoredModel(networkManager infra.NetworkManager, keys *keyMaps) *WifiStoredModel {
+func NewWifiStoredModel(networkManager infra.NetworkManager, keys *keyMapManager) *WifiStoredModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: connectionFlagColumnWidth},
 		{Title: "SSID"},

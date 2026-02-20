@@ -28,11 +28,11 @@ type mainKeyMap struct {
 }
 
 func (k *mainKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.quit}
+	return []key.Binding{k.quit, k.closePopup}
 }
 
 func (k *mainKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.quit}}
+	return [][]key.Binding{{k.quit, k.closePopup}}
 }
 
 type Popup struct {
@@ -51,8 +51,8 @@ type MainModel struct {
 	popup        *Popup
 	notification *Notification
 
-	keys *mainKeyMap
-	help help.Model
+	keyMngr *keyMapManager
+	help    help.Model
 
 	width  int
 	height int
@@ -63,12 +63,14 @@ func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	wifiTable := NewTabsModel(networkManager, keys)
 	p := &Popup{active: false}
 	n := &Notification{}
+	help := help.New()
+	help.ShowAll = true
 	m := &MainModel{
 		tabs:         *wifiTable,
 		popup:        p,
 		notification: n,
-		keys:         keys.main,
-		help:         help.New(),
+		keyMngr:      keys,
+		help:         help,
 	}
 	return m
 }
@@ -171,21 +173,21 @@ func (m MainModel) View() string {
 		)
 	}
 
-	help := m.help.View(m.keys)
+	help := m.help.View(m.keyMngr)
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	return view
 }
 
 func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 	if m.popup.active {
-		if key.Matches(keyMsg, m.keys.closePopup) {
+		if key.Matches(keyMsg, m.keyMngr.main.closePopup) {
 			return SetPopupActivityCmd(false)
 		}
 		upd, cmd := m.popup.content.Update(keyMsg)
 		m.popup.content = upd
 		return cmd
 	}
-	if key.Matches(keyMsg, m.keys.quit) {
+	if key.Matches(keyMsg, m.keyMngr.main.quit) {
 		return tea.Quit
 	}
 	upd, cmd := m.tabs.Update(keyMsg)

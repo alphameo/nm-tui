@@ -62,7 +62,7 @@ type WifiStoredInfoModel struct {
 	nm infra.NetworkManager
 }
 
-func NewStoredInfoModel(networkManager infra.NetworkManager, keys *keyMaps) *WifiStoredInfoModel {
+func NewStoredInfoModel(networkManager infra.NetworkManager, keys *keyMapManager) *WifiStoredInfoModel {
 	n := textinput.New()
 	n.Width = 20
 	n.Prompt = ""
