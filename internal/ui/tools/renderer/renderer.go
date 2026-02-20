@@ -30,11 +30,14 @@ func RenderTabBar(
 		border, _, _, _, _ := style.GetBorder()
 		if isFirst && isActive {
 			border.BottomLeft = border.Left
-		} else if isFirst && !isActive {
+		}
+		if isFirst && !isActive {
 			border.BottomLeft = border.MiddleLeft
-		} else if isLast && isActive {
+		}
+		if isLast && isActive {
 			border.BottomRight = border.Right
-		} else if isLast && !isActive {
+		}
+		if isLast && !isActive {
 			border.BottomRight = border.MiddleRight
 		}
 		style = style.Border(border)
