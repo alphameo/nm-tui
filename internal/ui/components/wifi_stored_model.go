@@ -150,9 +150,12 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if row == nil {
 				return m, nil
 			}
-			info, err := m.nm.GetWifiInfo(row[storedNameColumn])
+			name := row[storedNameColumn]
+			info, err := m.nm.GetWifiInfo(name)
 			if err != nil {
-				return m, NotifyCmd(err.Error())
+				return m, NotifyCmd(
+					fmt.Sprintf("Cannot get information about %s", name),
+				)
 			}
 			m.storedInfo.setNew(info)
 			return m, OpenPopup(m.storedInfo, "Stored Wi-Fi info")
@@ -222,7 +225,10 @@ func (m *WifiStoredModel) RescanCmd() tea.Cmd {
 		func() tea.Msg {
 			list, err := m.nm.GetStoredWifi()
 			if err != nil {
-				return NotifyCmd(err.Error())
+				return tea.BatchMsg{
+					NotifyCmd("Cannot get stored wifi networks"),
+					m.setStateCmd(DoneInStored),
+				}
 			}
 			rows := []table.Row{}
 			for _, wifiStored := range list {
@@ -263,9 +269,13 @@ func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ConnectingStored),
 		func() tea.Msg {
-			err := m.nm.ConnectStoredWifi(m.dataTable.SelectedRow()[storedNameColumn])
+			name := m.dataTable.SelectedRow()[storedNameColumn]
+			err := m.nm.ConnectStoredWifi(name)
 			if err != nil {
-				return NotifyCmd(err.Error())
+				return tea.BatchMsg{
+					m.setStateCmd(DoneInStored),
+					NotifyCmd(fmt.Sprintf("Cannot connect to %s", name)),
+				}
 			}
 			return tea.BatchMsg{
 				m.setStateCmd(DoneInStored),
@@ -285,9 +295,12 @@ func (m *WifiStoredModel) gotoTop() tea.Cmd {
 
 func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 	return func() tea.Msg {
-		err := m.nm.DisconnectFromWifi(m.dataTable.SelectedRow()[storedNameColumn])
+		name := m.dataTable.SelectedRow()[storedNameColumn]
+		err := m.nm.DisconnectFromWifi(name)
 		if err != nil {
-			return NotifyCmd(err.Error())
+			return NotifyCmd(
+				fmt.Sprintf("Error while disconnecting from %s", name),
+			)
 		}
 		return NilMsg{}
 	}
@@ -296,9 +309,10 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 func (m *WifiStoredModel) deleteSelectedCmd() tea.Cmd {
 	row := m.dataTable.SelectedRow()
 	return func() tea.Msg {
-		err := m.nm.DeleteWifiConnection(row[storedNameColumn])
+		name := row[storedNameColumn]
+		err := m.nm.DeleteWifiConnection(name)
 		if err != nil {
-			return NotifyCmd(err.Error())
+			return NotifyCmd(fmt.Sprintf("Error while deleting %s", name))
 		}
 		cursor := m.dataTable.Cursor()
 		if cursor == len(m.dataTable.Rows())-1 {

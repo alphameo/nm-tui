@@ -317,7 +317,13 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 	return func() tea.Msg {
 		ap, err := strconv.Atoi(m.autoconnectPriority.Value())
 		if err != nil {
-			return NotifyCmd(err.Error())
+			return NotifyCmd(
+				fmt.Sprintf(
+					"Error while updating info about %s: %s",
+					m.name,
+					err.Error(),
+				),
+			)
 		}
 		info := &infra.UpdateWifiInfo{
 			Name:                m.nameInput.Value(),
@@ -327,7 +333,10 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 		}
 		err = m.nm.UpdateWifiInfo(m.name, info)
 		if err != nil {
-			return NotifyCmd(err.Error())
+			return NotifyCmd(fmt.Sprintf(
+				"Cannot update information about %s",
+				m.name,
+			))
 		}
 		return RescanWifiStoredMsg{}
 	}

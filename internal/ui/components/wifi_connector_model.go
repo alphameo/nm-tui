@@ -111,7 +111,13 @@ func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {
 		func() tea.Msg {
 			err := m.nm.ConnectWifi(ssid, password)
 			if err != nil {
-				return NotifyCmd(err.Error())
+				return tea.BatchMsg{
+					SetWifiAvailableStateCmd(DoneInAvailable),
+					NotifyCmd(fmt.Sprintf(
+						"Cannot connect to %s via given password",
+						ssid,
+					)),
+				}
 			}
 			return SetWifiAvailableStateCmd(DoneInAvailable)
 		},

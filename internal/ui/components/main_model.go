@@ -17,7 +17,7 @@ const (
 	BorderOffset int = 2
 	TabBarHeight int = 3
 
-	NotificationCloseTime int = 5
+	NotificationCloseTime int = 50
 )
 
 type mainKeyMap struct {
@@ -174,6 +174,7 @@ func (m MainModel) View() string {
 	if m.notification.active {
 		notificationView := m.notification.message
 		style := styles.NotifBorderedStyle
+		style.Width(m.width / 2)
 		notificationView = style.Render(notificationView)
 		notificationView = compositor.Compose(
 			m.notification.title,
