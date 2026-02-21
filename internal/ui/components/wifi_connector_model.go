@@ -51,6 +51,8 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.NetworkMan
 
 func (m *WifiConnectorModel) setNew(wifiName string) {
 	m.wifiName = wifiName
+
+	m.password.Reset()
 	pw, err := m.nm.GetWifiPassword(wifiName)
 	if err == nil {
 		m.password.SetValue(pw)

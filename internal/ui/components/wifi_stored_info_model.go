@@ -105,10 +105,17 @@ func NewStoredInfoModel(keys *wifiStoredInfoKeyMap, networkManager infra.Network
 func (m *WifiStoredInfoModel) setNew(info *infra.WifiInfo) {
 	m.ssid = info.SSID
 	m.name = info.Name
+
+	m.nameInput.Reset()
 	m.nameInput.SetValue(info.Name)
+
+	m.password.Reset()
 	m.password.SetValue(info.Password)
+
 	m.active = info.Active
 	m.autoconnect.SetValue(info.Autoconnect)
+
+	m.autoconnectPriority.Reset()
 	m.autoconnectPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
 }
 
