@@ -51,6 +51,8 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.NetworkMan
 
 func (m *WifiConnectorModel) setNew(wifiName string) {
 	m.wifiName = wifiName
+
+	m.password.Reset()
 	pw, err := m.nm.GetWifiPassword(wifiName)
 	if err == nil {
 		m.password.SetValue(pw)
@@ -109,7 +111,13 @@ func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {
 		func() tea.Msg {
 			err := m.nm.ConnectWifi(ssid, password)
 			if err != nil {
-				return NotifyCmd(err.Error())
+				return tea.BatchMsg{
+					SetWifiAvailableStateCmd(DoneInAvailable),
+					NotifyCmd(fmt.Sprintf(
+						"Cannot connect to %s via given password",
+						ssid,
+					)),
+				}
 			}
 			return SetWifiAvailableStateCmd(DoneInAvailable)
 		},

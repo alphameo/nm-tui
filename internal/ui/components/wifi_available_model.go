@@ -193,7 +193,10 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 		func() tea.Msg {
 			list, err := m.nm.GetAvailableWifi()
 			if err != nil {
-				return NotifyCmd(err.Error())
+				return tea.BatchMsg{
+					m.setStateCmd(DoneInAvailable),
+					NotifyCmd("Cannot scan available wifi networks"),
+				}
 			}
 			rows := []table.Row{}
 			for _, wifiNet := range list {
@@ -213,7 +216,6 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 			m.dataTable.GotoTop()
 			m.dataTable.UpdateViewport()
 			return tea.BatchMsg{
-				NilCmd,
 				m.setStateCmd(DoneInAvailable),
 			}
 		},

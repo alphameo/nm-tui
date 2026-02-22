@@ -105,10 +105,17 @@ func NewStoredInfoModel(keys *wifiStoredInfoKeyMap, networkManager infra.Network
 func (m *WifiStoredInfoModel) setNew(info *infra.WifiInfo) {
 	m.ssid = info.SSID
 	m.name = info.Name
+
+	m.nameInput.Reset()
 	m.nameInput.SetValue(info.Name)
+
+	m.password.Reset()
 	m.password.SetValue(info.Password)
+
 	m.active = info.Active
 	m.autoconnect.SetValue(info.Autoconnect)
+
+	m.autoconnectPriority.Reset()
 	m.autoconnectPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
 }
 
@@ -310,7 +317,13 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 	return func() tea.Msg {
 		ap, err := strconv.Atoi(m.autoconnectPriority.Value())
 		if err != nil {
-			return NotifyCmd(err.Error())
+			return NotifyCmd(
+				fmt.Sprintf(
+					"Error while updating info about %s: %s",
+					m.name,
+					err.Error(),
+				),
+			)
 		}
 		info := &infra.UpdateWifiInfo{
 			Name:                m.nameInput.Value(),
@@ -320,7 +333,10 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 		}
 		err = m.nm.UpdateWifiInfo(m.name, info)
 		if err != nil {
-			return NotifyCmd(err.Error())
+			return NotifyCmd(fmt.Sprintf(
+				"Cannot update information about %s",
+				m.name,
+			))
 		}
 		return RescanWifiStoredMsg{}
 	}
