@@ -29,12 +29,7 @@ func (Nmcli) GetAvailableWifi() ([]*WifiScanned, error) {
 			"stderr",
 			stderr,
 		)
-		return nil, fmt.Errorf(
-			"%w: %s (stderr: %s)",
-			ErrScanningAvailableWifi,
-			err,
-			stderr,
-		)
+		return nil, fmt.Errorf("%w: %s", ErrScanningAvailableWifi, stderr)
 	}
 
 	var res []*WifiScanned
@@ -71,12 +66,7 @@ func (n Nmcli) GetStoredWifi() ([]*WifiStored, error) {
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
-		return nil, fmt.Errorf(
-			"%w: %s (stderr: %s)",
-			ErrScanningStoredWifi,
-			err,
-			stderr,
-		)
+		return nil, fmt.Errorf("%w: %s", ErrScanningStoredWifi, stderr)
 	}
 
 	var res []*WifiStored
@@ -138,13 +128,7 @@ func (n Nmcli) ConnectWifi(ssid, password string) error {
 			"error",
 			err,
 		)
-		return fmt.Errorf(
-			"%w %s: %s (stderr: %s)",
-			ErrConnectingWifi,
-			ssid,
-			err,
-			stderr,
-		)
+		return fmt.Errorf("%w %s: %s", ErrConnectingWifi, ssid, stderr)
 	}
 	slog.Info("connected to wifi", "ssid", ssid, "output", string(out))
 	return nil
@@ -164,13 +148,7 @@ func (Nmcli) ConnectStoredWifi(id string) error {
 			"error",
 			err,
 		)
-		return fmt.Errorf(
-			"%w %s: %s (stderr: %s)",
-			ErrConnectingStoredWifi,
-			id,
-			err,
-			stderr,
-		)
+		return fmt.Errorf("%w %s: %s", ErrConnectingStoredWifi, id, stderr)
 	}
 	slog.Info("connected to saved wifi", "id", id, "output", string(out))
 	return nil
@@ -190,13 +168,7 @@ func (Nmcli) DisconnectFromWifi(id string) error {
 			"error",
 			err,
 		)
-		return fmt.Errorf(
-			"%w %s: %s (stderr: %s)",
-			ErrDisconnectWifi,
-			id,
-			err,
-			stderr,
-		)
+		return fmt.Errorf("%w %s: %s", ErrDisconnectWifi, id, stderr)
 	}
 	slog.Info("disconnected from wifi", "id", id, "output", string(out))
 	return nil
@@ -207,12 +179,7 @@ func (Nmcli) GetConnectedWifi() ([]string, error) {
 	out, err := exec.Command(NmcliCommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
-		return nil, fmt.Errorf(
-			"%w: %s (stderr: %s)",
-			ErrScanningConnectedWifi,
-			err,
-			stderr,
-		)
+		return nil, fmt.Errorf("%w: %s", ErrScanningConnectedWifi, stderr)
 	}
 	slog.Info("retrieved connected wifi networks")
 	return strings.Split(string(out), "\n"), nil
@@ -242,13 +209,7 @@ func (Nmcli) GetWifiPassword(id string) (string, error) {
 			"error",
 			err,
 		)
-		return "", fmt.Errorf(
-			"%w for %s: %w (stderr: %s)",
-			ErrGettingWifiPassword,
-			id,
-			err,
-			stderr,
-		)
+		return "", fmt.Errorf("%w for %s: %s", ErrGettingWifiPassword, id, stderr)
 	}
 	slog.Info("retrieved wifi password", "id", id)
 	return strings.Trim(string(out), " \n"), nil
@@ -278,13 +239,7 @@ func (Nmcli) GetWifiSSID(id string) (string, error) {
 			"error",
 			err,
 		)
-		return "", fmt.Errorf(
-			"%w %s: %s (stderr: %s)",
-			ErrGettingWifiSSID,
-			id,
-			err,
-			stderr,
-		)
+		return "", fmt.Errorf("%w %s: %s", ErrGettingWifiSSID, id, stderr)
 	}
 	slog.Info("retrieved wifi ssid", "id", id)
 	return strings.Trim(string(out), " \n"), nil
@@ -314,13 +269,7 @@ func (Nmcli) GetWifiAutoconnect(id string) (bool, error) {
 			"error",
 			err,
 		)
-		return false, fmt.Errorf(
-			"%w for %s: %s (stderr: %s)",
-			ErrGettingWifiAutoconnect,
-			id,
-			err,
-			stderr,
-		)
+		return false, fmt.Errorf("%w for %s: %s", ErrGettingWifiAutoconnect, id, stderr)
 	}
 	return strings.Trim(string(out), " \n") == "yes", nil
 }
@@ -350,10 +299,9 @@ func (Nmcli) GetWifiAutoconnectPriority(id string) (int, error) {
 			err,
 		)
 		return 0, fmt.Errorf(
-			"%w for %s: %s (stderr: %s)",
+			"%w for %s: %s",
 			ErrGettingWifiAutoconnectPriority,
 			id,
-			err,
 			stderr,
 		)
 	}
@@ -404,10 +352,9 @@ func (Nmcli) GetWifiActivity(id string) (bool, error) {
 			err,
 		)
 		return false, fmt.Errorf(
-			"%w for %s: %s (stderr: %s)",
+			"%w for %s: %s",
 			ErrGettingWifiActivity,
 			id,
-			err,
 			stderr,
 		)
 	}
@@ -554,11 +501,10 @@ func (Nmcli) updateWifiInfoField(id, field, value string) error {
 			err,
 		)
 		return fmt.Errorf(
-			"%w %s for %s: %s (stderr: %s)",
+			"%w %s for %s: %s",
 			ErrUpdatingWifiInfoField,
 			field,
 			id,
-			err,
 			stderr,
 		)
 	}
@@ -615,13 +561,7 @@ func (Nmcli) DeleteWifiConnection(id string) error {
 			"error",
 			err,
 		)
-		return fmt.Errorf(
-			"%w %s: %s (stderr: %s)",
-			ErrDeletingWifi,
-			id,
-			err,
-			stderr,
-		)
+		return fmt.Errorf("%w %s: %s", ErrDeletingWifi, id, stderr)
 	}
 	slog.Info(
 		"deleted wifi connection",
@@ -647,13 +587,7 @@ func (Nmcli) ConnectVPN(vpnName string) error {
 			"error",
 			err,
 		)
-		return fmt.Errorf(
-			"%w %s: %s (stderr: %s)",
-			ErrConnectingVPN,
-			vpnName,
-			err,
-			stderr,
-		)
+		return fmt.Errorf("%w %s: %s", ErrConnectingVPN, vpnName, stderr)
 	}
 	slog.Info("connected to VPN", "vpn", vpnName, "output", string(out))
 	return nil
