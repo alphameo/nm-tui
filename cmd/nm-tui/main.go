@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/infra/nmcli"
 	"github.com/alphameo/nm-tui/internal/ui/components"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -25,6 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	opts := &slog.HandlerOptions{
 		Level:     slog.LevelError,
 		AddSource: true,
@@ -35,7 +36,7 @@ func main() {
 	slog.SetDefault(logger)
 	defer slog.Info("Program is closed")
 
-	nm := infra.NewNMCLI()
+	nm := nmcli.New()
 	p := tea.NewProgram(components.NewMainModel(nm), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		slog.Error(err.Error())
