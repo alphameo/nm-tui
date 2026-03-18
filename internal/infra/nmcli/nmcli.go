@@ -113,10 +113,6 @@ func (n Nmcli) GetStoredWifi() ([]*infra.WifiStored, error) {
 }
 
 func (n Nmcli) ConnectWifi(ssid, password string) error {
-	err := n.DeleteWifiConnection(ssid)
-	if err != nil {
-		return err
-	}
 	args := []string{"device", "wifi", "connect", ssid, "password", password}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
