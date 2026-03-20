@@ -302,7 +302,10 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 				fmt.Sprintf("Error while disconnecting from %s", name),
 			)
 		}
-		return NilMsg{}
+		return tea.BatchMsg{
+			m.gotoTop(),
+			RescanWifiCmd(),
+		}
 	}
 }
 
@@ -318,6 +321,7 @@ func (m *WifiStoredModel) deleteSelectedCmd() tea.Cmd {
 		if cursor == len(m.dataTable.Rows())-1 {
 			m.dataTable.SetCursor(cursor - 1)
 		}
-		return NilMsg{}
+		m.dataTable.SetRows(m.dataTable.Rows()[1:])
+		return RescanWifiCmd()
 	}
 }
