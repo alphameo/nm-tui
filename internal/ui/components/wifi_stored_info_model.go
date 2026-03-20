@@ -338,7 +338,7 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 				m.name,
 			))
 		}
-		return RescanWifiStoredMsg{}
+		return RescanWifiStoredCmd(0)
 	}
 }
 

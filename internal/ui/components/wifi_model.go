@@ -1,6 +1,8 @@
 package components
 
 import (
+	"time"
+
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
@@ -105,8 +107,8 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.focusedWindowIndex = 1
 		case key.Matches(msg, m.keys.rescan):
 			return m, tea.Batch(
-				RescanWifiStoredCmd(),
-				RescanWifiAvailableCmd(),
+				RescanWifiStoredCmd(0),
+				RescanWifiAvailableCmd(0),
 			)
 		default:
 			cmd := m.handleKeyMsg(msg)
@@ -114,8 +116,8 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case RescanWifiMsg:
 		return m, tea.Batch(
-			RescanWifiStoredCmd(),
-			RescanWifiAvailableCmd(),
+			RescanWifiStoredCmd(msg.delay),
+			RescanWifiAvailableCmd(msg.delay),
 		)
 	}
 	var cmds []tea.Cmd
@@ -183,11 +185,12 @@ func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-// RescanWifiMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
-type RescanWifiMsg struct{}
+type RescanWifiMsg struct {
+	delay time.Duration
+}
 
-func RescanWifiCmd() tea.Cmd {
+func RescanWifiCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
-		return RescanWifiMsg{}
+		return RescanWifiMsg{delay: delay}
 	}
 }

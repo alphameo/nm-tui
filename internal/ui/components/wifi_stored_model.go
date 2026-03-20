@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -167,11 +168,12 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m,
 				m.disconnectFromSelectedCmd()
 		case "r":
-			return m, RescanWifiStoredCmd()
+			return m, RescanWifiStoredCmd(0)
 		case "d":
 			return m, m.deleteSelectedCmd()
 		}
 	case RescanWifiStoredMsg:
+		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
 	case WifiStoredStateMsg:
 		return m, m.setStateCmd(wifiStoredState(msg))
@@ -211,11 +213,13 @@ func (m *WifiStoredModel) View() string {
 	)
 }
 
-type RescanWifiStoredMsg struct{}
+type RescanWifiStoredMsg struct {
+	delay time.Duration
+}
 
-func RescanWifiStoredCmd() tea.Cmd {
+func RescanWifiStoredCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
-		return RescanWifiStoredMsg{}
+		return RescanWifiStoredMsg{delay: delay}
 	}
 }
 
@@ -280,7 +284,7 @@ func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
 			return tea.BatchMsg{
 				m.setStateCmd(DoneInStored),
 				m.gotoTop(),
-				RescanWifiCmd(),
+				RescanWifiCmd(0),
 			}
 		},
 	)
@@ -304,7 +308,7 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 		}
 		return tea.BatchMsg{
 			m.gotoTop(),
-			RescanWifiCmd(),
+			RescanWifiCmd(0),
 		}
 	}
 }
@@ -321,7 +325,6 @@ func (m *WifiStoredModel) deleteSelectedCmd() tea.Cmd {
 		if cursor == len(m.dataTable.Rows())-1 {
 			m.dataTable.SetCursor(cursor - 1)
 		}
-		m.dataTable.SetRows(m.dataTable.Rows()[1:])
-		return RescanWifiCmd()
+		return RescanWifiCmd(time.Millisecond * 200)
 	}
 }

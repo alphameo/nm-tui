@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -150,6 +151,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case WifiAvialableStateMsg:
 		return m, m.setStateCmd(wifiAvailableState(msg))
 	case RescanWifiAvailableMsg:
+		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
 	}
 
@@ -222,11 +224,13 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 	)
 }
 
-type RescanWifiAvailableMsg struct{}
+type RescanWifiAvailableMsg struct {
+	delay time.Duration
+}
 
-func RescanWifiAvailableCmd() tea.Cmd {
+func RescanWifiAvailableCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
-		return RescanWifiAvailableMsg{}
+		return RescanWifiAvailableMsg{delay: delay}
 	}
 }
 
