@@ -117,9 +117,13 @@ func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {
 						"Cannot connect to %s via given password",
 						ssid,
 					)),
+					RescanWifiCmd(),
 				}
 			}
-			return SetWifiAvailableStateCmd(DoneInAvailable)
+			return tea.BatchMsg{
+				SetWifiAvailableStateCmd(DoneInAvailable),
+				RescanWifiCmd(),
+			}
 		},
 	)
 }
