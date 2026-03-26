@@ -115,9 +115,6 @@ type NetworkManager interface {
 	// DisableNetworking disables all networking on device
 	DisableNetworking() error
 
-	// ConnectVPN connects to vpn with given vpnName.
-	ConnectVPN(vpnName string) error
-
 	// CreateHotspot creates new hotspot
 	CreateHotspot(device string, id string, password string, hidden bool) error
 }

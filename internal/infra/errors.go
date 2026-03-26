@@ -26,8 +26,6 @@ var (
 
 	ErrDeleteWifi error = errors.New("failed deleting wifi connection")
 
-	ErrConnectVPN error = errors.New("failed connecting to VPN")
-
 	ErrGetConnectivityStatus error = errors.New("failed retrieving networking status")
 	ErrEnableNetworking      error = errors.New("failed enabling networking")
 	ErrDisableNetworking     error = errors.New("failed disabling networking")

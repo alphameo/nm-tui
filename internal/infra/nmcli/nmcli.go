@@ -826,26 +826,6 @@ func (Nmcli) CreateHotspot(device string, id string, password string, hidden boo
 	return nil
 }
 
-func (Nmcli) ConnectVPN(vpnName string) error {
-	args := []string{"connection", "up", "id", vpnName}
-	out, err := exec.Command(CommandName, args...).Output()
-	if err != nil {
-		stderr := ExtractStderr(err)
-		slog.Error(
-			infra.ErrConnectVPN.Error(),
-			"vpn",
-			vpnName,
-			"stderr",
-			stderr,
-			"error",
-			err,
-		)
-		return fmt.Errorf("%w %s: %s", infra.ErrConnectVPN, vpnName, stderr)
-	}
-	slog.Info("connected to VPN", "vpn", vpnName, "output", string(out))
-	return nil
-}
-
 func ExtractStderr(err error) string {
 	var stderr string
 	if exitErr, ok := err.(*exec.ExitError); ok {
