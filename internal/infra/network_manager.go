@@ -29,6 +29,11 @@ type UpdateWifiInfo struct {
 	AutoconnectPriority int
 }
 
+type RadioStatus struct {
+	EnabledWifi bool
+	EnabledWWAN bool
+}
+
 type NetworkManager interface {
 	// GetAvailableWifi shows list of wifi-networks able to be connected.
 	GetAvailableWifi() ([]*WifiScanned, error)

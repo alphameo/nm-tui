@@ -540,6 +540,60 @@ func (Nmcli) DeleteWifiConnection(id string) error {
 	return nil
 }
 
+
+
+func (Nmcli) GetWWANStatus() (bool, error) {
+	args := []string{"radio", "wwan"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrGetWifiStaus.Error(),
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return false, fmt.Errorf("%w: %s", infra.ErrGetWWANStaus, stderr)
+	}
+	slog.Info("retrieved wwan status", "output", string(out))
+	return strings.Trim(string(out), " \n") == "enabled", nil
+}
+
+func (n Nmcli) GetRadioStatus() (infra.RadioStatus, error) {
+	var errs []error
+	wifi, err := n.GetWifiStatus()
+	if err != nil {
+		errs = append(errs, err)
+	}
+	wwan, err := n.GetWWANStatus()
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	if len(errs) != 0 {
+		sb := strings.Builder{}
+		for i, err := range errs {
+			sb.WriteString(err.Error())
+			if i != 0 {
+				sb.WriteString("\n")
+			}
+		}
+		bigErrStr := sb.String()
+		slog.Error(
+			infra.ErrGetRadioStaus.Error(),
+			"failed operations",
+			bigErrStr,
+		)
+		return infra.RadioStatus{}, fmt.Errorf("%w: %s", infra.ErrGetWifiInfo, bigErrStr)
+	}
+
+	return infra.RadioStatus{
+		EnabledWifi: wifi,
+		EnabledWWAN: wwan,
+	}, nil
+}
+
 func (Nmcli) EnableWifi() error {
 	args := []string{"radio", "wifi", "on"}
 	out, err := exec.Command(CommandName, args...).Output()
