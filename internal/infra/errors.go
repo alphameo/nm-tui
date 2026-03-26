@@ -3,6 +3,8 @@ package infra
 import "errors"
 
 var (
+	ErrGetDeviceStatuses error = errors.New("failed retrieving network device status")
+
 	ErrScanAvailableWifi error = errors.New("failed scanning wifi networks")
 	ErrConnectWifi       error = errors.New("failed connecting to wifi network")
 

@@ -19,6 +19,45 @@ func New() *Nmcli {
 
 const CommandName = "nmcli"
 
+func (Nmcli) GetDeviceStatuses() ([]infra.DeviceStatus, error) {
+	args := []string{"-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device", "status"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrGetDeviceStatuses.Error(),
+			"err",
+			err,
+			"stderr",
+			stderr,
+		)
+		return nil, fmt.Errorf("%w: %s", infra.ErrGetDeviceStatuses, stderr)
+	}
+
+	var res []infra.DeviceStatus
+	lines := strings.SplitSeq(string(out), "\n")
+	for line := range lines {
+		if line == "" {
+			continue
+		}
+
+		parts := strings.Split(line, ":")
+		if len(parts) < 4 {
+			slog.Warn("malformed network device line", "line", line)
+			continue
+		}
+
+		res = append(res, infra.DeviceStatus{
+			Device:     parts[0],
+			Type:       parts[1],
+			State:      parts[2],
+			Connection: parts[3],
+		})
+	}
+	slog.Info("scanned network devices")
+	return res, nil
+}
+
 func (Nmcli) GetAvailableWifi() ([]*infra.WifiScanned, error) {
 	args := []string{"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL", "dev", "wifi"}
 	out, err := exec.Command(CommandName, args...).Output()

@@ -53,7 +53,7 @@ type DeviceStatus struct {
 
 type NetworkManager interface {
 	// GetDeviceStatus returns network status of device
-	GetDeviceStatus() (DeviceStatus, error)
+	GetDeviceStatuses() ([]DeviceStatus, error)
 
 	// GetAvailableWifi shows list of wifi-networks able to be connected.
 	GetAvailableWifi() ([]*WifiScanned, error)
