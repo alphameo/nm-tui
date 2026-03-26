@@ -62,7 +62,7 @@ type NetworkManager interface {
 	GetStoredWifi() ([]*WifiStored, error)
 
 	// ConnectWifi connects to wifi-network with given ssid using given password.
-	ConnectWifi(ssid, password string) error
+	ConnectWifi(ssid, password string, hidden bool) error
 
 	// ConnectStoredWifi connects to wifi-network with given name if its password is saved.
 	ConnectStoredWifi(name string) error
