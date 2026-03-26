@@ -16,7 +16,7 @@ var DefaultSymbols = &Symbols{
 	Deactivated: "[ ]",
 }
 
-type ToggleModel struct {
+type Model struct {
 	value   bool
 	Focused bool
 	Symbols *Symbols
@@ -24,26 +24,26 @@ type ToggleModel struct {
 	Keys *KeyMap
 }
 
-func New(initial bool) *ToggleModel {
-	return &ToggleModel{
+func New(initial bool) *Model {
+	return &Model{
 		value: initial,
 		Keys:  defaultKeys,
 	}
 }
 
-func (t *ToggleModel) SetValue(value bool) {
+func (t *Model) SetValue(value bool) {
 	t.value = value
 }
 
-func (t *ToggleModel) Value() bool {
+func (t *Model) Value() bool {
 	return t.value
 }
 
-func (t *ToggleModel) Init() tea.Cmd {
+func (t *Model) Init() tea.Cmd {
 	return nil
 }
 
-func (t *ToggleModel) Update(msg tea.Msg) (*ToggleModel, tea.Cmd) {
+func (t *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if key.Matches(msg, t.Keys.Toggle) {
@@ -53,7 +53,7 @@ func (t *ToggleModel) Update(msg tea.Msg) (*ToggleModel, tea.Cmd) {
 	return t, nil
 }
 
-func (t *ToggleModel) View() string {
+func (t *Model) View() string {
 	symbols := t.Symbols
 	if symbols == nil {
 		symbols = DefaultSymbols
@@ -65,11 +65,11 @@ func (t *ToggleModel) View() string {
 	}
 }
 
-func (t *ToggleModel) Focus() tea.Cmd {
+func (t *Model) Focus() tea.Cmd {
 	t.Focused = true
 	return nil
 }
 
-func (t *ToggleModel) Blur() {
+func (t *Model) Blur() {
 	t.Focused = false
 }

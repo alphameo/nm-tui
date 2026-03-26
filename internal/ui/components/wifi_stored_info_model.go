@@ -51,7 +51,7 @@ type WifiStoredInfoModel struct {
 
 	nameInput           textinput.Model
 	password            textinput.Model
-	autoconnect         *toggle.ToggleModel
+	autoconnect         *toggle.Model
 	autoconnectPriority textinput.Model
 
 	inputs            []Focusable // used for batch operations on input focusable elements
