@@ -40,7 +40,5 @@ var (
 	ErrEnableWWAN    error = errors.New("failed enabling wwan radio")
 	ErrDisableWWAN   error = errors.New("failed disabling wwan radio")
 
-	ErrCreateHotspot    error = errors.New("failed creating hotspot")
-	ErrConnectHotspot   error = errors.New("failed creating hotspot")
-	ErrDisconectHotspot error = errors.New("failed creating hotspot")
+	ErrCreateHotspot error = errors.New("failed creating hotspot")
 )
