@@ -115,6 +115,9 @@ type NetworkManager interface {
 	// DisableNetworking disables all networking on device
 	DisableNetworking() error
 
+	// CreateWifiConnection creates specified connection profile
+	CreateWifiConnection(id, ssid, password, device string, hidden bool) error
+
 	// CreateHotspot creates new hotspot
 	CreateHotspot(device string, id string, password string, hidden bool) error
 }
