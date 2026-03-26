@@ -576,6 +576,42 @@ func (Nmcli) DisableWifi() error {
 	return nil
 }
 
+func (Nmcli) EnableWWAN() error {
+	args := []string{"radio", "wwan", "on"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrEnableWWAN.Error(),
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return fmt.Errorf("%w: %s", infra.ErrEnableWWAN, stderr)
+	}
+	slog.Info("wifi radio enabled", "output", string(out))
+	return nil
+}
+
+func (Nmcli) DisableWWAN() error {
+	args := []string{"radio", "wwan", "off"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrDisableWWAN.Error(),
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return fmt.Errorf("%w: %s", infra.ErrDisableWWAN, stderr)
+	}
+	slog.Info("wifi radio disabled", "output", string(out))
+	return nil
+}
+
 func (Nmcli) EnableNetworking() error {
 	args := []string{"networking", "on"}
 	out, err := exec.Command(CommandName, args...).Output()
