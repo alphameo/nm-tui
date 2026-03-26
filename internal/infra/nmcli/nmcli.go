@@ -151,6 +151,40 @@ func (n Nmcli) GetStoredWifi() ([]*infra.WifiStored, error) {
 	return res, nil
 }
 
+func (n Nmcli) CreateWifiConnection(id, ssid, password, device string, hidden bool) error {
+	hiddenStr := "no"
+	if hidden {
+		hiddenStr = "yes"
+	}
+	args := []string{
+		"connection", "add", "type", "wifi",
+		"con-name", id,
+		"ifname", device,
+		"ssid", ssid,
+		"wifi.hidden", hiddenStr,
+		"wifi-sec.key-mgmt", "wpa-psk", // use "sae" on fail
+		"wifi-sec.psk", password,
+	}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrCreateWifiConnection.Error(),
+			"ssid", ssid,
+			"stderr", stderr,
+			"error", err,
+		)
+		return fmt.Errorf("%w %s: %s", infra.ErrCreateWifiConnection, ssid, stderr)
+	}
+	slog.Info("created wifi connection",
+		"id", id,
+		"ssid", ssid,
+		"device", device,
+		"hidden", hidden,
+		"output", string(out))
+	return nil
+}
+
 func (n Nmcli) ConnectWifi(ssid, password string, hidden bool) error {
 	hiddenStr := "no"
 	if hidden {

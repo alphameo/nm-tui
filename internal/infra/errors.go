@@ -5,6 +5,8 @@ import "errors"
 var (
 	ErrGetDeviceStatuses error = errors.New("failed retrieving network device status")
 
+	ErrCreateWifiConnection error = errors.New("failed creation og wifi connection")
+
 	ErrScanAvailableWifi error = errors.New("failed scanning wifi networks")
 	ErrConnectWifi       error = errors.New("failed connecting to wifi network")
 
