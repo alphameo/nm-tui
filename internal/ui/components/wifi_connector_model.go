@@ -28,6 +28,7 @@ func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
 type WifiConnectorModel struct {
 	wifiName string
 	password textinput.Model
+	hidden   bool
 
 	keys *wifiConnectorKeyMap
 
@@ -109,7 +110,7 @@ func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(ConnectingAvailable),
 		func() tea.Msg {
-			err := m.nm.ConnectWifi(ssid, password)
+			err := m.nm.ConnectWifi(ssid, password, m.hidden)
 			if err != nil {
 				return tea.BatchMsg{
 					SetWifiAvailableStateCmd(DoneInAvailable),
