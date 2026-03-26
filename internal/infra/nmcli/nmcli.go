@@ -775,8 +775,21 @@ func (Nmcli) GetConnectivitygStatus() (infra.ConnectivityStatus, error) {
 	return infra.ConnectivityStatus(strings.Trim(string(out), " \n")), nil
 }
 
-func (Nmcli) CreateHotspot(id string) error {
-	args := []string{"connection", "up", id}
+func (Nmcli) CreateHotspot(device string, id string, password string, hidden bool) error {
+	hiddenStr := "no"
+	if hidden {
+		hiddenStr = "yes"
+	}
+	args := []string{
+		"nmcli device wifi hotspot ifname",
+		device,
+		"ssid",
+		id,
+		"password",
+		password,
+		"hidden",
+		hiddenStr,
+	}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
@@ -791,25 +804,17 @@ func (Nmcli) CreateHotspot(id string) error {
 		)
 		return fmt.Errorf("%w %s: %s", infra.ErrCreateHotspot, id, stderr)
 	}
-	slog.Info("connected to saved wifi", "id", id, "output", string(out))
-	return nil
-}
-
-func (n Nmcli) ConnectHotspot(id string) error {
-	hotspotID := fmt.Sprintf("Hotspot-%s", id)
-	err := n.ConnectStoredWifi(hotspotID)
-	if err != nil {
-		return fmt.Errorf("%w: %w", err, infra.ErrConnectHotspot)
-	}
-	return nil
-}
-
-func (n Nmcli) DisconnectHotspot(id string) error {
-	hotspotID := fmt.Sprintf("Hotspot-%s", id)
-	err := n.DisconnectFromWifi(hotspotID)
-	if err != nil {
-		return fmt.Errorf("%w: %w", err, infra.ErrDisconectHotspot)
-	}
+	slog.Info(
+		"hotspot created",
+		"device",
+		device,
+		"id",
+		id,
+		"output",
+		string(out),
+		"hidden",
+		hiddenStr,
+	)
 	return nil
 }
 

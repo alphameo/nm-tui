@@ -117,4 +117,7 @@ type NetworkManager interface {
 
 	// ConnectVPN connects to vpn with given vpnName.
 	ConnectVPN(vpnName string) error
+
+	// CreateHotspot creates new hotspot
+	CreateHotspot(device string, id string, password string, hidden bool) error
 }
