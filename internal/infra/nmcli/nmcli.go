@@ -540,6 +540,116 @@ func (Nmcli) DeleteWifiConnection(id string) error {
 	return nil
 }
 
+func (Nmcli) EnableWifi() error {
+	args := []string{"radio", "wifi", "on"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrEnablingNetworking.Error(),
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return fmt.Errorf("%w: %s", infra.ErrEnableWifi, stderr)
+	}
+	slog.Info("wifi radio enabled", "output", string(out))
+	return nil
+}
+
+func (Nmcli) DisableWifi() error {
+	args := []string{"networking", "wifi", "off"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrDisablingNetworking.Error(),
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return fmt.Errorf("%w: %s", infra.ErrDisableWifi, stderr)
+	}
+	slog.Info("wifi radio disabled", "output", string(out))
+	return nil
+}
+
+func (Nmcli) EnableNetworking() error {
+	args := []string{"networking", "on"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrEnablingNetworking.Error(),
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return fmt.Errorf("%w: %s", infra.ErrEnablingNetworking, stderr)
+	}
+	slog.Info("networking enabled", "output", string(out))
+	return nil
+}
+
+func (Nmcli) DisableNetworking() error {
+	args := []string{"networking", "off"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrDisablingNetworking.Error(),
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return fmt.Errorf("%w: %s", infra.ErrDisablingNetworking, stderr)
+	}
+	slog.Info("networking disabled", "output", string(out))
+	return nil
+}
+
+func (Nmcli) CreateHotspot(id string) error {
+	args := []string{"connection", "up", id}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrConnectStoredWifi.Error(),
+			"id",
+			id,
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return fmt.Errorf("%w %s: %s", infra.ErrConnectStoredWifi, id, stderr)
+	}
+	slog.Info("connected to saved wifi", "id", id, "output", string(out))
+	return nil
+}
+
+func (n Nmcli) ConnectHotspot(id string) error {
+	hotspotID := fmt.Sprintf("Hotspot-%s", id)
+	err := n.ConnectStoredWifi(hotspotID)
+	if err != nil {
+		return fmt.Errorf("%w: %w", err, infra.ErrConnectHotspot)
+	}
+	return nil
+}
+
+func (n Nmcli) DisconnectHotspot(id string) error {
+	hotspotID := fmt.Sprintf("Hotspot-%s", id)
+	err := n.DisconnectFromWifi(hotspotID)
+	if err != nil {
+		return fmt.Errorf("%w: %w", err, infra.ErrDisconectHotspot)
+	}
+	return nil
+}
+
 func (Nmcli) ConnectVPN(vpnName string) error {
 	args := []string{"connection", "up", "id", vpnName}
 	out, err := exec.Command(CommandName, args...).Output()
