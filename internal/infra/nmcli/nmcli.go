@@ -546,7 +546,7 @@ func (Nmcli) EnableWifi() error {
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
-			infra.ErrEnablingNetworking.Error(),
+			infra.ErrEnableWifi.Error(),
 			"stderr",
 			stderr,
 			"error",
@@ -559,12 +559,12 @@ func (Nmcli) EnableWifi() error {
 }
 
 func (Nmcli) DisableWifi() error {
-	args := []string{"networking", "wifi", "off"}
+	args := []string{"radio", "wifi", "off"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
-			infra.ErrDisablingNetworking.Error(),
+			infra.ErrDisableWifi.Error(),
 			"stderr",
 			stderr,
 			"error",
