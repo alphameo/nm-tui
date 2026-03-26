@@ -122,23 +122,21 @@ func (n Nmcli) GetStoredWifi() ([]infra.WifiStored, error) {
 			continue
 		}
 
-		res = append(res, infra.WifiStored{
-			Name:   parts[0],
-			Active: parts[1] == "activated",
-		})
-	}
-
-	for _, wifi := range res {
-		ssid, err := n.getWifiSSID(wifi.Name)
+		name := parts[0]
+		ssid, err := n.getWifiSSID(name)
 		if err != nil {
 			slog.Warn(
 				"failed to get ssid for stored wifi",
-				"name", wifi.Name,
+				"name", name,
 				"ssid", ssid,
 				"error", err,
 			)
-			continue
 		}
+		res = append(res, infra.WifiStored{
+			Name:   name,
+			SSID:   ssid,
+			Active: parts[1] == "activated",
+		})
 	}
 
 	slog.Info("retrieved stored wifi networks")
