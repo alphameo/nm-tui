@@ -541,6 +541,23 @@ func (Nmcli) DeleteWifiConnection(id string) error {
 }
 
 
+func (Nmcli) GetWifiStatus() (bool, error) {
+	args := []string{"radio", "wifi"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrGetWifiStaus.Error(),
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return false, fmt.Errorf("%w: %s", infra.ErrGetWifiStaus, stderr)
+	}
+	slog.Info("retrieved wifi status", "output", string(out))
+	return strings.Trim(string(out), " \n") == "enabled", nil
+}
 
 func (Nmcli) GetWWANStatus() (bool, error) {
 	args := []string{"radio", "wwan"}
