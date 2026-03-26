@@ -34,7 +34,27 @@ type RadioStatus struct {
 	EnabledWWAN bool
 }
 
+type ConnectivityStatus string
+
+const (
+	NetworkNone    = "none"
+	NetworkPortal  = "portal"
+	NetworkLimited = "limited"
+	NetworkFull    = "full"
+	NetworkUnknown = "unknown"
+)
+
+type DeviceStatus struct {
+	Device     string
+	Type       string
+	State      string
+	Connection string
+}
+
 type NetworkManager interface {
+	// GetDeviceStatus returns network status of device
+	GetDeviceStatus() (DeviceStatus, error)
+
 	// GetAvailableWifi shows list of wifi-networks able to be connected.
 	GetAvailableWifi() ([]*WifiScanned, error)
 
@@ -59,11 +79,41 @@ type NetworkManager interface {
 	// GetWifiInfo gives information about saved wifi-network with given name.
 	GetWifiInfo(name string) (*WifiInfo, error)
 
+	// GetWWANStatus returns status of wifi on device
+	GetWifiStatus() (bool, error)
+
+	// GetWWANStatus returns status of Wireless Wide Area Network on device
+	GetWWANStatus() (bool, error)
+
+	// GetRadioStatus returns status of wifi and Wireless Wide Area Network on device
+	GetRadioStatus() (RadioStatus, error)
+
+	// EnableWifi enables wifi on device
+	EnableWifi() error
+
+	// EnableWWAN enables Wireless Wide Area Network on device
+	EnableWWAN() error
+
+	// DisableWifi disables wifi on device
+	DisableWifi() error
+
+	// DisableWWAN disables Wireless Wide Area Network on device
+	DisableWWAN() error
+
 	// UpdateWifiInfo updates information about wifi-network with given name.
 	UpdateWifiInfo(name string, info *UpdateWifiInfo) error
 
 	// DeleteWifiConnection removes wifi-network with given name from saved connections.
 	DeleteWifiConnection(name string) error
+
+	// GetNetworking returns status of networking on device
+	GetConnectivityStatus() (ConnectivityStatus, error)
+
+	// EnableNetworking enables all networking on device
+	EnableNetworking() error
+
+	// DisableNetworking disables all networking on device
+	DisableNetworking() error
 
 	// ConnectVPN connects to vpn with given vpnName.
 	ConnectVPN(vpnName string) error
