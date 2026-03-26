@@ -26,10 +26,8 @@ func (Nmcli) GetDeviceStatuses() ([]infra.DeviceStatus, error) {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetDeviceStatuses.Error(),
-			"err",
-			err,
-			"stderr",
-			stderr,
+			"err", err,
+			"stderr", stderr,
 		)
 		return nil, fmt.Errorf("%w: %s", infra.ErrGetDeviceStatuses, stderr)
 	}
@@ -65,10 +63,8 @@ func (Nmcli) GetAvailableWifi() ([]*infra.WifiScanned, error) {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrScanAvailableWifi.Error(),
-			"err",
-			err,
-			"stderr",
-			stderr,
+			"err", err,
+			"stderr", stderr,
 		)
 		return nil, fmt.Errorf("%w: %s", infra.ErrScanAvailableWifi, stderr)
 	}
@@ -200,12 +196,9 @@ func (n Nmcli) ConnectWifi(ssid, password string, hidden bool) error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrConnectWifi.Error(),
-			"ssid",
-			ssid,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"ssid", ssid,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w %s: %s", infra.ErrConnectWifi, ssid, stderr)
 	}
@@ -220,12 +213,9 @@ func (Nmcli) ConnectStoredWifi(id string) error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrConnectStoredWifi.Error(),
-			"id",
-			id,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w %s: %s", infra.ErrConnectStoredWifi, id, stderr)
 	}
@@ -240,12 +230,9 @@ func (Nmcli) DisconnectFromWifi(id string) error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrDisconnectWifi.Error(),
-			"id",
-			id,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w %s: %s", infra.ErrDisconnectWifi, id, stderr)
 	}
@@ -266,27 +253,18 @@ func (Nmcli) GetConnectedWifi() ([]string, error) {
 
 func (Nmcli) GetWifiPassword(id string) (string, error) {
 	args := []string{
-		"-s",
-		"-m",
-		"tabular",
-		"-t",
-		"-f",
-		"802-11-wireless-security.psk",
-		"connection",
-		"show",
-		id,
+		"-s", "-m", "tabular",
+		"-t", "-f", "802-11-wireless-security.psk",
+		"connection", "show", id,
 	}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiPassword.Error(),
-			"id",
-			id,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"stderr", stderr,
+			"error", err,
 		)
 		return "", fmt.Errorf("%w for %s: %s", infra.ErrGetWifiPassword, id, stderr)
 	}
@@ -296,27 +274,18 @@ func (Nmcli) GetWifiPassword(id string) (string, error) {
 
 func (Nmcli) getWifiSSID(id string) (string, error) {
 	args := []string{
-		"-s",
-		"-m",
-		"tabular",
-		"-t",
-		"-f",
-		"802-11-wireless.ssid",
-		"connection",
-		"show",
-		id,
+		"-s", "-m", "tabular",
+		"-t", "-f", "802-11-wireless.ssid",
+		"connection", "show", id,
 	}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiSSID.Error(),
-			"id",
-			id,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"stderr", stderr,
+			"error", err,
 		)
 		return "", fmt.Errorf("%w %s: %s", infra.ErrGetWifiSSID, id, stderr)
 	}
@@ -326,27 +295,18 @@ func (Nmcli) getWifiSSID(id string) (string, error) {
 
 func (Nmcli) getWifiAutoconnect(id string) (bool, error) {
 	args := []string{
-		"-s",
-		"-m",
-		"tabular",
-		"-t",
-		"-f",
-		"connection.autoconnect",
-		"connection",
-		"show",
-		id,
+		"-s", "-m", "tabular",
+		"-t", "-f", "connection.autoconnect",
+		"connection", "show", id,
 	}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiAutoconnect.Error(),
-			"id",
-			id,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"stderr", stderr,
+			"error", err,
 		)
 		return false, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiAutoconnect, id, stderr)
 	}
@@ -355,27 +315,18 @@ func (Nmcli) getWifiAutoconnect(id string) (bool, error) {
 
 func (Nmcli) getWifiAutoconnectPriority(id string) (int, error) {
 	args := []string{
-		"-s",
-		"-m",
-		"tabular",
-		"-t",
-		"-f",
-		"connection.autoconnect-priority",
-		"connection",
-		"show",
-		id,
+		"-s", "-m", "tabular",
+		"-t", "-f", "connection.autoconnect-priority",
+		"connection", "show", id,
 	}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiAutoconnectPriority.Error(),
-			"id",
-			id,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"stderr", stderr,
+			"error", err,
 		)
 		return 0, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiAutoconnectPriority, id, stderr)
 	}
@@ -384,12 +335,9 @@ func (Nmcli) getWifiAutoconnectPriority(id string) (int, error) {
 	if err != nil {
 		slog.Error(
 			"parsing autoconnect priority",
-			"id",
-			id,
-			"value",
-			autoconnectResp,
-			"error",
-			err,
+			"id", id,
+			"value", autoconnectResp,
+			"error", err,
 		)
 		return 0, fmt.Errorf("%w %s: %w", infra.ErrGetWifiAutoconnectPriority, id, err)
 	}
@@ -398,27 +346,18 @@ func (Nmcli) getWifiAutoconnectPriority(id string) (int, error) {
 
 func (Nmcli) getWifiActive(id string) (bool, error) {
 	args := []string{
-		"-s",
-		"-m",
-		"tabular",
-		"-t",
-		"-f",
-		"GENERAL.STATE",
-		"connection",
-		"show",
-		id,
+		"-s", "-m", "tabular",
+		"-t", "-f", "GENERAL.STATE",
+		"connection", "show", id,
 	}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiActivity.Error(),
-			"id",
-			id,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"stderr", stderr,
+			"error", err,
 		)
 		return false, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiActivity, id, stderr)
 	}
@@ -463,10 +402,8 @@ func (n *Nmcli) GetWifiInfo(id string) (*infra.WifiInfo, error) {
 		bigErrStr := sb.String()
 		slog.Error(
 			infra.ErrGetWifiInfo.Error(),
-			"id",
-			id,
-			"failed operations",
-			bigErrStr,
+			"id", id,
+			"failed operations", bigErrStr,
 		)
 		return nil, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiInfo, id, bigErrStr)
 	}
@@ -528,10 +465,8 @@ func (n Nmcli) UpdateWifiInfo(id string, info *infra.UpdateWifiInfo) error {
 		bigErrStr := sb.String()
 		slog.Error(
 			infra.ErrGetWifiInfo.Error(),
-			"id",
-			id,
-			"failed operations",
-			bigErrStr,
+			"id", id,
+			"failed operations", bigErrStr,
 		)
 		return fmt.Errorf("%w for %s: %s", infra.ErrUpdateWifiInfo, id, bigErrStr)
 	}
@@ -545,25 +480,18 @@ func (Nmcli) updateWifiInfoField(id, field, value string) error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrUpdateWifiInfoField.Error(),
-			"id",
-			id,
-			"field",
-			field,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"field", field,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w %s for %s: %s", infra.ErrUpdateWifiInfoField, field, id, stderr)
 	}
 	slog.Info(
 		"modified wifi field",
-		"id",
-		id,
-		"field",
-		field,
-		"output",
-		string(out),
+		"id", id,
+		"field", field,
+		"output", string(out),
 	)
 	return nil
 }
@@ -602,21 +530,16 @@ func (Nmcli) DeleteWifiConnection(id string) error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrDeleteWifi.Error(),
-			"id",
-			id,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w %s: %s", infra.ErrDeleteWifi, id, stderr)
 	}
 	slog.Info(
 		"deleted wifi connection",
-		"id",
-		id,
-		"output",
-		string(out),
+		"id", id,
+		"output", string(out),
 	)
 	return nil
 }
@@ -628,10 +551,8 @@ func (Nmcli) GetWifiStatus() (bool, error) {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiStaus.Error(),
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"stderr", stderr,
+			"error", err,
 		)
 		return false, fmt.Errorf("%w: %s", infra.ErrGetWifiStaus, stderr)
 	}
@@ -646,10 +567,8 @@ func (Nmcli) GetWWANStatus() (bool, error) {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiStaus.Error(),
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"stderr", stderr,
+			"error", err,
 		)
 		return false, fmt.Errorf("%w: %s", infra.ErrGetWWANStaus, stderr)
 	}
@@ -698,10 +617,8 @@ func (Nmcli) EnableWifi() error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrEnableWifi.Error(),
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w: %s", infra.ErrEnableWifi, stderr)
 	}
@@ -716,10 +633,8 @@ func (Nmcli) DisableWifi() error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrDisableWifi.Error(),
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w: %s", infra.ErrDisableWifi, stderr)
 	}
@@ -734,10 +649,8 @@ func (Nmcli) EnableWWAN() error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrEnableWWAN.Error(),
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w: %s", infra.ErrEnableWWAN, stderr)
 	}
@@ -752,10 +665,8 @@ func (Nmcli) DisableWWAN() error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrDisableWWAN.Error(),
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w: %s", infra.ErrDisableWWAN, stderr)
 	}
@@ -770,10 +681,8 @@ func (Nmcli) EnableNetworking() error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrEnableNetworking.Error(),
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w: %s", infra.ErrEnableNetworking, stderr)
 	}
@@ -788,10 +697,8 @@ func (Nmcli) DisableNetworking() error {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrDisableNetworking.Error(),
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w: %s", infra.ErrDisableNetworking, stderr)
 	}
@@ -806,10 +713,8 @@ func (Nmcli) GetConnectivitygStatus() (infra.ConnectivityStatus, error) {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetConnectivityStatus.Error(),
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"stderr", stderr,
+			"error", err,
 		)
 		return "", fmt.Errorf("%w: %s", infra.ErrGetConnectivityStatus, stderr)
 	}
@@ -823,39 +728,29 @@ func (Nmcli) CreateHotspot(device string, id string, password string, hidden boo
 		hiddenStr = "yes"
 	}
 	args := []string{
-		"nmcli device wifi hotspot ifname",
-		device,
-		"ssid",
-		id,
-		"password",
-		password,
-		"hidden",
-		hiddenStr,
+		"nmcli", "device", "wifi", "hotspot",
+		"ifname", device,
+		"ssid", id,
+		"password", password,
+		"hidden", hiddenStr,
 	}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
 			infra.ErrCreateHotspot.Error(),
-			"id",
-			id,
-			"stderr",
-			stderr,
-			"error",
-			err,
+			"id", id,
+			"stderr", stderr,
+			"error", err,
 		)
 		return fmt.Errorf("%w %s: %s", infra.ErrCreateHotspot, id, stderr)
 	}
 	slog.Info(
 		"hotspot created",
-		"device",
-		device,
-		"id",
-		id,
-		"output",
-		string(out),
-		"hidden",
-		hiddenStr,
+		"device", device,
+		"id", id,
+		"output", string(out),
+		"hidden", hiddenStr,
 	)
 	return nil
 }
