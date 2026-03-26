@@ -26,9 +26,9 @@ var (
 
 	ErrConnectVPN error = errors.New("failed connecting to VPN")
 
-	ErrGetNetworking     error = errors.New("failed retrieving networking status")
-	ErrEnableNetworking  error = errors.New("failed enabling networking")
-	ErrDisableNetworking error = errors.New("failed disabling networking")
+	ErrGetConnectivityStatus error = errors.New("failed retrieving networking status")
+	ErrEnableNetworking      error = errors.New("failed enabling networking")
+	ErrDisableNetworking     error = errors.New("failed disabling networking")
 
 	ErrGetRadioStaus error = errors.New("failed retrieving radio status")
 	ErrGetWifiStaus  error = errors.New("failed retrieving wifi radio status")
