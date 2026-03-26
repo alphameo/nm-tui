@@ -719,6 +719,24 @@ func (Nmcli) DisableNetworking() error {
 	return nil
 }
 
+func (Nmcli) GetNetworkingStatus() (infra.NetworkingStatus, error) {
+	args := []string{"networking", "connectivity", "check"}
+	out, err := exec.Command(CommandName, args...).Output()
+	if err != nil {
+		stderr := ExtractStderr(err)
+		slog.Error(
+			infra.ErrGetWifiStaus.Error(),
+			"stderr",
+			stderr,
+			"error",
+			err,
+		)
+		return "", fmt.Errorf("%w: %s", infra.ErrGetNetworking, stderr)
+	}
+	slog.Info("retrieved wwan status", "output", string(out))
+	return infra.NetworkingStatus(strings.Trim(string(out), " \n")), nil
+}
+
 func (Nmcli) CreateHotspot(id string) error {
 	args := []string{"connection", "up", id}
 	out, err := exec.Command(CommandName, args...).Output()
