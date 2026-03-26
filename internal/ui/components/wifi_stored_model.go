@@ -308,7 +308,7 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 		}
 		return tea.BatchMsg{
 			m.gotoTop(),
-			RescanWifiCmd(0),
+			RescanWifiCmd(200 * time.Millisecond),
 		}
 	}
 }
