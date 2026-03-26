@@ -9,7 +9,7 @@ var (
 	ErrScanStoredWifi    error = errors.New("failed retrieving stored wifi networks")
 	ErrConnectStoredWifi error = errors.New("failed connecting to stored wifi network")
 
-	ErrDisconnectWifi    error = errors.New("failed disconnecting from wifi network")
+	ErrDisconnectWifi error = errors.New("failed disconnecting from wifi network")
 
 	ErrScanConnectedWifi          error = errors.New("failed retrieving connected wifi networks")
 	ErrGetWifiPassword            error = errors.New("failed retrieving wifi network password")
@@ -26,8 +26,9 @@ var (
 
 	ErrConnectVPN error = errors.New("failed connecting to VPN")
 
-	ErrEnablingNetworking  error = errors.New("failed enabling networking")
-	ErrDisablingNetworking error = errors.New("failed disabling networking")
+	ErrGetNetworking     error = errors.New("failed retrieving networking status")
+	ErrEnableNetworking  error = errors.New("failed enabling networking")
+	ErrDisableNetworking error = errors.New("failed disabling networking")
 
 	ErrGetRadioStaus error = errors.New("failed retrieving radio status")
 	ErrGetWifiStaus  error = errors.New("failed retrieving wifi radio status")

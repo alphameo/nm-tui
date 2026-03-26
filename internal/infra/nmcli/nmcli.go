@@ -689,13 +689,13 @@ func (Nmcli) EnableNetworking() error {
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
-			infra.ErrEnablingNetworking.Error(),
+			infra.ErrEnableNetworking.Error(),
 			"stderr",
 			stderr,
 			"error",
 			err,
 		)
-		return fmt.Errorf("%w: %s", infra.ErrEnablingNetworking, stderr)
+		return fmt.Errorf("%w: %s", infra.ErrEnableNetworking, stderr)
 	}
 	slog.Info("networking enabled", "output", string(out))
 	return nil
@@ -707,13 +707,13 @@ func (Nmcli) DisableNetworking() error {
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
-			infra.ErrDisablingNetworking.Error(),
+			infra.ErrDisableNetworking.Error(),
 			"stderr",
 			stderr,
 			"error",
 			err,
 		)
-		return fmt.Errorf("%w: %s", infra.ErrDisablingNetworking, stderr)
+		return fmt.Errorf("%w: %s", infra.ErrDisableNetworking, stderr)
 	}
 	slog.Info("networking disabled", "output", string(out))
 	return nil
@@ -725,7 +725,7 @@ func (Nmcli) CreateHotspot(id string) error {
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
-			infra.ErrConnectStoredWifi.Error(),
+			infra.ErrCreateHotspot.Error(),
 			"id",
 			id,
 			"stderr",
@@ -733,7 +733,7 @@ func (Nmcli) CreateHotspot(id string) error {
 			"error",
 			err,
 		)
-		return fmt.Errorf("%w %s: %s", infra.ErrConnectStoredWifi, id, stderr)
+		return fmt.Errorf("%w %s: %s", infra.ErrCreateHotspot, id, stderr)
 	}
 	slog.Info("connected to saved wifi", "id", id, "output", string(out))
 	return nil
