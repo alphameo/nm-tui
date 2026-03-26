@@ -102,7 +102,7 @@ func NewStoredInfoModel(keys *wifiStoredInfoKeyMap, networkManager infra.Network
 	return model
 }
 
-func (m *WifiStoredInfoModel) setNew(info *infra.WifiInfo) {
+func (m *WifiStoredInfoModel) setNew(info infra.WifiInfo) {
 	m.ssid = info.SSID
 	m.name = info.Name
 
@@ -325,7 +325,7 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 				),
 			)
 		}
-		info := &infra.UpdateWifiInfo{
+		info := infra.UpdateWifiInfo{
 			Name:                m.nameInput.Value(),
 			Password:            m.password.Value(),
 			Autoconnect:         m.autoconnect.Value(),

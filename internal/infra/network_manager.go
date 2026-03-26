@@ -56,10 +56,10 @@ type NetworkManager interface {
 	GetDeviceStatuses() ([]DeviceStatus, error)
 
 	// GetAvailableWifi shows list of wifi-networks able to be connected.
-	GetAvailableWifi() ([]*WifiScanned, error)
+	GetAvailableWifi() ([]WifiScanned, error)
 
 	// GetStoredWifi shows list of stored connections and highlights the active one.
-	GetStoredWifi() ([]*WifiStored, error)
+	GetStoredWifi() ([]WifiStored, error)
 
 	// ConnectWifi connects to wifi-network with given ssid using given password.
 	ConnectWifi(ssid, password string, hidden bool) error
@@ -77,7 +77,7 @@ type NetworkManager interface {
 	GetWifiPassword(name string) (string, error)
 
 	// GetWifiInfo gives information about saved wifi-network with given name.
-	GetWifiInfo(name string) (*WifiInfo, error)
+	GetWifiInfo(name string) (WifiInfo, error)
 
 	// GetWWANStatus returns status of wifi on device
 	GetWifiStatus() (bool, error)
@@ -101,12 +101,12 @@ type NetworkManager interface {
 	DisableWWAN() error
 
 	// UpdateWifiInfo updates information about wifi-network with given name.
-	UpdateWifiInfo(name string, info *UpdateWifiInfo) error
+	UpdateWifiInfo(name string, info UpdateWifiInfo) error
 
 	// DeleteWifiConnection removes wifi-network with given name from saved connections.
 	DeleteWifiConnection(name string) error
 
-	// GetNetworking returns status of networking on device
+	// GetConnectivityStatus returns status of networking on device
 	GetConnectivityStatus() (ConnectivityStatus, error)
 
 	// EnableNetworking enables all networking on device
