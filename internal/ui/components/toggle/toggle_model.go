@@ -18,7 +18,7 @@ var DefaultSymbols = &Symbols{
 
 type Model struct {
 	value   bool
-	Focused bool
+	focus   bool
 	Symbols *Symbols
 
 	Keys *KeyMap
@@ -66,10 +66,14 @@ func (t *Model) View() string {
 }
 
 func (t *Model) Focus() tea.Cmd {
-	t.Focused = true
+	t.focus = true
 	return nil
 }
 
 func (t *Model) Blur() {
-	t.Focused = false
+	t.focus = false
+}
+
+func (t *Model) Focused() bool {
+	return t.focus
 }
