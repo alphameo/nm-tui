@@ -77,7 +77,7 @@ func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 
 	wifi := NewWifiModel(a, s, keys.wifi, networkManager)
 
-	wifiTable := NewTabsModel([]TabModel{wifi}, keys.tabs, networkManager)
+	wifiTable := NewTabsModel([]Tab{{title: "Wi-Fi", content: wifi}}, keys.tabs, networkManager)
 
 	p := &Popup{active: false}
 	n := &Notification{}
