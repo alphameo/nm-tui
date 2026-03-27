@@ -37,10 +37,10 @@ func (k *wifiKeyMap) FullHelp() [][]key.Binding {
 }
 
 type WifiModel struct {
-	windows            []SizedModel // used for batch operations for wifi models
-	wifiAvailable      *WifiAvailableModel
-	wifiStored         *WifiStoredModel
-	focusedWindowIndex int
+	windows        []SizedModel // used for batch operations for wifi models
+	wifiAvailable  *WifiAvailableModel
+	wifiStored     *WifiStoredModel
+	focusWindowIdx int
 
 	keys *wifiKeyMap
 
@@ -100,11 +100,11 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keys.nextWindow):
-			m.focusedWindowIndex = (m.focusedWindowIndex + 1) % len(m.windows)
+			m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.windows)
 		case key.Matches(msg, m.keys.firstWindow):
-			m.focusedWindowIndex = 0
+			m.focusWindowIdx = 0
 		case key.Matches(msg, m.keys.secondWindow):
-			m.focusedWindowIndex = 1
+			m.focusWindowIdx = 1
 		case key.Matches(msg, m.keys.rescan):
 			return m, tea.Batch(
 				RescanWifiStoredCmd(0),
@@ -142,7 +142,7 @@ func (m *WifiModel) View() string {
 		Width(m.wifiStored.Width()).
 		Height(m.wifiStored.Height())
 
-	if m.focusedWindowIndex == 0 {
+	if m.focusWindowIdx == 0 {
 		availableStyle = availableStyle.BorderForeground(styles.AccentColor)
 	} else {
 		storedStyle = storedStyle.BorderForeground(styles.AccentColor)
@@ -174,7 +174,7 @@ func (m *WifiModel) View() string {
 func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var upd tea.Model
-	switch m.focusedWindowIndex {
+	switch m.focusWindowIdx {
 	case 0:
 		upd, cmd = m.wifiAvailable.Update(msg)
 		m.wifiAvailable = upd.(*WifiAvailableModel)

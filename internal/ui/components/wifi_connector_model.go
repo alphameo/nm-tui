@@ -14,27 +14,27 @@ import (
 )
 
 type wifiConnectorKeyMap struct {
-	togglePasswordVisibility key.Binding
-	up                       key.Binding
-	down                     key.Binding
-	connect                  key.Binding
+	togglePWVisibility key.Binding
+	up                 key.Binding
+	down               key.Binding
+	connect            key.Binding
 }
 
 func (k *wifiConnectorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePasswordVisibility, k.up, k.down, k.connect}
+	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.connect}
 }
 
 func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePasswordVisibility, k.up, k.down, k.connect}}
+	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.connect}}
 }
 
 type WifiConnectorModel struct {
-	wifiName string
+	name     string
 	password textinput.Model
 	hidden   *toggle.Model
 
-	inputs            []Focusable // used for batch operations on input focusable elements
-	focusedInputIndex int
+	focuses  []Focusable // used for batch operations on input focusable elements
+	focusIdx int
 
 	keys *wifiConnectorKeyMap
 
@@ -62,13 +62,13 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.NetworkMan
 		&model.password,
 		model.hidden,
 	}
-	model.inputs = inp
+	model.focuses = inp
 
 	return model
 }
 
 func (m *WifiConnectorModel) setNew(wifiName string) tea.Cmd {
-	m.wifiName = wifiName
+	m.name = wifiName
 
 	m.password.Reset()
 	pw, err := m.nm.GetWifiPassword(wifiName)
@@ -80,11 +80,11 @@ func (m *WifiConnectorModel) setNew(wifiName string) tea.Cmd {
 	m.hidden.SetValue(false)
 	m.hidden.Blur()
 
-	return m.inputs[0].Focus()
+	return m.focuses[0].Focus()
 }
 
 func (m *WifiConnectorModel) Init() tea.Cmd {
-	return m.inputs[0].Focus()
+	return m.focuses[0].Focus()
 }
 
 func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -95,7 +95,7 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.focusNextCmd()
 		case key.Matches(msg, m.keys.up):
 			return m, m.focusPrevCmd()
-		case key.Matches(msg, m.keys.togglePasswordVisibility):
+		case key.Matches(msg, m.keys.togglePWVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
 			} else {
@@ -119,7 +119,7 @@ func (m *WifiConnectorModel) View() string {
 	sb := strings.Builder{}
 	inputStyle := styles.BorderedStyle
 
-	fmt.Fprintf(&sb, "SSID      %s", m.wifiName)
+	fmt.Fprintf(&sb, "SSID      %s", m.name)
 	wifiName := sb.String()
 
 	password := m.password.View()
@@ -190,28 +190,28 @@ func (m *WifiConnectorModel) handleMsg(msg tea.Msg) (*WifiConnectorModel, tea.Cm
 }
 
 func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
-	if int(m.focusedInputIndex) >= len(m.inputs)-1 {
+	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
-	m.inputs[m.focusedInputIndex].Blur()
-	m.focusedInputIndex++
-	return m.inputs[m.focusedInputIndex].Focus()
+	m.focuses[m.focusIdx].Blur()
+	m.focusIdx++
+	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
-	if m.focusedInputIndex <= 0 {
+	if m.focusIdx <= 0 {
 		return nil
 	}
-	m.inputs[m.focusedInputIndex].Blur()
-	m.focusedInputIndex--
-	return m.inputs[m.focusedInputIndex].Focus()
+	m.focuses[m.focusIdx].Blur()
+	m.focusIdx--
+	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(ConnectingAvailable),
 		func() tea.Msg {
-			ssid := m.wifiName
+			ssid := m.name
 			password := m.password.Value()
 			err := m.nm.ConnectWifi(ssid, password, m.hidden.Value())
 			if err != nil {

@@ -22,32 +22,32 @@ type Focusable interface {
 }
 
 type wifiStoredInfoKeyMap struct {
-	togglePasswordVisibility key.Binding
-	up                       key.Binding
-	down                     key.Binding
-	submit                   key.Binding
+	togglePWVisibility key.Binding
+	up                 key.Binding
+	down               key.Binding
+	submit             key.Binding
 }
 
 func (k wifiStoredInfoKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePasswordVisibility, k.up, k.down, k.submit}
+	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.submit}
 }
 
 func (k wifiStoredInfoKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePasswordVisibility, k.up, k.down, k.submit}}
+	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.submit}}
 }
 
 type WifiStoredInfoModel struct {
-	ssid   string
-	active bool
-	name   string
+	ssid    string
+	active  bool
+	nameBak string
 
-	nameInput           textinput.Model
-	password            textinput.Model
-	autoconnect         *toggle.Model
-	autoconnectPriority textinput.Model
+	name            textinput.Model
+	password        textinput.Model
+	autoconnect     *toggle.Model
+	autoconPriority textinput.Model
 
-	inputs            []Focusable // used for batch operations on input focusable elements
-	focusedInputIndex int
+	focuses  []Focusable // used for batch operations on input focusable elements
+	focusIdx int
 
 	keys *wifiStoredInfoKeyMap
 
@@ -75,32 +75,32 @@ func NewStoredInfoModel(keys *wifiStoredInfoKeyMap, networkManager infra.Network
 	ap.Validate = autoconnectPriorityValidator
 
 	model := &WifiStoredInfoModel{
-		nameInput:           n,
-		password:            p,
-		autoconnect:         t,
-		autoconnectPriority: ap,
-		keys:                keys,
-		nm:                  networkManager,
+		name:            n,
+		password:        p,
+		autoconnect:     t,
+		autoconPriority: ap,
+		keys:            keys,
+		nm:              networkManager,
 	}
 	inp := []Focusable{
-		&model.nameInput,
+		&model.name,
 		&model.password,
 		model.autoconnect,
-		&model.autoconnectPriority,
+		&model.autoconPriority,
 	}
-	model.inputs = inp
+	model.focuses = inp
 
 	return model
 }
 
 func (m *WifiStoredInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	m.ssid = info.SSID
-	m.name = info.Name
+	m.nameBak = info.Name
 	m.active = info.Active
 
-	m.nameInput.Reset()
-	m.nameInput.SetValue(info.Name)
-	m.nameInput.Blur()
+	m.name.Reset()
+	m.name.SetValue(info.Name)
+	m.name.Blur()
 
 	m.password.Reset()
 	m.password.SetValue(info.Password)
@@ -109,17 +109,17 @@ func (m *WifiStoredInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	m.autoconnect.SetValue(info.Autoconnect)
 	m.autoconnect.Blur()
 
-	m.autoconnectPriority.Reset()
-	m.autoconnectPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
-	m.autoconnectPriority.Blur()
+	m.autoconPriority.Reset()
+	m.autoconPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
+	m.autoconPriority.Blur()
 
-	m.focusedInputIndex = 0
+	m.focusIdx = 0
 
-	return m.inputs[0].Focus()
+	return m.focuses[0].Focus()
 }
 
 func (m *WifiStoredInfoModel) Init() tea.Cmd {
-	return m.inputs[0].Focus()
+	return m.focuses[0].Focus()
 }
 
 func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -130,7 +130,7 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.focusNextCmd()
 		case key.Matches(msg, m.keys.up):
 			return m, m.focusPrevCmd()
-		case key.Matches(msg, m.keys.togglePasswordVisibility):
+		case key.Matches(msg, m.keys.togglePWVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
 			} else {
@@ -163,8 +163,8 @@ func (m *WifiStoredInfoModel) View() string {
 
 	inputStyle := styles.BorderedStyle
 
-	nameView := m.nameInput.View()
-	if m.nameInput.Focused() {
+	nameView := m.name.View()
+	if m.name.Focused() {
 		nameView = inputStyle.
 			BorderForeground(styles.AccentColor).
 			Render(nameView)
@@ -206,8 +206,8 @@ func (m *WifiStoredInfoModel) View() string {
 		autoconnectCheckboxView,
 	)
 
-	autoconPriorityView := m.autoconnectPriority.View()
-	if m.autoconnectPriority.Focused() {
+	autoconPriorityView := m.autoconPriority.View()
+	if m.autoconPriority.Focused() {
 		autoconPriorityView = inputStyle.
 			BorderForeground(styles.AccentColor).
 			Render(autoconPriorityView)
@@ -219,7 +219,7 @@ func (m *WifiStoredInfoModel) View() string {
 		"Autoconnect priority ",
 		autoconPriorityView,
 	)
-	if m.autoconnectPriority.Err != nil {
+	if m.autoconPriority.Err != nil {
 		autoconPriorityErrView := renderer.ErrorSymbolColored
 		autoconPriorityView = lipgloss.JoinHorizontal(
 			lipgloss.Center,
@@ -240,9 +240,9 @@ func (m *WifiStoredInfoModel) View() string {
 
 func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, tea.Cmd) {
 	switch {
-	case m.nameInput.Focused():
-		upd, cmd := m.nameInput.Update(key)
-		m.nameInput = upd
+	case m.name.Focused():
+		upd, cmd := m.name.Update(key)
+		m.name = upd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(key)
@@ -252,9 +252,9 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 		upd, cmd := m.autoconnect.Update(key)
 		m.autoconnect = upd
 		return m, cmd
-	case m.autoconnectPriority.Focused():
-		upd, cmd := m.autoconnectPriority.Update(key)
-		m.autoconnectPriority = upd
+	case m.autoconPriority.Focused():
+		upd, cmd := m.autoconPriority.Update(key)
+		m.autoconPriority = upd
 		return m, cmd
 	default:
 		return m, nil
@@ -263,9 +263,9 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 
 func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.Cmd) {
 	switch {
-	case m.nameInput.Focused():
-		upd, cmd := m.nameInput.Update(msg)
-		m.nameInput = upd
+	case m.name.Focused():
+		upd, cmd := m.name.Update(msg)
+		m.name = upd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
@@ -275,9 +275,9 @@ func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.
 		upd, cmd := m.autoconnect.Update(msg)
 		m.autoconnect = upd
 		return m, cmd
-	case m.autoconnectPriority.Focused():
-		upd, cmd := m.autoconnectPriority.Update(msg)
-		m.autoconnectPriority = upd
+	case m.autoconPriority.Focused():
+		upd, cmd := m.autoconPriority.Update(msg)
+		m.autoconPriority = upd
 		return m, cmd
 	default:
 		return m, nil
@@ -295,46 +295,46 @@ func (m *WifiStoredInfoModel) connectionView() string {
 }
 
 func (m *WifiStoredInfoModel) focusNextCmd() tea.Cmd {
-	if int(m.focusedInputIndex) >= len(m.inputs)-1 {
+	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
-	m.inputs[m.focusedInputIndex].Blur()
-	m.focusedInputIndex++
-	return m.inputs[m.focusedInputIndex].Focus()
+	m.focuses[m.focusIdx].Blur()
+	m.focusIdx++
+	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *WifiStoredInfoModel) focusPrevCmd() tea.Cmd {
-	if m.focusedInputIndex <= 0 {
+	if m.focusIdx <= 0 {
 		return nil
 	}
-	m.inputs[m.focusedInputIndex].Blur()
-	m.focusedInputIndex--
-	return m.inputs[m.focusedInputIndex].Focus()
+	m.focuses[m.focusIdx].Blur()
+	m.focusIdx--
+	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 	return func() tea.Msg {
-		ap, err := strconv.Atoi(m.autoconnectPriority.Value())
+		ap, err := strconv.Atoi(m.autoconPriority.Value())
 		if err != nil {
 			return NotifyCmd(
 				fmt.Sprintf(
 					"Error while updating info about %s: %s",
-					m.name,
+					m.nameBak,
 					err.Error(),
 				),
 			)
 		}
 		info := infra.UpdateWifiInfo{
-			Name:                m.nameInput.Value(),
+			Name:                m.name.Value(),
 			Password:            m.password.Value(),
 			Autoconnect:         m.autoconnect.Value(),
 			AutoconnectPriority: ap,
 		}
-		err = m.nm.UpdateWifiInfo(m.name, info)
+		err = m.nm.UpdateWifiInfo(m.nameBak, info)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf(
 				"Cannot update information about %s",
-				m.name,
+				m.nameBak,
 			))
 		}
 		return RescanWifiStoredCmd(0)

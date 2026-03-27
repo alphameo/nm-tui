@@ -108,7 +108,7 @@ var wifiStoredKeys = &wifiStoredKeyMap{
 }
 
 var wifiStoredInfoKeys = &wifiStoredInfoKeyMap{
-	togglePasswordVisibility: key.NewBinding(
+	togglePWVisibility: key.NewBinding(
 		key.WithKeys("ctrl+r"),
 		key.WithHelp("^R", "toggle password visibility"),
 	),
@@ -169,7 +169,7 @@ var wifiConnectorKeys = &wifiConnectorKeyMap{
 		key.WithKeys("ctrl+j"),
 		key.WithHelp("^J", "down"),
 	),
-	togglePasswordVisibility: key.NewBinding(
+	togglePWVisibility: key.NewBinding(
 		key.WithKeys("ctrl+r"),
 		key.WithHelp("^r", "toggle password visibility"),
 	),
