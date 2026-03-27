@@ -159,7 +159,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				)
 			}
 
-			return m, tea.Sequence(
+			return m, tea.Batch(
 				m.storedInfo.setNew(info),
 				OpenPopup(m.storedInfo, "Stored Wi-Fi info"),
 			)

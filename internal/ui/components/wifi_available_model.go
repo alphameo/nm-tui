@@ -255,7 +255,7 @@ func SetWifiAvailableStateCmd(state wifiAvailableState) tea.Cmd {
 }
 
 func (m *WifiAvailableModel) callConnector(wifiName string) tea.Cmd {
-	return tea.Sequence(
+	return tea.Batch(
 		m.connector.setNew(wifiName),
 		OpenPopup(m.connector, "Wi-Fi Connector"),
 	)
