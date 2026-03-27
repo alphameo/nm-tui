@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -12,23 +13,35 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+type wifiConnectorInputIndex int
+
+const (
+	pwFocus wifiConnectorInputIndex = iota
+	hiddenCheckboxFocus
+)
+
 type wifiConnectorKeyMap struct {
-	connect                  key.Binding
 	togglePasswordVisibility key.Binding
+	up                       key.Binding
+	down                     key.Binding
+	connect                  key.Binding
 }
 
 func (k *wifiConnectorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.connect, k.togglePasswordVisibility}
+	return []key.Binding{k.togglePasswordVisibility, k.up, k.down, k.connect}
 }
 
 func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.connect, k.togglePasswordVisibility}}
+	return [][]key.Binding{{k.togglePasswordVisibility, k.up, k.down, k.connect}}
 }
 
 type WifiConnectorModel struct {
 	wifiName string
 	password textinput.Model
-	hidden   bool
+	hidden   *toggle.Model
+
+	inputs            []Focusable // used for batch operations on input focusable elements
+	focusedInputIndex wifiConnectorInputIndex
 
 	keys *wifiConnectorKeyMap
 
@@ -43,14 +56,26 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.NetworkMan
 	p.EchoMode = textinput.EchoPassword
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
-	return &WifiConnectorModel{
+
+	t := toggle.New(false)
+
+	model := &WifiConnectorModel{
 		password: p,
+		hidden:   t,
 		keys:     keys,
 		nm:       networkManager,
 	}
+
+	inp := []Focusable{
+		&model.password,
+		model.hidden,
+	}
+	model.inputs = inp
+
+	return model
 }
 
-func (m *WifiConnectorModel) setNew(wifiName string) {
+func (m *WifiConnectorModel) setNew(wifiName string) tea.Cmd {
 	m.wifiName = wifiName
 
 	m.password.Reset()
@@ -58,59 +83,144 @@ func (m *WifiConnectorModel) setNew(wifiName string) {
 	if err == nil {
 		m.password.SetValue(pw)
 	}
+
+	m.hidden.SetValue(false)
+	m.focusedInputIndex = pwFocus
+
+	return m.password.Focus()
 }
 
-func (m WifiConnectorModel) Init() tea.Cmd {
+func (m *WifiConnectorModel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, m.keys.connect):
-			pw := m.password.Value()
-			return m, tea.Batch(
-				SetPopupActivityCmd(false),
-				m.connectToWifiCmd(m.wifiName, pw),
-			)
+		case key.Matches(msg, m.keys.down):
+			return m, m.focusNextCmd()
+		case key.Matches(msg, m.keys.up):
+			return m, m.focusPrevCmd()
 		case key.Matches(msg, m.keys.togglePasswordVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
 			} else {
 				m.password.EchoMode = textinput.EchoPassword
 			}
+			return m, nil
+		case key.Matches(msg, m.keys.connect):
+			return m, tea.Sequence(
+				SetPopupActivityCmd(false),
+				m.connectToWifiCmd(),
+			)
+		default:
+			return m.handleKey(msg)
 		}
+	default:
+		return m.handleMsg(msg)
 	}
-
-	var cmd tea.Cmd
-	m.password, cmd = m.password.Update(msg)
-	return m, cmd
 }
 
-func (m WifiConnectorModel) View() string {
+func (m *WifiConnectorModel) View() string {
 	sb := strings.Builder{}
+	inputStyle := styles.BorderedStyle
+
 	fmt.Fprintf(&sb, "SSID      %s", m.wifiName)
 	wifiName := sb.String()
-	password := styles.BorderedStyle.Render(m.password.View())
+
+	password := m.password.View()
+	if m.focusedInputIndex == pwFocus {
+		password = inputStyle.
+			BorderForeground(styles.AccentColor).
+			Render(password)
+	} else {
+		password = inputStyle.Render(password)
+	}
 	password = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"Password ",
 		password,
 	)
 
+	hiddenCheckboxView := m.hidden.View()
+	if m.focusedInputIndex == hiddenCheckboxFocus {
+		hiddenCheckboxView = styles.DefaultStyle.
+			Foreground(styles.AccentColor).
+			Render(hiddenCheckboxView)
+	} else {
+		hiddenCheckboxView = styles.DefaultStyle.
+			Render(hiddenCheckboxView)
+	}
+	hiddenView := lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"Hidden ",
+		hiddenCheckboxView,
+	)
+
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		wifiName,
 		password,
+		hiddenView,
 	)
 }
 
-func (m *WifiConnectorModel) connectToWifiCmd(ssid, password string) tea.Cmd {
+func (m *WifiConnectorModel) handleKey(key tea.KeyMsg) (*WifiConnectorModel, tea.Cmd) {
+	switch m.focusedInputIndex {
+	case pwFocus:
+		upd, cmd := m.password.Update(key)
+		m.password = upd
+		return m, cmd
+	case hiddenCheckboxFocus:
+		upd, cmd := m.hidden.Update(key)
+		m.hidden = upd
+		return m, cmd
+	default:
+		return m, nil
+	}
+}
+
+func (m *WifiConnectorModel) handleMsg(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) {
+	switch m.focusedInputIndex {
+	case pwFocus:
+		upd, cmd := m.password.Update(msg)
+		m.password = upd
+		return m, cmd
+	case hiddenCheckboxFocus:
+		upd, cmd := m.hidden.Update(msg)
+		m.hidden = upd
+		return m, cmd
+	default:
+		return m, nil
+	}
+}
+
+func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
+	if int(m.focusedInputIndex) >= len(m.inputs)-1 {
+		return nil
+	}
+	m.inputs[m.focusedInputIndex].Blur()
+	m.focusedInputIndex++
+	return m.inputs[m.focusedInputIndex].Focus()
+}
+
+func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
+	if m.focusedInputIndex <= 0 {
+		return nil
+	}
+	m.inputs[m.focusedInputIndex].Blur()
+	m.focusedInputIndex--
+	return m.inputs[m.focusedInputIndex].Focus()
+}
+
+func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(ConnectingAvailable),
 		func() tea.Msg {
-			err := m.nm.ConnectWifi(ssid, password, m.hidden)
+			ssid := m.wifiName
+			password := m.password.Value()
+			err := m.nm.ConnectWifi(ssid, password, m.hidden.Value())
 			if err != nil {
 				return tea.BatchMsg{
 					SetWifiAvailableStateCmd(DoneInAvailable),

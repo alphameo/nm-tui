@@ -158,8 +158,11 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					fmt.Sprintf("Cannot get information about %s", name),
 				)
 			}
-			m.storedInfo.setNew(info)
-			return m, OpenPopup(m.storedInfo, "Stored Wi-Fi info")
+
+			return m, tea.Sequence(
+				m.storedInfo.setNew(info),
+				OpenPopup(m.storedInfo, "Stored Wi-Fi info"),
+			)
 
 		case " ":
 			return m, m.connectToSelectedCmd()

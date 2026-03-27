@@ -102,9 +102,10 @@ func NewStoredInfoModel(keys *wifiStoredInfoKeyMap, networkManager infra.Network
 	return model
 }
 
-func (m *WifiStoredInfoModel) setNew(info infra.WifiInfo) {
+func (m *WifiStoredInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	m.ssid = info.SSID
 	m.name = info.Name
+	m.active = info.Active
 
 	m.nameInput.Reset()
 	m.nameInput.SetValue(info.Name)
@@ -112,11 +113,12 @@ func (m *WifiStoredInfoModel) setNew(info infra.WifiInfo) {
 	m.password.Reset()
 	m.password.SetValue(info.Password)
 
-	m.active = info.Active
 	m.autoconnect.SetValue(info.Autoconnect)
 
 	m.autoconnectPriority.Reset()
 	m.autoconnectPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
+
+	return m.password.Focus()
 }
 
 func (m *WifiStoredInfoModel) Init() tea.Cmd {
@@ -127,6 +129,10 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
+		case key.Matches(msg, m.keys.down):
+			return m, m.focusNextCmd()
+		case key.Matches(msg, m.keys.up):
+			return m, m.focusPrevCmd()
 		case key.Matches(msg, m.keys.togglePasswordVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
@@ -134,10 +140,6 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.password.EchoMode = textinput.EchoPassword
 			}
 			return m, nil
-		case key.Matches(msg, m.keys.down):
-			return m, m.focusNextCmd()
-		case key.Matches(msg, m.keys.up):
-			return m, m.focusPrevCmd()
 		case key.Matches(msg, m.keys.submit):
 			return m, tea.Sequence(
 				SetPopupActivityCmd(false),
