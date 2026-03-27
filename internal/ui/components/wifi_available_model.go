@@ -35,22 +35,6 @@ func (s *wifiAvailableState) String() string {
 	}
 }
 
-type wifiAvailableColumnIndex int
-
-const (
-	ssidAvailable  wifiAvailableColumnIndex = 1
-	securityColumn wifiAvailableColumnIndex = 2
-)
-
-const (
-	signalColumnWidth         int     = 3
-	connectionFlagColumnWidth int     = 1
-	securityWidthProportion   float32 = 0.3
-	minSecurityColumnWidth    int     = 8
-	minSSIDWidth              int     = 4
-	indicatorStateHeight      int     = 1
-)
-
 type wifiAvailableKeyMap struct {
 	rescan        key.Binding
 	openConnector key.Binding
@@ -71,6 +55,16 @@ type WifiAvailableModel struct {
 
 	connector *WifiConnectorModel
 
+	connColIdx     int
+	ssidConIdx     int
+	securityColIdx int
+	signalColIdx   int
+
+	securityWidthProportion float32
+	minSecurityColumnWidth  int
+	minSSIDWidth            int
+	indicatorStateHeight    int
+
 	keys *wifiAvailableKeyMap
 
 	nm infra.NetworkManager
@@ -81,42 +75,66 @@ type WifiAvailableModel struct {
 
 func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailableKeyMap, networkManager infra.NetworkManager) *WifiAvailableModel {
 	cols := []table.Column{
-		{Title: "󱘖", Width: connectionFlagColumnWidth},
+		{Title: "󱘖", Width: 1},
 		{Title: "SSID"},
 		{Title: "Security"},
-		{Title: "", Width: signalColumnWidth},
+		{Title: "", Width: 3},
 	}
+
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
 	)
 	t.SetStyles(styles.TableStyle)
+
 	s := spinner.New()
-	return &WifiAvailableModel{
+
+	model := &WifiAvailableModel{
 		dataTable:        t,
 		indicatorSpinner: s,
 		indicatorState:   DoneInAvailable,
 		connector:        wifiConnector,
 		keys:             keys,
 		nm:               networkManager,
+
+		connColIdx:     0,
+		ssidConIdx:     1,
+		securityColIdx: 2,
+		signalColIdx:   3,
+
+		securityWidthProportion: 0.3,
+		minSecurityColumnWidth:  8,
+		minSSIDWidth:            4,
 	}
+
+	model.bakeSizes()
+
+	return model
+}
+
+func (m *WifiAvailableModel) bakeSizes() {
+	state := m.indicatorView()
+	m.indicatorStateHeight = lipgloss.Height(state)
 }
 
 func (m *WifiAvailableModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
-	height -= indicatorStateHeight
+	height -= m.indicatorStateHeight
 
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
 
-	security := max(int(float32(width)*securityWidthProportion), minSecurityColumnWidth)
-	ssidWidth := width - signalColumnWidth - tableUtilityOffset - connectionFlagColumnWidth - security
-	m.dataTable.Columns()[securityColumn].Width = security
-	m.dataTable.Columns()[ssidAvailable].Width = ssidWidth
+	secColWidth := max(int(float32(width)*m.securityWidthProportion), m.minSecurityColumnWidth)
+	signalColWidth := m.dataTable.Columns()[m.signalColIdx].Width
+	conColWidth := m.dataTable.Columns()[m.connColIdx].Width
+
+	ssidWidth := width - signalColWidth - tableUtilityOffset - conColWidth - secColWidth
+	m.dataTable.Columns()[m.securityColIdx].Width = secColWidth
+	m.dataTable.Columns()[m.ssidConIdx].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
@@ -144,7 +162,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.openConnector):
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				return m, m.callConnector(row[ssidAvailable])
+				return m, m.callConnector(row[m.ssidConIdx])
 			}
 			return m, nil
 		}
@@ -172,21 +190,26 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *WifiAvailableModel) View() string {
 	view := m.dataTable.View()
 
-	var statusline string
-	if m.indicatorState != DoneInAvailable {
-		statusline = fmt.Sprintf(
-			"%s %s",
-			m.indicatorState.String(),
-			m.indicatorSpinner.View(),
-		)
-	} else {
-		statusline = m.indicatorState.String()
-	}
+	statusline := m.indicatorView()
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		view,
 		statusline,
 	)
+}
+
+func (m *WifiAvailableModel) indicatorView() string {
+	var view string
+	if m.indicatorState != DoneInAvailable {
+		view = fmt.Sprintf(
+			"%s %s",
+			m.indicatorState.String(),
+			m.indicatorSpinner.View(),
+		)
+	} else {
+		view = m.indicatorState.String()
+	}
+	return view
 }
 
 func (m *WifiAvailableModel) RescanCmd() tea.Cmd {

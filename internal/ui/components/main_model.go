@@ -16,8 +16,6 @@ import (
 const (
 	BorderOffset int = 2
 	TabBarHeight int = 3
-
-	NotificationCloseTime int = 50
 )
 
 type mainKeyMap struct {
@@ -56,9 +54,10 @@ type Notification struct {
 }
 
 type MainModel struct {
-	tabs         TabsModel
-	popup        *Popup
-	notification *Notification
+	tabs                  TabsModel
+	popup                 *Popup
+	notification          *Notification
+	notificationCloseTime time.Duration
 
 	keyMngr *keyMapManager
 	help    help.Model
@@ -86,11 +85,12 @@ func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 	help.ShowAll = true
 
 	return &MainModel{
-		tabs:         *wifiTable,
-		popup:        p,
-		notification: n,
-		keyMngr:      keys,
-		help:         help,
+		tabs:                  *wifiTable,
+		popup:                 p,
+		notification:          n,
+		notificationCloseTime: 50 * time.Second,
+		keyMngr:               keys,
+		help:                  help,
 	}
 }
 
@@ -123,7 +123,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case NotificationActivityMsg:
 		m.notification.active = bool(msg)
-		return m, DeferedCloseNotificationCmd()
+		return m, DeferedCloseNotificationCmd(m.notificationCloseTime)
 	case tea.Cmd:
 		return m, msg
 	case tea.KeyMsg:
@@ -288,9 +288,9 @@ func NotifyCmd(text string) tea.Cmd {
 	)
 }
 
-func DeferedCloseNotificationCmd() tea.Cmd {
+func DeferedCloseNotificationCmd(t time.Duration) tea.Cmd {
 	return func() tea.Msg {
-		time.Sleep(time.Second * time.Duration(NotificationCloseTime))
+		time.Sleep(t)
 		return NotificationActivityMsg(false)
 	}
 }

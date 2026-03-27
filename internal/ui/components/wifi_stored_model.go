@@ -72,6 +72,13 @@ type WifiStoredModel struct {
 
 	storedInfo *WifiStoredInfoModel
 
+	connColIdx  int
+	ssidColIdx int
+	nameColIdx int
+
+	minSSIDWidth         int
+	indicatorStateHeight int
+
 	keys *wifiStoredKeyMap
 
 	nm infra.NetworkManager
@@ -82,14 +89,9 @@ type WifiStoredModel struct {
 
 type WifiStoredColumnIndex int
 
-const (
-	storedSSIDColumn WifiStoredColumnIndex = 1
-	storedNameColumn WifiStoredColumnIndex = 2
-)
-
 func NewWifiStoredModel(storedInfo *WifiStoredInfoModel, keys *wifiStoredKeyMap, networkManager infra.NetworkManager) *WifiStoredModel {
 	cols := []table.Column{
-		{Title: "󱘖", Width: connectionFlagColumnWidth},
+		{Title: "󱘖", Width: 1},
 		{Title: "SSID"},
 		{Title: "Name"},
 	}
@@ -98,35 +100,51 @@ func NewWifiStoredModel(storedInfo *WifiStoredInfoModel, keys *wifiStoredKeyMap,
 		table.WithFocused(true),
 	)
 	t.SetStyles(styles.TableStyle)
+
 	s := spinner.New()
 
-	return &WifiStoredModel{
+	model := &WifiStoredModel{
 		dataTable:        t,
 		indicatorSpinner: s,
 		indicatorState:   DoneInStored,
 		storedInfo:       storedInfo,
 		keys:             keys,
 		nm:               networkManager,
+
+		connColIdx:  0,
+		ssidColIdx: 1,
+		nameColIdx: 2,
+
+		minSSIDWidth: 4,
 	}
+	model.bakeSizes()
+
+	return model
+}
+
+func (m *WifiStoredModel) bakeSizes() {
+	state := m.indicatorView()
+	m.indicatorStateHeight = lipgloss.Height(state)
 }
 
 func (m *WifiStoredModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
-	height -= indicatorStateHeight
+	height -= m.indicatorStateHeight
 
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
+	conColWidth := m.dataTable.Columns()[m.connColIdx].Width
 
-	computedWidth := width - tableUtilityOffset - connectionFlagColumnWidth
+	computedWidth := width - tableUtilityOffset - conColWidth
 	possibleNameWidth := computedWidth / 2
-	ssidWidth := max(computedWidth-possibleNameWidth, minSSIDWidth)
+	ssidWidth := max(computedWidth-possibleNameWidth, m.minSSIDWidth)
 	nameWidth := computedWidth - ssidWidth
-	m.dataTable.Columns()[storedNameColumn].Width = nameWidth
-	m.dataTable.Columns()[storedSSIDColumn].Width = ssidWidth
+	m.dataTable.Columns()[m.nameColIdx].Width = nameWidth
+	m.dataTable.Columns()[m.ssidColIdx].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
@@ -151,7 +169,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if row == nil {
 				return m, nil
 			}
-			name := row[storedNameColumn]
+			name := row[m.nameColIdx]
 			info, err := m.nm.GetWifiInfo(name)
 			if err != nil {
 				return m, NotifyCmd(
@@ -199,21 +217,26 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *WifiStoredModel) View() string {
 	view := m.dataTable.View()
 
-	var statusline string
-	if m.indicatorState != DoneInStored {
-		statusline = fmt.Sprintf(
-			"%s %s",
-			m.indicatorState.String(),
-			m.indicatorSpinner.View(),
-		)
-	} else {
-		statusline = m.indicatorState.String()
-	}
+	statusline := m.indicatorView()
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		view,
 		statusline,
 	)
+}
+
+func (m *WifiStoredModel) indicatorView() string {
+	var view string
+	if m.indicatorState != DoneInStored {
+		view = fmt.Sprintf(
+			"%s %s",
+			m.indicatorState.String(),
+			m.indicatorSpinner.View(),
+		)
+	} else {
+		view = m.indicatorState.String()
+	}
+	return view
 }
 
 type RescanWifiStoredMsg struct {
@@ -276,7 +299,7 @@ func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ConnectingStored),
 		func() tea.Msg {
-			name := m.dataTable.SelectedRow()[storedNameColumn]
+			name := m.dataTable.SelectedRow()[m.nameColIdx]
 			err := m.nm.ConnectStoredWifi(name)
 			if err != nil {
 				return tea.BatchMsg{
@@ -302,7 +325,7 @@ func (m *WifiStoredModel) gotoTop() tea.Cmd {
 
 func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 	return func() tea.Msg {
-		name := m.dataTable.SelectedRow()[storedNameColumn]
+		name := m.dataTable.SelectedRow()[m.nameColIdx]
 		err := m.nm.DisconnectFromWifi(name)
 		if err != nil {
 			return NotifyCmd(
@@ -319,7 +342,7 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 func (m *WifiStoredModel) deleteSelectedCmd() tea.Cmd {
 	row := m.dataTable.SelectedRow()
 	return func() tea.Msg {
-		name := row[storedNameColumn]
+		name := row[m.nameColIdx]
 		err := m.nm.DeleteWifiConnection(name)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Error while deleting %s", name))
