@@ -13,13 +13,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type wifiConnectorInputIndex int
-
-const (
-	pwFocus wifiConnectorInputIndex = iota
-	hiddenCheckboxFocus
-)
-
 type wifiConnectorKeyMap struct {
 	togglePasswordVisibility key.Binding
 	up                       key.Binding
@@ -41,7 +34,7 @@ type WifiConnectorModel struct {
 	hidden   *toggle.Model
 
 	inputs            []Focusable // used for batch operations on input focusable elements
-	focusedInputIndex wifiConnectorInputIndex
+	focusedInputIndex int
 
 	keys *wifiConnectorKeyMap
 
@@ -50,7 +43,6 @@ type WifiConnectorModel struct {
 
 func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.NetworkManager) *WifiConnectorModel {
 	p := textinput.New()
-	p.Focus()
 	p.Width = 20
 	p.Prompt = ""
 	p.EchoMode = textinput.EchoPassword
@@ -83,15 +75,16 @@ func (m *WifiConnectorModel) setNew(wifiName string) tea.Cmd {
 	if err == nil {
 		m.password.SetValue(pw)
 	}
+	m.password.Blur()
 
 	m.hidden.SetValue(false)
-	m.focusedInputIndex = pwFocus
+	m.hidden.Blur()
 
-	return m.password.Focus()
+	return m.inputs[0].Focus()
 }
 
 func (m *WifiConnectorModel) Init() tea.Cmd {
-	return textinput.Blink
+	return m.inputs[0].Focus()
 }
 
 func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -130,7 +123,7 @@ func (m *WifiConnectorModel) View() string {
 	wifiName := sb.String()
 
 	password := m.password.View()
-	if m.focusedInputIndex == pwFocus {
+	if m.password.Focused() {
 		password = inputStyle.
 			BorderForeground(styles.AccentColor).
 			Render(password)
@@ -144,7 +137,7 @@ func (m *WifiConnectorModel) View() string {
 	)
 
 	hiddenCheckboxView := m.hidden.View()
-	if m.focusedInputIndex == hiddenCheckboxFocus {
+	if m.hidden.Focused() {
 		hiddenCheckboxView = styles.DefaultStyle.
 			Foreground(styles.AccentColor).
 			Render(hiddenCheckboxView)
@@ -167,12 +160,12 @@ func (m *WifiConnectorModel) View() string {
 }
 
 func (m *WifiConnectorModel) handleKey(key tea.KeyMsg) (*WifiConnectorModel, tea.Cmd) {
-	switch m.focusedInputIndex {
-	case pwFocus:
+	switch {
+	case m.password.Focused():
 		upd, cmd := m.password.Update(key)
 		m.password = upd
 		return m, cmd
-	case hiddenCheckboxFocus:
+	case m.hidden.Focused():
 		upd, cmd := m.hidden.Update(key)
 		m.hidden = upd
 		return m, cmd
@@ -182,12 +175,12 @@ func (m *WifiConnectorModel) handleKey(key tea.KeyMsg) (*WifiConnectorModel, tea
 }
 
 func (m *WifiConnectorModel) handleMsg(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) {
-	switch m.focusedInputIndex {
-	case pwFocus:
+	switch {
+	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
 		m.password = upd
 		return m, cmd
-	case hiddenCheckboxFocus:
+	case m.hidden.Focused():
 		upd, cmd := m.hidden.Update(msg)
 		m.hidden = upd
 		return m, cmd

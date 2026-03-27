@@ -15,16 +15,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type wifiStoredInfoInputIndex int
-
-const (
-	nameFocus wifiStoredInfoInputIndex = iota
-	passwordFocus
-	autoconnectFocus
-	autoconnectPriorityFocus
-)
-
 type Focusable interface {
+	Focused() bool
 	Focus() tea.Cmd
 	Blur()
 }
@@ -55,7 +47,7 @@ type WifiStoredInfoModel struct {
 	autoconnectPriority textinput.Model
 
 	inputs            []Focusable // used for batch operations on input focusable elements
-	focusedInputIndex wifiStoredInfoInputIndex
+	focusedInputIndex int
 
 	keys *wifiStoredInfoKeyMap
 
@@ -66,7 +58,6 @@ func NewStoredInfoModel(keys *wifiStoredInfoKeyMap, networkManager infra.Network
 	n := textinput.New()
 	n.Width = 20
 	n.Prompt = ""
-	n.Focus()
 	n.Placeholder = "name"
 
 	p := textinput.New()
@@ -109,20 +100,26 @@ func (m *WifiStoredInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 
 	m.nameInput.Reset()
 	m.nameInput.SetValue(info.Name)
+	m.nameInput.Blur()
 
 	m.password.Reset()
 	m.password.SetValue(info.Password)
+	m.password.Blur()
 
 	m.autoconnect.SetValue(info.Autoconnect)
+	m.autoconnect.Blur()
 
 	m.autoconnectPriority.Reset()
 	m.autoconnectPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
+	m.autoconnectPriority.Blur()
 
-	return m.password.Focus()
+	m.focusedInputIndex = 0
+
+	return m.inputs[0].Focus()
 }
 
 func (m *WifiStoredInfoModel) Init() tea.Cmd {
-	return textinput.Blink
+	return m.inputs[0].Focus()
 }
 
 func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -167,7 +164,7 @@ func (m *WifiStoredInfoModel) View() string {
 	inputStyle := styles.BorderedStyle
 
 	nameView := m.nameInput.View()
-	if m.focusedInputIndex == nameFocus {
+	if m.nameInput.Focused() {
 		nameView = inputStyle.
 			BorderForeground(styles.AccentColor).
 			Render(nameView)
@@ -181,7 +178,7 @@ func (m *WifiStoredInfoModel) View() string {
 	)
 
 	passwordView := m.password.View()
-	if m.focusedInputIndex == passwordFocus {
+	if m.password.Focused() {
 		passwordView = inputStyle.
 			BorderForeground(styles.AccentColor).
 			Render(passwordView)
@@ -195,7 +192,7 @@ func (m *WifiStoredInfoModel) View() string {
 	)
 
 	autoconnectCheckboxView := m.autoconnect.View()
-	if m.focusedInputIndex == autoconnectFocus {
+	if m.autoconnect.Focused() {
 		autoconnectCheckboxView = styles.DefaultStyle.
 			Foreground(styles.AccentColor).
 			Render(autoconnectCheckboxView)
@@ -210,7 +207,7 @@ func (m *WifiStoredInfoModel) View() string {
 	)
 
 	autoconPriorityView := m.autoconnectPriority.View()
-	if m.focusedInputIndex == autoconnectPriorityFocus {
+	if m.autoconnectPriority.Focused() {
 		autoconPriorityView = inputStyle.
 			BorderForeground(styles.AccentColor).
 			Render(autoconPriorityView)
@@ -242,20 +239,20 @@ func (m *WifiStoredInfoModel) View() string {
 }
 
 func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, tea.Cmd) {
-	switch m.focusedInputIndex {
-	case nameFocus:
+	switch {
+	case m.nameInput.Focused():
 		upd, cmd := m.nameInput.Update(key)
 		m.nameInput = upd
 		return m, cmd
-	case passwordFocus:
+	case m.password.Focused():
 		upd, cmd := m.password.Update(key)
 		m.password = upd
 		return m, cmd
-	case autoconnectFocus:
+	case m.autoconnect.Focused():
 		upd, cmd := m.autoconnect.Update(key)
 		m.autoconnect = upd
 		return m, cmd
-	case autoconnectPriorityFocus:
+	case m.autoconnectPriority.Focused():
 		upd, cmd := m.autoconnectPriority.Update(key)
 		m.autoconnectPriority = upd
 		return m, cmd
@@ -265,20 +262,20 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 }
 
 func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.Cmd) {
-	switch m.focusedInputIndex {
-	case nameFocus:
+	switch {
+	case m.nameInput.Focused():
 		upd, cmd := m.nameInput.Update(msg)
 		m.nameInput = upd
 		return m, cmd
-	case passwordFocus:
+	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
 		m.password = upd
 		return m, cmd
-	case autoconnectFocus:
+	case m.autoconnect.Focused():
 		upd, cmd := m.autoconnect.Update(msg)
 		m.autoconnect = upd
 		return m, cmd
-	case autoconnectPriorityFocus:
+	case m.autoconnectPriority.Focused():
 		upd, cmd := m.autoconnectPriority.Update(msg)
 		m.autoconnectPriority = upd
 		return m, cmd
