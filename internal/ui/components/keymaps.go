@@ -161,6 +161,14 @@ var wifiConnectorKeys = &wifiConnectorKeyMap{
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "open connector"),
 	),
+	up: key.NewBinding(
+		key.WithKeys("ctrl+k"),
+		key.WithHelp("^K", "up"),
+	),
+	down: key.NewBinding(
+		key.WithKeys("ctrl+j"),
+		key.WithHelp("^J", "down"),
+	),
 	togglePasswordVisibility: key.NewBinding(
 		key.WithKeys("ctrl+r"),
 		key.WithHelp("^r", "toggle password visibility"),
