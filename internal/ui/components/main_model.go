@@ -13,10 +13,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const (
-	BorderOffset int = 2
-	TabBarHeight int = 3
-)
+const notificationCloseTime time.Duration = 50 * time.Second
 
 type mainKeyMap struct {
 	quit key.Binding
@@ -88,7 +85,7 @@ func NewMainModel(networkManager infra.NetworkManager) *MainModel {
 		tabs:                  *wifiTable,
 		popup:                 p,
 		notification:          n,
-		notificationCloseTime: 50 * time.Second,
+		notificationCloseTime: notificationCloseTime,
 		keyMngr:               keys,
 		help:                  help,
 	}

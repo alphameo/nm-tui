@@ -56,10 +56,10 @@ func (m *TabsModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
-	width -= BorderOffset
-	height -= BorderOffset
+	width -= styles.BorderOffset
+	height -= styles.BorderOffset
 
-	height -= TabBarHeight
+	height -= styles.TabBarHeight
 
 	for _, t := range m.tabs {
 		t.content.Resize(width, height)

@@ -67,9 +67,9 @@ func (m *WifiModel) Resize(width, height int) {
 	storedHeight := height / 2
 	availableHeight := height - storedHeight
 
-	width -= BorderOffset
-	storedHeight -= BorderOffset
-	availableHeight -= BorderOffset
+	width -= styles.BorderOffset
+	storedHeight -= styles.BorderOffset
+	availableHeight -= styles.BorderOffset
 
 	m.wifiAvailable.Resize(width, availableHeight)
 	m.wifiStored.Resize(width, storedHeight)
