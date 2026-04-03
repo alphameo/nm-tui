@@ -1,7 +1,7 @@
 .PHONY: build test clean all
 
 build:
-	go build -o nm-tui ./cmd/nm-tui/main.go
+	go build -o bin/nm-tui ./cmd/nm-tui/main.go
 
 run:
 	go run ./cmd/nm-tui/main.go
