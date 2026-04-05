@@ -167,9 +167,12 @@ func (m *WifiStoredInfoModel) View() string {
 	if m.name.Focused() {
 		nameView = inputStyle.
 			BorderForeground(styles.AccentColor).
+			Width(m.name.Width + 1). // offset for blinking cursor
 			Render(nameView)
 	} else {
-		nameView = inputStyle.Render(nameView)
+		nameView = inputStyle.
+			Width(m.name.Width + 1). // offset for blinking cursor
+			Render(nameView)
 	}
 	nameView = lipgloss.JoinHorizontal(
 		lipgloss.Center,
@@ -180,10 +183,13 @@ func (m *WifiStoredInfoModel) View() string {
 	passwordView := m.password.View()
 	if m.password.Focused() {
 		passwordView = inputStyle.
+			Width(m.password.Width + 1). // offset for blinking cursor
 			BorderForeground(styles.AccentColor).
 			Render(passwordView)
 	} else {
-		passwordView = inputStyle.Render(passwordView)
+		passwordView = inputStyle.
+			Width(m.password.Width + 1). // offset for blinking cursor
+			Render(passwordView)
 	}
 	passwordView = lipgloss.JoinHorizontal(
 		lipgloss.Center,

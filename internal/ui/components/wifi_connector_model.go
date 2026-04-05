@@ -117,18 +117,19 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *WifiConnectorModel) View() string {
 	sb := strings.Builder{}
-	inputStyle := styles.BorderedStyle
+	pwStyle := styles.BorderedStyle.Width(m.password.Width + 1) // offset for blinking cursor
 
 	fmt.Fprintf(&sb, "SSID      %s", m.name)
 	wifiName := sb.String()
 
 	password := m.password.View()
 	if m.password.Focused() {
-		password = inputStyle.
+		password = pwStyle.
 			BorderForeground(styles.AccentColor).
 			Render(password)
 	} else {
-		password = inputStyle.Render(password)
+		password = pwStyle.
+			Render(password)
 	}
 	password = lipgloss.JoinHorizontal(
 		lipgloss.Center,
