@@ -57,7 +57,10 @@ func (Nmcli) GetDeviceStatuses() ([]infra.DeviceStatus, error) {
 }
 
 func (Nmcli) GetAvailableWifi() ([]infra.WifiScanned, error) {
-	args := []string{"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL", "dev", "wifi"}
+	args := []string{
+		"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL",
+		"device", "wifi", "list", "--rescan", "yes",
+	}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
