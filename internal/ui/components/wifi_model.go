@@ -150,7 +150,7 @@ func (m *WifiModel) View() string {
 
 	availableView := renderer.RenderWithTitleAndKeybind(
 		m.wifiAvailable.View(),
-		"Available Wi-Fi",
+		"Available Wi-Fi networks",
 		m.keys.firstWindow.Help().Key,
 		&availableStyle,
 		styles.AccentColor,

@@ -280,6 +280,6 @@ func SetWifiAvailableStateCmd(state wifiAvailableState) tea.Cmd {
 func (m *WifiAvailableModel) callConnector(wifiName string) tea.Cmd {
 	return tea.Batch(
 		m.connector.setNew(wifiName),
-		OpenPopup(m.connector, "Wi-Fi Connector"),
+		OpenPopup(m.connector, "Wi-Fi network Connector"),
 	)
 }
