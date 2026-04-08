@@ -150,7 +150,7 @@ func (m *WifiModel) View() string {
 
 	availableView := renderer.RenderWithTitleAndKeybind(
 		m.wifiAvailable.View(),
-		"Available Wi-Fi networks",
+		"Available networks",
 		m.keys.firstWindow.Help().Key,
 		&availableStyle,
 		styles.AccentColor,
@@ -158,7 +158,7 @@ func (m *WifiModel) View() string {
 
 	savedView := renderer.RenderWithTitleAndKeybind(
 		m.wifiSaved.View(),
-		"Saved Wi-Fi networks",
+		"Saved networks",
 		m.keys.secondWindow.Help().Key,
 		&savedStyle,
 		styles.AccentColor,
