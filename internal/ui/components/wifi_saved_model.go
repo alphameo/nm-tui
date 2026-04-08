@@ -13,31 +13,31 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type wifiStoredState int
+type wifiSavedState int
 
 const (
-	ScanningStored wifiStoredState = iota
-	ConnectingStored
-	DisconnectingStored
-	DoneInStored
+	ScanningSaved wifiSavedState = iota
+	ConnectingSaved
+	DisconnectingSaved
+	DoneInSaved
 )
 
-func (s *wifiStoredState) String() string {
+func (s *wifiSavedState) String() string {
 	switch *s {
-	case ScanningStored:
+	case ScanningSaved:
 		return "Scanning"
-	case ConnectingStored:
+	case ConnectingSaved:
 		return "Connecting"
-	case DisconnectingStored:
+	case DisconnectingSaved:
 		return "Disconnecting"
-	case DoneInStored:
+	case DoneInSaved:
 		return "󰄬"
 	default:
 		return "Undefined!!!"
 	}
 }
 
-type wifiStoredKeyMap struct {
+type wifiSavedKeyMap struct {
 	edit       key.Binding
 	connect    key.Binding
 	disconnect key.Binding
@@ -45,7 +45,7 @@ type wifiStoredKeyMap struct {
 	delete     key.Binding
 }
 
-func (k *wifiStoredKeyMap) ShortHelp() []key.Binding {
+func (k *wifiSavedKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{
 		k.edit,
 		k.connect,
@@ -55,7 +55,7 @@ func (k *wifiStoredKeyMap) ShortHelp() []key.Binding {
 	}
 }
 
-func (k *wifiStoredKeyMap) FullHelp() [][]key.Binding {
+func (k *wifiSavedKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{
 		k.edit,
 		k.connect,
@@ -65,21 +65,21 @@ func (k *wifiStoredKeyMap) FullHelp() [][]key.Binding {
 	}}
 }
 
-type WifiStoredModel struct {
+type WifiSavedModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model
-	indicatorState   wifiStoredState
+	indicatorState   wifiSavedState
 
-	storedInfo *WifiStoredInfoModel
+	savedInfo *WifiSavedInfoModel
 
-	connColIdx  int
+	connColIdx int
 	ssidColIdx int
 	nameColIdx int
 
 	minSSIDWidth         int
 	indicatorStateHeight int
 
-	keys *wifiStoredKeyMap
+	keys *wifiSavedKeyMap
 
 	nm infra.NetworkManager
 
@@ -87,9 +87,7 @@ type WifiStoredModel struct {
 	height int
 }
 
-type WifiStoredColumnIndex int
-
-func NewWifiStoredModel(storedInfo *WifiStoredInfoModel, keys *wifiStoredKeyMap, networkManager infra.NetworkManager) *WifiStoredModel {
+func NewWifiSavedModel(savedInfo *WifiSavedInfoModel, keys *wifiSavedKeyMap, networkManager infra.NetworkManager) *WifiSavedModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: 1},
 		{Title: "SSID"},
@@ -103,15 +101,15 @@ func NewWifiStoredModel(storedInfo *WifiStoredInfoModel, keys *wifiStoredKeyMap,
 
 	s := spinner.New()
 
-	model := &WifiStoredModel{
+	model := &WifiSavedModel{
 		dataTable:        t,
 		indicatorSpinner: s,
-		indicatorState:   DoneInStored,
-		storedInfo:       storedInfo,
+		indicatorState:   DoneInSaved,
+		savedInfo:        savedInfo,
 		keys:             keys,
 		nm:               networkManager,
 
-		connColIdx:  0,
+		connColIdx: 0,
 		ssidColIdx: 1,
 		nameColIdx: 2,
 
@@ -122,12 +120,12 @@ func NewWifiStoredModel(storedInfo *WifiStoredInfoModel, keys *wifiStoredKeyMap,
 	return model
 }
 
-func (m *WifiStoredModel) bakeSizes() {
+func (m *WifiSavedModel) bakeSizes() {
 	state := m.indicatorView()
 	m.indicatorStateHeight = lipgloss.Height(state)
 }
 
-func (m *WifiStoredModel) Resize(width, height int) {
+func (m *WifiSavedModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
@@ -148,19 +146,19 @@ func (m *WifiStoredModel) Resize(width, height int) {
 	m.dataTable.UpdateViewport()
 }
 
-func (m *WifiStoredModel) Width() int {
+func (m *WifiSavedModel) Width() int {
 	return m.width
 }
 
-func (m *WifiStoredModel) Height() int {
+func (m *WifiSavedModel) Height() int {
 	return m.height
 }
 
-func (m *WifiStoredModel) Init() tea.Cmd {
+func (m *WifiSavedModel) Init() tea.Cmd {
 	return m.RescanCmd()
 }
 
-func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiSavedModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -178,8 +176,8 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, tea.Batch(
-				m.storedInfo.setNew(info),
-				OpenPopup(m.storedInfo, "Stored Wi-Fi info"),
+				m.savedInfo.setNew(info),
+				OpenPopup(m.savedInfo, "Saved Wi-Fi network info"),
 			)
 
 		case " ":
@@ -189,19 +187,19 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m,
 				m.disconnectFromSelectedCmd()
 		case "r":
-			return m, RescanWifiStoredCmd(0)
+			return m, RescanWifiSavedCmd(0)
 		case "d":
 			return m, m.deleteSelectedCmd()
 		}
-	case RescanWifiStoredMsg:
+	case RescanWifiSavedMsg:
 		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
-	case WifiStoredStateMsg:
-		return m, m.setStateCmd(wifiStoredState(msg))
+	case WifiSavedStateMsg:
+		return m, m.setStateCmd(wifiSavedState(msg))
 	}
 
 	var cmd tea.Cmd
-	if m.indicatorState != DoneInStored {
+	if m.indicatorState != DoneInSaved {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		if cmd != nil {
 			return m, cmd
@@ -214,7 +212,7 @@ func (m *WifiStoredModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *WifiStoredModel) View() string {
+func (m *WifiSavedModel) View() string {
 	view := m.dataTable.View()
 
 	statusline := m.indicatorView()
@@ -225,9 +223,9 @@ func (m *WifiStoredModel) View() string {
 	)
 }
 
-func (m *WifiStoredModel) indicatorView() string {
+func (m *WifiSavedModel) indicatorView() string {
 	var view string
-	if m.indicatorState != DoneInStored {
+	if m.indicatorState != DoneInSaved {
 		view = fmt.Sprintf(
 			"%s %s",
 			m.indicatorState.String(),
@@ -239,76 +237,76 @@ func (m *WifiStoredModel) indicatorView() string {
 	return view
 }
 
-type RescanWifiStoredMsg struct {
+type RescanWifiSavedMsg struct {
 	delay time.Duration
 }
 
-func RescanWifiStoredCmd(delay time.Duration) tea.Cmd {
+func RescanWifiSavedCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
-		return RescanWifiStoredMsg{delay: delay}
+		return RescanWifiSavedMsg{delay: delay}
 	}
 }
 
-func (m *WifiStoredModel) RescanCmd() tea.Cmd {
+func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(ScanningStored),
+		m.setStateCmd(ScanningSaved),
 		func() tea.Msg {
-			list, err := m.nm.GetStoredWifis()
+			list, err := m.nm.GetSavedWifis()
 			if err != nil {
 				return tea.BatchMsg{
-					NotifyCmd("Cannot get stored wifi networks"),
-					m.setStateCmd(DoneInStored),
+					NotifyCmd("Cannot get saved wifi networks"),
+					m.setStateCmd(DoneInSaved),
 				}
 			}
 			rows := []table.Row{}
-			for _, wifiStored := range list {
+			for _, wifiSaved := range list {
 				var connectionFlag string
-				if wifiStored.Active {
+				if wifiSaved.Active {
 					connectionFlag = ""
 				}
 				rows = append(rows, table.Row{
 					connectionFlag,
-					wifiStored.SSID,
-					wifiStored.Name,
+					wifiSaved.SSID,
+					wifiSaved.Name,
 				})
 			}
 
 			m.dataTable.SetRows(rows)
 
-			return m.setStateCmd(DoneInStored)
+			return m.setStateCmd(DoneInSaved)
 		},
 	)
 }
 
-type WifiStoredStateMsg wifiStoredState
+type WifiSavedStateMsg wifiSavedState
 
-func (m *WifiStoredModel) setStateCmd(state wifiStoredState) tea.Cmd {
+func (m *WifiSavedModel) setStateCmd(state wifiSavedState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return NilMsg{}
 	}
 
-	if state == DoneInStored {
+	if state == DoneInSaved {
 		return updCmd
 	} else {
 		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 	}
 }
 
-func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
+func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(ConnectingStored),
+		m.setStateCmd(ConnectingSaved),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[m.nameColIdx]
 			err := m.nm.ActivateWifi(name)
 			if err != nil {
 				return tea.BatchMsg{
-					m.setStateCmd(DoneInStored),
+					m.setStateCmd(DoneInSaved),
 					NotifyCmd(fmt.Sprintf("Cannot connect to %s", name)),
 				}
 			}
 			return tea.BatchMsg{
-				m.setStateCmd(DoneInStored),
+				m.setStateCmd(DoneInSaved),
 				m.gotoTop(),
 				RescanWifiCmd(0),
 			}
@@ -316,14 +314,14 @@ func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
 	)
 }
 
-func (m *WifiStoredModel) gotoTop() tea.Cmd {
+func (m *WifiSavedModel) gotoTop() tea.Cmd {
 	return func() tea.Msg {
 		m.dataTable.GotoTop()
 		return NilCmd
 	}
 }
 
-func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
+func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
 	return func() tea.Msg {
 		name := m.dataTable.SelectedRow()[m.nameColIdx]
 		err := m.nm.DeactivateWifi(name)
@@ -339,7 +337,7 @@ func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 	}
 }
 
-func (m *WifiStoredModel) deleteSelectedCmd() tea.Cmd {
+func (m *WifiSavedModel) deleteSelectedCmd() tea.Cmd {
 	row := m.dataTable.SelectedRow()
 	return func() tea.Msg {
 		name := row[m.nameColIdx]

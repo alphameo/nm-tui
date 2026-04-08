@@ -11,28 +11,28 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 )
 
-type Nmcli struct{}
+type NMCLI struct{}
 
-func New() *Nmcli {
-	return &Nmcli{}
+func New() *NMCLI {
+	return &NMCLI{}
 }
 
 const CommandName = "nmcli"
 
-func (Nmcli) GetDeviceStatuses() ([]infra.DeviceStatus, error) {
+func (NMCLI) GetNetworkDevices() ([]infra.NetworkDevice, error) {
 	args := []string{"-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device", "status"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(
-			infra.ErrGetDeviceStatuses.Error(),
+			infra.ErrGetNetworkDevices.Error(),
 			"err", err,
 			"stderr", stderr,
 		)
-		return nil, fmt.Errorf("%w: %s", infra.ErrGetDeviceStatuses, stderr)
+		return nil, fmt.Errorf("%w: %s", infra.ErrGetNetworkDevices, stderr)
 	}
 
-	var res []infra.DeviceStatus
+	var res []infra.NetworkDevice
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
 		if line == "" {
@@ -45,7 +45,7 @@ func (Nmcli) GetDeviceStatuses() ([]infra.DeviceStatus, error) {
 			continue
 		}
 
-		res = append(res, infra.DeviceStatus{
+		res = append(res, infra.NetworkDevice{
 			Device:     parts[0],
 			Type:       parts[1],
 			State:      parts[2],
@@ -56,7 +56,7 @@ func (Nmcli) GetDeviceStatuses() ([]infra.DeviceStatus, error) {
 	return res, nil
 }
 
-func (Nmcli) ScanWifis() ([]infra.WifiAvailable, error) {
+func (NMCLI) ScanWifis() ([]infra.AvailableWifi, error) {
 	args := []string{
 		"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL",
 		"device", "wifi", "list", "--rescan", "yes",
@@ -72,7 +72,7 @@ func (Nmcli) ScanWifis() ([]infra.WifiAvailable, error) {
 		return nil, fmt.Errorf("%w: %s", infra.ErrScanWifis, stderr)
 	}
 
-	var res []infra.WifiAvailable
+	var res []infra.AvailableWifi
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
 		if line == "" {
@@ -90,7 +90,7 @@ func (Nmcli) ScanWifis() ([]infra.WifiAvailable, error) {
 			slog.Warn("parsing signal strength", "line", line, "error", err)
 			signal = 0
 		}
-		res = append(res, infra.WifiAvailable{
+		res = append(res, infra.AvailableWifi{
 			SSID:     parts[0],
 			Active:   parts[1] == "*",
 			Security: parts[2],
@@ -101,7 +101,7 @@ func (Nmcli) ScanWifis() ([]infra.WifiAvailable, error) {
 	return res, nil
 }
 
-func (n Nmcli) GetStoredWifis() ([]infra.WifiStored, error) {
+func (n NMCLI) GetSavedWifis() ([]infra.SavedWifi, error) {
 	args := []string{"-t", "-f", "NAME,STATE", "connection", "show"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -109,7 +109,7 @@ func (n Nmcli) GetStoredWifis() ([]infra.WifiStored, error) {
 		return nil, fmt.Errorf("%w: %s", infra.ErrGetSavedWifis, stderr)
 	}
 
-	var res []infra.WifiStored
+	var res []infra.SavedWifi
 
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
@@ -135,7 +135,7 @@ func (n Nmcli) GetStoredWifis() ([]infra.WifiStored, error) {
 				"error", err,
 			)
 		}
-		res = append(res, infra.WifiStored{
+		res = append(res, infra.SavedWifi{
 			Name:   name,
 			SSID:   ssid,
 			Active: parts[1] == "activated",
@@ -146,7 +146,7 @@ func (n Nmcli) GetStoredWifis() ([]infra.WifiStored, error) {
 	return res, nil
 }
 
-func (n Nmcli) CreateWifiConnection(id, ssid, password, device string, hidden bool) error {
+func (n NMCLI) CreateWifiConnection(id, ssid, password, device string, hidden bool) error {
 	hiddenStr := "no"
 	if hidden {
 		hiddenStr = "yes"
@@ -180,7 +180,7 @@ func (n Nmcli) CreateWifiConnection(id, ssid, password, device string, hidden bo
 	return nil
 }
 
-func (n Nmcli) ConnectWifi(ssid, password string, hidden bool) error {
+func (n NMCLI) ConnectWifi(ssid, password string, hidden bool) error {
 	hiddenStr := "no"
 	if hidden {
 		hiddenStr = "yes"
@@ -205,7 +205,7 @@ func (n Nmcli) ConnectWifi(ssid, password string, hidden bool) error {
 	return nil
 }
 
-func (Nmcli) ActivateWifi(id string) error {
+func (NMCLI) ActivateWifi(id string) error {
 	args := []string{"connection", "up", id}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -222,7 +222,7 @@ func (Nmcli) ActivateWifi(id string) error {
 	return nil
 }
 
-func (Nmcli) DeactivateWifi(id string) error {
+func (NMCLI) DeactivateWifi(id string) error {
 	args := []string{"connection", "down", id}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -239,7 +239,7 @@ func (Nmcli) DeactivateWifi(id string) error {
 	return nil
 }
 
-func (Nmcli) GetSavedWifiSSIDs() ([]string, error) {
+func (NMCLI) GetSavedWifiSSIDs() ([]string, error) {
 	args := []string{"-t", "-f", "NAME", "connection", "show"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -250,7 +250,7 @@ func (Nmcli) GetSavedWifiSSIDs() ([]string, error) {
 	return strings.Split(string(out), "\n"), nil
 }
 
-func (Nmcli) GetWifiPassword(id string) (string, error) {
+func (NMCLI) GetWifiPassword(id string) (string, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "802-11-wireless-security.psk",
@@ -271,7 +271,7 @@ func (Nmcli) GetWifiPassword(id string) (string, error) {
 	return strings.Trim(string(out), " \n"), nil
 }
 
-func (Nmcli) getWifiSSID(id string) (string, error) {
+func (NMCLI) getWifiSSID(id string) (string, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "802-11-wireless.ssid",
@@ -292,7 +292,7 @@ func (Nmcli) getWifiSSID(id string) (string, error) {
 	return strings.Trim(string(out), " \n"), nil
 }
 
-func (Nmcli) getWifiAutoconnect(id string) (bool, error) {
+func (NMCLI) getWifiAutoconnect(id string) (bool, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "connection.autoconnect",
@@ -312,7 +312,7 @@ func (Nmcli) getWifiAutoconnect(id string) (bool, error) {
 	return strings.Trim(string(out), " \n") == "yes", nil
 }
 
-func (Nmcli) getWifiAutoconnectPriority(id string) (int, error) {
+func (NMCLI) getWifiAutoconnectPriority(id string) (int, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "connection.autoconnect-priority",
@@ -343,7 +343,7 @@ func (Nmcli) getWifiAutoconnectPriority(id string) (int, error) {
 	return autoconnectPriority, nil
 }
 
-func (Nmcli) getWifiActive(id string) (bool, error) {
+func (NMCLI) getWifiActive(id string) (bool, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "GENERAL.STATE",
@@ -363,7 +363,7 @@ func (Nmcli) getWifiActive(id string) (bool, error) {
 	return strings.Trim(string(out), " \n") == "activated", nil
 }
 
-func (n *Nmcli) GetWifiInfo(id string) (infra.WifiInfo, error) {
+func (n *NMCLI) GetWifiInfo(id string) (infra.WifiInfo, error) {
 	var errs []error
 	ssid, err := n.getWifiSSID(id)
 	if err != nil {
@@ -418,7 +418,7 @@ func (n *Nmcli) GetWifiInfo(id string) (infra.WifiInfo, error) {
 }
 
 // UpdateWifiInfo is not atomic
-func (n Nmcli) UpdateWifiInfo(id string, info infra.UpdateWifiInfo) error {
+func (n NMCLI) UpdateWifiInfo(id string, info infra.UpdateWifiInfo) error {
 	var errs []error
 
 	err := n.updateWifiID(
@@ -472,7 +472,7 @@ func (n Nmcli) UpdateWifiInfo(id string, info infra.UpdateWifiInfo) error {
 	return nil
 }
 
-func (Nmcli) updateWifiInfoField(id, field, value string) error {
+func (NMCLI) updateWifiInfoField(id, field, value string) error {
 	args := []string{"connection", "modify", id, field, value}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -495,15 +495,15 @@ func (Nmcli) updateWifiInfoField(id, field, value string) error {
 	return nil
 }
 
-func (n Nmcli) updateWifiID(id, newID string) error {
+func (n NMCLI) updateWifiID(id, newID string) error {
 	return n.updateWifiInfoField(id, "connection.id", newID)
 }
 
-func (n Nmcli) updateWifiPassword(id, password string) error {
+func (n NMCLI) updateWifiPassword(id, password string) error {
 	return n.updateWifiInfoField(id, "802-11-wireless-security.psk", password)
 }
 
-func (n Nmcli) updateWifiAutoconnect(id string, autoconnect bool) error {
+func (n NMCLI) updateWifiAutoconnect(id string, autoconnect bool) error {
 	var autoconnectValue string
 	if autoconnect {
 		autoconnectValue = "yes"
@@ -514,7 +514,7 @@ func (n Nmcli) updateWifiAutoconnect(id string, autoconnect bool) error {
 	return n.updateWifiInfoField(id, "connection.autoconnect", autoconnectValue)
 }
 
-func (n Nmcli) updateWifiAutoconnectPriority(id string, priority int) error {
+func (n NMCLI) updateWifiAutoconnectPriority(id string, priority int) error {
 	return n.updateWifiInfoField(
 		id,
 		"connection.autoconnect-priority",
@@ -522,7 +522,7 @@ func (n Nmcli) updateWifiAutoconnectPriority(id string, priority int) error {
 	)
 }
 
-func (Nmcli) DeleteWifiConnection(id string) error {
+func (NMCLI) DeleteWifiConnection(id string) error {
 	args := []string{"connection", "delete", id}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -543,7 +543,7 @@ func (Nmcli) DeleteWifiConnection(id string) error {
 	return nil
 }
 
-func (Nmcli) GetWifiStatus() (bool, error) {
+func (NMCLI) GetWifiStatus() (bool, error) {
 	args := []string{"radio", "wifi"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -559,7 +559,7 @@ func (Nmcli) GetWifiStatus() (bool, error) {
 	return strings.Trim(string(out), " \n") == "enabled", nil
 }
 
-func (Nmcli) GetWWANStatus() (bool, error) {
+func (NMCLI) GetWWANStatus() (bool, error) {
 	args := []string{"radio", "wwan"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -575,7 +575,7 @@ func (Nmcli) GetWWANStatus() (bool, error) {
 	return strings.Trim(string(out), " \n") == "enabled", nil
 }
 
-func (n Nmcli) GetRadioStatus() (infra.RadioStatus, error) {
+func (n NMCLI) GetRadioStatus() (infra.RadioStatus, error) {
 	var errs []error
 	wifi, err := n.GetWifiStatus()
 	if err != nil {
@@ -609,7 +609,7 @@ func (n Nmcli) GetRadioStatus() (infra.RadioStatus, error) {
 	}, nil
 }
 
-func (Nmcli) EnableWifi() error {
+func (NMCLI) EnableWifi() error {
 	args := []string{"radio", "wifi", "on"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -625,7 +625,7 @@ func (Nmcli) EnableWifi() error {
 	return nil
 }
 
-func (Nmcli) DisableWifi() error {
+func (NMCLI) DisableWifi() error {
 	args := []string{"radio", "wifi", "off"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -641,7 +641,7 @@ func (Nmcli) DisableWifi() error {
 	return nil
 }
 
-func (Nmcli) EnableWWAN() error {
+func (NMCLI) EnableWWAN() error {
 	args := []string{"radio", "wwan", "on"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -657,7 +657,7 @@ func (Nmcli) EnableWWAN() error {
 	return nil
 }
 
-func (Nmcli) DisableWWAN() error {
+func (NMCLI) DisableWWAN() error {
 	args := []string{"radio", "wwan", "off"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -673,7 +673,7 @@ func (Nmcli) DisableWWAN() error {
 	return nil
 }
 
-func (Nmcli) EnableNetworking() error {
+func (NMCLI) EnableNetworking() error {
 	args := []string{"networking", "on"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -689,7 +689,7 @@ func (Nmcli) EnableNetworking() error {
 	return nil
 }
 
-func (Nmcli) DisableNetworking() error {
+func (NMCLI) DisableNetworking() error {
 	args := []string{"networking", "off"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -705,7 +705,7 @@ func (Nmcli) DisableNetworking() error {
 	return nil
 }
 
-func (Nmcli) GetConnectivityStatus() (infra.ConnectivityStatus, error) {
+func (NMCLI) GetConnectivityStatus() (infra.ConnectivityStatus, error) {
 	args := []string{"networking", "connectivity", "check"}
 	out, err := exec.Command(CommandName, args...).Output()
 	if err != nil {
@@ -721,7 +721,7 @@ func (Nmcli) GetConnectivityStatus() (infra.ConnectivityStatus, error) {
 	return infra.ConnectivityStatus(strings.Trim(string(out), " \n")), nil
 }
 
-func (Nmcli) CreateHotspot(device string, id string, password string, hidden bool) error {
+func (NMCLI) CreateHotspot(device string, id string, password string, hidden bool) error {
 	hiddenStr := "no"
 	if hidden {
 		hiddenStr = "yes"

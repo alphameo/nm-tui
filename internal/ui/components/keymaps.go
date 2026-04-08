@@ -13,15 +13,15 @@ func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
 }
 
 type keyMapManager struct {
-	main           *mainKeyMap
-	popup          *popupKeyMap
-	tabs           *tabsKeyMap
-	toggle         *toggle.KeyMap
-	wifi           *wifiKeyMap
-	wifiStored     *wifiStoredKeyMap
-	wifiStoredInfo *wifiStoredInfoKeyMap
-	wifiAvailable  *wifiAvailableKeyMap
-	wifiConnector  *wifiConnectorKeyMap
+	main          *mainKeyMap
+	popup         *popupKeyMap
+	tabs          *tabsKeyMap
+	toggle        *toggle.KeyMap
+	wifi          *wifiKeyMap
+	wifiSaved     *wifiSavedKeyMap
+	wifiSavedInfo *wifiSavedInfoKeyMap
+	wifiAvailable *wifiAvailableKeyMap
+	wifiConnector *wifiConnectorKeyMap
 }
 
 func (k *keyMapManager) ShortHelp() []key.Binding {
@@ -41,15 +41,15 @@ func (k *keyMapManager) FullHelp() [][]key.Binding {
 }
 
 var defaultKeyMap = &keyMapManager{
-	main:           mainKeys,
-	popup:          popupKeys,
-	tabs:           tabsKeys,
-	toggle:         toggleKeys,
-	wifi:           wifiKeys,
-	wifiStored:     wifiStoredKeys,
-	wifiStoredInfo: wifiStoredInfoKeys,
-	wifiAvailable:  wifiAvailableKeys,
-	wifiConnector:  wifiConnectorKeys,
+	main:          mainKeys,
+	popup:         popupKeys,
+	tabs:          tabsKeys,
+	toggle:        toggleKeys,
+	wifi:          wifiKeys,
+	wifiSaved:     wifiSavedKeys,
+	wifiSavedInfo: wifiSavedInfoKeys,
+	wifiAvailable: wifiAvailableKeys,
+	wifiConnector: wifiConnectorKeys,
 }
 
 var mainKeys = &mainKeyMap{
@@ -84,7 +84,7 @@ var toggleKeys = &toggle.KeyMap{
 	),
 }
 
-var wifiStoredKeys = &wifiStoredKeyMap{
+var wifiSavedKeys = &wifiSavedKeyMap{
 	edit: key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "edit"),
@@ -99,7 +99,7 @@ var wifiStoredKeys = &wifiStoredKeyMap{
 	),
 	update: key.NewBinding(
 		key.WithKeys("r"),
-		key.WithHelp("r", "rescan stored"),
+		key.WithHelp("r", "rescan saved"),
 	),
 	delete: key.NewBinding(
 		key.WithKeys("d"),
@@ -107,7 +107,7 @@ var wifiStoredKeys = &wifiStoredKeyMap{
 	),
 }
 
-var wifiStoredInfoKeys = &wifiStoredInfoKeyMap{
+var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
 	togglePWVisibility: key.NewBinding(
 		key.WithKeys("ctrl+r"),
 		key.WithHelp("^R", "toggle password visibility"),

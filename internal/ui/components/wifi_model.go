@@ -39,7 +39,7 @@ func (k *wifiKeyMap) FullHelp() [][]key.Binding {
 type WifiModel struct {
 	windows        []SizedModel // used for batch operations for wifi models
 	wifiAvailable  *WifiAvailableModel
-	wifiStored     *WifiStoredModel
+	wifiSaved      *WifiSavedModel
 	focusWindowIdx int
 
 	keys *wifiKeyMap
@@ -48,14 +48,14 @@ type WifiModel struct {
 	height int
 }
 
-func NewWifiModel(wifiAvailable *WifiAvailableModel, wifiStored *WifiStoredModel, keys *wifiKeyMap, networkManager infra.NetworkManager) *WifiModel {
+func NewWifiModel(wifiAvailable *WifiAvailableModel, wifiSaved *WifiSavedModel, keys *wifiKeyMap, networkManager infra.NetworkManager) *WifiModel {
 	w := &WifiModel{
 		wifiAvailable: wifiAvailable,
-		wifiStored:    wifiStored,
+		wifiSaved:     wifiSaved,
 		keys:          keys,
 	}
 
-	wins := []SizedModel{w.wifiAvailable, w.wifiStored}
+	wins := []SizedModel{w.wifiAvailable, w.wifiSaved}
 	w.windows = wins
 	return w
 }
@@ -64,15 +64,15 @@ func (m *WifiModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
-	storedHeight := height / 2
-	availableHeight := height - storedHeight
+	savedHeight := height / 2
+	availableHeight := height - savedHeight
 
 	width -= styles.BorderOffset
-	storedHeight -= styles.BorderOffset
+	savedHeight -= styles.BorderOffset
 	availableHeight -= styles.BorderOffset
 
 	m.wifiAvailable.Resize(width, availableHeight)
-	m.wifiStored.Resize(width, storedHeight)
+	m.wifiSaved.Resize(width, savedHeight)
 }
 
 func (m *WifiModel) Width() int {
@@ -107,7 +107,7 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.focusWindowIdx = 1
 		case key.Matches(msg, m.keys.rescan):
 			return m, tea.Batch(
-				RescanWifiStoredCmd(0),
+				RescanWifiSavedCmd(0),
 				RescanWifiAvailableCmd(0),
 			)
 		default:
@@ -116,7 +116,7 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case RescanWifiMsg:
 		return m, tea.Batch(
-			RescanWifiStoredCmd(msg.delay),
+			RescanWifiSavedCmd(msg.delay),
 			RescanWifiAvailableCmd(msg.delay),
 		)
 	}
@@ -126,8 +126,8 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.wifiAvailable = upd.(*WifiAvailableModel)
 	cmds = append(cmds, cmd)
 
-	upd, cmd = m.wifiStored.Update(msg)
-	m.wifiStored = upd.(*WifiStoredModel)
+	upd, cmd = m.wifiSaved.Update(msg)
+	m.wifiSaved = upd.(*WifiSavedModel)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
@@ -138,14 +138,14 @@ func (m *WifiModel) View() string {
 		Width(m.wifiAvailable.Width()).
 		Height(m.wifiAvailable.Height())
 
-	storedStyle := styles.BorderedStyle.
-		Width(m.wifiStored.Width()).
-		Height(m.wifiStored.Height())
+	savedStyle := styles.BorderedStyle.
+		Width(m.wifiSaved.Width()).
+		Height(m.wifiSaved.Height())
 
 	if m.focusWindowIdx == 0 {
 		availableStyle = availableStyle.BorderForeground(styles.AccentColor)
 	} else {
-		storedStyle = storedStyle.BorderForeground(styles.AccentColor)
+		savedStyle = savedStyle.BorderForeground(styles.AccentColor)
 	}
 
 	availableView := renderer.RenderWithTitleAndKeybind(
@@ -156,18 +156,18 @@ func (m *WifiModel) View() string {
 		styles.AccentColor,
 	)
 
-	storedView := renderer.RenderWithTitleAndKeybind(
-		m.wifiStored.View(),
-		"Stored Wi-Fi",
+	savedView := renderer.RenderWithTitleAndKeybind(
+		m.wifiSaved.View(),
+		"Saved Wi-Fi networks",
 		m.keys.secondWindow.Help().Key,
-		&storedStyle,
+		&savedStyle,
 		styles.AccentColor,
 	)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		availableView,
-		storedView,
+		savedView,
 	)
 }
 
@@ -179,8 +179,8 @@ func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
 		upd, cmd = m.wifiAvailable.Update(msg)
 		m.wifiAvailable = upd.(*WifiAvailableModel)
 	case 1:
-		upd, cmd = m.wifiStored.Update(msg)
-		m.wifiStored = upd.(*WifiStoredModel)
+		upd, cmd = m.wifiSaved.Update(msg)
+		m.wifiSaved = upd.(*WifiSavedModel)
 	}
 	return cmd
 }

@@ -21,22 +21,22 @@ type Focusable interface {
 	Blur()
 }
 
-type wifiStoredInfoKeyMap struct {
+type wifiSavedInfoKeyMap struct {
 	togglePWVisibility key.Binding
 	up                 key.Binding
 	down               key.Binding
 	submit             key.Binding
 }
 
-func (k wifiStoredInfoKeyMap) ShortHelp() []key.Binding {
+func (k wifiSavedInfoKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.submit}
 }
 
-func (k wifiStoredInfoKeyMap) FullHelp() [][]key.Binding {
+func (k wifiSavedInfoKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.submit}}
 }
 
-type WifiStoredInfoModel struct {
+type WifiSavedInfoModel struct {
 	ssid    string
 	active  bool
 	nameBak string
@@ -49,12 +49,12 @@ type WifiStoredInfoModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *wifiStoredInfoKeyMap
+	keys *wifiSavedInfoKeyMap
 
 	nm infra.NetworkManager
 }
 
-func NewStoredInfoModel(keys *wifiStoredInfoKeyMap, networkManager infra.NetworkManager) *WifiStoredInfoModel {
+func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.NetworkManager) *WifiSavedInfoModel {
 	n := textinput.New()
 	n.Width = 20
 	n.Prompt = ""
@@ -74,7 +74,7 @@ func NewStoredInfoModel(keys *wifiStoredInfoKeyMap, networkManager infra.Network
 	ap.Prompt = ""
 	ap.Validate = autoconnectPriorityValidator
 
-	model := &WifiStoredInfoModel{
+	model := &WifiSavedInfoModel{
 		name:            n,
 		password:        p,
 		autoconnect:     t,
@@ -93,7 +93,7 @@ func NewStoredInfoModel(keys *wifiStoredInfoKeyMap, networkManager infra.Network
 	return model
 }
 
-func (m *WifiStoredInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
+func (m *WifiSavedInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	m.ssid = info.SSID
 	m.nameBak = info.Name
 	m.active = info.Active
@@ -118,11 +118,11 @@ func (m *WifiStoredInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	return m.focuses[0].Focus()
 }
 
-func (m *WifiStoredInfoModel) Init() tea.Cmd {
+func (m *WifiSavedInfoModel) Init() tea.Cmd {
 	return m.focuses[0].Focus()
 }
 
-func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiSavedInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -150,7 +150,7 @@ func (m *WifiStoredInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m *WifiStoredInfoModel) View() string {
+func (m *WifiSavedInfoModel) View() string {
 	sb := strings.Builder{}
 	fmt.Fprintf(
 		&sb,
@@ -244,7 +244,7 @@ func (m *WifiStoredInfoModel) View() string {
 	)
 }
 
-func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, tea.Cmd) {
+func (m *WifiSavedInfoModel) handleKey(key tea.KeyMsg) (*WifiSavedInfoModel, tea.Cmd) {
 	switch {
 	case m.name.Focused():
 		upd, cmd := m.name.Update(key)
@@ -267,7 +267,7 @@ func (m *WifiStoredInfoModel) handleKey(key tea.KeyMsg) (*WifiStoredInfoModel, t
 	}
 }
 
-func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.Cmd) {
+func (m *WifiSavedInfoModel) handleMsg(msg tea.Msg) (*WifiSavedInfoModel, tea.Cmd) {
 	switch {
 	case m.name.Focused():
 		upd, cmd := m.name.Update(msg)
@@ -290,7 +290,7 @@ func (m *WifiStoredInfoModel) handleMsg(msg tea.Msg) (*WifiStoredInfoModel, tea.
 	}
 }
 
-func (m *WifiStoredInfoModel) connectionView() string {
+func (m *WifiSavedInfoModel) connectionView() string {
 	if m.active {
 		return styles.DefaultStyle.
 			Foreground(styles.AccentColor).
@@ -300,7 +300,7 @@ func (m *WifiStoredInfoModel) connectionView() string {
 	}
 }
 
-func (m *WifiStoredInfoModel) focusNextCmd() tea.Cmd {
+func (m *WifiSavedInfoModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -309,7 +309,7 @@ func (m *WifiStoredInfoModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiStoredInfoModel) focusPrevCmd() tea.Cmd {
+func (m *WifiSavedInfoModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -318,7 +318,7 @@ func (m *WifiStoredInfoModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
+func (m *WifiSavedInfoModel) saveWifiInfoCmd() tea.Cmd {
 	return func() tea.Msg {
 		ap, err := strconv.Atoi(m.autoconPriority.Value())
 		if err != nil {
@@ -343,7 +343,7 @@ func (m *WifiStoredInfoModel) saveWifiInfoCmd() tea.Cmd {
 				m.nameBak,
 			))
 		}
-		return RescanWifiStoredCmd(0)
+		return RescanWifiSavedCmd(0)
 	}
 }
 

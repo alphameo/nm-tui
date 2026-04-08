@@ -1,13 +1,13 @@
 package infra
 
-type WifiAvailable struct {
+type AvailableWifi struct {
 	SSID     string
 	Active   bool
 	Security string
 	Signal   int
 }
 
-type WifiStored struct {
+type SavedWifi struct {
 	Name   string
 	SSID   string
 	Active bool
@@ -44,7 +44,7 @@ const (
 	NetworkUnknown = "unknown"
 )
 
-type DeviceStatus struct {
+type NetworkDevice struct {
 	Device     string
 	Type       string
 	State      string
@@ -52,14 +52,14 @@ type DeviceStatus struct {
 }
 
 type NetworkManager interface {
-	// GetDeviceStatus returns network status of device
-	GetDeviceStatuses() ([]DeviceStatus, error)
+	// GetNetworkDevices returns network status of device
+	GetNetworkDevices() ([]NetworkDevice, error)
 
 	// ScanWifis shows list of wifi-networks able to be connected.
-	ScanWifis() ([]WifiAvailable, error)
+	ScanWifis() ([]AvailableWifi, error)
 
-	// GetStoredWifis shows list of stored connections and highlights the active one.
-	GetStoredWifis() ([]WifiStored, error)
+	// GetSavedWifis shows list of saved connections and highlights the active one.
+	GetSavedWifis() ([]SavedWifi, error)
 
 	// ConnectWifi creates connection with wifi-network.
 	ConnectWifi(ssid, password string, hidden bool) error
