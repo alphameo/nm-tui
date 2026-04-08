@@ -1,6 +1,6 @@
 package infra
 
-type WifiScanned struct {
+type WifiAvailable struct {
 	SSID     string
 	Active   bool
 	Security string
@@ -55,23 +55,23 @@ type NetworkManager interface {
 	// GetDeviceStatus returns network status of device
 	GetDeviceStatuses() ([]DeviceStatus, error)
 
-	// GetAvailableWifi shows list of wifi-networks able to be connected.
-	GetAvailableWifi() ([]WifiScanned, error)
+	// ScanWifis shows list of wifi-networks able to be connected.
+	ScanWifis() ([]WifiAvailable, error)
 
-	// GetStoredWifi shows list of stored connections and highlights the active one.
-	GetStoredWifi() ([]WifiStored, error)
+	// GetStoredWifis shows list of stored connections and highlights the active one.
+	GetStoredWifis() ([]WifiStored, error)
 
-	// ConnectWifi connects to wifi-network with given ssid using given password.
+	// ConnectWifi creates connection with wifi-network.
 	ConnectWifi(ssid, password string, hidden bool) error
 
-	// ConnectStoredWifi connects to wifi-network with given name if its password is saved.
-	ConnectStoredWifi(name string) error
+	// ActivateWifi activates connection with wifi-network with given name.
+	ActivateWifi(name string) error
 
-	// DisconnectFromWifi disconnects from wifi-network with given name.
-	DisconnectFromWifi(name string) error
+	// DeactivateWifi deactivates connection with wifi-network with given name.
+	DeactivateWifi(name string) error
 
-	// GetConnectedWifi gives table of saved connections.
-	GetConnectedWifi() ([]string, error)
+	// GetSavedWifiSSIDs gives table of saved connections.
+	GetSavedWifiSSIDs() ([]string, error)
 
 	// GetWifiPassword gives password of saved wifi-network with given name.
 	GetWifiPassword(name string) (string, error)
@@ -79,7 +79,19 @@ type NetworkManager interface {
 	// GetWifiInfo gives information about saved wifi-network with given name.
 	GetWifiInfo(name string) (WifiInfo, error)
 
-	// GetWWANStatus returns status of wifi on device
+	// UpdateWifiInfo updates information about wifi-network with given name.
+	UpdateWifiInfo(name string, info UpdateWifiInfo) error
+
+	// DeleteWifiConnection removes wifi-network with given name from saved connections.
+	DeleteWifiConnection(name string) error
+
+	// CreateWifiConnection creates specified connection profile
+	CreateWifiConnection(id, ssid, password, device string, hidden bool) error
+
+	// CreateHotspot creates new hotspot
+	CreateHotspot(device string, id string, password string, hidden bool) error
+
+	// GetWifiStatus returns status of wifi on device
 	GetWifiStatus() (bool, error)
 
 	// GetWWANStatus returns status of Wireless Wide Area Network on device
@@ -91,20 +103,14 @@ type NetworkManager interface {
 	// EnableWifi enables wifi on device
 	EnableWifi() error
 
-	// EnableWWAN enables Wireless Wide Area Network on device
-	EnableWWAN() error
-
 	// DisableWifi disables wifi on device
 	DisableWifi() error
 
+	// EnableWWAN enables Wireless Wide Area Network on device
+	EnableWWAN() error
+
 	// DisableWWAN disables Wireless Wide Area Network on device
 	DisableWWAN() error
-
-	// UpdateWifiInfo updates information about wifi-network with given name.
-	UpdateWifiInfo(name string, info UpdateWifiInfo) error
-
-	// DeleteWifiConnection removes wifi-network with given name from saved connections.
-	DeleteWifiConnection(name string) error
 
 	// GetConnectivityStatus returns status of networking on device
 	GetConnectivityStatus() (ConnectivityStatus, error)
@@ -114,10 +120,4 @@ type NetworkManager interface {
 
 	// DisableNetworking disables all networking on device
 	DisableNetworking() error
-
-	// CreateWifiConnection creates specified connection profile
-	CreateWifiConnection(id, ssid, password, device string, hidden bool) error
-
-	// CreateHotspot creates new hotspot
-	CreateHotspot(device string, id string, password string, hidden bool) error
 }

@@ -216,7 +216,7 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ScanningAvailable),
 		func() tea.Msg {
-			list, err := m.nm.GetAvailableWifi()
+			list, err := m.nm.ScanWifis()
 			if err != nil {
 				return tea.BatchMsg{
 					m.setStateCmd(DoneInAvailable),

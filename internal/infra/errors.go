@@ -5,17 +5,17 @@ import "errors"
 var (
 	ErrGetDeviceStatuses error = errors.New("failed retrieving network device status")
 
-	ErrCreateWifiConnection error = errors.New("failed creation og wifi connection")
+	ErrCreateWifiConnection error = errors.New("failed creation of wifi connection")
 
-	ErrScanAvailableWifi error = errors.New("failed scanning wifi networks")
-	ErrConnectWifi       error = errors.New("failed connecting to wifi network")
+	ErrScanWifis   error = errors.New("failed scanning wifi networks")
+	ErrConnectWifi error = errors.New("failed connecting to wifi network")
 
-	ErrScanStoredWifi    error = errors.New("failed retrieving stored wifi networks")
-	ErrConnectStoredWifi error = errors.New("failed connecting to stored wifi network")
+	ErrGetSavedWifis    error = errors.New("failed retrieving saved wifi networks")
+	ErrConnectSavedWifi error = errors.New("failed connecting to saved wifi network")
 
 	ErrDisconnectWifi error = errors.New("failed disconnecting from wifi network")
 
-	ErrScanConnectedWifi          error = errors.New("failed retrieving connected wifi networks")
+	ErrGetSavedWifiSSIDs          error = errors.New("failed retrieving saved wifi SSIDs")
 	ErrGetWifiPassword            error = errors.New("failed retrieving wifi network password")
 	ErrGetWifiSSID                error = errors.New("failed retrieving wifi network ssid")
 	ErrGetWifiAutoconnect         error = errors.New("failed retrieving wifi network autoconnect state")
@@ -32,13 +32,13 @@ var (
 	ErrEnableNetworking      error = errors.New("failed enabling networking")
 	ErrDisableNetworking     error = errors.New("failed disabling networking")
 
-	ErrGetRadioStaus error = errors.New("failed retrieving radio status")
-	ErrGetWifiStaus  error = errors.New("failed retrieving wifi radio status")
-	ErrEnableWifi    error = errors.New("failed enabling wifi radio")
-	ErrDisableWifi   error = errors.New("failed disabling wifi radio")
-	ErrGetWWANStaus  error = errors.New("failed retrieving wwan radio status")
-	ErrEnableWWAN    error = errors.New("failed enabling wwan radio")
-	ErrDisableWWAN   error = errors.New("failed disabling wwan radio")
+	ErrGetRadioStatus error = errors.New("failed retrieving radio status")
+	ErrGetWifiStatus  error = errors.New("failed retrieving wifi radio status")
+	ErrEnableWifi     error = errors.New("failed enabling wifi radio")
+	ErrDisableWifi    error = errors.New("failed disabling wifi radio")
+	ErrGetWWANStatus  error = errors.New("failed retrieving wwan radio status")
+	ErrEnableWWAN     error = errors.New("failed enabling wwan radio")
+	ErrDisableWWAN    error = errors.New("failed disabling wwan radio")
 
 	ErrCreateHotspot error = errors.New("failed creating hotspot")
 )

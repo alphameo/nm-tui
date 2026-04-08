@@ -253,7 +253,7 @@ func (m *WifiStoredModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ScanningStored),
 		func() tea.Msg {
-			list, err := m.nm.GetStoredWifi()
+			list, err := m.nm.GetStoredWifis()
 			if err != nil {
 				return tea.BatchMsg{
 					NotifyCmd("Cannot get stored wifi networks"),
@@ -300,7 +300,7 @@ func (m *WifiStoredModel) connectToSelectedCmd() tea.Cmd {
 		m.setStateCmd(ConnectingStored),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[m.nameColIdx]
-			err := m.nm.ConnectStoredWifi(name)
+			err := m.nm.ActivateWifi(name)
 			if err != nil {
 				return tea.BatchMsg{
 					m.setStateCmd(DoneInStored),
@@ -326,7 +326,7 @@ func (m *WifiStoredModel) gotoTop() tea.Cmd {
 func (m *WifiStoredModel) disconnectFromSelectedCmd() tea.Cmd {
 	return func() tea.Msg {
 		name := m.dataTable.SelectedRow()[m.nameColIdx]
-		err := m.nm.DisconnectFromWifi(name)
+		err := m.nm.DeactivateWifi(name)
 		if err != nil {
 			return NotifyCmd(
 				fmt.Sprintf("Error while disconnecting from %s", name),
