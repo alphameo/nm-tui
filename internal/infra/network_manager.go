@@ -55,6 +55,38 @@ type NetworkManager interface {
 	// GetNetworkDevices returns network status of device
 	GetNetworkDevices() ([]NetworkDevice, error)
 
+	// GetConnectivityStatus returns status of networking on device
+	GetConnectivityStatus() (ConnectivityStatus, error)
+
+	// EnableNetworking enables all networking on device
+	EnableNetworking() error
+
+	// DisableNetworking disables all networking on device
+	DisableNetworking() error
+
+	// EnableWWAN enables Wireless Wide Area Network on device
+	EnableWWAN() error
+
+	// DisableWWAN disables Wireless Wide Area Network on device
+	DisableWWAN() error
+
+	// GetWifiStatus returns status of wifi on device
+	GetWifiStatus() (bool, error)
+
+	// GetWWANStatus returns status of Wireless Wide Area Network on device
+	GetWWANStatus() (bool, error)
+
+	// GetRadioStatus returns status of wifi and Wireless Wide Area Network on device
+	GetRadioStatus() (RadioStatus, error)
+
+	// EnableWifi enables wifi on device
+	EnableWifi() error
+
+	// DisableWifi disables wifi on device
+	DisableWifi() error
+}
+
+type WifiManager interface {
 	// ScanWifis shows list of wifi-networks able to be connected.
 	ScanWifis() ([]AvailableWifi, error)
 
@@ -90,34 +122,4 @@ type NetworkManager interface {
 
 	// CreateHotspot creates new hotspot
 	CreateHotspot(device string, id string, password string, hidden bool) error
-
-	// GetWifiStatus returns status of wifi on device
-	GetWifiStatus() (bool, error)
-
-	// GetWWANStatus returns status of Wireless Wide Area Network on device
-	GetWWANStatus() (bool, error)
-
-	// GetRadioStatus returns status of wifi and Wireless Wide Area Network on device
-	GetRadioStatus() (RadioStatus, error)
-
-	// EnableWifi enables wifi on device
-	EnableWifi() error
-
-	// DisableWifi disables wifi on device
-	DisableWifi() error
-
-	// EnableWWAN enables Wireless Wide Area Network on device
-	EnableWWAN() error
-
-	// DisableWWAN disables Wireless Wide Area Network on device
-	DisableWWAN() error
-
-	// GetConnectivityStatus returns status of networking on device
-	GetConnectivityStatus() (ConnectivityStatus, error)
-
-	// EnableNetworking enables all networking on device
-	EnableNetworking() error
-
-	// DisableNetworking disables all networking on device
-	DisableNetworking() error
 }

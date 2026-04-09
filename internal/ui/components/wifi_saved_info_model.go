@@ -51,10 +51,10 @@ type WifiSavedInfoModel struct {
 
 	keys *wifiSavedInfoKeyMap
 
-	nm infra.NetworkManager
+	nm infra.WifiManager
 }
 
-func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.NetworkManager) *WifiSavedInfoModel {
+func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManager) *WifiSavedInfoModel {
 	n := textinput.New()
 	n.Width = 20
 	n.Prompt = ""

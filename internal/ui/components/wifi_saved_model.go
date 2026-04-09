@@ -81,13 +81,13 @@ type WifiSavedModel struct {
 
 	keys *wifiSavedKeyMap
 
-	nm infra.NetworkManager
+	nm infra.WifiManager
 
 	width  int
 	height int
 }
 
-func NewWifiSavedModel(savedInfo *WifiSavedInfoModel, keys *wifiSavedKeyMap, networkManager infra.NetworkManager) *WifiSavedModel {
+func NewWifiSavedModel(savedInfo *WifiSavedInfoModel, keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: 1},
 		{Title: "SSID"},

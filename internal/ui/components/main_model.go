@@ -63,7 +63,7 @@ type MainModel struct {
 	height int
 }
 
-func NewMainModel(networkManager infra.NetworkManager) *MainModel {
+func NewMainModel(networkManager infra.WifiManager) *MainModel {
 	keys := defaultKeyMap
 
 	con := NewWifiConnector(keys.wifiConnector, networkManager)

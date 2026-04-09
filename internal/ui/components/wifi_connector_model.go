@@ -38,10 +38,10 @@ type WifiConnectorModel struct {
 
 	keys *wifiConnectorKeyMap
 
-	nm infra.NetworkManager
+	nm infra.WifiManager
 }
 
-func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.NetworkManager) *WifiConnectorModel {
+func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManager) *WifiConnectorModel {
 	p := textinput.New()
 	p.Width = 20
 	p.Prompt = ""

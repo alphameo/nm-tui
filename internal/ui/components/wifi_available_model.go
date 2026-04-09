@@ -67,13 +67,13 @@ type WifiAvailableModel struct {
 
 	keys *wifiAvailableKeyMap
 
-	nm infra.NetworkManager
+	nm infra.WifiManager
 
 	width  int
 	height int
 }
 
-func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailableKeyMap, networkManager infra.NetworkManager) *WifiAvailableModel {
+func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailableKeyMap, networkManager infra.WifiManager) *WifiAvailableModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: 1},
 		{Title: "SSID"},

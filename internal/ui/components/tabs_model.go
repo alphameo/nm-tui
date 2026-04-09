@@ -38,7 +38,7 @@ type TabsModel struct {
 	height int
 }
 
-func NewTabsModel(tabs []Tab, keys *tabsKeyMap, networkManager infra.NetworkManager) *TabsModel {
+func NewTabsModel(tabs []Tab, keys *tabsKeyMap, networkManager infra.WifiManager) *TabsModel {
 	tabTitles := []string{}
 	for _, t := range tabs {
 		tabTitles = append(tabTitles, t.title)
