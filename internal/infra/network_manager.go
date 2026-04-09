@@ -90,20 +90,29 @@ type WifiManager interface {
 	// ScanWifis shows list of wifi-networks able to be connected.
 	ScanWifis() ([]AvailableWifi, error)
 
+	// GetSavedWifiSSIDs gives table of saved connections.
+	GetSavedWifiSSIDs() ([]string, error)
+
 	// GetSavedWifis shows list of saved connections and highlights the active one.
 	GetSavedWifis() ([]SavedWifi, error)
 
 	// ConnectWifi creates connection with wifi-network.
 	ConnectWifi(ssid, password string, hidden bool) error
 
+	// CreateWifiConnection creates specified connection profile
+	CreateWifiConnection(id, ssid, password, device string, hidden bool) error
+
+	// CreateHotspot creates new hotspot
+	CreateHotspot(device string, id string, password string, hidden bool) error
+
+	// DeleteWifiConnection removes wifi-network with given name from saved connections.
+	DeleteWifiConnection(name string) error
+
 	// ActivateWifi activates connection with wifi-network with given name.
 	ActivateWifi(name string) error
 
 	// DeactivateWifi deactivates connection with wifi-network with given name.
 	DeactivateWifi(name string) error
-
-	// GetSavedWifiSSIDs gives table of saved connections.
-	GetSavedWifiSSIDs() ([]string, error)
 
 	// GetWifiPassword gives password of saved wifi-network with given name.
 	GetWifiPassword(name string) (string, error)
@@ -113,13 +122,4 @@ type WifiManager interface {
 
 	// UpdateWifiInfo updates information about wifi-network with given name.
 	UpdateWifiInfo(name string, info UpdateWifiInfo) error
-
-	// DeleteWifiConnection removes wifi-network with given name from saved connections.
-	DeleteWifiConnection(name string) error
-
-	// CreateWifiConnection creates specified connection profile
-	CreateWifiConnection(id, ssid, password, device string, hidden bool) error
-
-	// CreateHotspot creates new hotspot
-	CreateHotspot(device string, id string, password string, hidden bool) error
 }
