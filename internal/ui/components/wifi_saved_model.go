@@ -1,6 +1,7 @@
 package components
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -168,7 +169,7 @@ func (m *WifiSavedModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			name := row[m.nameColIdx]
-			info, err := m.nm.GetWifiInfo(name)
+			info, err := m.nm.GetWifiInfo(context.Background(), name)
 			if err != nil {
 				return m, NotifyCmd(
 					fmt.Sprintf("Cannot get information about %s", name),
@@ -251,7 +252,7 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ScanningSaved),
 		func() tea.Msg {
-			list, err := m.nm.GetSavedWifis()
+			list, err := m.nm.GetSavedWifis(context.Background())
 			if err != nil {
 				return tea.BatchMsg{
 					NotifyCmd("Cannot get saved wifi networks"),
@@ -298,7 +299,7 @@ func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {
 		m.setStateCmd(ConnectingSaved),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[m.nameColIdx]
-			err := m.nm.ActivateWifi(name)
+			err := m.nm.ActivateWifi(context.Background(), name)
 			if err != nil {
 				return tea.BatchMsg{
 					m.setStateCmd(DoneInSaved),
@@ -324,7 +325,7 @@ func (m *WifiSavedModel) gotoTop() tea.Cmd {
 func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
 	return func() tea.Msg {
 		name := m.dataTable.SelectedRow()[m.nameColIdx]
-		err := m.nm.DeactivateWifi(name)
+		err := m.nm.DeactivateWifi(context.Background(), name)
 		if err != nil {
 			return NotifyCmd(
 				fmt.Sprintf("Error while disconnecting from %s", name),
@@ -341,7 +342,7 @@ func (m *WifiSavedModel) deleteSelectedCmd() tea.Cmd {
 	row := m.dataTable.SelectedRow()
 	return func() tea.Msg {
 		name := row[m.nameColIdx]
-		err := m.nm.DeleteWifiConnection(name)
+		err := m.nm.DeleteWifiConnection(context.Background(), name)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Error while deleting %s", name))
 		}

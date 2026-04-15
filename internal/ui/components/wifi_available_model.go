@@ -1,6 +1,7 @@
 package components
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"time"
@@ -216,7 +217,7 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ScanningAvailable),
 		func() tea.Msg {
-			list, err := m.nm.ScanWifis()
+			list, err := m.nm.ScanWifis(context.Background())
 			if err != nil {
 				return tea.BatchMsg{
 					m.setStateCmd(DoneInAvailable),

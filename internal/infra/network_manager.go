@@ -1,5 +1,7 @@
 package infra
 
+import "context"
+
 type AvailableWifi struct {
 	SSID     string
 	Active   bool
@@ -53,73 +55,73 @@ type NetworkDevice struct {
 
 type NetworkManager interface {
 	// GetNetworkDevices returns network status of device
-	GetNetworkDevices() ([]NetworkDevice, error)
+	GetNetworkDevices(ctx context.Context) ([]NetworkDevice, error)
 
 	// GetConnectivityStatus returns status of networking on device
-	GetConnectivityStatus() (ConnectivityStatus, error)
+	GetConnectivityStatus(ctx context.Context) (ConnectivityStatus, error)
 
 	// EnableNetworking enables all networking on device
-	EnableNetworking() error
+	EnableNetworking(ctx context.Context) error
 
 	// DisableNetworking disables all networking on device
-	DisableNetworking() error
+	DisableNetworking(ctx context.Context) error
 
 	// EnableWWAN enables Wireless Wide Area Network on device
-	EnableWWAN() error
+	EnableWWAN(ctx context.Context) error
 
 	// DisableWWAN disables Wireless Wide Area Network on device
-	DisableWWAN() error
+	DisableWWAN(ctx context.Context) error
 
 	// GetWifiStatus returns status of wifi on device
-	GetWifiStatus() (bool, error)
+	GetWifiStatus(ctx context.Context) (bool, error)
 
 	// GetWWANStatus returns status of Wireless Wide Area Network on device
-	GetWWANStatus() (bool, error)
+	GetWWANStatus(ctx context.Context) (bool, error)
 
 	// GetRadioStatus returns status of wifi and Wireless Wide Area Network on device
-	GetRadioStatus() (RadioStatus, error)
+	GetRadioStatus(ctx context.Context) (RadioStatus, error)
 
 	// EnableWifi enables wifi on device
-	EnableWifi() error
+	EnableWifi(ctx context.Context) error
 
 	// DisableWifi disables wifi on device
-	DisableWifi() error
+	DisableWifi(ctx context.Context) error
 }
 
 type WifiManager interface {
 	// ScanWifis shows list of wifi-networks able to be connected.
-	ScanWifis() ([]AvailableWifi, error)
+	ScanWifis(ctx context.Context) ([]AvailableWifi, error)
 
 	// GetSavedWifiSSIDs gives table of saved connections.
-	GetSavedWifiSSIDs() ([]string, error)
+	GetSavedWifiSSIDs(ctx context.Context) ([]string, error)
 
 	// GetSavedWifis shows list of saved connections and highlights the active one.
-	GetSavedWifis() ([]SavedWifi, error)
+	GetSavedWifis(ctx context.Context) ([]SavedWifi, error)
 
 	// ConnectWifi creates connection with wifi-network.
-	ConnectWifi(ssid, password string, hidden bool) error
+	ConnectWifi(ctx context.Context, ssid, password string, hidden bool) error
 
 	// CreateWifiConnection creates specified connection profile
-	CreateWifiConnection(id, ssid, password, device string, hidden bool) error
+	CreateWifiConnection(ctx context.Context, id, ssid, password, device string, hidden bool) error
 
 	// CreateHotspot creates new hotspot
-	CreateHotspot(device string, id string, password string, hidden bool) error
+	CreateHotspot(ctx context.Context, device string, id string, password string, hidden bool) error
 
 	// DeleteWifiConnection removes wifi-network with given name from saved connections.
-	DeleteWifiConnection(name string) error
+	DeleteWifiConnection(ctx context.Context, name string) error
 
 	// ActivateWifi activates connection with wifi-network with given name.
-	ActivateWifi(name string) error
+	ActivateWifi(ctx context.Context, name string) error
 
 	// DeactivateWifi deactivates connection with wifi-network with given name.
-	DeactivateWifi(name string) error
+	DeactivateWifi(ctx context.Context, name string) error
 
 	// GetWifiPassword gives password of saved wifi-network with given name.
-	GetWifiPassword(name string) (string, error)
+	GetWifiPassword(ctx context.Context, name string) (string, error)
 
 	// GetWifiInfo gives information about saved wifi-network with given name.
-	GetWifiInfo(name string) (WifiInfo, error)
+	GetWifiInfo(ctx context.Context, name string) (WifiInfo, error)
 
 	// UpdateWifiInfo updates information about wifi-network with given name.
-	UpdateWifiInfo(name string, info UpdateWifiInfo) error
+	UpdateWifiInfo(ctx context.Context, name string, info UpdateWifiInfo) error
 }

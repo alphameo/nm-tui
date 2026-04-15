@@ -1,6 +1,7 @@
 package components
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -71,7 +72,7 @@ func (m *WifiConnectorModel) setNew(wifiName string) tea.Cmd {
 	m.name = wifiName
 
 	m.password.Reset()
-	pw, err := m.nm.GetWifiPassword(wifiName)
+	pw, err := m.nm.GetWifiPassword(context.Background(), wifiName)
 	if err == nil {
 		m.password.SetValue(pw)
 	}
@@ -214,7 +215,7 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 		func() tea.Msg {
 			ssid := m.name
 			password := m.password.Value()
-			err := m.nm.ConnectWifi(ssid, password, m.hidden.Value())
+			err := m.nm.ConnectWifi(context.Background(), ssid, password, m.hidden.Value())
 			if err != nil {
 				return tea.BatchMsg{
 					SetWifiAvailableStateCmd(DoneInAvailable),

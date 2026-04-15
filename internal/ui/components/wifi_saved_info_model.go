@@ -1,6 +1,7 @@
 package components
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -336,7 +337,7 @@ func (m *WifiSavedInfoModel) saveWifiInfoCmd() tea.Cmd {
 			Autoconnect:         m.autoconnect.Value(),
 			AutoconnectPriority: ap,
 		}
-		err = m.nm.UpdateWifiInfo(m.nameBak, info)
+		err = m.nm.UpdateWifiInfo(context.Background(), m.nameBak, info)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf(
 				"Cannot update information about %s",
