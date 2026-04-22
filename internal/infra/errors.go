@@ -44,6 +44,8 @@ var (
 	ErrDisableWWAN    error = errors.New("failed disabling wwan radio")
 
 	ErrCreateHotspot error = errors.New("failed creating hotspot")
+
+	ErrOpenCaptivePortal error = errors.New("failed to open captive portal")
 )
 
 func ExtractStderr(err error) string {
