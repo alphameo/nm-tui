@@ -24,7 +24,7 @@ func (NMCLI) GetNetworkDevices(ctx context.Context) ([]infra.NetworkDevice, erro
 	args := []string{"-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device", "status"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetNetworkDevices.Error(),
 			"err", err,
@@ -64,7 +64,7 @@ func (NMCLI) ScanWifis(ctx context.Context) ([]infra.AvailableWifi, error) {
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrScanWifis.Error(),
 			"err", err,
@@ -106,7 +106,7 @@ func (n NMCLI) GetSavedWifis(ctx context.Context) ([]infra.SavedWifi, error) {
 	args := []string{"-t", "-f", "NAME,STATE", "connection", "show"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		return nil, fmt.Errorf("%w: %s", infra.ErrGetSavedWifis, stderr)
 	}
 
@@ -163,7 +163,7 @@ func (n NMCLI) CreateWifiConnection(ctx context.Context, id, ssid, password, dev
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrCreateWifiConnection.Error(),
 			"ssid", ssid,
@@ -193,7 +193,7 @@ func (n NMCLI) ConnectWifi(ctx context.Context, ssid, password string, hidden bo
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrConnectWifi.Error(),
 			"ssid", ssid,
@@ -210,7 +210,7 @@ func (NMCLI) ActivateWifi(ctx context.Context, id string) error {
 	args := []string{"connection", "up", id}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrConnectSavedWifi.Error(),
 			"id", id,
@@ -227,7 +227,7 @@ func (NMCLI) DeactivateWifi(ctx context.Context, id string) error {
 	args := []string{"connection", "down", id}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrDisconnectWifi.Error(),
 			"id", id,
@@ -244,7 +244,7 @@ func (NMCLI) GetSavedWifiSSIDs(ctx context.Context) ([]string, error) {
 	args := []string{"-t", "-f", "NAME", "connection", "show"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		return nil, fmt.Errorf("%w: %s", infra.ErrGetSavedWifiSSIDs, stderr)
 	}
 	slog.Info("retrieved saved wifi networks")
@@ -259,7 +259,7 @@ func (NMCLI) GetWifiPassword(ctx context.Context, id string) (string, error) {
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiPassword.Error(),
 			"id", id,
@@ -280,7 +280,7 @@ func (NMCLI) getWifiSSID(ctx context.Context, id string) (string, error) {
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiSSID.Error(),
 			"id", id,
@@ -301,7 +301,7 @@ func (NMCLI) getWifiAutoconnect(ctx context.Context, id string) (bool, error) {
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiAutoconnect.Error(),
 			"id", id,
@@ -321,7 +321,7 @@ func (NMCLI) getWifiAutoconnectPriority(ctx context.Context, id string) (int, er
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiAutoconnectPriority.Error(),
 			"id", id,
@@ -352,7 +352,7 @@ func (NMCLI) getWifiActive(ctx context.Context, id string) (bool, error) {
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiActivity.Error(),
 			"id", id,
@@ -481,7 +481,7 @@ func (NMCLI) updateWifiInfoField(ctx context.Context, id, field, value string) e
 	args := []string{"connection", "modify", id, field, value}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrUpdateWifiInfoField.Error(),
 			"id", id,
@@ -532,7 +532,7 @@ func (NMCLI) DeleteWifiConnection(ctx context.Context, id string) error {
 	args := []string{"connection", "delete", id}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrDeleteWifi.Error(),
 			"id", id,
@@ -553,7 +553,7 @@ func (NMCLI) GetWifiStatus(ctx context.Context) (bool, error) {
 	args := []string{"radio", "wifi"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiStatus.Error(),
 			"stderr", stderr,
@@ -569,7 +569,7 @@ func (NMCLI) GetWWANStatus(ctx context.Context) (bool, error) {
 	args := []string{"radio", "wwan"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetWifiStatus.Error(),
 			"stderr", stderr,
@@ -619,7 +619,7 @@ func (NMCLI) EnableWifi(ctx context.Context) error {
 	args := []string{"radio", "wifi", "on"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrEnableWifi.Error(),
 			"stderr", stderr,
@@ -635,7 +635,7 @@ func (NMCLI) DisableWifi(ctx context.Context) error {
 	args := []string{"radio", "wifi", "off"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrDisableWifi.Error(),
 			"stderr", stderr,
@@ -651,7 +651,7 @@ func (NMCLI) EnableWWAN(ctx context.Context) error {
 	args := []string{"radio", "wwan", "on"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrEnableWWAN.Error(),
 			"stderr", stderr,
@@ -667,7 +667,7 @@ func (NMCLI) DisableWWAN(ctx context.Context) error {
 	args := []string{"radio", "wwan", "off"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrDisableWWAN.Error(),
 			"stderr", stderr,
@@ -683,7 +683,7 @@ func (NMCLI) EnableNetworking(ctx context.Context) error {
 	args := []string{"networking", "on"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrEnableNetworking.Error(),
 			"stderr", stderr,
@@ -699,7 +699,7 @@ func (NMCLI) DisableNetworking(ctx context.Context) error {
 	args := []string{"networking", "off"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrDisableNetworking.Error(),
 			"stderr", stderr,
@@ -715,7 +715,7 @@ func (NMCLI) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStatu
 	args := []string{"networking", "connectivity", "check"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrGetConnectivityStatus.Error(),
 			"stderr", stderr,
@@ -741,7 +741,7 @@ func (NMCLI) CreateHotspot(ctx context.Context, device string, id string, passwo
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
-		stderr := ExtractStderr(err)
+		stderr := infra.ExtractStderr(err)
 		slog.Error(
 			infra.ErrCreateHotspot.Error(),
 			"id", id,
@@ -758,12 +758,4 @@ func (NMCLI) CreateHotspot(ctx context.Context, device string, id string, passwo
 		"hidden", hiddenStr,
 	)
 	return nil
-}
-
-func ExtractStderr(err error) string {
-	var stderr string
-	if exitErr, ok := err.(*exec.ExitError); ok {
-		stderr = string(exitErr.Stderr)
-	}
-	return stderr
 }

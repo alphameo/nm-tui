@@ -1,6 +1,9 @@
 package infra
 
-import "errors"
+import (
+	"errors"
+	"os/exec"
+)
 
 var (
 	ErrGetNetworkDevices error = errors.New("failed retrieving network device status")
@@ -42,3 +45,11 @@ var (
 
 	ErrCreateHotspot error = errors.New("failed creating hotspot")
 )
+
+func ExtractStderr(err error) string {
+	var stderr string
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		stderr = string(exitErr.Stderr)
+	}
+	return stderr
+}
