@@ -142,6 +142,9 @@ var wifiKeys = &wifiKeyMap{
 	rescan: key.NewBinding(
 		key.WithKeys("ctrl+r"),
 		key.WithHelp("^R", "rescan"),
+	openCaptivePortal: key.NewBinding(
+		key.WithKeys("ctrl+p"),
+		key.WithHelp("^p", "open captive portal"),
 	),
 }
 

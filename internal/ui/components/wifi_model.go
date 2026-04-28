@@ -1,6 +1,7 @@
 package components
 
 import (
+	"context"
 	"time"
 
 	"github.com/alphameo/nm-tui/internal/infra"
@@ -12,10 +13,11 @@ import (
 )
 
 type wifiKeyMap struct {
-	nextWindow   key.Binding
-	firstWindow  key.Binding
-	secondWindow key.Binding
-	rescan       key.Binding
+	nextWindow        key.Binding
+	firstWindow       key.Binding
+	secondWindow      key.Binding
+	rescan            key.Binding
+	openCaptivePortal key.Binding
 }
 
 func (k *wifiKeyMap) ShortHelp() []key.Binding {
@@ -24,6 +26,7 @@ func (k *wifiKeyMap) ShortHelp() []key.Binding {
 		k.firstWindow,
 		k.secondWindow,
 		k.rescan,
+		k.openCaptivePortal,
 	}
 }
 
@@ -33,6 +36,7 @@ func (k *wifiKeyMap) FullHelp() [][]key.Binding {
 		k.firstWindow,
 		k.secondWindow,
 		k.rescan,
+		k.openCaptivePortal,
 	}}
 }
 
@@ -110,6 +114,14 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				RescanWifiSavedCmd(0),
 				RescanWifiAvailableCmd(0),
 			)
+		case key.Matches(msg, m.keys.openCaptivePortal):
+			return m, func() tea.Msg {
+				err := infra.OpenCaptivePortal(context.Background())
+				if err != nil {
+					return NotifyCmd("Failed open captive portal")
+				}
+				return NotifyCmd("Opening captive portal")
+			}
 		default:
 			cmd := m.handleKeyMsg(msg)
 			return m, cmd
