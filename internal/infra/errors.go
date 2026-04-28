@@ -46,6 +46,7 @@ var (
 	ErrCreateHotspot error = errors.New("failed creating hotspot")
 
 	ErrOpenCaptivePortal error = errors.New("failed to open captive portal")
+	ErrGetOutboundIP     error = errors.New("failed getting outbound ip")
 )
 
 func ExtractStderr(err error) string {
