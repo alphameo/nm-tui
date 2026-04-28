@@ -86,13 +86,18 @@ func (NMCLI) ScanWifis(ctx context.Context) ([]infra.AvailableWifi, error) {
 			continue
 		}
 
+		ssid := parts[0]
+		if ssid == "" {
+			continue
+		}
+
 		signal, err := strconv.Atoi(parts[3])
 		if err != nil {
 			slog.Warn("parsing signal strength", "line", line, "error", err)
 			signal = 0
 		}
 		res = append(res, infra.AvailableWifi{
-			SSID:     parts[0],
+			SSID:     ssid,
 			Active:   parts[1] == "*",
 			Security: parts[2],
 			Signal:   signal,
