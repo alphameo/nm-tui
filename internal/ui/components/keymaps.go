@@ -55,14 +55,14 @@ var defaultKeyMap = &keyMapManager{
 var mainKeys = &mainKeyMap{
 	quit: key.NewBinding(
 		key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),
-		key.WithHelp("esc/q/^Q/^C", "quit"),
+		key.WithHelp("esc/q/^q/^c", "quit"),
 	),
 }
 
 var popupKeys = &popupKeyMap{
 	close: key.NewBinding(
 		key.WithKeys("ctrl+q", "esc", "ctrl+c"),
-		key.WithHelp("esc/^Q/^C", "close popup"),
+		key.WithHelp("esc/^q/^c", "close popup"),
 	),
 }
 
@@ -110,15 +110,15 @@ var wifiSavedKeys = &wifiSavedKeyMap{
 var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
 	togglePWVisibility: key.NewBinding(
 		key.WithKeys("ctrl+r"),
-		key.WithHelp("^R", "toggle password visibility"),
+		key.WithHelp("^r", "toggle password visibility"),
 	),
 	up: key.NewBinding(
 		key.WithKeys("ctrl+k"),
-		key.WithHelp("^K", "up"),
+		key.WithHelp("^k", "up"),
 	),
 	down: key.NewBinding(
 		key.WithKeys("ctrl+j"),
-		key.WithHelp("^J", "down"),
+		key.WithHelp("^j", "down"),
 	),
 	submit: key.NewBinding(
 		key.WithKeys("enter"),
@@ -141,7 +141,8 @@ var wifiKeys = &wifiKeyMap{
 	),
 	rescan: key.NewBinding(
 		key.WithKeys("ctrl+r"),
-		key.WithHelp("^R", "rescan"),
+		key.WithHelp("^r", "rescan"),
+	),
 	openCaptivePortal: key.NewBinding(
 		key.WithKeys("ctrl+p"),
 		key.WithHelp("^p", "open captive portal"),
@@ -166,11 +167,11 @@ var wifiConnectorKeys = &wifiConnectorKeyMap{
 	),
 	up: key.NewBinding(
 		key.WithKeys("ctrl+k"),
-		key.WithHelp("^K", "up"),
+		key.WithHelp("^k", "up"),
 	),
 	down: key.NewBinding(
 		key.WithKeys("ctrl+j"),
-		key.WithHelp("^J", "down"),
+		key.WithHelp("^j", "down"),
 	),
 	togglePWVisibility: key.NewBinding(
 		key.WithKeys("ctrl+r"),
