@@ -17,6 +17,7 @@ type keyMapManager struct {
 	popup         *popupKeyMap
 	tabs          *tabsKeyMap
 	toggle        *toggle.KeyMap
+	network       *networkKeyMap
 	wifi          *wifiKeyMap
 	wifiSaved     *wifiSavedKeyMap
 	wifiSavedInfo *wifiSavedInfoKeyMap
@@ -45,6 +46,7 @@ var defaultKeyMap = &keyMapManager{
 	popup:         popupKeys,
 	tabs:          tabsKeys,
 	toggle:        toggleKeys,
+	network:       networkKeys,
 	wifi:          wifiKeys,
 	wifiSaved:     wifiSavedKeys,
 	wifiSavedInfo: wifiSavedInfoKeys,
@@ -83,6 +85,8 @@ var toggleKeys = &toggle.KeyMap{
 		key.WithHelp(" ", "toggle"),
 	),
 }
+
+var networkKeys = &networkKeyMap{}
 
 var wifiSavedKeys = &wifiSavedKeyMap{
 	edit: key.NewBinding(

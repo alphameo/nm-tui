@@ -73,3 +73,10 @@ func RenderWithTitleAndKeybind(view, title, keybind string, style *lipgloss.Styl
 		0,
 	)
 }
+
+func RenderEnabledStatus(value bool) string {
+	if value {
+		return "Enabled"
+	}
+	return "Disabled"
+}
