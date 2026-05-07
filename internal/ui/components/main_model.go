@@ -63,7 +63,7 @@ type MainModel struct {
 	height int
 }
 
-func NewMainModel(wifiManager infra.WifiManager) *MainModel {
+func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
 
 	con := NewWifiConnector(keys.wifiConnector, wifiManager)
@@ -73,8 +73,12 @@ func NewMainModel(wifiManager infra.WifiManager) *MainModel {
 	s := NewWifiSavedModel(info, keys.wifiSaved, wifiManager)
 
 	wifi := NewWifiModel(a, s, keys.wifi, wifiManager)
+	network := NewNetworkModel(networkManager, keys.network)
 
-	wifiTable := NewTabsModel([]Tab{{title: "Wi-Fi", content: wifi}}, keys.tabs, wifiManager)
+	wifiTable := NewTabsModel([]Tab{
+		{title: "Wi-Fi", content: wifi},
+		{title: "Network", content: network},
+	}, keys.tabs, wifiManager)
 
 	p := &Popup{active: false}
 	n := &Notification{}

@@ -37,7 +37,7 @@ func main() {
 	defer slog.Info("Program is closed")
 
 	nm := nmcli.New()
-	p := tea.NewProgram(components.NewMainModel(nm), tea.WithAltScreen())
+	p := tea.NewProgram(components.NewMainModel(nm, nm), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		slog.Error(err.Error())
 	}
