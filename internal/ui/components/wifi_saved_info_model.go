@@ -126,28 +126,70 @@ func (m *WifiSavedInfoModel) Init() tea.Cmd {
 func (m *WifiSavedInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.keys.down):
-			return m, m.focusNextCmd()
-		case key.Matches(msg, m.keys.up):
-			return m, m.focusPrevCmd()
-		case key.Matches(msg, m.keys.togglePWVisibility):
-			if m.password.EchoMode == textinput.EchoPassword {
-				m.password.EchoMode = textinput.EchoNormal
-			} else {
-				m.password.EchoMode = textinput.EchoPassword
-			}
-			return m, nil
-		case key.Matches(msg, m.keys.submit):
-			return m, tea.Sequence(
-				SetPopupActivityCmd(false),
-				m.saveWifiInfoCmd(),
-			)
-		default:
-			return m.handleKey(msg)
-		}
+		return m.handleKey(msg)
 	default:
-		return m.handleMsg(msg)
+		switch {
+		case m.name.Focused():
+			upd, cmd := m.name.Update(msg)
+			m.name = upd
+			return m, cmd
+		case m.password.Focused():
+			upd, cmd := m.password.Update(msg)
+			m.password = upd
+			return m, cmd
+		case m.autoconnect.Focused():
+			upd, cmd := m.autoconnect.Update(msg)
+			m.autoconnect = upd
+			return m, cmd
+		case m.autoconPriority.Focused():
+			upd, cmd := m.autoconPriority.Update(msg)
+			m.autoconPriority = upd
+			return m, cmd
+		default:
+			return m, nil
+		}
+	}
+}
+
+func (m *WifiSavedInfoModel) handleKey(keyMsg tea.KeyMsg) (*WifiSavedInfoModel, tea.Cmd) {
+	switch {
+	case key.Matches(keyMsg, m.keys.down):
+		return m, m.focusNextCmd()
+	case key.Matches(keyMsg, m.keys.up):
+		return m, m.focusPrevCmd()
+	case key.Matches(keyMsg, m.keys.togglePWVisibility):
+		if m.password.EchoMode == textinput.EchoPassword {
+			m.password.EchoMode = textinput.EchoNormal
+		} else {
+			m.password.EchoMode = textinput.EchoPassword
+		}
+		return m, nil
+	case key.Matches(keyMsg, m.keys.submit):
+		return m, tea.Sequence(
+			SetPopupActivityCmd(false),
+			m.saveWifiInfoCmd(),
+		)
+	}
+
+	switch {
+	case m.name.Focused():
+		upd, cmd := m.name.Update(keyMsg)
+		m.name = upd
+		return m, cmd
+	case m.password.Focused():
+		upd, cmd := m.password.Update(keyMsg)
+		m.password = upd
+		return m, cmd
+	case m.autoconnect.Focused():
+		upd, cmd := m.autoconnect.Update(keyMsg)
+		m.autoconnect = upd
+		return m, cmd
+	case m.autoconPriority.Focused():
+		upd, cmd := m.autoconPriority.Update(keyMsg)
+		m.autoconPriority = upd
+		return m, cmd
+	default:
+		return m, nil
 	}
 }
 
@@ -243,52 +285,6 @@ func (m *WifiSavedInfoModel) View() string {
 		autoconnectCheckboxView,
 		autoconPriorityView,
 	)
-}
-
-func (m *WifiSavedInfoModel) handleKey(key tea.KeyMsg) (*WifiSavedInfoModel, tea.Cmd) {
-	switch {
-	case m.name.Focused():
-		upd, cmd := m.name.Update(key)
-		m.name = upd
-		return m, cmd
-	case m.password.Focused():
-		upd, cmd := m.password.Update(key)
-		m.password = upd
-		return m, cmd
-	case m.autoconnect.Focused():
-		upd, cmd := m.autoconnect.Update(key)
-		m.autoconnect = upd
-		return m, cmd
-	case m.autoconPriority.Focused():
-		upd, cmd := m.autoconPriority.Update(key)
-		m.autoconPriority = upd
-		return m, cmd
-	default:
-		return m, nil
-	}
-}
-
-func (m *WifiSavedInfoModel) handleMsg(msg tea.Msg) (*WifiSavedInfoModel, tea.Cmd) {
-	switch {
-	case m.name.Focused():
-		upd, cmd := m.name.Update(msg)
-		m.name = upd
-		return m, cmd
-	case m.password.Focused():
-		upd, cmd := m.password.Update(msg)
-		m.password = upd
-		return m, cmd
-	case m.autoconnect.Focused():
-		upd, cmd := m.autoconnect.Update(msg)
-		m.autoconnect = upd
-		return m, cmd
-	case m.autoconPriority.Focused():
-		upd, cmd := m.autoconPriority.Update(msg)
-		m.autoconPriority = upd
-		return m, cmd
-	default:
-		return m, nil
-	}
 }
 
 func (m *WifiSavedInfoModel) connectionView() string {

@@ -51,7 +51,7 @@ type Notification struct {
 }
 
 type MainModel struct {
-	tabs                  TabsModel
+	tabs                  *TabsModel
 	popup                 *Popup
 	notification          *Notification
 	notificationCloseTime time.Duration
@@ -82,7 +82,7 @@ func NewMainModel(wifiManager infra.WifiManager) *MainModel {
 	help.ShowAll = true
 
 	return &MainModel{
-		tabs:                  *wifiTable,
+		tabs:                  wifiTable,
 		popup:                 p,
 		notification:          n,
 		notificationCloseTime: notificationCloseTime,
@@ -212,7 +212,7 @@ func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
 		return tea.Quit
 	}
 	upd, cmd := m.tabs.Update(keyMsg)
-	m.tabs = upd.(TabsModel)
+	m.tabs = upd.(*TabsModel)
 	return cmd
 }
 
@@ -220,7 +220,7 @@ func (m *MainModel) handleMsg(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	var upd tea.Model
 	upd, cmd = m.tabs.Update(msg)
-	m.tabs = upd.(TabsModel)
+	m.tabs = upd.(*TabsModel)
 	if cmd != nil {
 		return cmd
 	}

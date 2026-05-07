@@ -91,28 +91,54 @@ func (m *WifiConnectorModel) Init() tea.Cmd {
 func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.keys.down):
-			return m, m.focusNextCmd()
-		case key.Matches(msg, m.keys.up):
-			return m, m.focusPrevCmd()
-		case key.Matches(msg, m.keys.togglePWVisibility):
-			if m.password.EchoMode == textinput.EchoPassword {
-				m.password.EchoMode = textinput.EchoNormal
-			} else {
-				m.password.EchoMode = textinput.EchoPassword
-			}
-			return m, nil
-		case key.Matches(msg, m.keys.connect):
-			return m, tea.Sequence(
-				SetPopupActivityCmd(false),
-				m.connectToWifiCmd(),
-			)
-		default:
-			return m.handleKey(msg)
-		}
+		return m.handleKey(msg)
+	}
+
+	switch {
+	case m.password.Focused():
+		upd, cmd := m.password.Update(msg)
+		m.password = upd
+		return m, cmd
+	case m.hidden.Focused():
+		upd, cmd := m.hidden.Update(msg)
+		m.hidden = upd
+		return m, cmd
 	default:
-		return m.handleMsg(msg)
+		return m, nil
+	}
+}
+
+func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyMsg) (*WifiConnectorModel, tea.Cmd) {
+	switch {
+	case key.Matches(keyMsg, m.keys.down):
+		return m, m.focusNextCmd()
+	case key.Matches(keyMsg, m.keys.up):
+		return m, m.focusPrevCmd()
+	case key.Matches(keyMsg, m.keys.togglePWVisibility):
+		if m.password.EchoMode == textinput.EchoPassword {
+			m.password.EchoMode = textinput.EchoNormal
+		} else {
+			m.password.EchoMode = textinput.EchoPassword
+		}
+		return m, nil
+	case key.Matches(keyMsg, m.keys.connect):
+		return m, tea.Sequence(
+			SetPopupActivityCmd(false),
+			m.connectToWifiCmd(),
+		)
+	}
+
+	switch {
+	case m.password.Focused():
+		upd, cmd := m.password.Update(keyMsg)
+		m.password = upd
+		return m, cmd
+	case m.hidden.Focused():
+		upd, cmd := m.hidden.Update(keyMsg)
+		m.hidden = upd
+		return m, cmd
+	default:
+		return m, nil
 	}
 }
 
@@ -159,36 +185,6 @@ func (m *WifiConnectorModel) View() string {
 		password,
 		hiddenView,
 	)
-}
-
-func (m *WifiConnectorModel) handleKey(key tea.KeyMsg) (*WifiConnectorModel, tea.Cmd) {
-	switch {
-	case m.password.Focused():
-		upd, cmd := m.password.Update(key)
-		m.password = upd
-		return m, cmd
-	case m.hidden.Focused():
-		upd, cmd := m.hidden.Update(key)
-		m.hidden = upd
-		return m, cmd
-	default:
-		return m, nil
-	}
-}
-
-func (m *WifiConnectorModel) handleMsg(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) {
-	switch {
-	case m.password.Focused():
-		upd, cmd := m.password.Update(msg)
-		m.password = upd
-		return m, cmd
-	case m.hidden.Focused():
-		upd, cmd := m.hidden.Update(msg)
-		m.hidden = upd
-		return m, cmd
-	default:
-		return m, nil
-	}
 }
 
 func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {

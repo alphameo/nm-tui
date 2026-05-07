@@ -162,36 +162,7 @@ func (m *WifiSavedModel) Init() tea.Cmd {
 func (m *WifiSavedModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "enter":
-			row := m.dataTable.SelectedRow()
-			if row == nil {
-				return m, nil
-			}
-			name := row[m.nameColIdx]
-			info, err := m.nm.GetWifiInfo(context.Background(), name)
-			if err != nil {
-				return m, NotifyCmd(
-					fmt.Sprintf("Cannot get information about %s", name),
-				)
-			}
-
-			return m, tea.Batch(
-				m.savedInfo.setNew(info),
-				OpenPopup(m.savedInfo, "Saved Wi-Fi network info"),
-			)
-
-		case " ":
-			return m, m.connectToSelectedCmd()
-
-		case "shift+ ":
-			return m,
-				m.disconnectFromSelectedCmd()
-		case "r":
-			return m, RescanWifiSavedCmd(0)
-		case "d":
-			return m, m.deleteSelectedCmd()
-		}
+		return m.handleKey(msg)
 	case RescanWifiSavedMsg:
 		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
@@ -207,6 +178,45 @@ func (m *WifiSavedModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 	m.dataTable, cmd = m.dataTable.Update(msg)
+	if cmd != nil {
+		return m, cmd
+	}
+	return m, nil
+}
+
+func (m *WifiSavedModel) handleKey(keyMsg tea.KeyMsg) (*WifiSavedModel, tea.Cmd) {
+	switch keyMsg.String() {
+	case "enter":
+		row := m.dataTable.SelectedRow()
+		if row == nil {
+			return m, nil
+		}
+		name := row[m.nameColIdx]
+		info, err := m.nm.GetWifiInfo(context.Background(), name)
+		if err != nil {
+			return m, NotifyCmd(
+				fmt.Sprintf("Cannot get information about %s", name),
+			)
+		}
+
+		return m, tea.Batch(
+			m.savedInfo.setNew(info),
+			OpenPopup(m.savedInfo, "Saved Wi-Fi network info"),
+		)
+
+	case " ":
+		return m, m.connectToSelectedCmd()
+
+	case "shift+ ":
+		return m,
+			m.disconnectFromSelectedCmd()
+	case "r":
+		return m, RescanWifiSavedCmd(0)
+	case "d":
+		return m, m.deleteSelectedCmd()
+	}
+	var cmd tea.Cmd
+	m.dataTable, cmd = m.dataTable.Update(keyMsg)
 	if cmd != nil {
 		return m, cmd
 	}

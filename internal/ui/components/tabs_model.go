@@ -66,7 +66,7 @@ func (m *TabsModel) Resize(width, height int) {
 	}
 }
 
-func (m TabsModel) Init() tea.Cmd {
+func (m *TabsModel) Init() tea.Cmd {
 	var cmds []tea.Cmd
 	for _, t := range m.tabs {
 		cmds = append(cmds, t.content.Init())
@@ -74,17 +74,10 @@ func (m TabsModel) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.keys.tabNext):
-			m.activeTab = min(m.activeTab+1, len(m.tabs)-1)
-			return m, m.tabs[m.activeTab].content.Init()
-		case key.Matches(msg, m.keys.tabPrev):
-			m.activeTab = max(m.activeTab-1, 0)
-			return m, m.tabs[m.activeTab].content.Init()
-		}
+		return m.handleKey(msg)
 	}
 
 	upd, cmd := m.tabs[m.activeTab].content.Update(msg)
@@ -92,7 +85,22 @@ func (m TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m TabsModel) View() string {
+func (m *TabsModel) handleKey(keyMsg tea.KeyMsg) (*TabsModel, tea.Cmd) {
+	switch {
+	case key.Matches(keyMsg, m.keys.tabNext):
+		m.activeTab = min(m.activeTab+1, len(m.tabs)-1)
+		return m, m.tabs[m.activeTab].content.Init()
+	case key.Matches(keyMsg, m.keys.tabPrev):
+		m.activeTab = max(m.activeTab-1, 0)
+		return m, m.tabs[m.activeTab].content.Init()
+	}
+
+	upd, cmd := m.tabs[m.activeTab].content.Update(keyMsg)
+	m.tabs[m.activeTab].content = upd.(SizedModel)
+	return m, cmd
+}
+
+func (m *TabsModel) View() string {
 	tabView := m.tabs[m.activeTab].content.View()
 	tabBar := renderer.RenderTabBar(
 		m.tabTitles,

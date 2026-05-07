@@ -68,13 +68,13 @@ type WifiAvailableModel struct {
 
 	keys *wifiAvailableKeyMap
 
-	nm infra.WifiManager
+	wm infra.WifiManager
 
 	width  int
 	height int
 }
 
-func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailableKeyMap, networkManager infra.WifiManager) *WifiAvailableModel {
+func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailableKeyMap, wifiManager infra.WifiManager) *WifiAvailableModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: 1},
 		{Title: "SSID"},
@@ -96,7 +96,7 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		indicatorState:   DoneInAvailable,
 		connector:        wifiConnector,
 		keys:             keys,
-		nm:               networkManager,
+		wm:               wifiManager,
 
 		connColIdx:     0,
 		ssidConIdx:     1,
@@ -154,19 +154,7 @@ func (m *WifiAvailableModel) Init() tea.Cmd {
 func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.keys.rescan):
-			if m.indicatorState != DoneInAvailable {
-				return m, nil
-			}
-			return m, m.RescanCmd()
-		case key.Matches(msg, m.keys.openConnector):
-			row := m.dataTable.SelectedRow()
-			if row != nil {
-				return m, m.callConnector(row[m.ssidConIdx])
-			}
-			return m, nil
-		}
+		return m.handleKey(msg)
 	case WifiAvialableStateMsg:
 		return m, m.setStateCmd(wifiAvailableState(msg))
 	case RescanWifiAvailableMsg:
@@ -182,6 +170,28 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 	m.dataTable, cmd = m.dataTable.Update(msg)
+	if cmd != nil {
+		return m, cmd
+	}
+	return m, nil
+}
+
+func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyMsg) (*WifiAvailableModel, tea.Cmd) {
+	switch {
+	case key.Matches(keyMsg, m.keys.rescan):
+		if m.indicatorState != DoneInAvailable {
+			return m, nil
+		}
+		return m, m.RescanCmd()
+	case key.Matches(keyMsg, m.keys.openConnector):
+		row := m.dataTable.SelectedRow()
+		if row != nil {
+			return m, m.callConnector(row[m.ssidConIdx])
+		}
+		return m, nil
+	}
+	var cmd tea.Cmd
+	m.dataTable, cmd = m.dataTable.Update(keyMsg)
 	if cmd != nil {
 		return m, cmd
 	}
@@ -217,7 +227,7 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ScanningAvailable),
 		func() tea.Msg {
-			list, err := m.nm.ScanWifis(context.Background())
+			list, err := m.wm.ScanWifis(context.Background())
 			if err != nil {
 				return tea.BatchMsg{
 					m.setStateCmd(DoneInAvailable),

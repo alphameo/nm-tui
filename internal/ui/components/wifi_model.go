@@ -102,30 +102,7 @@ func (m *WifiModel) Init() tea.Cmd {
 func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.keys.nextWindow):
-			m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.windows)
-		case key.Matches(msg, m.keys.firstWindow):
-			m.focusWindowIdx = 0
-		case key.Matches(msg, m.keys.secondWindow):
-			m.focusWindowIdx = 1
-		case key.Matches(msg, m.keys.rescan):
-			return m, tea.Batch(
-				RescanWifiSavedCmd(0),
-				RescanWifiAvailableCmd(0),
-			)
-		case key.Matches(msg, m.keys.openCaptivePortal):
-			return m, func() tea.Msg {
-				err := infra.OpenCaptivePortal(context.Background())
-				if err != nil {
-					return NotifyCmd("Failed open captive portal")
-				}
-				return NotifyCmd("Opening captive portal")
-			}
-		default:
-			cmd := m.handleKeyMsg(msg)
-			return m, cmd
-		}
+		return m.handleKey(msg)
 	case RescanWifiMsg:
 		return m, tea.Batch(
 			RescanWifiSavedCmd(msg.delay),
@@ -143,6 +120,42 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
+}
+
+func (m *WifiModel) handleKey(keyMsg tea.KeyMsg) (*WifiModel, tea.Cmd) {
+	switch {
+	case key.Matches(keyMsg, m.keys.nextWindow):
+		m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.windows)
+	case key.Matches(keyMsg, m.keys.firstWindow):
+		m.focusWindowIdx = 0
+	case key.Matches(keyMsg, m.keys.secondWindow):
+		m.focusWindowIdx = 1
+	case key.Matches(keyMsg, m.keys.rescan):
+		return m, tea.Batch(
+			RescanWifiSavedCmd(0),
+			RescanWifiAvailableCmd(0),
+		)
+	case key.Matches(keyMsg, m.keys.openCaptivePortal):
+		return m, func() tea.Msg {
+			err := infra.OpenCaptivePortal(context.Background())
+			if err != nil {
+				return NotifyCmd("Failed open captive portal")
+			}
+			return NotifyCmd("Opening captive portal")
+		}
+	}
+
+	var cmd tea.Cmd
+	var upd tea.Model
+	switch m.focusWindowIdx {
+	case 0:
+		upd, cmd = m.wifiAvailable.Update(keyMsg)
+		m.wifiAvailable = upd.(*WifiAvailableModel)
+	case 1:
+		upd, cmd = m.wifiSaved.Update(keyMsg)
+		m.wifiSaved = upd.(*WifiSavedModel)
+	}
+	return m, cmd
 }
 
 func (m *WifiModel) View() string {
@@ -181,20 +194,6 @@ func (m *WifiModel) View() string {
 		availableView,
 		savedView,
 	)
-}
-
-func (m *WifiModel) handleKeyMsg(msg tea.Msg) tea.Cmd {
-	var cmd tea.Cmd
-	var upd tea.Model
-	switch m.focusWindowIdx {
-	case 0:
-		upd, cmd = m.wifiAvailable.Update(msg)
-		m.wifiAvailable = upd.(*WifiAvailableModel)
-	case 1:
-		upd, cmd = m.wifiSaved.Update(msg)
-		m.wifiSaved = upd.(*WifiSavedModel)
-	}
-	return cmd
 }
 
 type RescanWifiMsg struct {
