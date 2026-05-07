@@ -185,8 +185,8 @@ func (m *WifiSavedModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *WifiSavedModel) handleKey(keyMsg tea.KeyMsg) (*WifiSavedModel, tea.Cmd) {
-	switch keyMsg.String() {
-	case "enter":
+	switch {
+	case key.Matches(keyMsg, m.keys.edit):
 		row := m.dataTable.SelectedRow()
 		if row == nil {
 			return m, nil
@@ -204,15 +204,14 @@ func (m *WifiSavedModel) handleKey(keyMsg tea.KeyMsg) (*WifiSavedModel, tea.Cmd)
 			OpenPopup(m.savedInfo, "Saved Wi-Fi network info"),
 		)
 
-	case " ":
+	case key.Matches(keyMsg, m.keys.connect):
 		return m, m.connectToSelectedCmd()
 
-	case "shift+ ":
-		return m,
-			m.disconnectFromSelectedCmd()
-	case "r":
+	case key.Matches(keyMsg, m.keys.disconnect):
+		return m, m.disconnectFromSelectedCmd()
+	case key.Matches(keyMsg, m.keys.update):
 		return m, RescanWifiSavedCmd(0)
-	case "d":
+	case key.Matches(keyMsg, m.keys.delete):
 		return m, m.deleteSelectedCmd()
 	}
 	var cmd tea.Cmd
