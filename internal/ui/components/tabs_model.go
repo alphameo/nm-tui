@@ -32,10 +32,9 @@ type TabsModel struct {
 	tabTitles []string
 	activeTab int
 
-	keys *tabsKeyMap
+	innerStyle *lipgloss.Style
 
-	width  int
-	height int
+	keys *tabsKeyMap
 }
 
 func NewTabsModel(tabs []Tab, keys *tabsKeyMap, networkManager infra.WifiManager) *TabsModel {
@@ -44,22 +43,23 @@ func NewTabsModel(tabs []Tab, keys *tabsKeyMap, networkManager infra.WifiManager
 		tabTitles = append(tabTitles, t.title)
 	}
 	m := &TabsModel{
-		tabs:      tabs,
-		tabTitles: tabTitles,
-		activeTab: 0,
-		keys:      keys,
+		tabs:       tabs,
+		tabTitles:  tabTitles,
+		activeTab:  0,
+		innerStyle: &styles.TabScreenBorderStyle,
+		keys:       keys,
 	}
 	return m
 }
 
 func (m *TabsModel) Resize(width, height int) {
-	m.width = width
-	m.height = height
-
 	width -= styles.BorderOffset
 	height -= styles.BorderOffset
 
 	height -= styles.TabBarHeight
+
+	style := m.innerStyle.Width(width).Height(height)
+	m.innerStyle = &style
 
 	for _, t := range m.tabs {
 		t.content.Resize(width, height)
@@ -102,14 +102,14 @@ func (m *TabsModel) handleKey(keyMsg tea.KeyMsg) (*TabsModel, tea.Cmd) {
 
 func (m *TabsModel) View() string {
 	tabView := m.tabs[m.activeTab].content.View()
+	tabView = m.innerStyle.Render(tabView)
 	tabBar := renderer.RenderTabBar(
 		m.tabTitles,
 		styles.TabTabBorderActiveStyle,
 		styles.TabTabBorderInactiveStyle,
-		lipgloss.Width(tabView)+2,
+		lipgloss.Width(tabView),
 		m.activeTab,
 	)
-	tabView = styles.TabScreenBorderStyle.Render(tabView)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,

@@ -161,12 +161,20 @@ func (m *MainModel) handleKey(keyMsg tea.KeyMsg) tea.Cmd {
 	return cmd
 }
 
+func (m *MainModel) Width() int {
+	return m.width
+}
+
+func (m *MainModel) Height() int {
+	return m.height
+}
+
 func (m *MainModel) Resize(width, height int) {
 	m.width = width
+	m.height = height
 	helpHeight := lipgloss.Height(m.help.View(m.keyMngr))
-	m.height = height - helpHeight
 
-	m.tabs.Resize(m.width, m.height)
+	m.tabs.Resize(width, height-helpHeight)
 }
 
 func (m MainModel) View() string {
@@ -203,7 +211,7 @@ func (m MainModel) View() string {
 	if m.notification.active {
 		notificationView := m.notification.message
 		style := styles.NotifBorderedStyle
-		style.Width(m.width / 2)
+		style = style.Width(m.Width() / 2)
 		notificationView = style.Render(notificationView)
 		notificationView = compositor.Compose(
 			m.notification.title,
