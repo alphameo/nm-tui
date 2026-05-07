@@ -50,11 +50,7 @@ func (k *wifiAvailableKeyMap) FullHelp() [][]key.Binding {
 }
 
 type WifiAvailableModel struct {
-	dataTable        table.Model
-	indicatorSpinner spinner.Model
-	indicatorState   wifiAvailableState
-
-	connector *WifiConnectorModel
+	dataTable table.Model
 
 	connColIdx     int
 	ssidConIdx     int
@@ -64,7 +60,13 @@ type WifiAvailableModel struct {
 	securityWidthProportion float32
 	minSecurityColumnWidth  int
 	minSSIDWidth            int
-	indicatorStateHeight    int
+
+	indicatorStateHeight int
+
+	indicatorSpinner spinner.Model
+	indicatorState   wifiAvailableState
+
+	connector *WifiConnectorModel
 
 	keys *wifiAvailableKeyMap
 
@@ -85,18 +87,13 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
+		table.WithStyles(styles.TableStyle),
 	)
-	t.SetStyles(styles.TableStyle)
 
 	s := spinner.New()
 
 	model := &WifiAvailableModel{
-		dataTable:        t,
-		indicatorSpinner: s,
-		indicatorState:   DoneInAvailable,
-		connector:        wifiConnector,
-		keys:             keys,
-		wm:               wifiManager,
+		dataTable: t,
 
 		connColIdx:     0,
 		ssidConIdx:     1,
@@ -106,6 +103,13 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		securityWidthProportion: 0.3,
 		minSecurityColumnWidth:  8,
 		minSSIDWidth:            4,
+
+		indicatorSpinner: s,
+		indicatorState:   DoneInAvailable,
+
+		connector: wifiConnector,
+		wm:        wifiManager,
+		keys:      keys,
 	}
 
 	model.bakeSizes()
@@ -251,9 +255,7 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 			m.dataTable.SetRows(rows)
 			m.dataTable.GotoTop()
 			m.dataTable.UpdateViewport()
-			return tea.BatchMsg{
-				m.setStateCmd(DoneInAvailable),
-			}
+			return m.setStateCmd(DoneInAvailable)
 		},
 	)
 }
