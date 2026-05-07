@@ -124,9 +124,41 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.Cmd:
 		return m, msg
 	case tea.KeyMsg:
-		return m, m.handleKeyMsg(msg)
+		return m, m.handleKey(msg)
 	}
-	return m, m.handleMsg(msg)
+
+	var cmd tea.Cmd
+	var upd tea.Model
+	upd, cmd = m.tabs.Update(msg)
+	m.tabs = upd.(*TabsModel)
+	if cmd != nil {
+		return m, cmd
+	}
+	if m.popup.active {
+		upd, cmd = m.popup.content.Update(msg)
+		m.popup.content = upd
+		if cmd != nil {
+			return m, cmd
+		}
+	}
+	return m, nil
+}
+
+func (m *MainModel) handleKey(keyMsg tea.KeyMsg) tea.Cmd {
+	if m.popup.active {
+		if key.Matches(keyMsg, m.keyMngr.popup.close) {
+			return SetPopupActivityCmd(false)
+		}
+		upd, cmd := m.popup.content.Update(keyMsg)
+		m.popup.content = upd
+		return cmd
+	}
+	if key.Matches(keyMsg, m.keyMngr.main.quit) {
+		return tea.Quit
+	}
+	upd, cmd := m.tabs.Update(keyMsg)
+	m.tabs = upd.(*TabsModel)
+	return cmd
 }
 
 func (m *MainModel) Resize(width, height int) {
@@ -197,41 +229,6 @@ func (m MainModel) View() string {
 	}
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	return view
-}
-
-func (m *MainModel) handleKeyMsg(keyMsg tea.KeyMsg) tea.Cmd {
-	if m.popup.active {
-		if key.Matches(keyMsg, m.keyMngr.popup.close) {
-			return SetPopupActivityCmd(false)
-		}
-		upd, cmd := m.popup.content.Update(keyMsg)
-		m.popup.content = upd
-		return cmd
-	}
-	if key.Matches(keyMsg, m.keyMngr.main.quit) {
-		return tea.Quit
-	}
-	upd, cmd := m.tabs.Update(keyMsg)
-	m.tabs = upd.(*TabsModel)
-	return cmd
-}
-
-func (m *MainModel) handleMsg(msg tea.Msg) tea.Cmd {
-	var cmd tea.Cmd
-	var upd tea.Model
-	upd, cmd = m.tabs.Update(msg)
-	m.tabs = upd.(*TabsModel)
-	if cmd != nil {
-		return cmd
-	}
-	if m.popup.active {
-		upd, cmd = m.popup.content.Update(msg)
-		m.popup.content = upd
-		if cmd != nil {
-			return cmd
-		}
-	}
-	return nil
 }
 
 type (
