@@ -53,7 +53,7 @@ type WifiAvailableModel struct {
 	dataTable table.Model
 
 	connColIdx     int
-	ssidConIdx     int
+	ssidColIdx     int
 	securityColIdx int
 	signalColIdx   int
 
@@ -96,7 +96,7 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		dataTable: t,
 
 		connColIdx:     0,
-		ssidConIdx:     1,
+		ssidColIdx:     1,
 		securityColIdx: 2,
 		signalColIdx:   3,
 
@@ -139,7 +139,7 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 
 	ssidWidth := width - signalColWidth - tableUtilityOffset - conColWidth - secColWidth
 	m.dataTable.Columns()[m.securityColIdx].Width = secColWidth
-	m.dataTable.Columns()[m.ssidConIdx].Width = ssidWidth
+	m.dataTable.Columns()[m.ssidColIdx].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
@@ -190,7 +190,7 @@ func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyMsg) (*WifiAvailableModel, 
 	case key.Matches(keyMsg, m.keys.openConnector):
 		row := m.dataTable.SelectedRow()
 		if row != nil {
-			return m, m.callConnector(row[m.ssidConIdx])
+			return m, m.callConnector(row[m.ssidColIdx])
 		}
 		return m, nil
 	}
