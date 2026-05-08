@@ -362,7 +362,7 @@ func (m *NetworkModel) setStateCmd(state networkState) tea.Cmd {
 }
 
 func (m *NetworkModel) toggleWWAN() tea.Cmd {
-	if m.indicatorState == NetworkTogglingWWAN {
+	if m.indicatorState != NetworkDone {
 		return nil
 	}
 	return tea.Sequence(
@@ -384,7 +384,7 @@ func (m *NetworkModel) toggleWWAN() tea.Cmd {
 }
 
 func (m *NetworkModel) toggleWIFI() tea.Cmd {
-	if m.indicatorState == NetworkTogglingWifi {
+	if m.indicatorState != NetworkDone {
 		return nil
 	}
 	return tea.Sequence(
