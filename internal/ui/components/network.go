@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -25,6 +25,10 @@ type NetworkModel struct {
 	deviceWidthProportion float32
 	minDeviceColWidth     int
 	minConnColWidth       int
+
+	wwan         *toggle.Model
+	wifi         *toggle.Model
+	connectivity string
 
 	keys *networkKeyMap
 
@@ -56,6 +60,9 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 		minDeviceColWidth:     6,
 		minConnColWidth:       10,
 
+		wwan: toggle.New(false),
+		wifi: toggle.New(false),
+
 		nm:   networkManager,
 		keys: keys,
 	}
@@ -69,7 +76,7 @@ func (m *NetworkModel) Resize(width, height int) {
 	height -= styles.BorderOffset
 
 	m.dataTable.SetWidth(width)
-	m.dataTable.SetHeight(height)
+	m.dataTable.SetHeight(height - 4)
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
 
@@ -100,10 +107,9 @@ func (m *NetworkModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		return m.handleKey(msg)
 	}
-	// upd, cmd := m.dataTable.Update(msg)
-	// m.dataTable = &upd
-	// return m, cmd
-	return m, nil
+	upd, cmd := m.dataTable.Update(msg)
+	m.dataTable = &upd
+	return m, cmd
 }
 
 func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -115,12 +121,13 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
 func (m *NetworkModel) View() string {
 	tableStyle := styles.BorderedStyle
 	table := tableStyle.Render(m.dataTable.View())
-	radioStatus, _ := m.nm.GetRadioStatus(context.Background())
-	wwan := fmt.Sprintf("WWAN:  %s", renderer.RenderEnabledStatus(radioStatus.EnabledWWAN))
-	wifi := fmt.Sprintf("Wi-Fi: %s", renderer.RenderEnabledStatus(radioStatus.EnabledWifi))
+	wwan := "WWAN:  "
+	wwan = lipgloss.JoinHorizontal(lipgloss.Center, wwan, m.wwan.View())
 
-	conStatus, _ := m.nm.GetConnectivityStatus(context.Background())
-	connectivity := fmt.Sprintf("Connectivity status: %s", conStatus)
+	wifi := "Wi-Fi: "
+	wifi = lipgloss.JoinHorizontal(lipgloss.Center, wifi, m.wifi.View())
+
+	connectivity := fmt.Sprintf("Connectivity status: %s", m.connectivity)
 
 	return lipgloss.JoinVertical(lipgloss.Center, table, wwan, wifi, connectivity)
 }
@@ -144,6 +151,20 @@ func (m *NetworkModel) RescanCmd() tea.Cmd {
 		m.dataTable.SetRows(rows)
 		m.dataTable.GotoTop()
 		m.dataTable.UpdateViewport()
+
+		radioStatus, err := m.nm.GetRadioStatus(context.Background())
+		if err != nil {
+			return NotifyCmd("Cannot get radio status")
+		}
+		m.wwan.SetValue(radioStatus.EnabledWWAN)
+		m.wifi.SetValue(radioStatus.EnabledWifi)
+
+		conStatus, err := m.nm.GetConnectivityStatus(context.Background())
+		if err != nil {
+			return NotifyCmd("Cannot get connection status")
+		}
+		m.connectivity = string(conStatus)
+
 		return NilCmd
 	}
 }
