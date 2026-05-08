@@ -203,7 +203,7 @@ func (m *MainModel) Resize(width, height int) {
 	m.height = height
 	helpHeight := lipgloss.Height(m.help.View(m.keyMngr))
 
-	m.tabs.Resize(width, height-helpHeight)
+	m.tabs.Resize(width, m.height-helpHeight)
 
 	notifStyle := m.notification.style.Width(width / 2)
 	m.notification.style = &notifStyle

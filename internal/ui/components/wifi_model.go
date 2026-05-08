@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type wifiKeyMap struct {
@@ -103,10 +103,6 @@ func (m *WifiModel) Resize(width, height int) {
 
 	savedHeight := height / 2
 	availableHeight := height - savedHeight
-
-	width -= styles.BorderOffset
-	savedHeight -= styles.BorderOffset
-	availableHeight -= styles.BorderOffset
 
 	m.wifiAvailable.Resize(width, availableHeight)
 	m.wifiSaved.Resize(width, savedHeight)

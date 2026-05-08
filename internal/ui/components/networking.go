@@ -171,8 +171,8 @@ func (m *NetworkModel) Resize(width, height int) {
 	m.height = height
 	m.width = width
 
-	width -= styles.BorderOffset * 2
-	height -= styles.BorderOffset * 2
+	width -= styles.BorderOffset
+	height -= styles.BorderOffset
 
 	m.devicesTable.SetWidth(width)
 	m.devicesTable.SetHeight(height - 5)
