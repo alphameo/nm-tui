@@ -132,20 +132,6 @@ var NilCmd = func() tea.Msg {
 	return NilMsg{}
 }
 
-// // batchCmdMsg is a custom message type that holds multiple commands to be batched together.
-// // In Bubble Tea v2, tea.BatchMsg is no longer available, so we use this custom type.
-// type batchCmdMsg struct {
-// 	cmds []tea.Cmd
-// }
-//
-// // BatchCmd creates a command that returns a batchCmdMsg containing the given commands.
-// // This is used to return multiple commands from a function that returns tea.Msg.
-// func BatchCmd(cmds ...tea.Cmd) tea.Cmd {
-// 	return func() tea.Msg {
-// 		return batchCmdMsg{cmds: cmds}
-// 	}
-// }
-
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
