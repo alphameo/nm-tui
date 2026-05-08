@@ -121,7 +121,7 @@ func (m *NetworkModel) Height() int {
 	return m.height
 }
 
-func (m NetworkModel) Init() tea.Cmd {
+func (m *NetworkModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.RescanCmd(),
 		m.focuses[m.focusIdx].Focus(),
