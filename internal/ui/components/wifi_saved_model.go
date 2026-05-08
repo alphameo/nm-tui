@@ -90,18 +90,18 @@ var wifiSavedKeys = &wifiSavedKeyMap{
 }
 
 type WifiSavedModel struct {
-	dataTable        table.Model
-	indicatorSpinner spinner.Model
-	indicatorState   wifiSavedState
-
-	savedInfo *WifiSavedInfoModel
-
+	dataTable  table.Model
 	connColIdx int
 	ssidColIdx int
 	nameColIdx int
 
 	minSSIDWidth         int
 	indicatorStateHeight int
+
+	indicatorSpinner spinner.Model
+	indicatorState   wifiSavedState
+
+	savedInfo *WifiSavedInfoModel
 
 	keys *wifiSavedKeyMap
 
