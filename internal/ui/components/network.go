@@ -14,8 +14,10 @@ import (
 )
 
 type networkKeyMap struct {
-	up   key.Binding
-	down key.Binding
+	up     key.Binding
+	down   key.Binding
+	rescan key.Binding
+	toggle key.Binding
 }
 
 func (k networkKeyMap) ShortHelp() []key.Binding {
@@ -34,6 +36,14 @@ var networkKeys = &networkKeyMap{
 	down: key.NewBinding(
 		key.WithKeys("ctrl+j"),
 		key.WithHelp("^j", "down"),
+	),
+	toggle: key.NewBinding(
+		key.WithKeys(" "),
+		key.WithHelp("󱁐", "toggle"),
+	),
+	rescan: key.NewBinding(
+		key.WithKeys("r"),
+		key.WithHelp("r", "rescan state"),
 	),
 }
 
@@ -163,16 +173,29 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, m.focusNextCmd()
 	case key.Matches(keyMsg, m.keys.up):
 		return m, m.focusPrevCmd()
+	case key.Matches(keyMsg, m.keys.rescan):
+		return m, m.RescanCmd()
+	case key.Matches(keyMsg, m.keys.toggle):
+		if m.wwan.Focused() {
+			upd, cmd := m.wwan.Update(keyMsg)
+			m.wwan = upd
+			return m, tea.Batch(cmd, m.toggleWWAN())
+		}
+		if m.wifi.Focused() {
+			upd, cmd := m.wifi.Update(keyMsg)
+			m.wifi = upd
+			return m, tea.Batch(cmd, m.toggleWIFI())
+		}
 	}
 	switch {
-	case m.wwan.Focused():
-		upd, cmd := m.wwan.Update(keyMsg)
-		m.wwan = upd
-		return m, cmd
-	case m.wifi.Focused():
-		upd, cmd := m.wifi.Update(keyMsg)
-		m.wifi = upd
-		return m, cmd
+	// case m.wwan.Focused():
+	// 	upd, cmd := m.wwan.Update(keyMsg)
+	// 	m.wwan = upd
+	// 	return m, cmd
+	// case m.wifi.Focused():
+	// 	upd, cmd := m.wifi.Update(keyMsg)
+	// 	m.wifi = upd
+	// 	return m, cmd
 
 	case m.devicesTable.Focused():
 		upd, cmd := m.devicesTable.Update(keyMsg)
@@ -259,4 +282,36 @@ func (m *NetworkModel) focusPrevCmd() tea.Cmd {
 	m.focuses[m.focusIdx].Blur()
 	m.focusIdx--
 	return m.focuses[m.focusIdx].Focus()
+}
+
+func (m *NetworkModel) toggleWWAN() tea.Cmd {
+	return func() tea.Msg {
+		var err error
+		if m.wwan.Value() {
+			err = m.nm.DisableWWAN(context.Background())
+		} else {
+			err = m.nm.EnableWWAN(context.Background())
+		}
+		if err != nil {
+			return NotifyCmd("Failed toggling WWAN")
+		}
+
+		return NilCmd
+	}
+}
+
+func (m *NetworkModel) toggleWIFI() tea.Cmd {
+	return func() tea.Msg {
+		var err error
+		if m.wifi.Value() {
+			err = m.nm.DisableWifi(context.Background())
+		} else {
+			err = m.nm.EnableWifi(context.Background())
+		}
+		if err != nil {
+			return NotifyCmd("Failed toggling Wi-Fi")
+		}
+
+		return NilCmd
+	}
 }
