@@ -17,21 +17,21 @@ import (
 type wifiSavedState int
 
 const (
-	ScanningSaved wifiSavedState = iota
-	ConnectingSaved
-	DisconnectingSaved
-	DoneInSaved
+	SavedScanning wifiSavedState = iota
+	SavedConnecting
+	SavedDisconnecting
+	SavedDone
 )
 
 func (s *wifiSavedState) String() string {
 	switch *s {
-	case ScanningSaved:
+	case SavedScanning:
 		return "Scanning"
-	case ConnectingSaved:
+	case SavedConnecting:
 		return "Connecting"
-	case DisconnectingSaved:
+	case SavedDisconnecting:
 		return "Disconnecting"
-	case DoneInSaved:
+	case SavedDone:
 		return "󰄬"
 	default:
 		return "Undefined!!!"
@@ -128,7 +128,7 @@ func NewWifiSavedModel(savedInfo *WifiSavedInfoModel, keys *wifiSavedKeyMap, net
 	model := &WifiSavedModel{
 		dataTable:        t,
 		indicatorSpinner: s,
-		indicatorState:   DoneInSaved,
+		indicatorState:   SavedDone,
 		savedInfo:        savedInfo,
 		keys:             keys,
 		nm:               networkManager,
@@ -194,7 +194,7 @@ func (m *WifiSavedModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
-	if m.indicatorState != DoneInSaved {
+	if m.indicatorState != SavedDone {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		if cmd != nil {
 			return m, cmd
@@ -258,7 +258,7 @@ func (m *WifiSavedModel) View() string {
 
 func (m *WifiSavedModel) indicatorView() string {
 	var view string
-	if m.indicatorState != DoneInSaved {
+	if m.indicatorState != SavedDone {
 		view = fmt.Sprintf(
 			"%s %s",
 			m.indicatorState.String(),
@@ -282,13 +282,13 @@ func RescanWifiSavedCmd(delay time.Duration) tea.Cmd {
 
 func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(ScanningSaved),
+		m.setStateCmd(SavedScanning),
 		func() tea.Msg {
 			list, err := m.nm.GetSavedWifis(context.Background())
 			if err != nil {
 				return tea.BatchMsg{
 					NotifyCmd("Cannot get saved wifi networks"),
-					m.setStateCmd(DoneInSaved),
+					m.setStateCmd(SavedDone),
 				}
 			}
 			rows := []table.Row{}
@@ -306,7 +306,7 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 
 			m.dataTable.SetRows(rows)
 
-			return m.setStateCmd(DoneInSaved)
+			return m.setStateCmd(SavedDone)
 		},
 	)
 }
@@ -319,7 +319,7 @@ func (m *WifiSavedModel) setStateCmd(state wifiSavedState) tea.Cmd {
 		return NilMsg{}
 	}
 
-	if state == DoneInSaved {
+	if state == SavedDone {
 		return updCmd
 	} else {
 		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
@@ -328,18 +328,18 @@ func (m *WifiSavedModel) setStateCmd(state wifiSavedState) tea.Cmd {
 
 func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(ConnectingSaved),
+		m.setStateCmd(SavedConnecting),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[m.nameColIdx]
 			err := m.nm.ActivateWifi(context.Background(), name)
 			if err != nil {
 				return tea.BatchMsg{
-					m.setStateCmd(DoneInSaved),
+					m.setStateCmd(SavedDone),
 					NotifyCmd(fmt.Sprintf("Cannot connect to %s", name)),
 				}
 			}
 			return tea.BatchMsg{
-				m.setStateCmd(DoneInSaved),
+				m.setStateCmd(SavedDone),
 				m.gotoTop(),
 				RescanWifiCmd(0),
 			}

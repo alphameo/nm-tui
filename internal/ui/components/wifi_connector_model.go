@@ -231,14 +231,14 @@ func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
 
 func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 	return tea.Sequence(
-		SetWifiAvailableStateCmd(ConnectingAvailable),
+		SetWifiAvailableStateCmd(AvailableConnecting),
 		func() tea.Msg {
 			ssid := m.name
 			password := m.password.Value()
 			err := m.nm.ConnectWifi(context.Background(), ssid, password, m.hidden.Value())
 			if err != nil {
 				return tea.BatchMsg{
-					SetWifiAvailableStateCmd(DoneInAvailable),
+					SetWifiAvailableStateCmd(AvailableDone),
 					NotifyCmd(fmt.Sprintf(
 						"Cannot connect to %s via given password",
 						ssid,
@@ -247,7 +247,7 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 				}
 			}
 			return tea.BatchMsg{
-				SetWifiAvailableStateCmd(DoneInAvailable),
+				SetWifiAvailableStateCmd(AvailableDone),
 				RescanWifiCmd(0),
 			}
 		},

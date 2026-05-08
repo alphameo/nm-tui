@@ -18,18 +18,18 @@ import (
 type wifiAvailableState int
 
 const (
-	ScanningAvailable wifiAvailableState = iota
-	ConnectingAvailable
-	DoneInAvailable
+	AvailableScanning wifiAvailableState = iota
+	AvailableConnecting
+	AvailableDone
 )
 
 func (s *wifiAvailableState) String() string {
 	switch *s {
-	case ScanningAvailable:
+	case AvailableScanning:
 		return "Scanning"
-	case ConnectingAvailable:
+	case AvailableConnecting:
 		return "Connecting"
-	case DoneInAvailable:
+	case AvailableDone:
 		return "󰄬"
 	default:
 		return "Undefined!!!"
@@ -116,7 +116,7 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		minSSIDWidth:            4,
 
 		indicatorSpinner: s,
-		indicatorState:   DoneInAvailable,
+		indicatorState:   AvailableDone,
 
 		connector: wifiConnector,
 		wm:        wifiManager,
@@ -178,7 +178,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
-	if m.indicatorState != DoneInAvailable {
+	if m.indicatorState != AvailableDone {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		if cmd != nil {
 			return m, cmd
@@ -194,7 +194,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyMsg) (*WifiAvailableModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.rescan):
-		if m.indicatorState != DoneInAvailable {
+		if m.indicatorState != AvailableDone {
 			return m, nil
 		}
 		return m, m.RescanCmd()
@@ -226,7 +226,7 @@ func (m *WifiAvailableModel) View() string {
 
 func (m *WifiAvailableModel) indicatorView() string {
 	var view string
-	if m.indicatorState != DoneInAvailable {
+	if m.indicatorState != AvailableDone {
 		view = fmt.Sprintf(
 			"%s %s",
 			m.indicatorState.String(),
@@ -240,12 +240,12 @@ func (m *WifiAvailableModel) indicatorView() string {
 
 func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(ScanningAvailable),
+		m.setStateCmd(AvailableScanning),
 		func() tea.Msg {
 			list, err := m.wm.ScanWifis(context.Background())
 			if err != nil {
 				return tea.BatchMsg{
-					m.setStateCmd(DoneInAvailable),
+					m.setStateCmd(AvailableDone),
 					NotifyCmd("Cannot scan available wifi networks"),
 				}
 			}
@@ -266,7 +266,7 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 			m.dataTable.SetRows(rows)
 			m.dataTable.GotoTop()
 			m.dataTable.UpdateViewport()
-			return m.setStateCmd(DoneInAvailable)
+			return m.setStateCmd(AvailableDone)
 		},
 	)
 }
@@ -288,7 +288,7 @@ func (m *WifiAvailableModel) setStateCmd(state wifiAvailableState) tea.Cmd {
 		m.indicatorState = state
 		return nil
 	}
-	if state == DoneInAvailable {
+	if state == AvailableDone {
 		return updCmd
 	} else {
 		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
