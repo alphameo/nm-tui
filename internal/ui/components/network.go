@@ -188,14 +188,14 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	}
 	switch {
-	// case m.wwan.Focused():
-	// 	upd, cmd := m.wwan.Update(keyMsg)
-	// 	m.wwan = upd
-	// 	return m, cmd
-	// case m.wifi.Focused():
-	// 	upd, cmd := m.wifi.Update(keyMsg)
-	// 	m.wifi = upd
-	// 	return m, cmd
+	case m.wwan.Focused():
+		upd, cmd := m.wwan.Update(keyMsg)
+		m.wwan = upd
+		return m, cmd
+	case m.wifi.Focused():
+		upd, cmd := m.wifi.Update(keyMsg)
+		m.wifi = upd
+		return m, cmd
 
 	case m.devicesTable.Focused():
 		upd, cmd := m.devicesTable.Update(keyMsg)
