@@ -84,7 +84,11 @@ type NetworkModel struct {
 	stateColIdx  int
 
 	deviceWidthProportion float32
+	typeWidthProportion   float32
+	stateWidthProportion  float32
 	minDeviceColWidth     int
+	minTypeColWidth       int
+	minStateColWidth      int
 	minConnColWidth       int
 
 	wwan      *toggle.Model
@@ -115,9 +119,9 @@ type NetworkModel struct {
 func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *NetworkModel {
 	cols := []table.Column{
 		{Title: "Device"},
-		{Title: "Type", Width: 11},
+		{Title: "Type"},
 		{Title: "Connection"},
-		{Title: "State", Width: 22},
+		{Title: "State"},
 	}
 	t := table.New(
 		table.WithColumns(cols),
@@ -137,8 +141,12 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 		connColIdx:   2,
 		stateColIdx:  3,
 
-		deviceWidthProportion: float32(0.4),
+		deviceWidthProportion: 0.3,
+		typeWidthProportion:   0.2,
+		stateWidthProportion:  0.2,
 		minDeviceColWidth:     6,
+		minTypeColWidth:       4,
+		minStateColWidth:      5,
 		minConnColWidth:       10,
 
 		indicatorSpinner: s,
@@ -180,11 +188,13 @@ func (m *NetworkModel) Resize(width, height int) {
 	tableUtilityOffset := len(m.devicesTable.Columns()) * 2
 
 	deviceColWidth := max(int(float32(width)*m.deviceWidthProportion), m.minDeviceColWidth)
-	typeColWidth := m.devicesTable.Columns()[m.typeColIdx].Width
-	stateWidth := m.devicesTable.Columns()[m.stateColIdx].Width
-
+	typeColWidth := max(int(float32(width)*m.typeWidthProportion), m.minTypeColWidth)
+	stateWidth := max(int(float32(width)*m.stateWidthProportion), m.minStateColWidth)
 	connWidth := width - typeColWidth - deviceColWidth - tableUtilityOffset - stateWidth
+
 	m.devicesTable.Columns()[m.deviceColIdx].Width = deviceColWidth
+	m.devicesTable.Columns()[m.typeColIdx].Width = typeColWidth
+	m.devicesTable.Columns()[m.stateColIdx].Width = stateWidth
 	m.devicesTable.Columns()[m.connColIdx].Width = connWidth
 	m.devicesTable.UpdateViewport()
 }
