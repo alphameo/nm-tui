@@ -6,14 +6,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type wifiSavedInfoKeyMap struct {
@@ -80,7 +80,7 @@ func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManag
 	name.SetWidth(20)
 	name.Prompt = ""
 	name.Placeholder = "name"
-	nameStyle := styles.BorderedStyle.Width(name.Width() + 1) // offset for blinking cursor
+	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	pw := textinput.New()
 	pw.SetWidth(20)
@@ -88,7 +88,7 @@ func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManag
 	pw.EchoMode = textinput.EchoPassword
 	pw.EchoCharacter = '•'
 	pw.Placeholder = "password"
-	pwStyle := styles.BorderedStyle.Width(pw.Width() + 1) // offset for blinking cursor
+	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	autoconn := toggle.New(false)
 	autoconnStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
@@ -97,7 +97,7 @@ func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManag
 	autoconnPrior.SetWidth(4)
 	autoconnPrior.Prompt = ""
 	autoconnPrior.Validate = autoconnectPriorityValidator
-	autoconnPriorStyle := styles.BorderedStyle.Width(autoconnPrior.Width() + 1) // offset for blinking cursor
+	autoconnPriorStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	model := &WifiSavedInfoModel{
 		name:      name,

@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
 type wifiConnectorKeyMap struct {
@@ -72,7 +72,7 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
 
-	pwStyle := styles.BorderedStyle.Width(p.Width() + 1) // offset for blinking cursor
+	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	hiddenStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
