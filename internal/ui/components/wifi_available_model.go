@@ -69,8 +69,6 @@ type WifiAvailableModel struct {
 	signalColIdx   int
 
 	securityWidthProportion float32
-	minSecurityColumnWidth  int
-	minSSIDWidth            int
 
 	indicatorStateHeight int
 
@@ -112,8 +110,6 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		signalColIdx:   3,
 
 		securityWidthProportion: 0.3,
-		minSecurityColumnWidth:  8,
-		minSSIDWidth:            4,
 
 		indicatorSpinner: s,
 		indicatorState:   AvailableDone,
@@ -147,11 +143,11 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
 
-	secColWidth := max(int(float32(width)*m.securityWidthProportion), m.minSecurityColumnWidth)
+	secColWidth := int(float32(width) * m.securityWidthProportion)
 	signalColWidth := m.dataTable.Columns()[m.signalColIdx].Width
 	conColWidth := m.dataTable.Columns()[m.connColIdx].Width
-
 	ssidWidth := width - signalColWidth - tableUtilityOffset - conColWidth - secColWidth
+
 	m.dataTable.Columns()[m.securityColIdx].Width = secColWidth
 	m.dataTable.Columns()[m.ssidColIdx].Width = ssidWidth
 	m.dataTable.UpdateViewport()

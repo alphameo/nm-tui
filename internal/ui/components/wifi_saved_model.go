@@ -95,7 +95,7 @@ type WifiSavedModel struct {
 	ssidColIdx int
 	nameColIdx int
 
-	minSSIDWidth         int
+	ssidWidthProportion  float32
 	indicatorStateHeight int
 
 	indicatorSpinner spinner.Model
@@ -132,7 +132,7 @@ func NewWifiSavedModel(savedInfo *WifiSavedInfoModel, keys *wifiSavedKeyMap, net
 		ssidColIdx: 1,
 		nameColIdx: 2,
 
-		minSSIDWidth: 4,
+		ssidWidthProportion: 0.5,
 
 		indicatorSpinner: s,
 		indicatorState:   SavedDone,
@@ -168,9 +168,10 @@ func (m *WifiSavedModel) Resize(width, height int) {
 	conColWidth := m.dataTable.Columns()[m.connColIdx].Width
 
 	computedWidth := width - tableUtilityOffset - conColWidth
-	possibleNameWidth := computedWidth / 2
-	ssidWidth := max(computedWidth-possibleNameWidth, m.minSSIDWidth)
+	possibleNameWidth := int(float32(computedWidth) * m.ssidWidthProportion)
+	ssidWidth := computedWidth - possibleNameWidth
 	nameWidth := computedWidth - ssidWidth
+
 	m.dataTable.Columns()[m.nameColIdx].Width = nameWidth
 	m.dataTable.Columns()[m.ssidColIdx].Width = ssidWidth
 	m.dataTable.UpdateViewport()
