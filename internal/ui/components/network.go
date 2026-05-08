@@ -15,7 +15,7 @@ import (
 type networkKeyMap struct{}
 
 type NetworkModel struct {
-	dataTable *table.Model
+	devicesTable *table.Model
 
 	deviceColIdx int
 	typeColIdx   int
@@ -50,7 +50,7 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 		table.WithStyles(styles.TableStyle),
 	)
 	return &NetworkModel{
-		dataTable:    &t,
+		devicesTable: &t,
 		deviceColIdx: 0,
 		typeColIdx:   1,
 		connColIdx:   2,
@@ -75,19 +75,19 @@ func (m *NetworkModel) Resize(width, height int) {
 	width -= styles.BorderOffset
 	height -= styles.BorderOffset
 
-	m.dataTable.SetWidth(width)
-	m.dataTable.SetHeight(height - 4)
+	m.devicesTable.SetWidth(width)
+	m.devicesTable.SetHeight(height - 4)
 
-	tableUtilityOffset := len(m.dataTable.Columns()) * 2
+	tableUtilityOffset := len(m.devicesTable.Columns()) * 2
 
 	deviceColWidth := max(int(float32(width)*m.deviceWidthProportion), m.minDeviceColWidth)
-	typeColWidth := m.dataTable.Columns()[m.typeColIdx].Width
-	stateWidth := m.dataTable.Columns()[m.stateColIdx].Width
+	typeColWidth := m.devicesTable.Columns()[m.typeColIdx].Width
+	stateWidth := m.devicesTable.Columns()[m.stateColIdx].Width
 
 	connWidth := width - typeColWidth - deviceColWidth - tableUtilityOffset - stateWidth
-	m.dataTable.Columns()[m.deviceColIdx].Width = deviceColWidth
-	m.dataTable.Columns()[m.connColIdx].Width = connWidth
-	m.dataTable.UpdateViewport()
+	m.devicesTable.Columns()[m.deviceColIdx].Width = deviceColWidth
+	m.devicesTable.Columns()[m.connColIdx].Width = connWidth
+	m.devicesTable.UpdateViewport()
 }
 
 func (m *NetworkModel) Width() int {
@@ -107,20 +107,20 @@ func (m *NetworkModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		return m.handleKey(msg)
 	}
-	upd, cmd := m.dataTable.Update(msg)
-	m.dataTable = &upd
+	upd, cmd := m.devicesTable.Update(msg)
+	m.devicesTable = &upd
 	return m, cmd
 }
 
 func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	upd, cmd := m.dataTable.Update(keyMsg)
-	m.dataTable = &upd
+	upd, cmd := m.devicesTable.Update(keyMsg)
+	m.devicesTable = &upd
 	return m, cmd
 }
 
 func (m *NetworkModel) View() string {
 	tableStyle := styles.BorderedStyle
-	table := tableStyle.Render(m.dataTable.View())
+	table := tableStyle.Render(m.devicesTable.View())
 	wwan := "WWAN:  "
 	wwan = lipgloss.JoinHorizontal(lipgloss.Center, wwan, m.wwan.View())
 
@@ -148,9 +148,9 @@ func (m *NetworkModel) RescanCmd() tea.Cmd {
 				device.State,
 			})
 		}
-		m.dataTable.SetRows(rows)
-		m.dataTable.GotoTop()
-		m.dataTable.UpdateViewport()
+		m.devicesTable.SetRows(rows)
+		m.devicesTable.GotoTop()
+		m.devicesTable.UpdateViewport()
 
 		radioStatus, err := m.nm.GetRadioStatus(context.Background())
 		if err != nil {
