@@ -18,7 +18,8 @@ var (
 	Border        = lipgloss.RoundedBorder()
 	BorderedStyle = DefaultStyle.Border(Border)
 
-	TableStyle = tableStyle()
+	TableStyle     = tableStyle()
+	DataTableStyle = dataTableStyle()
 
 	TabTabBorderInactive      = tabBorderInactive(Border)
 	TabTabBorderActive        = tabBorderActive(Border)
@@ -43,6 +44,19 @@ func tableStyle() table.Styles {
 	style.Selected = style.Selected.
 		Foreground(TextColor).
 		Background(AccentColor).
+		Bold(false)
+	return style
+}
+
+func dataTableStyle() table.Styles {
+	style := table.DefaultStyles()
+	style.Header = style.Header.
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(MutedColor).
+		BorderBottom(true).
+		Bold(false)
+	style.Selected = style.Selected.
+		Foreground(TextColor).
 		Bold(false)
 	return style
 }
