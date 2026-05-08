@@ -36,10 +36,17 @@ type WifiSavedInfoModel struct {
 	active  bool
 	nameBak string
 
-	name            textinput.Model
-	password        textinput.Model
-	autoconnect     *toggle.Model
-	autoconPriority textinput.Model
+	name      textinput.Model
+	nameStyle *lipgloss.Style
+
+	password textinput.Model
+	pwStyle  *lipgloss.Style
+
+	autoconnect   *toggle.Model
+	autoconnStyle *lipgloss.Style
+
+	autoconnPriority   textinput.Model
+	autoconnPriorStyle *lipgloss.Style
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
@@ -50,38 +57,50 @@ type WifiSavedInfoModel struct {
 }
 
 func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManager) *WifiSavedInfoModel {
-	n := textinput.New()
-	n.Width = 20
-	n.Prompt = ""
-	n.Placeholder = "name"
+	name := textinput.New()
+	name.Width = 20
+	name.Prompt = ""
+	name.Placeholder = "name"
+	nameStyle := styles.BorderedStyle.Width(name.Width + 1) // offset for blinking cursor
 
-	p := textinput.New()
-	p.Width = 20
-	p.Prompt = ""
-	p.EchoMode = textinput.EchoPassword
-	p.EchoCharacter = '•'
-	p.Placeholder = "password"
+	pw := textinput.New()
+	pw.Width = 20
+	pw.Prompt = ""
+	pw.EchoMode = textinput.EchoPassword
+	pw.EchoCharacter = '•'
+	pw.Placeholder = "password"
+	pwStyle := styles.BorderedStyle.Width(name.Width + 1) // offset for blinking cursor
 
-	t := toggle.New(false)
+	autoconn := toggle.New(false)
+	autoconnStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
-	ap := textinput.New()
-	ap.Width = 4
-	ap.Prompt = ""
-	ap.Validate = autoconnectPriorityValidator
+	autoconnPrior := textinput.New()
+	autoconnPrior.Width = 4
+	autoconnPrior.Prompt = ""
+	autoconnPrior.Validate = autoconnectPriorityValidator
+	autoconnPriorStyle := styles.BorderedStyle.Width(name.Width + 1) // offset for blinking cursor
 
 	model := &WifiSavedInfoModel{
-		name:            n,
-		password:        p,
-		autoconnect:     t,
-		autoconPriority: ap,
-		keys:            keys,
-		nm:              networkManager,
+		name:      name,
+		nameStyle: &nameStyle,
+
+		password: pw,
+		pwStyle:  &pwStyle,
+
+		autoconnect:   autoconn,
+		autoconnStyle: &autoconnStyle,
+
+		autoconnPriority:   autoconnPrior,
+		autoconnPriorStyle: &autoconnPriorStyle,
+
+		keys: keys,
+		nm:   networkManager,
 	}
 	inp := []Focusable{
 		&model.name,
 		&model.password,
 		model.autoconnect,
-		&model.autoconPriority,
+		&model.autoconnPriority,
 	}
 	model.focuses = inp
 
@@ -104,13 +123,13 @@ func (m *WifiSavedInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	m.autoconnect.SetValue(info.Autoconnect)
 	m.autoconnect.Blur()
 
-	m.autoconPriority.Reset()
-	m.autoconPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
-	m.autoconPriority.Blur()
+	m.autoconnPriority.Reset()
+	m.autoconnPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
+	m.autoconnPriority.Blur()
 
 	m.focusIdx = 0
 
-	return m.focuses[0].Focus()
+	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *WifiSavedInfoModel) Init() tea.Cmd {
@@ -135,9 +154,9 @@ func (m *WifiSavedInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			upd, cmd := m.autoconnect.Update(msg)
 			m.autoconnect = upd
 			return m, cmd
-		case m.autoconPriority.Focused():
-			upd, cmd := m.autoconPriority.Update(msg)
-			m.autoconPriority = upd
+		case m.autoconnPriority.Focused():
+			upd, cmd := m.autoconnPriority.Update(msg)
+			m.autoconnPriority = upd
 			return m, cmd
 		default:
 			return m, nil
@@ -178,9 +197,9 @@ func (m *WifiSavedInfoModel) handleKey(keyMsg tea.KeyMsg) (*WifiSavedInfoModel, 
 		upd, cmd := m.autoconnect.Update(keyMsg)
 		m.autoconnect = upd
 		return m, cmd
-	case m.autoconPriority.Focused():
-		upd, cmd := m.autoconPriority.Update(keyMsg)
-		m.autoconPriority = upd
+	case m.autoconnPriority.Focused():
+		upd, cmd := m.autoconnPriority.Update(keyMsg)
+		m.autoconnPriority = upd
 		return m, cmd
 	default:
 		return m, nil
@@ -196,88 +215,72 @@ func (m *WifiSavedInfoModel) View() string {
 		m.connectionView(),
 	)
 
-	ssidView := sb.String()
+	ssid := sb.String()
 
-	inputStyle := styles.BorderedStyle
-
-	nameView := m.name.View()
+	name := m.name.View()
+	nameStyle := *m.nameStyle
 	if m.name.Focused() {
-		nameView = inputStyle.
-			BorderForeground(styles.AccentColor).
-			Width(m.name.Width + 1). // offset for blinking cursor
-			Render(nameView)
-	} else {
-		nameView = inputStyle.
-			Width(m.name.Width + 1). // offset for blinking cursor
-			Render(nameView)
+		nameStyle = nameStyle.BorderForeground(styles.AccentColor)
 	}
-	nameView = lipgloss.JoinHorizontal(
+	name = nameStyle.Render(name)
+	name = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"Name     ",
-		nameView,
+		name,
 	)
 
-	passwordView := m.password.View()
+	pw := m.password.View()
+	pwStyle := *m.pwStyle
 	if m.password.Focused() {
-		passwordView = inputStyle.
-			Width(m.password.Width + 1). // offset for blinking cursor
-			BorderForeground(styles.AccentColor).
-			Render(passwordView)
-	} else {
-		passwordView = inputStyle.
-			Width(m.password.Width + 1). // offset for blinking cursor
-			Render(passwordView)
+		pwStyle = pwStyle.BorderForeground(styles.AccentColor)
 	}
-	passwordView = lipgloss.JoinHorizontal(
+	pw = pwStyle.Render(pw)
+	pw = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"Password ",
-		passwordView,
+		pw,
 	)
 
-	autoconnectCheckboxView := m.autoconnect.View()
+	autoconn := m.autoconnect.View()
+	autoconnStyle := *m.autoconnStyle
 	if m.autoconnect.Focused() {
-		autoconnectCheckboxView = styles.DefaultStyle.
-			Foreground(styles.AccentColor).
-			Render(autoconnectCheckboxView)
-	} else {
-		autoconnectCheckboxView = styles.DefaultStyle.
-			Render(autoconnectCheckboxView)
+		autoconnStyle = autoconnStyle.
+			Foreground(styles.AccentColor)
 	}
-	autoconnectCheckboxView = lipgloss.JoinHorizontal(
+	autoconn = autoconnStyle.Render(autoconn)
+	autoconn = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"Autoconnect          ",
-		autoconnectCheckboxView,
+		autoconn,
 	)
 
-	autoconPriorityView := m.autoconPriority.View()
-	if m.autoconPriority.Focused() {
-		autoconPriorityView = inputStyle.
-			BorderForeground(styles.AccentColor).
-			Render(autoconPriorityView)
-	} else {
-		autoconPriorityView = inputStyle.Render(autoconPriorityView)
+	autoconnPrior := m.autoconnPriority.View()
+	autoconnPriorStyle := *m.autoconnPriorStyle
+	if m.autoconnPriority.Focused() {
+		autoconnPriorStyle = autoconnPriorStyle.BorderForeground(styles.AccentColor)
 	}
-	autoconPriorityView = lipgloss.JoinHorizontal(
+	autoconnPrior = autoconnPriorStyle.Render(autoconnPrior)
+	autoconnPrior = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"Autoconnect priority ",
-		autoconPriorityView,
+		autoconnPrior,
 	)
-	if m.autoconPriority.Err != nil {
+	if m.autoconnPriority.Err != nil {
 		autoconPriorityErrView := renderer.ErrorSymbolColored
-		autoconPriorityView = lipgloss.JoinHorizontal(
+		autoconnPrior = lipgloss.JoinHorizontal(
 			lipgloss.Center,
-			autoconPriorityView,
+			autoconnPrior,
 			autoconPriorityErrView,
 		)
 	}
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		ssidView,
-		nameView,
-		passwordView,
-		autoconnectCheckboxView,
-		autoconPriorityView,
+		ssid,
+		name,
+		pw,
+		autoconn,
+		autoconnPrior,
 	)
 }
 
@@ -311,7 +314,7 @@ func (m *WifiSavedInfoModel) focusPrevCmd() tea.Cmd {
 
 func (m *WifiSavedInfoModel) saveWifiInfoCmd() tea.Cmd {
 	return func() tea.Msg {
-		ap, err := strconv.Atoi(m.autoconPriority.Value())
+		ap, err := strconv.Atoi(m.autoconnPriority.Value())
 		if err != nil {
 			return NotifyCmd(
 				fmt.Sprintf(

@@ -41,9 +41,13 @@ func (k *wifiKeyMap) FullHelp() [][]key.Binding {
 }
 
 type WifiModel struct {
-	windows        []SizedModel // used for batch operations for wifi models
 	wifiAvailable  *WifiAvailableModel
-	wifiSaved      *WifiSavedModel
+	availableStyle *lipgloss.Style
+
+	wifiSaved  *WifiSavedModel
+	savedStyle *lipgloss.Style
+
+	windows        []SizedModel // used for batch operations for wifi models
 	focusWindowIdx int
 
 	keys *wifiKeyMap
@@ -53,10 +57,16 @@ type WifiModel struct {
 }
 
 func NewWifiModel(wifiAvailable *WifiAvailableModel, wifiSaved *WifiSavedModel, keys *wifiKeyMap, networkManager infra.WifiManager) *WifiModel {
+	availableStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
+	savedStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 	w := &WifiModel{
-		wifiAvailable: wifiAvailable,
-		wifiSaved:     wifiSaved,
-		keys:          keys,
+		wifiAvailable:  wifiAvailable,
+		availableStyle: &availableStyle,
+
+		wifiSaved:  wifiSaved,
+		savedStyle: &savedStyle,
+
+		keys: keys,
 	}
 
 	wins := []SizedModel{w.wifiAvailable, w.wifiSaved}
@@ -77,6 +87,16 @@ func (m *WifiModel) Resize(width, height int) {
 
 	m.wifiAvailable.Resize(width, availableHeight)
 	m.wifiSaved.Resize(width, savedHeight)
+
+	availableBluredStyle := m.availableStyle.
+		Width(m.wifiAvailable.Width()).
+		Height(m.wifiAvailable.Height())
+	m.availableStyle = &availableBluredStyle
+
+	savedBluredStyle := m.savedStyle.
+		Width(m.wifiSaved.Width()).
+		Height(m.wifiSaved.Height())
+	m.savedStyle = &savedBluredStyle
 }
 
 func (m *WifiModel) Width() int {
@@ -159,14 +179,8 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyMsg) (*WifiModel, tea.Cmd) {
 }
 
 func (m *WifiModel) View() string {
-	availableStyle := styles.BorderedStyle.
-		Width(m.wifiAvailable.Width()).
-		Height(m.wifiAvailable.Height())
-
-	savedStyle := styles.BorderedStyle.
-		Width(m.wifiSaved.Width()).
-		Height(m.wifiSaved.Height())
-
+	availableStyle := *m.availableStyle
+	savedStyle := *m.savedStyle
 	if m.focusWindowIdx == 0 {
 		availableStyle = availableStyle.BorderForeground(styles.AccentColor)
 	} else {

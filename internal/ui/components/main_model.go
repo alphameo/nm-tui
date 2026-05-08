@@ -31,6 +31,7 @@ type Popup struct {
 	content tea.Model
 	active  bool
 	title   string
+	style   *lipgloss.Style
 }
 type popupKeyMap struct {
 	close key.Binding
@@ -48,6 +49,7 @@ type Notification struct {
 	message string
 	active  bool
 	title   string
+	style   *lipgloss.Style
 }
 
 type MainModel struct {
@@ -66,8 +68,8 @@ type MainModel struct {
 func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
 
-	con := NewWifiConnector(keys.wifiConnector, wifiManager)
-	a := NewWifiAvailableModel(con, keys.wifiAvailable, wifiManager)
+	conn := NewWifiConnector(keys.wifiConnector, wifiManager)
+	a := NewWifiAvailableModel(conn, keys.wifiAvailable, wifiManager)
 
 	info := NewSavedInfoModel(keys.wifiSavedInfo, wifiManager)
 	s := NewWifiSavedModel(info, keys.wifiSaved, wifiManager)
@@ -80,8 +82,17 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 		{title: "Network", content: network},
 	}, keys.tabs, wifiManager)
 
-	p := &Popup{active: false}
-	n := &Notification{}
+	popupStyle := lipgloss.NewStyle().Inherit(styles.OverlayStyle).
+		Align(lipgloss.Center, lipgloss.Center).
+		Width(100).
+		Height(10)
+	p := &Popup{
+		active: false, style: &popupStyle,
+	}
+
+	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
+	n := &Notification{style: &notifStyle}
+
 	help := help.New()
 	help.ShowAll = true
 
@@ -179,6 +190,9 @@ func (m *MainModel) Resize(width, height int) {
 	helpHeight := lipgloss.Height(m.help.View(m.keyMngr))
 
 	m.tabs.Resize(width, height-helpHeight)
+
+	notifStyle := m.notification.style.Width(width / 2)
+	m.notification.style = &notifStyle
 }
 
 func (m MainModel) View() string {
@@ -186,12 +200,7 @@ func (m MainModel) View() string {
 
 	if m.popup.active {
 		popupView := m.popup.content.View()
-		style := styles.OverlayStyle.
-			Align(lipgloss.Center, lipgloss.Center).
-			Width(100).
-			Height(10)
-
-		popupView = style.Render(popupView)
+		popupView = m.popup.style.Render(popupView)
 
 		title := fmt.Sprintf("[ %s ]", m.popup.title)
 
@@ -214,9 +223,7 @@ func (m MainModel) View() string {
 	}
 	if m.notification.active {
 		notificationView := m.notification.message
-		style := styles.NotifBorderedStyle
-		style = style.Width(m.Width() / 2)
-		notificationView = style.Render(notificationView)
+		notificationView = m.notification.style.Render(notificationView)
 		notificationView = compositor.Compose(
 			m.notification.title,
 			notificationView,

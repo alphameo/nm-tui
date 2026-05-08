@@ -32,7 +32,10 @@ func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
 type WifiConnectorModel struct {
 	name     string
 	password textinput.Model
-	hidden   *toggle.Model
+	pwStyle  *lipgloss.Style
+
+	hidden      *toggle.Model
+	hiddenStyle *lipgloss.Style
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
@@ -50,13 +53,22 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
 
+	pwStyle := styles.BorderedStyle.Width(p.Width + 1) // offset for blinking cursor
+
+	hiddenStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
+
 	t := toggle.New(false)
 
 	model := &WifiConnectorModel{
 		password: p,
-		hidden:   t,
-		keys:     keys,
-		nm:       networkManager,
+		pwStyle:  &pwStyle,
+
+		hidden:      t,
+		hiddenStyle: &hiddenStyle,
+
+		keys: keys,
+
+		nm: networkManager,
 	}
 
 	inp := []Focusable{
@@ -144,46 +156,39 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyMsg) (*WifiConnectorModel, 
 
 func (m *WifiConnectorModel) View() string {
 	sb := strings.Builder{}
-	pwStyle := styles.BorderedStyle.Width(m.password.Width + 1) // offset for blinking cursor
+	pwStyle := *m.pwStyle
 
 	fmt.Fprintf(&sb, "SSID      %s", m.name)
 	wifiName := sb.String()
 
 	password := m.password.View()
 	if m.password.Focused() {
-		password = pwStyle.
-			BorderForeground(styles.AccentColor).
-			Render(password)
-	} else {
-		password = pwStyle.
-			Render(password)
+		pwStyle = pwStyle.BorderForeground(styles.AccentColor)
 	}
+	password = pwStyle.Render(password)
 	password = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"Password ",
 		password,
 	)
 
-	hiddenCheckboxView := m.hidden.View()
+	hidden := m.hidden.View()
+	hiddenStyle := *m.hiddenStyle
 	if m.hidden.Focused() {
-		hiddenCheckboxView = styles.DefaultStyle.
-			Foreground(styles.AccentColor).
-			Render(hiddenCheckboxView)
-	} else {
-		hiddenCheckboxView = styles.DefaultStyle.
-			Render(hiddenCheckboxView)
+		hiddenStyle = hiddenStyle.Foreground(styles.AccentColor)
 	}
-	hiddenView := lipgloss.JoinHorizontal(
+	hidden = hiddenStyle.Render(hidden)
+	hidden = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"Hidden ",
-		hiddenCheckboxView,
+		hidden,
 	)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		wifiName,
 		password,
-		hiddenView,
+		hidden,
 	)
 }
 

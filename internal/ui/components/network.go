@@ -38,8 +38,11 @@ type NetworkModel struct {
 	minDeviceColWidth     int
 	minConnColWidth       int
 
-	wwan         *toggle.Model
+	wwan      *toggle.Model
+	wwanStyle *lipgloss.Style
+
 	wifi         *toggle.Model
+	wifiStyle    *lipgloss.Style
 	connectivity string
 
 	focuses  []Focusable // used for batch operations on input focusable elements
@@ -64,6 +67,8 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 		table.WithColumns(cols),
 		table.WithStyles(styles.TableStyle),
 	)
+	wwanStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
+	wifiStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 	model := &NetworkModel{
 		devicesTable: &t,
 		deviceColIdx: 0,
@@ -75,8 +80,11 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 		minDeviceColWidth:     6,
 		minConnColWidth:       10,
 
-		wwan: toggle.New(false),
-		wifi: toggle.New(false),
+		wwan:      toggle.New(false),
+		wwanStyle: &wwanStyle,
+
+		wifi:      toggle.New(false),
+		wifiStyle: &wifiStyle,
 
 		nm:   networkManager,
 		keys: keys,
@@ -164,23 +172,22 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m *NetworkModel) View() string {
-	tableStyle := styles.BorderedStyle
-	table := tableStyle.Render(m.devicesTable.View())
+	table := styles.BorderedStyle.Render(m.devicesTable.View())
 
 	wwan := m.wwan.View()
+	wwanStyle := *m.wwanStyle
 	if m.wwan.Focused() {
-		wwan = styles.DefaultStyle.Foreground(styles.AccentColor).Render(wwan)
-	} else {
-		wwan = styles.DefaultStyle.Render(wwan)
+		wwanStyle = m.wwanStyle.Foreground(styles.AccentColor)
 	}
+	wwan = wwanStyle.Render(wwan)
 	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN:  ", wwan)
 
 	wifi := m.wifi.View()
+	wifiStyle := *m.wifiStyle
 	if m.wifi.Focused() {
-		wifi = styles.DefaultStyle.Foreground(styles.AccentColor).Render(wifi)
-	} else {
-		wifi = styles.DefaultStyle.Render(wifi)
+		wifiStyle = m.wifiStyle.Foreground(styles.AccentColor)
 	}
+	wifi = wifiStyle.Render(wifi)
 	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi: ", wifi)
 
 	connectivity := fmt.Sprintf("Connectivity status: %s", m.connectivity)
