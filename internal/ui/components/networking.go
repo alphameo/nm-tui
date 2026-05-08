@@ -137,9 +137,9 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 		connColIdx:   2,
 		stateColIdx:  3,
 
-		deviceWidthProportion: 0.3,
-		typeWidthProportion:   0.2,
-		stateWidthProportion:  0.2,
+		deviceWidthProportion: 0.2,
+		typeWidthProportion:   0.15,
+		stateWidthProportion:  0.3,
 
 		indicatorSpinner: s,
 		indicatorState:   NetworkDone,
