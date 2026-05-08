@@ -20,6 +20,7 @@ const (
 	NetworkScanning networkState = iota
 	NetworkTogglingWifi
 	NetworkTogglingWWAN
+	NetworkTogglingNetworking
 	NetworkDone
 )
 
@@ -30,6 +31,8 @@ func (s *networkState) String() string {
 	case NetworkTogglingWWAN:
 		return "Toggling WWAN"
 	case NetworkTogglingWifi:
+		return "Toggling Wi-Fi"
+	case NetworkTogglingNetworking:
 		return "Toggling Wi-Fi"
 	case NetworkDone:
 		return "󰄬"
@@ -87,8 +90,12 @@ type NetworkModel struct {
 	wwan      *toggle.Model
 	wwanStyle *lipgloss.Style
 
-	wifi         *toggle.Model
-	wifiStyle    *lipgloss.Style
+	wifi      *toggle.Model
+	wifiStyle *lipgloss.Style
+
+	networking      *toggle.Model
+	networkingStyle *lipgloss.Style
+
 	connectivity string
 
 	indicatorSpinner spinner.Model
@@ -118,8 +125,8 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 	)
 
 	wwanStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
-
 	wifiStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
+	networkingStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
 	s := spinner.New()
 
@@ -143,6 +150,9 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 		wifi:      toggle.New(false),
 		wifiStyle: &wifiStyle,
 
+		networking:      toggle.New(false),
+		networkingStyle: &networkingStyle,
+
 		nm:   networkManager,
 		keys: keys,
 	}
@@ -150,6 +160,7 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 	focuses := []Focusable{
 		model.wwan,
 		model.wifi,
+		model.networking,
 	}
 	model.focuses = focuses
 
@@ -164,7 +175,7 @@ func (m *NetworkModel) Resize(width, height int) {
 	height -= styles.BorderOffset
 
 	m.devicesTable.SetWidth(width)
-	m.devicesTable.SetHeight(height - 4)
+	m.devicesTable.SetHeight(height - 5)
 
 	tableUtilityOffset := len(m.devicesTable.Columns()) * 2
 
@@ -225,6 +236,9 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.wifi.Focused() {
 			return m, m.toggleWIFI()
 		}
+		if m.networking.Focused() {
+			return m, m.toggleNetworking()
+		}
 	}
 	switch {
 	case m.wwan.Focused():
@@ -235,7 +249,10 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		upd, cmd := m.wifi.Update(keyMsg)
 		m.wifi = upd
 		return m, cmd
-
+	case m.networking.Focused():
+		upd, cmd := m.wifi.Update(keyMsg)
+		m.wifi = upd
+		return m, cmd
 	case m.devicesTable.Focused():
 		upd, cmd := m.devicesTable.Update(keyMsg)
 		m.devicesTable = &upd
@@ -253,7 +270,7 @@ func (m *NetworkModel) View() string {
 		wwanStyle = m.wwanStyle.Foreground(styles.AccentColor)
 	}
 	wwan = wwanStyle.Render(wwan)
-	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN:  ", wwan)
+	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN:       ", wwan)
 
 	wifi := m.wifi.View()
 	wifiStyle := *m.wifiStyle
@@ -261,7 +278,15 @@ func (m *NetworkModel) View() string {
 		wifiStyle = m.wifiStyle.Foreground(styles.AccentColor)
 	}
 	wifi = wifiStyle.Render(wifi)
-	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi: ", wifi)
+	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi:      ", wifi)
+
+	networking := m.networking.View()
+	networkingStyle := *m.networkingStyle
+	if m.networking.Focused() {
+		networkingStyle = networkingStyle.Foreground(styles.AccentColor)
+	}
+	networking = networkingStyle.Render(networking)
+	networking = lipgloss.JoinHorizontal(lipgloss.Center, "Networking: ", networking)
 
 	connectivity := fmt.Sprintf("Connectivity status: %s", m.connectivity)
 
@@ -272,6 +297,7 @@ func (m *NetworkModel) View() string {
 		table,
 		wwan,
 		wifi,
+		networking,
 		connectivity,
 		statusline,
 	)
@@ -318,6 +344,12 @@ func (m *NetworkModel) RescanCmd() tea.Cmd {
 			}
 			m.wwan.SetValue(radioStatus.EnabledWWAN)
 			m.wifi.SetValue(radioStatus.EnabledWifi)
+
+			networkingStatus, err := m.nm.GetNetworking(context.Background())
+			if err != nil {
+				return NotifyCmd("Cannot get networking status")
+			}
+			m.networking.SetValue(networkingStatus)
 
 			conStatus, err := m.nm.GetConnectivityStatus(context.Background())
 			if err != nil {
@@ -398,6 +430,28 @@ func (m *NetworkModel) toggleWIFI() tea.Cmd {
 			}
 			if err != nil {
 				return NotifyCmd("Failed toggling Wi-Fi")
+			}
+
+			return m.RescanCmd()
+		},
+	)
+}
+
+func (m *NetworkModel) toggleNetworking() tea.Cmd {
+	if m.indicatorState != NetworkDone {
+		return nil
+	}
+	return tea.Sequence(
+		m.setStateCmd(NetworkTogglingNetworking),
+		func() tea.Msg {
+			var err error
+			if m.networking.Value() {
+				err = m.nm.DisableNetworking(context.Background())
+			} else {
+				err = m.nm.EnableNetworking(context.Background())
+			}
+			if err != nil {
+				return NotifyCmd("Failed toggling networking")
 			}
 
 			return m.RescanCmd()
