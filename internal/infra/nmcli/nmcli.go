@@ -684,6 +684,22 @@ func (NMCLI) DisableWWAN(ctx context.Context) error {
 	return nil
 }
 
+func (NMCLI) GetNetworking(ctx context.Context) (bool, error) {
+	args := []string{"networking"}
+	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
+	if err != nil {
+		stderr := infra.ExtractStderr(err)
+		slog.Error(
+			infra.ErrGetNetworking.Error(),
+			"stderr", stderr,
+			"error", err,
+		)
+		return false, fmt.Errorf("%w: %s", infra.ErrGetNetworking, stderr)
+	}
+	slog.Info("retrieved networking status", "output", string(out))
+	return strings.Trim(string(out), " \n") == "enabled", nil
+}
+
 func (NMCLI) EnableNetworking(ctx context.Context) error {
 	args := []string{"networking", "on"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()

@@ -54,11 +54,14 @@ type NetworkDevice struct {
 }
 
 type NetworkManager interface {
-	// GetNetworkDevices returns network status of device
+	// GetNetworkDevices returns info about network devices
 	GetNetworkDevices(ctx context.Context) ([]NetworkDevice, error)
 
-	// GetConnectivityStatus returns status of networking on device
+	// GetConnectivityStatus returns connectivity status of device
 	GetConnectivityStatus(ctx context.Context) (ConnectivityStatus, error)
+
+	// GetNetworking returns networking status
+	GetNetworking(ctx context.Context) (bool, error)
 
 	// EnableNetworking enables all networking on device
 	EnableNetworking(ctx context.Context) error

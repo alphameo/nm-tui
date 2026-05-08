@@ -32,6 +32,7 @@ var (
 	ErrDeleteWifi error = errors.New("failed deleting wifi connection")
 
 	ErrGetConnectivityStatus error = errors.New("failed retrieving networking status")
+	ErrGetNetworking         error = errors.New("failed retreiving networking status")
 	ErrEnableNetworking      error = errors.New("failed enabling networking")
 	ErrDisableNetworking     error = errors.New("failed disabling networking")
 
