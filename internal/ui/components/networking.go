@@ -121,7 +121,7 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 	}
 	t := table.New(
 		table.WithColumns(cols),
-		table.WithStyles(styles.TableStyle),
+		table.WithStyles(styles.DataTableStyle),
 	)
 
 	wwanStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
