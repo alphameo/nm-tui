@@ -1,12 +1,12 @@
 package components
 
 import (
-	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type tabsKeyMap struct {
@@ -64,9 +64,6 @@ func NewTabsModel(tabs []Tab, keys *tabsKeyMap, networkManager infra.WifiManager
 }
 
 func (m *TabsModel) Resize(width, height int) {
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
-
 	height -= styles.TabBarHeight
 
 	style := m.innerStyle.Width(width).Height(height)

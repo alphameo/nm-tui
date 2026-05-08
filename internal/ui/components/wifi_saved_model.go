@@ -156,6 +156,9 @@ func (m *WifiSavedModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
+	width -= styles.BorderOffset
+	height -= styles.BorderOffset
+
 	height -= m.indicatorStateHeight
 
 	m.dataTable.SetWidth(width)

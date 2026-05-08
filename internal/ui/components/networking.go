@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/table"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
 type networkState int
@@ -171,8 +171,8 @@ func (m *NetworkModel) Resize(width, height int) {
 	m.height = height
 	m.width = width
 
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	width -= styles.BorderOffset * 2
+	height -= styles.BorderOffset * 2
 
 	m.devicesTable.SetWidth(width)
 	m.devicesTable.SetHeight(height - 5)
@@ -311,13 +311,13 @@ func (m *NetworkModel) View() tea.View {
 func (m *NetworkModel) indicatorView() string {
 	var view string
 	if m.indicatorState != NetworkDone {
-	view = fmt.Sprintf(
-		"%s %s",
-		m.indicatorState.String(),
-		m.indicatorSpinner.View(),
-	)
+		view = fmt.Sprintf(
+			"%s %s",
+			m.indicatorState.String(),
+			m.indicatorSpinner.View(),
+		)
 	} else {
-	view = m.indicatorState.String()
+		view = m.indicatorState.String()
 	}
 	return view
 }

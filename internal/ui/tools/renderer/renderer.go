@@ -17,7 +17,7 @@ func RenderTabBar(
 	active int,
 ) string {
 	tabCount := len(titles)
-	tabWidth := fullWidth/tabCount - 2
+	tabWidth := fullWidth/tabCount
 	tail := fullWidth % tabCount
 	var renderedTabs []string
 	for i, t := range titles {
