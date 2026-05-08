@@ -120,7 +120,7 @@ func (m *WifiSavedInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 }
 
 func (m *WifiSavedInfoModel) Init() tea.Cmd {
-	return m.focuses[0].Focus()
+	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *WifiSavedInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

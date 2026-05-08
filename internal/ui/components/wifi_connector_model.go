@@ -85,7 +85,7 @@ func (m *WifiConnectorModel) setNew(wifiName string) tea.Cmd {
 }
 
 func (m *WifiConnectorModel) Init() tea.Cmd {
-	return m.focuses[0].Focus()
+	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
