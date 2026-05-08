@@ -126,18 +126,21 @@ func NewWifiSavedModel(savedInfo *WifiSavedInfoModel, keys *wifiSavedKeyMap, net
 	s := spinner.New()
 
 	model := &WifiSavedModel{
-		dataTable:        t,
-		indicatorSpinner: s,
-		indicatorState:   SavedDone,
-		savedInfo:        savedInfo,
-		keys:             keys,
-		nm:               networkManager,
+		dataTable: t,
 
 		connColIdx: 0,
 		ssidColIdx: 1,
 		nameColIdx: 2,
 
 		minSSIDWidth: 4,
+
+		indicatorSpinner: s,
+		indicatorState:   SavedDone,
+
+		savedInfo: savedInfo,
+
+		keys: keys,
+		nm:   networkManager,
 	}
 	model.bakeSizes()
 
