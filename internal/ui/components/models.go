@@ -8,3 +8,9 @@ type SizedModel interface {
 	Width() int
 	Height() int
 }
+
+type Focusable interface {
+	Focused() bool
+	Focus() tea.Cmd
+	Blur()
+}

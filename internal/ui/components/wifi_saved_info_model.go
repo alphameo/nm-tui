@@ -16,12 +16,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type Focusable interface {
-	Focused() bool
-	Focus() tea.Cmd
-	Blur()
-}
-
 type wifiSavedInfoKeyMap struct {
 	togglePWVisibility key.Binding
 	up                 key.Binding
