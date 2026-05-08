@@ -27,6 +27,13 @@ func (k *mainKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.quit}}
 }
 
+var mainKeys = &mainKeyMap{
+	quit: key.NewBinding(
+		key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),
+		key.WithHelp("esc/q/^q/^c", "quit"),
+	),
+}
+
 type Popup struct {
 	content tea.Model
 	active  bool
@@ -43,6 +50,13 @@ func (k *popupKeyMap) ShortHelp() []key.Binding {
 
 func (k *popupKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.close}}
+}
+
+var popupKeys = &popupKeyMap{
+	close: key.NewBinding(
+		key.WithKeys("ctrl+q", "esc", "ctrl+c"),
+		key.WithHelp("esc/^q/^c", "close popup"),
+	),
 }
 
 type Notification struct {

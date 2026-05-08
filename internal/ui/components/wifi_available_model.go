@@ -49,6 +49,17 @@ func (k *wifiAvailableKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.rescan, k.openConnector}}
 }
 
+var wifiAvailableKeys = &wifiAvailableKeyMap{
+	rescan: key.NewBinding(
+		key.WithKeys("r"),
+		key.WithHelp("r", "rescan"),
+	),
+	openConnector: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "open connector"),
+	),
+}
+
 type WifiAvailableModel struct {
 	dataTable table.Model
 

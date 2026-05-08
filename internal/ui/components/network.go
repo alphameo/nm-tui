@@ -26,6 +26,17 @@ func (k networkKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.up, k.down}}
 }
 
+var networkKeys = &networkKeyMap{
+	up: key.NewBinding(
+		key.WithKeys("ctrl+k"),
+		key.WithHelp("^k", "up"),
+	),
+	down: key.NewBinding(
+		key.WithKeys("ctrl+j"),
+		key.WithHelp("^j", "down"),
+	),
+}
+
 type NetworkModel struct {
 	devicesTable *table.Model
 

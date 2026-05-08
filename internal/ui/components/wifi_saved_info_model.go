@@ -31,6 +31,25 @@ func (k wifiSavedInfoKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.submit}}
 }
 
+var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
+	togglePWVisibility: key.NewBinding(
+		key.WithKeys("ctrl+r"),
+		key.WithHelp("^r", "toggle password visibility"),
+	),
+	up: key.NewBinding(
+		key.WithKeys("ctrl+k"),
+		key.WithHelp("^k", "up"),
+	),
+	down: key.NewBinding(
+		key.WithKeys("ctrl+j"),
+		key.WithHelp("^j", "down"),
+	),
+	submit: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "submit"),
+	),
+}
+
 type WifiSavedInfoModel struct {
 	ssid    string
 	active  bool

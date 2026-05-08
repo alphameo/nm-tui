@@ -22,6 +22,17 @@ func (k *tabsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.tabNext, k.tabPrev}}
 }
 
+var tabsKeys = &tabsKeyMap{
+	tabNext: key.NewBinding(
+		key.WithKeys("]"),
+		key.WithHelp("]", "next tab"),
+	),
+	tabPrev: key.NewBinding(
+		key.WithKeys("["),
+		key.WithHelp("[", "previous tab"),
+	),
+}
+
 type Tab struct {
 	title   string
 	content SizedModel

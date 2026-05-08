@@ -29,6 +29,25 @@ func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.connect}}
 }
 
+var wifiConnectorKeys = &wifiConnectorKeyMap{
+	connect: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "open connector"),
+	),
+	up: key.NewBinding(
+		key.WithKeys("ctrl+k"),
+		key.WithHelp("^k", "up"),
+	),
+	down: key.NewBinding(
+		key.WithKeys("ctrl+j"),
+		key.WithHelp("^j", "down"),
+	),
+	togglePWVisibility: key.NewBinding(
+		key.WithKeys("ctrl+r"),
+		key.WithHelp("^r", "toggle password visibility"),
+	),
+}
+
 type WifiConnectorModel struct {
 	name     string
 	password textinput.Model

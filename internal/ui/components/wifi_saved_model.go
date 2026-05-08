@@ -66,6 +66,29 @@ func (k *wifiSavedKeyMap) FullHelp() [][]key.Binding {
 	}}
 }
 
+var wifiSavedKeys = &wifiSavedKeyMap{
+	edit: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "edit"),
+	),
+	connect: key.NewBinding(
+		key.WithKeys(" "),
+		key.WithHelp(" ", "connect"),
+	),
+	disconnect: key.NewBinding(
+		key.WithKeys("shift+ "),
+		key.WithHelp("shift+ ", "disconnect"),
+	),
+	update: key.NewBinding(
+		key.WithKeys("r"),
+		key.WithHelp("r", "rescan saved"),
+	),
+	delete: key.NewBinding(
+		key.WithKeys("d"),
+		key.WithHelp("d", "delete"),
+	),
+}
+
 type WifiSavedModel struct {
 	dataTable        table.Model
 	indicatorSpinner spinner.Model

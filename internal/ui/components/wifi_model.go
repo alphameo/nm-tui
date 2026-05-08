@@ -40,6 +40,29 @@ func (k *wifiKeyMap) FullHelp() [][]key.Binding {
 	}}
 }
 
+var wifiKeys = &wifiKeyMap{
+	nextWindow: key.NewBinding(
+		key.WithKeys("tab"),
+		key.WithHelp("tab", "next window"),
+	),
+	firstWindow: key.NewBinding(
+		key.WithKeys("1"),
+		key.WithHelp("1", "first window"),
+	),
+	secondWindow: key.NewBinding(
+		key.WithKeys("2"),
+		key.WithHelp("2", "second window"),
+	),
+	rescan: key.NewBinding(
+		key.WithKeys("ctrl+r"),
+		key.WithHelp("^r", "rescan"),
+	),
+	openCaptivePortal: key.NewBinding(
+		key.WithKeys("ctrl+p"),
+		key.WithHelp("^p", "open captive portal"),
+	),
+}
+
 type WifiModel struct {
 	wifiAvailable  *WifiAvailableModel
 	availableStyle *lipgloss.Style

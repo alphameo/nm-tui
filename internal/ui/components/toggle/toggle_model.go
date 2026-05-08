@@ -27,7 +27,7 @@ type Model struct {
 func New(initial bool) *Model {
 	return &Model{
 		value: initial,
-		Keys:  defaultKeys,
+		Keys:  DefaultKeys,
 	}
 }
 
