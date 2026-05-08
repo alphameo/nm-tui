@@ -7,12 +7,24 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-type networkKeyMap struct{}
+type networkKeyMap struct {
+	up   key.Binding
+	down key.Binding
+}
+
+func (k networkKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.up, k.down}
+}
+
+func (k networkKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.up, k.down}}
+}
 
 type NetworkModel struct {
 	devicesTable *table.Model
@@ -29,6 +41,9 @@ type NetworkModel struct {
 	wwan         *toggle.Model
 	wifi         *toggle.Model
 	connectivity string
+
+	focuses  []Focusable // used for batch operations on input focusable elements
+	focusIdx int
 
 	keys *networkKeyMap
 
@@ -49,7 +64,7 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 		table.WithColumns(cols),
 		table.WithStyles(styles.TableStyle),
 	)
-	return &NetworkModel{
+	model := &NetworkModel{
 		devicesTable: &t,
 		deviceColIdx: 0,
 		typeColIdx:   1,
@@ -66,6 +81,14 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 		nm:   networkManager,
 		keys: keys,
 	}
+
+	focuses := []Focusable{
+		model.wwan,
+		model.wifi,
+	}
+	model.focuses = focuses
+
+	return model
 }
 
 func (m *NetworkModel) Resize(width, height int) {
@@ -99,7 +122,10 @@ func (m *NetworkModel) Height() int {
 }
 
 func (m NetworkModel) Init() tea.Cmd {
-	return m.RescanCmd()
+	return tea.Batch(
+		m.RescanCmd(),
+		m.focuses[m.focusIdx].Focus(),
+	)
 }
 
 func (m *NetworkModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -113,19 +139,49 @@ func (m *NetworkModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	upd, cmd := m.devicesTable.Update(keyMsg)
-	m.devicesTable = &upd
-	return m, cmd
+	switch {
+	case key.Matches(keyMsg, m.keys.down):
+		return m, m.focusNextCmd()
+	case key.Matches(keyMsg, m.keys.up):
+		return m, m.focusPrevCmd()
+	}
+	switch {
+	case m.wwan.Focused():
+		upd, cmd := m.wwan.Update(keyMsg)
+		m.wwan = upd
+		return m, cmd
+	case m.wifi.Focused():
+		upd, cmd := m.wifi.Update(keyMsg)
+		m.wifi = upd
+		return m, cmd
+
+	case m.devicesTable.Focused():
+		upd, cmd := m.devicesTable.Update(keyMsg)
+		m.devicesTable = &upd
+		return m, cmd
+	}
+	return m, nil
 }
 
 func (m *NetworkModel) View() string {
 	tableStyle := styles.BorderedStyle
 	table := tableStyle.Render(m.devicesTable.View())
-	wwan := "WWAN:  "
-	wwan = lipgloss.JoinHorizontal(lipgloss.Center, wwan, m.wwan.View())
 
-	wifi := "Wi-Fi: "
-	wifi = lipgloss.JoinHorizontal(lipgloss.Center, wifi, m.wifi.View())
+	wwan := m.wwan.View()
+	if m.wwan.Focused() {
+		wwan = styles.DefaultStyle.Foreground(styles.AccentColor).Render(wwan)
+	} else {
+		wwan = styles.DefaultStyle.Render(wwan)
+	}
+	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN:  ", wwan)
+
+	wifi := m.wifi.View()
+	if m.wifi.Focused() {
+		wifi = styles.DefaultStyle.Foreground(styles.AccentColor).Render(wifi)
+	} else {
+		wifi = styles.DefaultStyle.Render(wifi)
+	}
+	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi: ", wifi)
 
 	connectivity := fmt.Sprintf("Connectivity status: %s", m.connectivity)
 
@@ -167,4 +223,22 @@ func (m *NetworkModel) RescanCmd() tea.Cmd {
 
 		return NilCmd
 	}
+}
+
+func (m *NetworkModel) focusNextCmd() tea.Cmd {
+	if int(m.focusIdx) >= len(m.focuses)-1 {
+		return nil
+	}
+	m.focuses[m.focusIdx].Blur()
+	m.focusIdx++
+	return m.focuses[m.focusIdx].Focus()
+}
+
+func (m *NetworkModel) focusPrevCmd() tea.Cmd {
+	if m.focusIdx <= 0 {
+		return nil
+	}
+	m.focuses[m.focusIdx].Blur()
+	m.focusIdx--
+	return m.focuses[m.focusIdx].Focus()
 }

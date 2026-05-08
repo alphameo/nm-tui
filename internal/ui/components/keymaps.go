@@ -86,7 +86,16 @@ var toggleKeys = &toggle.KeyMap{
 	),
 }
 
-var networkKeys = &networkKeyMap{}
+var networkKeys = &networkKeyMap{
+	up: key.NewBinding(
+		key.WithKeys("ctrl+k"),
+		key.WithHelp("^k", "up"),
+	),
+	down: key.NewBinding(
+		key.WithKeys("ctrl+j"),
+		key.WithHelp("^j", "down"),
+	),
+}
 
 var wifiSavedKeys = &wifiSavedKeyMap{
 	edit: key.NewBinding(
