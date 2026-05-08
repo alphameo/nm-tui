@@ -39,10 +39,6 @@ func (t *Model) Value() bool {
 	return t.value
 }
 
-func (t *Model) Init() tea.Cmd {
-	return nil
-}
-
 func (t *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
