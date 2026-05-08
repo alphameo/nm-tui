@@ -42,7 +42,7 @@ type wifiSavedKeyMap struct {
 	edit       key.Binding
 	connect    key.Binding
 	disconnect key.Binding
-	update     key.Binding
+	rescan     key.Binding
 	delete     key.Binding
 }
 
@@ -51,7 +51,7 @@ func (k *wifiSavedKeyMap) ShortHelp() []key.Binding {
 		k.edit,
 		k.connect,
 		k.disconnect,
-		k.update,
+		k.rescan,
 		k.delete,
 	}
 }
@@ -61,7 +61,7 @@ func (k *wifiSavedKeyMap) FullHelp() [][]key.Binding {
 		k.edit,
 		k.connect,
 		k.disconnect,
-		k.update,
+		k.rescan,
 		k.delete,
 	}}
 }
@@ -79,7 +79,7 @@ var wifiSavedKeys = &wifiSavedKeyMap{
 		key.WithKeys("shift+ "),
 		key.WithHelp("shift+ ", "disconnect"),
 	),
-	update: key.NewBinding(
+	rescan: key.NewBinding(
 		key.WithKeys("r"),
 		key.WithHelp("r", "rescan saved"),
 	),
@@ -232,7 +232,7 @@ func (m *WifiSavedModel) handleKey(keyMsg tea.KeyMsg) (*WifiSavedModel, tea.Cmd)
 
 	case key.Matches(keyMsg, m.keys.disconnect):
 		return m, m.disconnectFromSelectedCmd()
-	case key.Matches(keyMsg, m.keys.update):
+	case key.Matches(keyMsg, m.keys.rescan):
 		return m, RescanWifiSavedCmd(0)
 	case key.Matches(keyMsg, m.keys.delete):
 		return m, m.deleteSelectedCmd()
