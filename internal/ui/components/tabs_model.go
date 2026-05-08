@@ -112,7 +112,6 @@ func (m *TabsModel) handleKey(keyMsg tea.KeyPressMsg) (*TabsModel, tea.Cmd) {
 }
 
 func (m *TabsModel) View() tea.View {
-	// Extract string content from sub-view for composition
 	tabView := m.tabs[m.activeTab].content.View().Content
 	tabView = m.innerStyle.Render(tabView)
 	tabBar := renderer.RenderTabBar(

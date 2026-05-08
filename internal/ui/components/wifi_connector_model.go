@@ -123,9 +123,6 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
-	case batchCmdMsg:
-		// Handle batched commands
-		return m, tea.Batch(msg.cmds...)
 	}
 
 	switch {
@@ -240,22 +237,18 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 			password := m.password.Value()
 			err := m.nm.ConnectWifi(context.Background(), ssid, password, m.hidden.Value())
 			if err != nil {
-				return batchCmdMsg{
-					cmds: []tea.Cmd{
-						SetWifiAvailableStateCmd(AvailableDone),
-						NotifyCmd(fmt.Sprintf(
-							"Cannot connect to %s via given password",
-							ssid,
-						)),
-						RescanWifiCmd(0),
-					},
+				return tea.BatchMsg{
+					SetWifiAvailableStateCmd(AvailableDone),
+					NotifyCmd(fmt.Sprintf(
+						"Cannot connect to %s via given password",
+						ssid,
+					)),
+					RescanWifiCmd(0),
 				}
 			}
-			return batchCmdMsg{
-				cmds: []tea.Cmd{
-					SetWifiAvailableStateCmd(AvailableDone),
-					RescanWifiCmd(0),
-				},
+			return tea.BatchMsg{
+				SetWifiAvailableStateCmd(AvailableDone),
+				RescanWifiCmd(0),
 			}
 		},
 	)

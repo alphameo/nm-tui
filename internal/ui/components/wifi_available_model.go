@@ -6,13 +6,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/table"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
 type wifiAvailableState int
@@ -175,9 +175,6 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case RescanWifiAvailableMsg:
 		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
-	case batchCmdMsg:
-		// Handle batched commands
-		return m, tea.Batch(msg.cmds...)
 	}
 
 	var cmd tea.Cmd
@@ -230,13 +227,13 @@ func (m *WifiAvailableModel) View() tea.View {
 func (m *WifiAvailableModel) indicatorView() string {
 	var view string
 	if m.indicatorState != AvailableDone {
-	view = fmt.Sprintf(
-		"%s %s",
-		m.indicatorState.String(),
-		m.indicatorSpinner.View(),
-	)
+		view = fmt.Sprintf(
+			"%s %s",
+			m.indicatorState.String(),
+			m.indicatorSpinner.View(),
+		)
 	} else {
-	view = m.indicatorState.String()
+		view = m.indicatorState.String()
 	}
 	return view
 }
@@ -247,11 +244,9 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 		func() tea.Msg {
 			list, err := m.wm.ScanWifis(context.Background())
 			if err != nil {
-				return batchCmdMsg{
-					cmds: []tea.Cmd{
-						m.setStateCmd(AvailableDone),
-						NotifyCmd("Cannot scan available wifi networks"),
-					},
+				return tea.BatchMsg{
+					m.setStateCmd(AvailableDone),
+					NotifyCmd("Cannot scan available wifi networks"),
 				}
 			}
 			rows := []table.Row{}
