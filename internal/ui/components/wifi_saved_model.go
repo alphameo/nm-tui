@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/table"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
 type wifiSavedState int
@@ -72,7 +72,7 @@ var wifiSavedKeys = &wifiSavedKeyMap{
 		key.WithHelp("enter", "edit"),
 	),
 	connect: key.NewBinding(
-		key.WithKeys(" "),
+		key.WithKeys("space"),
 		key.WithHelp("󱁐", "connect"),
 	),
 	disconnect: key.NewBinding(
@@ -194,9 +194,6 @@ func (m *WifiSavedModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.RescanCmd()
 	case WifiSavedStateMsg:
 		return m, m.setStateCmd(wifiSavedState(msg))
-	case batchCmdMsg:
-		// Handle batched commands
-		return m, tea.Batch(msg.cmds...)
 	}
 
 	var cmd tea.Cmd
@@ -265,13 +262,13 @@ func (m *WifiSavedModel) View() tea.View {
 func (m *WifiSavedModel) indicatorView() string {
 	var view string
 	if m.indicatorState != SavedDone {
-	view = fmt.Sprintf(
-		"%s %s",
-		m.indicatorState.String(),
-		m.indicatorSpinner.View(),
-	)
+		view = fmt.Sprintf(
+			"%s %s",
+			m.indicatorState.String(),
+			m.indicatorSpinner.View(),
+		)
 	} else {
-	view = m.indicatorState.String()
+		view = m.indicatorState.String()
 	}
 	return view
 }
@@ -292,11 +289,9 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 		func() tea.Msg {
 			list, err := m.nm.GetSavedWifis(context.Background())
 			if err != nil {
-				return batchCmdMsg{
-					cmds: []tea.Cmd{
-						NotifyCmd("Cannot get saved wifi networks"),
-						m.setStateCmd(SavedDone),
-					},
+				return tea.BatchMsg{
+					NotifyCmd("Cannot get saved wifi networks"),
+					m.setStateCmd(SavedDone),
 				}
 			}
 			rows := []table.Row{}
@@ -341,19 +336,15 @@ func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {
 			name := m.dataTable.SelectedRow()[m.nameColIdx]
 			err := m.nm.ActivateWifi(context.Background(), name)
 			if err != nil {
-				return batchCmdMsg{
-					cmds: []tea.Cmd{
-						m.setStateCmd(SavedDone),
-						NotifyCmd(fmt.Sprintf("Cannot connect to %s", name)),
-					},
+				return tea.BatchMsg{
+					m.setStateCmd(SavedDone),
+					NotifyCmd(fmt.Sprintf("Cannot connect to %s", name)),
 				}
 			}
-			return batchCmdMsg{
-				cmds: []tea.Cmd{
-					m.setStateCmd(SavedDone),
-					m.gotoTop(),
-					RescanWifiCmd(0),
-				},
+			return tea.BatchMsg{
+				m.setStateCmd(SavedDone),
+				m.gotoTop(),
+				RescanWifiCmd(0),
 			}
 		},
 	)
@@ -375,11 +366,9 @@ func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
 				fmt.Sprintf("Error while disconnecting from %s", name),
 			)
 		}
-		return batchCmdMsg{
-			cmds: []tea.Cmd{
-				m.gotoTop(),
-				RescanWifiCmd(200 * time.Millisecond),
-			},
+		return tea.BatchMsg{
+			m.gotoTop(),
+			RescanWifiCmd(200 * time.Millisecond),
 		}
 	}
 }

@@ -66,7 +66,7 @@ var networkKeys = &networkKeyMap{
 		key.WithHelp("^j", "down"),
 	),
 	toggle: key.NewBinding(
-		key.WithKeys(" "),
+		key.WithKeys("space"),
 		key.WithHelp("󱁐", "toggle"),
 	),
 	rescan: key.NewBinding(
