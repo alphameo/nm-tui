@@ -7,9 +7,9 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type wifiKeyMap struct {
@@ -144,7 +144,7 @@ func (m *WifiModel) Init() tea.Cmd {
 
 func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		return m.handleKey(msg)
 	case RescanWifiMsg:
 		return m, tea.Batch(
@@ -165,7 +165,7 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *WifiModel) handleKey(keyMsg tea.KeyMsg) (*WifiModel, tea.Cmd) {
+func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.nextWindow):
 		m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.windows)
@@ -201,7 +201,7 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyMsg) (*WifiModel, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *WifiModel) View() string {
+func (m *WifiModel) View() tea.View {
 	availableStyle := *m.availableStyle
 	savedStyle := *m.savedStyle
 	if m.focusWindowIdx == 0 {
@@ -211,7 +211,7 @@ func (m *WifiModel) View() string {
 	}
 
 	availableView := renderer.RenderWithTitleAndKeybind(
-		m.wifiAvailable.View(),
+		m.wifiAvailable.View().Content,
 		"Available networks",
 		m.keys.firstWindow.Help().Key,
 		&availableStyle,
@@ -219,18 +219,18 @@ func (m *WifiModel) View() string {
 	)
 
 	savedView := renderer.RenderWithTitleAndKeybind(
-		m.wifiSaved.View(),
+		m.wifiSaved.View().Content,
 		"Saved networks",
 		m.keys.secondWindow.Help().Key,
 		&savedStyle,
 		styles.AccentColor,
 	)
 
-	return lipgloss.JoinVertical(
+	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Center,
 		availableView,
 		savedView,
-	)
+	))
 }
 
 type RescanWifiMsg struct {

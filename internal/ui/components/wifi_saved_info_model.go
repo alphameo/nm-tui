@@ -10,10 +10,10 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type wifiSavedInfoKeyMap struct {
@@ -77,27 +77,27 @@ type WifiSavedInfoModel struct {
 
 func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManager) *WifiSavedInfoModel {
 	name := textinput.New()
-	name.Width = 20
+	name.SetWidth(20)
 	name.Prompt = ""
 	name.Placeholder = "name"
-	nameStyle := styles.BorderedStyle.Width(name.Width + 1) // offset for blinking cursor
+	nameStyle := styles.BorderedStyle.Width(name.Width() + 1) // offset for blinking cursor
 
 	pw := textinput.New()
-	pw.Width = 20
+	pw.SetWidth(20)
 	pw.Prompt = ""
 	pw.EchoMode = textinput.EchoPassword
 	pw.EchoCharacter = '•'
 	pw.Placeholder = "password"
-	pwStyle := styles.BorderedStyle.Width(name.Width + 1) // offset for blinking cursor
+	pwStyle := styles.BorderedStyle.Width(pw.Width() + 1) // offset for blinking cursor
 
 	autoconn := toggle.New(false)
 	autoconnStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
 	autoconnPrior := textinput.New()
-	autoconnPrior.Width = 4
+	autoconnPrior.SetWidth(4)
 	autoconnPrior.Prompt = ""
 	autoconnPrior.Validate = autoconnectPriorityValidator
-	autoconnPriorStyle := styles.BorderedStyle.Width(name.Width + 1) // offset for blinking cursor
+	autoconnPriorStyle := styles.BorderedStyle.Width(autoconnPrior.Width() + 1) // offset for blinking cursor
 
 	model := &WifiSavedInfoModel{
 		name:      name,
@@ -157,7 +157,7 @@ func (m *WifiSavedInfoModel) Init() tea.Cmd {
 
 func (m *WifiSavedInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		return m.handleKey(msg)
 	default:
 		switch {
@@ -183,7 +183,7 @@ func (m *WifiSavedInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m *WifiSavedInfoModel) handleKey(keyMsg tea.KeyMsg) (*WifiSavedInfoModel, tea.Cmd) {
+func (m *WifiSavedInfoModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiSavedInfoModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -225,7 +225,7 @@ func (m *WifiSavedInfoModel) handleKey(keyMsg tea.KeyMsg) (*WifiSavedInfoModel, 
 	}
 }
 
-func (m *WifiSavedInfoModel) View() string {
+func (m *WifiSavedInfoModel) View() tea.View {
 	sb := strings.Builder{}
 	fmt.Fprintf(
 		&sb,
@@ -260,7 +260,7 @@ func (m *WifiSavedInfoModel) View() string {
 		pw,
 	)
 
-	autoconn := m.autoconnect.View()
+	autoconn := m.autoconnect.View().Content
 	autoconnStyle := *m.autoconnStyle
 	if m.autoconnect.Focused() {
 		autoconnStyle = autoconnStyle.
@@ -293,14 +293,14 @@ func (m *WifiSavedInfoModel) View() string {
 		)
 	}
 
-	return lipgloss.JoinVertical(
+	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Left,
 		ssid,
 		name,
 		pw,
 		autoconn,
 		autoconnPrior,
-	)
+	))
 }
 
 func (m *WifiSavedInfoModel) connectionView() string {

@@ -4,9 +4,9 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type tabsKeyMap struct {
@@ -87,7 +87,7 @@ func (m *TabsModel) Init() tea.Cmd {
 
 func (m *TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		return m.handleKey(msg)
 	}
 
@@ -96,7 +96,7 @@ func (m *TabsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *TabsModel) handleKey(keyMsg tea.KeyMsg) (*TabsModel, tea.Cmd) {
+func (m *TabsModel) handleKey(keyMsg tea.KeyPressMsg) (*TabsModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.tabNext):
 		m.activeTab = min(m.activeTab+1, len(m.tabs)-1)
@@ -111,8 +111,9 @@ func (m *TabsModel) handleKey(keyMsg tea.KeyMsg) (*TabsModel, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *TabsModel) View() string {
-	tabView := m.tabs[m.activeTab].content.View()
+func (m *TabsModel) View() tea.View {
+	// Extract string content from sub-view for composition
+	tabView := m.tabs[m.activeTab].content.View().Content
 	tabView = m.innerStyle.Render(tabView)
 	tabBar := renderer.RenderTabBar(
 		m.tabTitles,
@@ -122,9 +123,9 @@ func (m *TabsModel) View() string {
 		m.activeTab,
 	)
 
-	return lipgloss.JoinVertical(
+	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Center,
 		tabBar,
 		tabView,
-	)
+	))
 }

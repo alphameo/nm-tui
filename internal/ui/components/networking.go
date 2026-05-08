@@ -7,11 +7,11 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/charmbracelet/bubbles/table"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/spinner"
+	"charm.land/bubbles/v2/table"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type networkState int
@@ -206,7 +206,7 @@ func (m *NetworkModel) Init() tea.Cmd {
 
 func (m *NetworkModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		return m.handleKey(msg)
 	}
 	var cmd tea.Cmd
@@ -221,7 +221,7 @@ func (m *NetworkModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m *NetworkModel) handleKey(keyMsg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -261,10 +261,10 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *NetworkModel) View() string {
+func (m *NetworkModel) View() tea.View {
 	table := styles.BorderedStyle.Render(m.devicesTable.View())
 
-	wwan := m.wwan.View()
+	wwan := m.wwan.View().Content
 	wwanStyle := *m.wwanStyle
 	if m.wwan.Focused() {
 		wwanStyle = m.wwanStyle.Foreground(styles.AccentColor)
@@ -272,7 +272,7 @@ func (m *NetworkModel) View() string {
 	wwan = wwanStyle.Render(wwan)
 	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN:       ", wwan)
 
-	wifi := m.wifi.View()
+	wifi := m.wifi.View().Content
 	wifiStyle := *m.wifiStyle
 	if m.wifi.Focused() {
 		wifiStyle = m.wifiStyle.Foreground(styles.AccentColor)
@@ -280,7 +280,7 @@ func (m *NetworkModel) View() string {
 	wifi = wifiStyle.Render(wifi)
 	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi:      ", wifi)
 
-	networking := m.networking.View()
+	networking := m.networking.View().Content
 	networkingStyle := *m.networkingStyle
 	if m.networking.Focused() {
 		networkingStyle = networkingStyle.Foreground(styles.AccentColor)
@@ -300,24 +300,24 @@ func (m *NetworkModel) View() string {
 		connectivity,
 	)
 
-	return lipgloss.JoinVertical(
+	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Center,
 		table,
 		togglers,
 		statusline,
-	)
+	))
 }
 
 func (m *NetworkModel) indicatorView() string {
 	var view string
 	if m.indicatorState != NetworkDone {
-		view = fmt.Sprintf(
-			"%s %s",
-			m.indicatorState.String(),
-			m.indicatorSpinner.View(),
-		)
+	view = fmt.Sprintf(
+		"%s %s",
+		m.indicatorState.String(),
+		m.indicatorSpinner.View(),
+	)
 	} else {
-		view = m.indicatorState.String()
+	view = m.indicatorState.String()
 	}
 	return view
 }

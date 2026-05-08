@@ -3,9 +3,10 @@ package renderer
 
 import (
 	"fmt"
+	"image/color"
 
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 func RenderTabBar(
@@ -54,7 +55,7 @@ func RenderTabBar(
 	return lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
 }
 
-func RenderWithTitleAndKeybind(view, title, keybind string, style *lipgloss.Style, accentColor lipgloss.TerminalColor) string {
+func RenderWithTitleAndKeybind(view, title, keybind string, style *lipgloss.Style, accentColor color.Color) string {
 	view = style.Render(view)
 	keybind = fmt.Sprintf("[%s]", keybind)
 	keybindStyle := lipgloss.NewStyle().Foreground(style.GetBorderTopForeground())

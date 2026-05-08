@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"charm.land/bubbles/v2/help"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
-	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 const notificationCloseTime time.Duration = 50 * time.Second
@@ -132,6 +132,20 @@ var NilCmd = func() tea.Msg {
 	return NilMsg{}
 }
 
+// batchCmdMsg is a custom message type that holds multiple commands to be batched together.
+// In Bubble Tea v2, tea.BatchMsg is no longer available, so we use this custom type.
+type batchCmdMsg struct {
+	cmds []tea.Cmd
+}
+
+// BatchCmd creates a command that returns a batchCmdMsg containing the given commands.
+// This is used to return multiple commands from a function that returns tea.Msg.
+func BatchCmd(cmds ...tea.Cmd) tea.Cmd {
+	return func() tea.Msg {
+		return batchCmdMsg{cmds: cmds}
+	}
+}
+
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -150,9 +164,12 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case NotificationActivityMsg:
 		m.notification.active = bool(msg)
 		return m, DeferedCloseNotificationCmd(m.notificationCloseTime)
+	case batchCmdMsg:
+		// Handle batched commands by returning tea.Batch of all commands
+		return m, tea.Batch(msg.cmds...)
 	case tea.Cmd:
 		return m, msg
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		return m, m.handleKey(msg)
 	}
 
@@ -173,7 +190,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *MainModel) handleKey(keyMsg tea.KeyMsg) tea.Cmd {
+func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 	if m.popup.active {
 		if key.Matches(keyMsg, m.keyMngr.popup.close) {
 			return SetPopupActivityCmd(false)
@@ -209,11 +226,12 @@ func (m *MainModel) Resize(width, height int) {
 	m.notification.style = &notifStyle
 }
 
-func (m MainModel) View() string {
-	view := m.tabs.View()
+func (m MainModel) View() tea.View {
+	// Extract string content from sub-views for composition
+	view := m.tabs.View().Content
 
 	if m.popup.active {
-		popupView := m.popup.content.View()
+		popupView := m.popup.content.View().Content
 		popupView = m.popup.style.Render(popupView)
 
 		title := fmt.Sprintf("[ %s ]", m.popup.title)
@@ -261,7 +279,9 @@ func (m MainModel) View() string {
 		help = m.help.View(m.keyMngr.popup)
 	}
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
-	return view
+	v := tea.NewView(view)
+	v.AltScreen = true
+	return v
 }
 
 type (

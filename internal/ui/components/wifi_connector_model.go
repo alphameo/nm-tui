@@ -8,10 +8,10 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type wifiConnectorKeyMap struct {
@@ -66,13 +66,13 @@ type WifiConnectorModel struct {
 
 func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManager) *WifiConnectorModel {
 	p := textinput.New()
-	p.Width = 20
+	p.SetWidth(20)
 	p.Prompt = ""
 	p.EchoMode = textinput.EchoPassword
 	p.EchoCharacter = '•'
 	p.Placeholder = "Password"
 
-	pwStyle := styles.BorderedStyle.Width(p.Width + 1) // offset for blinking cursor
+	pwStyle := styles.BorderedStyle.Width(p.Width() + 1) // offset for blinking cursor
 
 	hiddenStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
@@ -121,8 +121,11 @@ func (m *WifiConnectorModel) Init() tea.Cmd {
 
 func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		return m.handleKey(msg)
+	case batchCmdMsg:
+		// Handle batched commands
+		return m, tea.Batch(msg.cmds...)
 	}
 
 	switch {
@@ -139,7 +142,7 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyMsg) (*WifiConnectorModel, tea.Cmd) {
+func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -173,7 +176,7 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyMsg) (*WifiConnectorModel, 
 	}
 }
 
-func (m *WifiConnectorModel) View() string {
+func (m *WifiConnectorModel) View() tea.View {
 	sb := strings.Builder{}
 	pwStyle := *m.pwStyle
 
@@ -191,7 +194,7 @@ func (m *WifiConnectorModel) View() string {
 		password,
 	)
 
-	hidden := m.hidden.View()
+	hidden := m.hidden.View().Content
 	hiddenStyle := *m.hiddenStyle
 	if m.hidden.Focused() {
 		hiddenStyle = hiddenStyle.Foreground(styles.AccentColor)
@@ -203,12 +206,12 @@ func (m *WifiConnectorModel) View() string {
 		hidden,
 	)
 
-	return lipgloss.JoinVertical(
+	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Left,
 		wifiName,
 		password,
 		hidden,
-	)
+	))
 }
 
 func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
@@ -237,18 +240,22 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 			password := m.password.Value()
 			err := m.nm.ConnectWifi(context.Background(), ssid, password, m.hidden.Value())
 			if err != nil {
-				return tea.BatchMsg{
-					SetWifiAvailableStateCmd(AvailableDone),
-					NotifyCmd(fmt.Sprintf(
-						"Cannot connect to %s via given password",
-						ssid,
-					)),
-					RescanWifiCmd(0),
+				return batchCmdMsg{
+					cmds: []tea.Cmd{
+						SetWifiAvailableStateCmd(AvailableDone),
+						NotifyCmd(fmt.Sprintf(
+							"Cannot connect to %s via given password",
+							ssid,
+						)),
+						RescanWifiCmd(0),
+					},
 				}
 			}
-			return tea.BatchMsg{
-				SetWifiAvailableStateCmd(AvailableDone),
-				RescanWifiCmd(0),
+			return batchCmdMsg{
+				cmds: []tea.Cmd{
+					SetWifiAvailableStateCmd(AvailableDone),
+					RescanWifiCmd(0),
+				},
 			}
 		},
 	)

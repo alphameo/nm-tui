@@ -2,7 +2,7 @@ package components
 
 import (
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
-	"github.com/charmbracelet/bubbles/key"
+	"charm.land/bubbles/v2/key"
 )
 
 func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {

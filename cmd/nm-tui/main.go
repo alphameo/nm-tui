@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"os"
 
+	tea "charm.land/bubbletea/v2"
 	"github.com/alphameo/nm-tui/internal/infra/nmcli"
 	"github.com/alphameo/nm-tui/internal/ui/components"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
@@ -37,7 +37,7 @@ func main() {
 	defer slog.Info("Program is closed")
 
 	nm := nmcli.New()
-	p := tea.NewProgram(components.NewMainModel(nm, nm), tea.WithAltScreen())
+	p := tea.NewProgram(components.NewMainModel(nm, nm))
 	if _, err := p.Run(); err != nil {
 		slog.Error(err.Error())
 	}

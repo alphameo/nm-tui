@@ -1,6 +1,6 @@
 package components
 
-import tea "github.com/charmbracelet/bubbletea"
+import tea "charm.land/bubbletea/v2"
 
 type SizedModel interface {
 	tea.Model

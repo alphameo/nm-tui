@@ -1,6 +1,6 @@
 package styles
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 var (
 	BorderOffset int = lipgloss.Width(Border.Left) * 2

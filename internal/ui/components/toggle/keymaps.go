@@ -1,6 +1,6 @@
 package toggle
 
-import "github.com/charmbracelet/bubbles/key"
+import "charm.land/bubbles/v2/key"
 
 type KeyMap struct {
 	Toggle key.Binding
