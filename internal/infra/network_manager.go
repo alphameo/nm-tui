@@ -69,20 +69,13 @@ type NetworkManager interface {
 	// DisableNetworking disables all networking on device
 	DisableNetworking(ctx context.Context) error
 
+	// GetRadioStatus returns status of wifi and Wireless Wide Area Network on device
+	GetRadioStatus(ctx context.Context) (RadioStatus, error)
 	// EnableWWAN enables Wireless Wide Area Network on device
 	EnableWWAN(ctx context.Context) error
 
 	// DisableWWAN disables Wireless Wide Area Network on device
 	DisableWWAN(ctx context.Context) error
-
-	// GetWifiStatus returns status of wifi on device
-	GetWifiStatus(ctx context.Context) (bool, error)
-
-	// GetWWANStatus returns status of Wireless Wide Area Network on device
-	GetWWANStatus(ctx context.Context) (bool, error)
-
-	// GetRadioStatus returns status of wifi and Wireless Wide Area Network on device
-	GetRadioStatus(ctx context.Context) (RadioStatus, error)
 
 	// EnableWifi enables wifi on device
 	EnableWifi(ctx context.Context) error
