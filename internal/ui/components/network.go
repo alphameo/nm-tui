@@ -3,7 +3,6 @@ package components
 import (
 	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
@@ -394,10 +393,8 @@ func (m *NetworkModel) toggleWIFI() tea.Cmd {
 			var err error
 			if m.wifi.Value() {
 				err = m.nm.DisableWifi(context.Background())
-				slog.Debug("true")
 			} else {
 				err = m.nm.EnableWifi(context.Background())
-				slog.Debug("false")
 			}
 			if err != nil {
 				return NotifyCmd("Failed toggling Wi-Fi")
