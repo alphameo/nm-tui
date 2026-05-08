@@ -93,7 +93,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 
 	wifiTable := NewTabsModel([]Tab{
 		{title: "Wi-Fi", content: wifi},
-		{title: "Network", content: network},
+		{title: "Networking", content: network},
 	}, keys.tabs, wifiManager)
 
 	popupStyle := lipgloss.NewStyle().Inherit(styles.OverlayStyle).

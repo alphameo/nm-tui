@@ -292,13 +292,18 @@ func (m *NetworkModel) View() string {
 
 	statusline := m.indicatorView()
 
-	return lipgloss.JoinVertical(
-		lipgloss.Center,
-		table,
+	togglers := lipgloss.JoinVertical(
+		lipgloss.Left,
 		wwan,
 		wifi,
 		networking,
 		connectivity,
+	)
+
+	return lipgloss.JoinVertical(
+		lipgloss.Center,
+		table,
+		togglers,
 		statusline,
 	)
 }
