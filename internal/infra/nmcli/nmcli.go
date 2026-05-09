@@ -152,7 +152,7 @@ func (n NMCLI) GetSavedWifis(ctx context.Context) ([]infra.SavedWifi, error) {
 	return res, nil
 }
 
-func (n NMCLI) CreateWifiConnection(ctx context.Context, id, ssid, password, device string, hidden bool) error {
+func (n NMCLI) CreateWifiConnection(ctx context.Context, id, ssid, password string, hidden bool) error {
 	hiddenStr := "no"
 	if hidden {
 		hiddenStr = "yes"
@@ -160,7 +160,6 @@ func (n NMCLI) CreateWifiConnection(ctx context.Context, id, ssid, password, dev
 	args := []string{
 		"connection", "add", "type", "wifi",
 		"con-name", id,
-		"ifname", device,
 		"ssid", ssid,
 		"wifi.hidden", hiddenStr,
 		"wifi-sec.key-mgmt", "wpa-psk", // use "sae" on fail
@@ -180,21 +179,15 @@ func (n NMCLI) CreateWifiConnection(ctx context.Context, id, ssid, password, dev
 	slog.Info("created wifi connection",
 		"id", id,
 		"ssid", ssid,
-		"device", device,
 		"hidden", hidden,
 		"output", string(out))
 	return nil
 }
 
-func (n NMCLI) ConnectWifi(ctx context.Context, ssid, password string, hidden bool) error {
-	hiddenStr := "no"
-	if hidden {
-		hiddenStr = "yes"
-	}
+func (n NMCLI) ConnectWifi(ctx context.Context, id, ssid, password string) error {
 	args := []string{
 		"device", "wifi", "connect", ssid,
 		"password", password,
-		"hidden", hiddenStr,
 	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {

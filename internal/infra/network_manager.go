@@ -95,10 +95,10 @@ type WifiManager interface {
 	GetSavedWifis(ctx context.Context) ([]SavedWifi, error)
 
 	// ConnectWifi creates connection with wifi-network.
-	ConnectWifi(ctx context.Context, ssid, password string, hidden bool) error
+	ConnectWifi(ctx context.Context, id, ssid, password string) error
 
 	// CreateWifiConnection creates specified connection profile
-	CreateWifiConnection(ctx context.Context, id, ssid, password, device string, hidden bool) error
+	CreateWifiConnection(ctx context.Context, id, ssid, password string, hidden bool) error
 
 	// CreateHotspot creates new hotspot
 	CreateHotspot(ctx context.Context, device string, id string, password string, hidden bool) error
