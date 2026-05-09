@@ -136,6 +136,7 @@ func (m *WifiSavedInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	m.name.Blur()
 
 	m.password.Reset()
+	m.password.EchoMode = textinput.EchoPassword
 	m.password.SetValue(info.Password)
 	m.password.Blur()
 
