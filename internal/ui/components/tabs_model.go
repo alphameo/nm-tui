@@ -43,6 +43,8 @@ type TabsModel struct {
 	tabTitles []string
 	activeTab int
 
+	tabBarView string
+
 	innerStyle *lipgloss.Style
 
 	keys *tabsKeyMap
@@ -68,6 +70,14 @@ func (m *TabsModel) Resize(width, height int) {
 
 	style := m.innerStyle.Width(width).Height(height)
 	m.innerStyle = &style
+
+	m.tabBarView = renderer.RenderTabBar(
+		m.tabTitles,
+		styles.TabTabBorderActiveStyle,
+		styles.TabTabBorderInactiveStyle,
+		width,
+		m.activeTab,
+	)
 
 	width -= styles.BorderOffset
 	height -= styles.BorderOffset
@@ -113,17 +123,10 @@ func (m *TabsModel) handleKey(keyMsg tea.KeyPressMsg) (*TabsModel, tea.Cmd) {
 func (m *TabsModel) View() tea.View {
 	tabView := m.tabs[m.activeTab].content.View().Content
 	tabView = m.innerStyle.Render(tabView)
-	tabBar := renderer.RenderTabBar(
-		m.tabTitles,
-		styles.TabTabBorderActiveStyle,
-		styles.TabTabBorderInactiveStyle,
-		lipgloss.Width(tabView),
-		m.activeTab,
-	)
 
 	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Center,
-		tabBar,
+		m.tabBarView,
 		tabView,
 	))
 }
