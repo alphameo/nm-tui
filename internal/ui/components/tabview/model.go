@@ -5,7 +5,6 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
@@ -22,7 +21,7 @@ type Model struct {
 	keys *KeyMap
 }
 
-func NewTabsModel(tabs []Tab, keys *KeyMap, networkManager infra.WifiManager) *Model {
+func New(tabs []Tab, keys *KeyMap) *Model {
 	tabTitles := []string{}
 	for _, t := range tabs {
 		tabTitles = append(tabTitles, t.Title)
