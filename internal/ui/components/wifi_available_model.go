@@ -40,16 +40,17 @@ func (s *wifiAvailableState) String() string {
 }
 
 type wifiAvailableKeyMap struct {
-	rescan        key.Binding
-	openConnector key.Binding
+	rescan  key.Binding
+	create  key.Binding
+	connect key.Binding
 }
 
 func (k *wifiAvailableKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.rescan, k.openConnector}
+	return []key.Binding{k.rescan, k.connect, k.create}
 }
 
 func (k *wifiAvailableKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.rescan, k.openConnector}}
+	return [][]key.Binding{{k.rescan, k.connect, k.create}}
 }
 
 var wifiAvailableKeys = &wifiAvailableKeyMap{
@@ -57,9 +58,13 @@ var wifiAvailableKeys = &wifiAvailableKeyMap{
 		key.WithKeys("r"),
 		key.WithHelp("r", "rescan"),
 	),
-	openConnector: key.NewBinding(
+	create: key.NewBinding(
+		key.WithKeys("a"),
+		key.WithHelp("a", "create new"),
+	),
+	connect: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("enter", "open connector"),
+		key.WithHelp("enter", "connect to selected"),
 	),
 }
 
@@ -200,12 +205,14 @@ func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiAvailableMo
 			return m, nil
 		}
 		return m, m.RescanCmd()
-	case key.Matches(keyMsg, m.keys.openConnector):
+	case key.Matches(keyMsg, m.keys.connect):
 		row := m.dataTable.SelectedRow()
 		if row != nil {
 			return m, m.callConnector(row[m.ssidColIdx])
 		}
 		return m, nil
+	case key.Matches(keyMsg, m.keys.create):
+		return m, m.callConnector("")
 	}
 	var cmd tea.Cmd
 	m.dataTable, cmd = m.dataTable.Update(keyMsg)
