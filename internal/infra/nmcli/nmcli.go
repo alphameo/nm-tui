@@ -421,6 +421,11 @@ func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, err
 		errs = append(errs, err)
 	}
 
+	mode, err := n.getNetMode(ctx, id)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
 	if len(errs) != 0 {
 		sb := strings.Builder{}
 		for i, err := range errs {
@@ -445,6 +450,7 @@ func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, err
 		Autoconnect:         autoconnect,
 		AutoconnectPriority: autoconnectPriority,
 		Active:              activated,
+		Mode:                mode,
 	}, nil
 }
 

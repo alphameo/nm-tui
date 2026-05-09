@@ -31,6 +31,7 @@ type WifiInfo struct {
 	Active              bool
 	Autoconnect         bool
 	AutoconnectPriority int
+	Mode                NetworkMode
 }
 
 type UpdateWifiInfo struct {
