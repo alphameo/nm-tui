@@ -17,21 +17,21 @@ type wifiConnectorKeyMap struct {
 	togglePWVisibility key.Binding
 	up                 key.Binding
 	down               key.Binding
-	connect            key.Binding
+	createOrConn       key.Binding
 }
 
 func (k *wifiConnectorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.connect}
+	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.createOrConn}
 }
 
 func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.connect}}
+	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.createOrConn}}
 }
 
 var wifiConnectorKeys = &wifiConnectorKeyMap{
-	connect: key.NewBinding(
+	createOrConn: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("enter", "open connector"),
+		key.WithHelp("enter", "connect/create"),
 	),
 	up: key.NewBinding(
 		key.WithKeys("ctrl+k"),
@@ -195,10 +195,16 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 			m.password.EchoMode = textinput.EchoPassword
 		}
 		return m, nil
-	case key.Matches(keyMsg, m.keys.connect):
+	case key.Matches(keyMsg, m.keys.createOrConn):
+		var action tea.Cmd
+		if m.connCreation {
+			action = m.createWifiConnCmd()
+		} else {
+			m.connectToWifiCmd()
+		}
 		return m, tea.Sequence(
 			SetPopupActivityCmd(false),
-			m.connectToWifiCmd(),
+			action,
 		)
 	}
 
@@ -316,16 +322,51 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(AvailableConnecting),
 		func() tea.Msg {
-			ssid := m.ssid.Value()
-			name := m.name.Value()
-			password := m.password.Value()
-			err := m.nm.ConnectWifi(context.Background(), name, ssid, password)
+			err := m.nm.ConnectWifi(
+				context.Background(),
+				m.name.Value(),
+				m.ssid.Value(),
+				m.password.Value(),
+			)
 			if err != nil {
 				return tea.BatchMsg{
 					SetWifiAvailableStateCmd(AvailableDone),
 					NotifyCmd(fmt.Sprintf(
 						"Cannot connect to %s via given password",
-						ssid,
+						m.ssid.Value(),
+					)),
+					RescanWifiCmd(0),
+				}
+			}
+			return tea.BatchMsg{
+				SetWifiAvailableStateCmd(AvailableDone),
+				RescanWifiCmd(0),
+			}
+		},
+	)
+}
+
+func (m *WifiConnectorModel) createWifiConnCmd() tea.Cmd {
+	return tea.Sequence(
+		SetWifiAvailableStateCmd(AvailableCreating),
+		func() tea.Msg {
+			err := m.nm.CreateWifiConnection(
+				context.Background(),
+				m.name.Value(),
+				m.ssid.Value(),
+				m.password.Value(),
+				m.hidden.Value(),
+			)
+			if err != nil {
+				var hidden string
+				if m.hidden.Value() {
+					hidden = "hidden "
+				}
+				return tea.BatchMsg{
+					SetWifiAvailableStateCmd(AvailableDone),
+					NotifyCmd(fmt.Sprintf(
+						"Cannot create connection to %s%s",
+						hidden, m.ssid.Value(),
 					)),
 					RescanWifiCmd(0),
 				}

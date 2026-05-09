@@ -20,6 +20,7 @@ type wifiAvailableState int
 const (
 	AvailableScanning wifiAvailableState = iota
 	AvailableConnecting
+	AvailableCreating
 	AvailableDone
 )
 
@@ -29,6 +30,8 @@ func (s *wifiAvailableState) String() string {
 		return "Scanning"
 	case AvailableConnecting:
 		return "Connecting"
+	case AvailableCreating:
+		return "Creating Connection"
 	case AvailableDone:
 		return "󰄬"
 	default:
