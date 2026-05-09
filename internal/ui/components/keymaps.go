@@ -1,8 +1,9 @@
 package components
 
 import (
-	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"charm.land/bubbles/v2/key"
+	"github.com/alphameo/nm-tui/internal/ui/components/tabview"
+	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 )
 
 func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
@@ -15,7 +16,7 @@ func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
 type keyMapManager struct {
 	main          *mainKeyMap
 	popup         *popupKeyMap
-	tabs          *tabsKeyMap
+	tabs          *tabview.KeyMap
 	toggle        *toggle.KeyMap
 	network       *networkKeyMap
 	wifi          *wifiKeyMap
@@ -35,8 +36,8 @@ func (k *keyMapManager) FullHelp() [][]key.Binding {
 			k.main.quit,
 		},
 		{
-			k.tabs.tabNext,
-			k.tabs.tabPrev,
+			k.tabs.TabNext,
+			k.tabs.TabPrev,
 		},
 	}
 }
@@ -44,7 +45,7 @@ func (k *keyMapManager) FullHelp() [][]key.Binding {
 var defaultKeyMap = &keyMapManager{
 	main:          mainKeys,
 	popup:         popupKeys,
-	tabs:          tabsKeys,
+	tabs:          tabview.DefaultKeys,
 	toggle:        toggle.DefaultKeys,
 	network:       networkKeys,
 	wifi:          wifiKeys,

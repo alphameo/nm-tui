@@ -9,6 +9,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/tabview"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
@@ -67,7 +68,7 @@ type Notification struct {
 }
 
 type MainModel struct {
-	tabs                  *TabsModel
+	tabs                  *tabview.Model
 	popup                 *Popup
 	notification          *Notification
 	notificationCloseTime time.Duration
@@ -91,9 +92,9 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	wifi := NewWifiModel(a, s, keys.wifi, wifiManager)
 	network := NewNetworkModel(networkManager, keys.network)
 
-	wifiTable := NewTabsModel([]Tab{
-		{title: "Wi-Fi", content: wifi},
-		{title: "Networking", content: network},
+	wifiTable := tabview.NewTabsModel([]tabview.Tab{
+		{Title: "Wi-Fi", Content: wifi},
+		{Title: "Networking", Content: network},
 	}, keys.tabs, wifiManager)
 
 	popupStyle := lipgloss.NewStyle().Inherit(styles.OverlayStyle).
@@ -159,7 +160,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var upd tea.Model
 	upd, cmd = m.tabs.Update(msg)
-	m.tabs = upd.(*TabsModel)
+	m.tabs = upd.(*tabview.Model)
 	if cmd != nil {
 		return m, cmd
 	}
@@ -186,7 +187,7 @@ func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 		return tea.Quit
 	}
 	upd, cmd := m.tabs.Update(keyMsg)
-	m.tabs = upd.(*TabsModel)
+	m.tabs = upd.(*tabview.Model)
 	return cmd
 }
 
