@@ -51,11 +51,12 @@ var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
 }
 
 type WifiSavedInfoModel struct {
-	ssid    string
-	active  bool
-	nameBak string
+	ssid string
+
+	active bool
 
 	name      textinput.Model
+	nameBak   string
 	nameStyle *lipgloss.Style
 
 	password textinput.Model
@@ -128,12 +129,13 @@ func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManag
 
 func (m *WifiSavedInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	m.ssid = info.SSID
-	m.nameBak = info.Name
+
 	m.active = info.Active
 
 	m.name.Reset()
 	m.name.SetValue(info.Name)
 	m.name.Blur()
+	m.nameBak = info.Name
 
 	m.password.Reset()
 	m.password.EchoMode = textinput.EchoPassword
