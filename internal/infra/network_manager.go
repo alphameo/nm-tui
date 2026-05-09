@@ -39,11 +39,11 @@ type RadioStatus struct {
 type ConnectivityStatus string
 
 const (
-	NetworkNone    = "none"
-	NetworkPortal  = "portal"
-	NetworkLimited = "limited"
-	NetworkFull    = "full"
-	NetworkUnknown = "unknown"
+	NetworkNone    ConnectivityStatus = "none"
+	NetworkPortal  ConnectivityStatus = "portal"
+	NetworkLimited ConnectivityStatus = "limited"
+	NetworkFull    ConnectivityStatus = "full"
+	NetworkUnknown ConnectivityStatus = "unknown"
 )
 
 type NetworkDevice struct {
