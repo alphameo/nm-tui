@@ -382,7 +382,7 @@ func (NMCLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, erro
 	slog.Info("retrieved network mode", "id", id)
 	var res infra.NetworkMode
 	switch strings.Trim(string(out), " \n") {
-	case "infra":
+	case "infrastructure":
 		res = infra.NetworkInfra
 	case "ap":
 		res = infra.NetworkAccessPoint
