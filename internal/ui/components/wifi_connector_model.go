@@ -52,6 +52,9 @@ type WifiConnectorModel struct {
 	ssidStyle    *lipgloss.Style
 	editableSSID bool
 
+	name      textinput.Model
+	nameStyle *lipgloss.Style
+
 	password textinput.Model
 	pwStyle  *lipgloss.Style
 
@@ -73,6 +76,12 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	ssid.Placeholder = "Name"
 	ssidStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
+	name := textinput.New()
+	name.SetWidth(20)
+	name.Prompt = ""
+	name.Placeholder = "Name"
+	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
+
 	pw := textinput.New()
 	pw.SetWidth(20)
 	pw.Prompt = ""
@@ -90,6 +99,9 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 		ssid:      ssid,
 		ssidStyle: &ssidStyle,
 
+		name:      name,
+		nameStyle: &nameStyle,
+
 		password: pw,
 		pwStyle:  &pwStyle,
 
@@ -103,6 +115,7 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 
 	inp := []Focusable{
 		&model.ssid,
+		&model.name,
 		&model.password,
 		model.hidden,
 	}
@@ -113,11 +126,12 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 
 func (m *WifiConnectorModel) setNew(ssid string) tea.Cmd {
 	var focusMsg tea.Cmd
+	m.ssid.SetValue(ssid)
+	m.name.SetValue(ssid)
 	if ssid == "" {
 		m.editableSSID = true
 		focusMsg = m.focuses[0].Focus()
 	} else {
-		m.ssid.SetValue(ssid)
 		m.editableSSID = false
 		m.focusIdx = max(m.focusIdx, 1)
 		focusMsg = m.focuses[m.focusIdx].Focus()
@@ -150,6 +164,10 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case m.ssid.Focused():
 		upd, cmd := m.ssid.Update(msg)
 		m.ssid = upd
+		return m, cmd
+	case m.name.Focused():
+		upd, cmd := m.name.Update(msg)
+		m.name = upd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
@@ -189,6 +207,10 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 		upd, cmd := m.ssid.Update(keyMsg)
 		m.ssid = upd
 		return m, cmd
+	case m.name.Focused():
+		upd, cmd := m.name.Update(keyMsg)
+		m.name = upd
+		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
 		m.password = upd
@@ -203,8 +225,6 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 }
 
 func (m *WifiConnectorModel) View() tea.View {
-	pwStyle := *m.pwStyle
-
 	ssid := m.ssid.View()
 	if m.editableSSID {
 		ssidStyle := *m.ssidStyle
@@ -219,7 +239,19 @@ func (m *WifiConnectorModel) View() tea.View {
 		ssid,
 	)
 
+	name := m.name.View()
+	nameStyle := *m.nameStyle
+	if m.name.Focused() {
+		nameStyle = nameStyle.BorderForeground(styles.AccentColor)
+	}
+	name = nameStyle.Render(name)
+	name = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"Name     ",
+		name,
+	)
 	password := m.password.View()
+	pwStyle := *m.pwStyle
 	if m.password.Focused() {
 		pwStyle = pwStyle.BorderForeground(styles.AccentColor)
 	}
@@ -245,6 +277,7 @@ func (m *WifiConnectorModel) View() tea.View {
 	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Left,
 		ssid,
+		name,
 		password,
 		hidden,
 	))
