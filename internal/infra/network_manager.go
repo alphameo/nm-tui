@@ -110,7 +110,7 @@ type WifiManager interface {
 	CreateWifiConnection(ctx context.Context, id, ssid, password string, hidden bool) error
 
 	// CreateHotspot creates new hotspot
-	CreateHotspot(ctx context.Context, device string, id string, password string, hidden bool) error
+	CreateHotspot(ctx context.Context, id string, password string, hidden bool) error
 
 	// DeleteWifiConnection removes wifi-network with given name from saved connections.
 	DeleteWifiConnection(ctx context.Context, name string) error
