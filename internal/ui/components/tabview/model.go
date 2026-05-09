@@ -12,8 +12,8 @@ type Model struct {
 
 	activeTab int
 
-	cachedTabTitles   []string
-	cachedTtabBarView string
+	cachedTabTitles  []string
+	cachedTabBarView string
 
 	styles       *Styles
 	borderOffset int
@@ -53,7 +53,7 @@ func (m *Model) Resize(width, height int) {
 
 	m.styles.ContentStyle = m.styles.ContentStyle.Width(width).Height(height)
 
-	m.cachedTtabBarView = RenderTabBar(
+	m.cachedTabBarView = RenderTabBar(
 		m.cachedTabTitles,
 		m.styles.ActiveTabBarStyle,
 		m.styles.InactiveTabBarStyle,
@@ -108,7 +108,7 @@ func (m *Model) View() tea.View {
 
 	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Center,
-		m.cachedTtabBarView,
+		m.cachedTabBarView,
 		tabView,
 	))
 }
