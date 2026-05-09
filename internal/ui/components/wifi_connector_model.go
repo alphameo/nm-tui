@@ -125,18 +125,17 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 }
 
 func (m *WifiConnectorModel) setNew(ssid string) tea.Cmd {
-	var focusMsg tea.Cmd
 	m.ssid.SetValue(ssid)
 	m.name.SetValue(ssid)
 	if ssid == "" {
 		m.connCreation = true
-		focusMsg = m.focuses[0].Focus()
+		m.focusIdx = 0
 	} else {
 		m.connCreation = false
-		m.focusIdx = max(m.focusIdx, 1)
-		focusMsg = m.focuses[m.focusIdx].Focus()
+		m.focusIdx = 1
 	}
 
+	m.name.Blur()
 	m.password.Reset()
 	pw, err := m.nm.GetWifiPassword(context.Background(), ssid)
 	if err == nil {
@@ -147,7 +146,7 @@ func (m *WifiConnectorModel) setNew(ssid string) tea.Cmd {
 	m.hidden.SetValue(false)
 	m.hidden.Blur()
 
-	return focusMsg
+	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *WifiConnectorModel) Init() tea.Cmd {
