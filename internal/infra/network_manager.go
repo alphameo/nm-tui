@@ -109,8 +109,8 @@ type WifiManager interface {
 	// CreateWifiConnection creates specified connection profile
 	CreateWifiConnection(ctx context.Context, id, ssid, password string, hidden bool) error
 
-	// CreateHotspot creates new hotspot
-	CreateHotspot(ctx context.Context, id string, password string, hidden bool) error
+	// CreateWifiHotspot creates new hotspot
+	CreateWifiHotspot(ctx context.Context, id string, password string, hidden bool) error
 
 	// DeleteWifiConnection removes wifi-network with given name from saved connections.
 	DeleteWifiConnection(ctx context.Context, name string) error

@@ -773,7 +773,7 @@ func (NMCLI) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStatu
 	return infra.ConnectivityStatus(strings.Trim(string(out), " \n")), nil
 }
 
-func (NMCLI) CreateHotspot(ctx context.Context, id string, password string, hidden bool) error {
+func (NMCLI) CreateWifiHotspot(ctx context.Context, id string, password string, hidden bool) error {
 	hiddenStr := "no"
 	if hidden {
 		hiddenStr = "yes"
@@ -788,12 +788,12 @@ func (NMCLI) CreateHotspot(ctx context.Context, id string, password string, hidd
 	if err != nil {
 		stderr := infra.ExtractStderr(err)
 		slog.Error(
-			infra.ErrCreateHotspot.Error(),
+			infra.ErrCreateWifiHotspot.Error(),
 			"id", id,
 			"stderr", stderr,
 			"error", err,
 		)
-		return fmt.Errorf("%w %s: %s", infra.ErrCreateHotspot, id, stderr)
+		return fmt.Errorf("%w %s: %s", infra.ErrCreateWifiHotspot, id, stderr)
 	}
 	slog.Info(
 		"hotspot created",
