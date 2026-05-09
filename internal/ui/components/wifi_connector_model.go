@@ -50,7 +50,7 @@ var wifiConnectorKeys = &wifiConnectorKeyMap{
 type WifiConnectorModel struct {
 	ssid         textinput.Model
 	ssidStyle    *lipgloss.Style
-	editableSSID bool
+	connCreation bool
 
 	name      textinput.Model
 	nameStyle *lipgloss.Style
@@ -129,10 +129,10 @@ func (m *WifiConnectorModel) setNew(ssid string) tea.Cmd {
 	m.ssid.SetValue(ssid)
 	m.name.SetValue(ssid)
 	if ssid == "" {
-		m.editableSSID = true
+		m.connCreation = true
 		focusMsg = m.focuses[0].Focus()
 	} else {
-		m.editableSSID = false
+		m.connCreation = false
 		m.focusIdx = max(m.focusIdx, 1)
 		focusMsg = m.focuses[m.focusIdx].Focus()
 	}
@@ -226,7 +226,7 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 
 func (m *WifiConnectorModel) View() tea.View {
 	ssid := m.ssid.View()
-	if m.editableSSID {
+	if m.connCreation {
 		ssidStyle := *m.ssidStyle
 		if m.ssid.Focused() {
 			ssidStyle = ssidStyle.BorderForeground(styles.AccentColor)
@@ -262,29 +262,37 @@ func (m *WifiConnectorModel) View() tea.View {
 		password,
 	)
 
-	hidden := m.hidden.View().Content
-	hiddenStyle := *m.hiddenStyle
-	if m.hidden.Focused() {
-		hiddenStyle = hiddenStyle.Foreground(styles.AccentColor)
-	}
-	hidden = hiddenStyle.Render(hidden)
-	hidden = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Hidden ",
-		hidden,
-	)
-
-	return tea.NewView(lipgloss.JoinVertical(
-		lipgloss.Left,
+	fields := []string{
 		ssid,
 		name,
 		password,
-		hidden,
+	}
+	if m.connCreation {
+		hidden := m.hidden.View().Content
+		hiddenStyle := *m.hiddenStyle
+		if m.hidden.Focused() {
+			hiddenStyle = hiddenStyle.Foreground(styles.AccentColor)
+		}
+		hidden = hiddenStyle.Render(hidden)
+		hidden = lipgloss.JoinHorizontal(
+			lipgloss.Center,
+			"Hidden ",
+			hidden,
+		)
+		fields = append(fields, hidden)
+	}
+
+	return tea.NewView(lipgloss.JoinVertical(
+		lipgloss.Left,
+		fields...,
 	))
 }
 
 func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
+		return nil
+	}
+	if !m.connCreation && m.focusIdx == len(m.focuses)-2 {
 		return nil
 	}
 	m.focuses[m.focusIdx].Blur()
@@ -296,7 +304,7 @@ func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
-	if !m.editableSSID && m.focusIdx == 1 {
+	if !m.connCreation && m.focusIdx == 1 {
 		return nil
 	}
 	m.focuses[m.focusIdx].Blur()
@@ -309,8 +317,9 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 		SetWifiAvailableStateCmd(AvailableConnecting),
 		func() tea.Msg {
 			ssid := m.ssid.Value()
+			name := m.name.Value()
 			password := m.password.Value()
-			err := m.nm.ConnectWifi(context.Background(), ssid, password, m.hidden.Value())
+			err := m.nm.ConnectWifi(context.Background(), name, ssid, password)
 			if err != nil {
 				return tea.BatchMsg{
 					SetWifiAvailableStateCmd(AvailableDone),
