@@ -15,6 +15,15 @@ type SavedWifi struct {
 	Active bool
 }
 
+type NetworkMode string
+
+const (
+	NetworkAccessPoint NetworkMode = "access point"
+	NetworkInfra       NetworkMode = "infrastructure"
+	NetworkMesh        NetworkMode = "mesh"
+	NetworkAdHoc       NetworkMode = "adhoc"
+)
+
 type WifiInfo struct {
 	Name                string
 	SSID                string

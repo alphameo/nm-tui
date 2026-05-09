@@ -362,6 +362,38 @@ func (NMCLI) getWifiActive(ctx context.Context, id string) (bool, error) {
 	return strings.Trim(string(out), " \n") == "activated", nil
 }
 
+func (NMCLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, error) {
+	args := []string{
+		"-s", "-m", "tabular",
+		"-t", "-f", "802-11-wireless.mode",
+		"connection", "show", id,
+	}
+	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
+	if err != nil {
+		stderr := infra.ExtractStderr(err)
+		slog.Error(
+			infra.ErrGetNetMode.Error(),
+			"id", id,
+			"stderr", stderr,
+			"error", err,
+		)
+		return "", fmt.Errorf("%w for %s: %s", infra.ErrGetNetMode, id, stderr)
+	}
+	slog.Info("retrieved network mode", "id", id)
+	var res infra.NetworkMode
+	switch strings.Trim(string(out), " \n") {
+	case "infra":
+		res = infra.NetworkInfra
+	case "ap":
+		res = infra.NetworkAccessPoint
+	case "adhoc":
+		res = infra.NetworkAdHoc
+	case "mesh":
+		res = infra.NetworkMesh
+	}
+	return res, nil
+}
+
 func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, error) {
 	var errs []error
 	ssid, err := n.getWifiSSID(ctx, id)

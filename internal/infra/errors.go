@@ -25,6 +25,7 @@ var (
 	ErrGetWifiAutoconnectPriority error = errors.New("failed retrieving wifi network autoconnect priority")
 	ErrGetWifiActivity            error = errors.New("failed retrieving wifi network activity state")
 	ErrGetWifiInfo                error = errors.New("failed retrieving wifi network information")
+	ErrGetNetMode                 error = errors.New("failed retrieving network mode")
 
 	ErrUpdateWifiInfo      error = errors.New("failed modifying wifi network information")
 	ErrUpdateWifiInfoField error = errors.New("failed modifying wifi network information field")
