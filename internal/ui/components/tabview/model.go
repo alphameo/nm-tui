@@ -5,7 +5,6 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
 type Model struct {
@@ -16,12 +15,14 @@ type Model struct {
 	cachedTabTitles   []string
 	cachedTtabBarView string
 
-	innerStyle *lipgloss.Style
+	styles       *Styles
+	borderOffset int
+	tabBarHeight int
 
 	keys *KeyMap
 }
 
-func New(tabs []Tab, keys *KeyMap) *Model {
+func New(tabs []Tab, styles *Styles, keys *KeyMap) *Model {
 	tabTitles := []string{}
 	for _, t := range tabs {
 		tabTitles = append(tabTitles, t.Title)
@@ -30,28 +31,38 @@ func New(tabs []Tab, keys *KeyMap) *Model {
 		tabs:            tabs,
 		cachedTabTitles: tabTitles,
 		activeTab:       0,
-		innerStyle:      &styles.TabScreenBorderStyle,
 		keys:            keys,
 	}
+	m.SetStyles(styles)
 	return m
 }
 
-func (m *Model) Resize(width, height int) {
-	height -= styles.TabBarHeight
+func (m *Model) SetStyles(styles *Styles) {
+	if styles == nil {
+		styles = DefaulStyles()
+	}
+	borderOffset := lipgloss.Width(styles.ContentStyle.GetBorderStyle().Left) * 2
+	tabBarHeight := borderOffset + 1
+	m.styles = styles
+	m.borderOffset = borderOffset
+	m.tabBarHeight = tabBarHeight
+}
 
-	style := m.innerStyle.Width(width).Height(height)
-	m.innerStyle = &style
+func (m *Model) Resize(width, height int) {
+	height -= m.tabBarHeight
+
+	m.styles.ContentStyle = m.styles.ContentStyle.Width(width).Height(height)
 
 	m.cachedTtabBarView = RenderTabBar(
 		m.cachedTabTitles,
-		styles.TabTabBorderActiveStyle,
-		styles.TabTabBorderInactiveStyle,
+		m.styles.ActiveTabBarStyle,
+		m.styles.InactiveTabBarStyle,
 		width,
 		m.activeTab,
 	)
 
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	width -= m.borderOffset
+	height -= m.borderOffset
 	for _, t := range m.tabs {
 		t.Content.Resize(width, height)
 	}
@@ -93,7 +104,7 @@ func (m *Model) handleKey(keyMsg tea.KeyPressMsg) (*Model, tea.Cmd) {
 
 func (m *Model) View() tea.View {
 	tabView := m.tabs[m.activeTab].Content.View().Content
-	tabView = m.innerStyle.Render(tabView)
+	tabView = m.styles.ContentStyle.Render(tabView)
 
 	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Center,

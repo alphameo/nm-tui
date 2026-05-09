@@ -4,6 +4,7 @@ package styles
 import (
 	"charm.land/bubbles/v2/table"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/ui/components/tabview"
 )
 
 var (
@@ -21,12 +22,7 @@ var (
 	TableStyle     = tableStyle()
 	DataTableStyle = dataTableStyle()
 
-	TabTabBorderInactive      = tabBorderInactive(Border)
-	TabTabBorderActive        = tabBorderActive(Border)
-	TabScreenBorder           = tabbedViewBorder(Border)
-	TabScreenBorderStyle      = DefaultStyle.Border(TabScreenBorder)
-	TabTabBorderInactiveStyle = DefaultStyle.Border(TabTabBorderInactive, true).Padding(0, 1)
-	TabTabBorderActiveStyle   = DefaultStyle.Border(TabTabBorderActive, true).Padding(0, 1)
+	TabViewStyles = tabview.GenerateStyles(&BorderedStyle)
 
 	OverlayStyle = DefaultStyle.
 			Border(Border).
@@ -59,25 +55,4 @@ func dataTableStyle() table.Styles {
 		Foreground(TextColor).
 		Bold(false)
 	return style
-}
-
-func tabBorderInactive(border lipgloss.Border) lipgloss.Border {
-	border.BottomLeft = border.MiddleBottom
-	border.BottomRight = border.MiddleBottom
-	return border
-}
-
-func tabBorderActive(border lipgloss.Border) lipgloss.Border {
-	lBot := border.BottomRight
-	border.BottomRight = border.BottomLeft
-	border.BottomLeft = lBot
-	border.Bottom = " "
-	return border
-}
-
-func tabbedViewBorder(border lipgloss.Border) lipgloss.Border {
-	border.Top = " "
-	border.TopLeft = border.Left
-	border.TopRight = border.Right
-	return border
 }

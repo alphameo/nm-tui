@@ -95,7 +95,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	wifiTable := tabview.New([]tabview.Tab{
 		{Title: "Wi-Fi", Content: wifi},
 		{Title: "Networking", Content: network},
-	}, keys.tabs)
+	}, styles.TabViewStyles, keys.tabs)
 
 	popupStyle := lipgloss.NewStyle().Inherit(styles.OverlayStyle).
 		Align(lipgloss.Center, lipgloss.Center).
