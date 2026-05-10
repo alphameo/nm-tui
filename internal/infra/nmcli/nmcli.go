@@ -527,6 +527,10 @@ func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, err
 func (n *NMCLI) UpdateWifiInfo(ctx context.Context, id string, info infra.UpdateWifiInfo) error {
 	var errs []error
 
+	var wg sync.WaitGroup
+	wg.Add(4)
+	var mu sync.Mutex
+
 	err := n.updateWifiID(
 		ctx,
 		id,
@@ -536,32 +540,49 @@ func (n *NMCLI) UpdateWifiInfo(ctx context.Context, id string, info infra.Update
 		errs = append(errs, err)
 	}
 
-	err = n.updateWifiPassword(
-		ctx,
-		info.Name,
-		info.Password,
-	)
-	if err != nil {
-		errs = append(errs, err)
-	}
+	go func() {
+		defer wg.Done()
+		err := n.updateWifiPassword(
+			ctx,
+			info.Name,
+			info.Password,
+		)
+		if err != nil {
+			mu.Lock()
+			errs = append(errs, err)
+			mu.Unlock()
+		}
+	}()
 
-	err = n.updateWifiAutoconnect(
-		ctx,
-		info.Name,
-		info.Autoconnect,
-	)
-	if err != nil {
-		errs = append(errs, err)
-	}
+	go func() {
+		defer wg.Done()
+		err := n.updateWifiAutoconnect(
+			ctx,
+			info.Name,
+			info.Autoconnect,
+		)
+		if err != nil {
+			mu.Lock()
+			errs = append(errs, err)
+			mu.Unlock()
+		}
+	}()
 
-	err = n.updateWifiAutoconnectPriority(
-		ctx,
-		info.Name,
-		info.AutoconnectPriority,
-	)
-	if err != nil {
-		errs = append(errs, err)
-	}
+	go func() {
+		wg.Done()
+		err := n.updateWifiAutoconnectPriority(
+			ctx,
+			info.Name,
+			info.AutoconnectPriority,
+		)
+		if err != nil {
+			mu.Lock()
+			errs = append(errs, err)
+			mu.Unlock()
+		}
+	}()
+
+	wg.Wait()
 
 	if len(errs) != 0 {
 		sb := strings.Builder{}
