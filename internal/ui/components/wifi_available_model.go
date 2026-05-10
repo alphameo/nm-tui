@@ -204,7 +204,7 @@ func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiAvailableMo
 	case key.Matches(keyMsg, m.keys.connect):
 		row := m.dataTable.SelectedRow()
 		if row != nil {
-			return m, m.connector.open(row[m.ssidColIdx])
+			return m, m.connector.openConnector(row[m.ssidColIdx])
 		}
 		return m, nil
 	}

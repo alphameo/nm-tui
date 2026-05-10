@@ -203,7 +203,7 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 			RescanWifiAvailableCmd(0),
 		)
 	case key.Matches(keyMsg, m.keys.create):
-		return m, m.connector.open("")
+		return m, m.connector.openCreator()
 	case key.Matches(keyMsg, m.keys.openCaptivePortal):
 		return m, func() tea.Msg {
 			err := infra.OpenCaptivePortal(context.Background())

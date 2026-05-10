@@ -47,10 +47,19 @@ var wifiConnectorKeys = &wifiConnectorKeyMap{
 	),
 }
 
+type ConnectorType int
+
+const (
+	ConnectorUntyped ConnectorType = iota
+	ConnectorHotspotter
+	ConnectorConnector
+	ConnectorCreator
+)
+
 type WifiConnectorModel struct {
-	ssid         textinput.Model
-	ssidStyle    *lipgloss.Style
-	connCreation bool
+	ssid      textinput.Model
+	ssidStyle *lipgloss.Style
+	connType  ConnectorType
 
 	name      textinput.Model
 	nameStyle *lipgloss.Style
@@ -124,15 +133,16 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	return model
 }
 
-func (m *WifiConnectorModel) setNew(ssid string) tea.Cmd {
+func (m *WifiConnectorModel) setNew(ssid string, connType ConnectorType) tea.Cmd {
 	m.ssid.SetValue(ssid)
 	m.name.SetValue(ssid)
-	if ssid == "" {
-		m.connCreation = true
-		m.focusIdx = 0
-	} else {
-		m.connCreation = false
+
+	m.connType = connType
+
+	if connType == ConnectorConnector {
 		m.focusIdx = 1
+	} else {
+		m.focusIdx = 0
 	}
 
 	m.name.Blur()
@@ -195,15 +205,18 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 		}
 		return m, nil
 	case key.Matches(keyMsg, m.keys.createOrConn):
-		var action tea.Cmd
-		if m.connCreation {
-			action = m.createWifiConnCmd()
-		} else {
-			m.connectToWifiCmd()
+		var cmd tea.Cmd
+		switch m.connType {
+		case ConnectorConnector:
+			cmd = m.connectToWifiCmd()
+		case ConnectorCreator:
+			cmd = m.createWifiConnCmd()
+		case ConnectorHotspotter:
+			cmd = m.createHotspotCmd()
 		}
 		return m, tea.Sequence(
 			SetPopupActivityCmd(false),
-			action,
+			cmd,
 		)
 	}
 
@@ -231,7 +244,7 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 
 func (m *WifiConnectorModel) View() tea.View {
 	ssid := m.ssid.View()
-	if m.connCreation {
+	if m.connType != ConnectorConnector {
 		ssidStyle := *m.ssidStyle
 		if m.ssid.Focused() {
 			ssidStyle = ssidStyle.BorderForeground(styles.AccentColor)
@@ -272,7 +285,7 @@ func (m *WifiConnectorModel) View() tea.View {
 		name,
 		password,
 	}
-	if m.connCreation {
+	if m.connType == ConnectorCreator {
 		hidden := m.hidden.View().Content
 		hiddenStyle := *m.hiddenStyle
 		if m.hidden.Focused() {
@@ -297,7 +310,7 @@ func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
-	if !m.connCreation && m.focusIdx == len(m.focuses)-2 {
+	if m.connType != ConnectorCreator && m.focusIdx == len(m.focuses)-2 {
 		return nil
 	}
 	m.focuses[m.focusIdx].Blur()
@@ -309,7 +322,7 @@ func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
-	if !m.connCreation && m.focusIdx == 1 {
+	if m.connType != ConnectorCreator && m.focusIdx == 1 {
 		return nil
 	}
 	m.focuses[m.focusIdx].Blur()
@@ -378,9 +391,51 @@ func (m *WifiConnectorModel) createWifiConnCmd() tea.Cmd {
 	)
 }
 
-func (m *WifiConnectorModel) open(wifiName string) tea.Cmd {
+func (m *WifiConnectorModel) createHotspotCmd() tea.Cmd {
+	return tea.Sequence(
+		SetWifiAvailableStateCmd(AvailableCreating),
+		func() tea.Msg {
+			err := m.nm.CreateWifiHotspot(
+				context.Background(),
+				m.name.Value(),
+				m.ssid.Value(),
+				m.password.Value(),
+			)
+			if err != nil {
+				return tea.Batch(
+					SetWifiAvailableStateCmd(AvailableDone),
+					NotifyCmd(fmt.Sprintf(
+						"Cannot create hotspot %s",
+						m.ssid.Value(),
+					)),
+					RescanWifiCmd(0),
+				)
+			}
+			return tea.Batch(
+				SetWifiAvailableStateCmd(AvailableDone),
+				RescanWifiCmd(0),
+			)
+		},
+	)
+}
+
+func (m *WifiConnectorModel) openConnector(wifiName string) tea.Cmd {
 	return tea.Batch(
-		m.setNew(wifiName),
+		m.setNew(wifiName, ConnectorConnector),
 		OpenPopup(m, "Wi-Fi network Connector"),
+	)
+}
+
+func (m *WifiConnectorModel) openCreator() tea.Cmd {
+	return tea.Batch(
+		m.setNew("", ConnectorCreator),
+		OpenPopup(m, "Wi-Fi profile Creator"),
+	)
+}
+
+func (m *WifiConnectorModel) openHotspotter() tea.Cmd {
+	return tea.Batch(
+		m.setNew("", ConnectorHotspotter),
+		OpenPopup(m, "Wi-Fi hotspot Creator"),
 	)
 }
