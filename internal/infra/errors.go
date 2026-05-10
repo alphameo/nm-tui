@@ -26,16 +26,18 @@ var (
 	ErrGetWifiActivity            error = errors.New("failed retrieving wifi network activity state")
 	ErrGetWifiInfo                error = errors.New("failed retrieving wifi network information")
 	ErrGetNetMode                 error = errors.New("failed retrieving network mode")
+	ErrParseNetMode               error = errors.New("failed to parse network mode")
 
 	ErrUpdateWifiInfo      error = errors.New("failed modifying wifi network information")
 	ErrUpdateWifiInfoField error = errors.New("failed modifying wifi network information field")
 
 	ErrDeleteWifi error = errors.New("failed deleting wifi connection")
 
-	ErrGetConnectivityStatus error = errors.New("failed retrieving networking status")
-	ErrGetNetworking         error = errors.New("failed retreiving networking status")
-	ErrEnableNetworking      error = errors.New("failed enabling networking")
-	ErrDisableNetworking     error = errors.New("failed disabling networking")
+	ErrGetConnectivity   error = errors.New("failed retrieving networking status")
+	ErrParseConnectivity error = errors.New("failed to parse networking status")
+	ErrGetNetworking     error = errors.New("failed retreiving networking status")
+	ErrEnableNetworking  error = errors.New("failed enabling networking")
+	ErrDisableNetworking error = errors.New("failed disabling networking")
 
 	ErrGetRadioStatus error = errors.New("failed retrieving radio status")
 	ErrGetWifiStatus  error = errors.New("failed retrieving wifi radio status")

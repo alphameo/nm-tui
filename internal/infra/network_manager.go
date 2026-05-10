@@ -13,16 +13,33 @@ type SavedWifi struct {
 	Name   string
 	SSID   string
 	Active bool
+	Mode   NetworkMode
 }
 
-type NetworkMode string
+type NetworkMode int
 
 const (
-	NetworkAccessPoint NetworkMode = "access point"
-	NetworkInfra       NetworkMode = "infrastructure"
-	NetworkMesh        NetworkMode = "mesh"
-	NetworkAdHoc       NetworkMode = "adhoc"
+	NetworkNil NetworkMode = iota
+	NetworkAccessPoint
+	NetworkInfra
+	NetworkMesh
+	NetworkAdHoc
 )
+
+func (m NetworkMode) String() string {
+	switch m {
+	case NetworkAccessPoint:
+		return "Access Point"
+	case NetworkInfra:
+		return "Infrastructure"
+	case NetworkMesh:
+		return "Mesh"
+	case NetworkAdHoc:
+		return "AdHoc"
+	default:
+		return "Undefined"
+	}
+}
 
 type WifiInfo struct {
 	Name                string
@@ -46,15 +63,33 @@ type RadioStatus struct {
 	EnabledWWAN bool
 }
 
-type ConnectivityStatus string
+type ConnectivityStatus int
 
 const (
-	NetworkNone    ConnectivityStatus = "none"
-	NetworkPortal  ConnectivityStatus = "portal"
-	NetworkLimited ConnectivityStatus = "limited"
-	NetworkFull    ConnectivityStatus = "full"
-	NetworkUnknown ConnectivityStatus = "unknown"
+	ConnectvityNil ConnectivityStatus = iota
+	ConnectivityNone
+	ConnectivityPortal
+	ConnectivityLimited
+	ConnectivityFull
+	ConnectivityUnknown
 )
+
+func (c ConnectivityStatus) String() string {
+	switch c {
+	case ConnectivityNone:
+		return "None"
+	case ConnectivityPortal:
+		return "Portal"
+	case ConnectivityLimited:
+		return "Limited"
+	case ConnectivityFull:
+		return "Full"
+	case ConnectivityUnknown:
+		return "Unknown"
+	default:
+		return "Undefined"
+	}
+}
 
 type NetworkDevice struct {
 	Device     string

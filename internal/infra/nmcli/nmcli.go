@@ -377,21 +377,30 @@ func (NMCLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, erro
 			"stderr", stderr,
 			"error", err,
 		)
-		return "", fmt.Errorf("%w for %s: %s", infra.ErrGetNetMode, id, stderr)
+		return infra.NetworkNil, fmt.Errorf("%w for %s: %s", infra.ErrGetNetMode, id, stderr)
 	}
-	slog.Info("retrieved network mode", "id", id)
-	var res infra.NetworkMode
-	switch strings.Trim(string(out), " \n") {
+	res := strings.Trim(string(out), " \n")
+	var mode infra.NetworkMode
+	switch res {
 	case "infrastructure":
-		res = infra.NetworkInfra
+		mode = infra.NetworkInfra
 	case "ap":
-		res = infra.NetworkAccessPoint
+		mode = infra.NetworkAccessPoint
 	case "adhoc":
-		res = infra.NetworkAdHoc
+		mode = infra.NetworkAdHoc
 	case "mesh":
-		res = infra.NetworkMesh
+		mode = infra.NetworkMesh
 	}
-	return res, nil
+	if mode == infra.NetworkNil {
+		slog.Error(
+			infra.ErrParseNetMode.Error(),
+			"id", id,
+			"got mode", res,
+		)
+		return infra.NetworkNil, fmt.Errorf("%w for %s: got %s", infra.ErrGetNetMode, id, res)
+	}
+	slog.Info("retrieved network mode", "id", id, "mode", mode)
+	return mode, nil
 }
 
 func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, error) {
@@ -769,14 +778,35 @@ func (NMCLI) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStatu
 	if err != nil {
 		stderr := infra.ExtractStderr(err)
 		slog.Error(
-			infra.ErrGetConnectivityStatus.Error(),
+			infra.ErrGetConnectivity.Error(),
 			"stderr", stderr,
 			"error", err,
 		)
-		return "", fmt.Errorf("%w: %s", infra.ErrGetConnectivityStatus, stderr)
+		return infra.ConnectvityNil, fmt.Errorf("%w: %s", infra.ErrGetConnectivity, stderr)
 	}
-	slog.Info("retrieved wwan status", "output", string(out))
-	return infra.ConnectivityStatus(strings.Trim(string(out), " \n")), nil
+	res := strings.Trim(string(out), " \n")
+	var mode infra.ConnectivityStatus
+	switch strings.Trim(string(out), " \n") {
+	case "none":
+		mode = infra.ConnectivityNone
+	case "portal":
+		mode = infra.ConnectivityPortal
+	case "limited":
+		mode = infra.ConnectivityLimited
+	case "full":
+		mode = infra.ConnectivityFull
+	case "unknown":
+		mode = infra.ConnectivityUnknown
+	}
+	if mode == infra.ConnectvityNil {
+		slog.Error(
+			infra.ErrParseConnectivity.Error(),
+			"got connectivity", res,
+		)
+		return infra.ConnectvityNil, fmt.Errorf("%w: got %s", infra.ErrParseConnectivity, res)
+	}
+	slog.Info("retrieved connectivity status", "output", res)
+	return mode, nil
 }
 
 func (NMCLI) CreateWifiHotspot(ctx context.Context, id string, password string, hidden bool) error {
@@ -807,5 +837,21 @@ func (NMCLI) CreateWifiHotspot(ctx context.Context, id string, password string, 
 		"output", string(out),
 		"hidden", hiddenStr,
 	)
+	return nil
+}
+
+func (NMCLI) ActivateWifiHotspot(ctx context.Context) error {
+	args := []string{"device", "wifi", "hotspot"}
+	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
+	if err != nil {
+		stderr := infra.ExtractStderr(err)
+		slog.Error(
+			infra.ErrDisableNetworking.Error(),
+			"stderr", stderr,
+			"error", err,
+		)
+		return fmt.Errorf("%w: %s", infra.ErrDisableNetworking, stderr)
+	}
+	slog.Info("networking disabled", "output", string(out))
 	return nil
 }

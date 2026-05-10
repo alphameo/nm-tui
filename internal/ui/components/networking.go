@@ -362,7 +362,7 @@ func (m *NetworkModel) RescanCmd() tea.Cmd {
 			if err != nil {
 				return NotifyCmd("Cannot get connection status")
 			}
-			m.connectivity = string(conStatus)
+			m.connectivity = conStatus.String()
 
 			return m.setStateCmd(NetworkDone)
 		},
