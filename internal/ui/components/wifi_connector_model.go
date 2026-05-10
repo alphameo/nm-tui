@@ -377,3 +377,10 @@ func (m *WifiConnectorModel) createWifiConnCmd() tea.Cmd {
 		},
 	)
 }
+
+func (c *WifiConnectorModel) open(wifiName string) tea.Cmd {
+	return tea.Batch(
+		c.setNew(wifiName),
+		OpenPopup(c, "Wi-Fi network Connector"),
+	)
+}

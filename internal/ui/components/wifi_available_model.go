@@ -209,7 +209,7 @@ func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiAvailableMo
 	case key.Matches(keyMsg, m.keys.connect):
 		row := m.dataTable.SelectedRow()
 		if row != nil {
-			return m, m.callConnector(row[m.ssidColIdx])
+			return m, m.connector.open(row[m.ssidColIdx])
 		}
 		return m, nil
 	case key.Matches(keyMsg, m.keys.create):
@@ -309,11 +309,4 @@ func SetWifiAvailableStateCmd(state wifiAvailableState) tea.Cmd {
 	return func() tea.Msg {
 		return WifiAvialableStateMsg(state)
 	}
-}
-
-func (m *WifiAvailableModel) callConnector(wifiName string) tea.Cmd {
-	return tea.Batch(
-		m.connector.setNew(wifiName),
-		OpenPopup(m.connector, "Wi-Fi network Connector"),
-	)
 }
