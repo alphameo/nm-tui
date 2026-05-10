@@ -368,19 +368,20 @@ func (m *WifiSavedModel) gotoTop() tea.Cmd {
 }
 
 func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
-	return func() tea.Msg {
-		name := m.dataTable.SelectedRow()[m.nameColIdx]
-		err := m.nm.DeactivateWifi(context.Background(), name)
-		if err != nil {
-			return NotifyCmd(
-				fmt.Sprintf("Error while disconnecting from %s", name),
+	return tea.Sequence(m.setStateCmd(SavedDisconnecting),
+		func() tea.Msg {
+			name := m.dataTable.SelectedRow()[m.nameColIdx]
+			err := m.nm.DeactivateWifi(context.Background(), name)
+			if err != nil {
+				return NotifyCmd(
+					fmt.Sprintf("Error while disconnecting from %s", name),
+				)
+			}
+			return tea.Batch(
+				m.gotoTop(),
+				RescanWifiCmd(200*time.Millisecond),
 			)
-		}
-		return tea.Batch(
-			m.gotoTop(),
-			RescanWifiCmd(200*time.Millisecond),
-		)
-	}
+		})
 }
 
 func (m *WifiSavedModel) deleteSelectedCmd() tea.Cmd {
