@@ -47,8 +47,8 @@ var (
 	ErrEnableWWAN     error = errors.New("failed enabling wwan radio")
 	ErrDisableWWAN    error = errors.New("failed disabling wwan radio")
 
-	ErrCreateWifiHotspot error = errors.New("failed creating wifi hotspot")
-	ErrEnableWifiHotspot error = errors.New("failed enabling wifi hotspot")
+	ErrCreateWifiHotspot      error = errors.New("failed creating wifi hotspot")
+	ErrQuickEnableWifiHotspot error = errors.New("failed enabling quick wifi hotspot")
 
 	ErrOpenCaptivePortal error = errors.New("failed to open captive portal")
 	ErrGetOutboundIP     error = errors.New("failed getting outbound ip")

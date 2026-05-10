@@ -164,7 +164,7 @@ type WifiManager interface {
 	CreateWifiHotspot(ctx context.Context, id string, password string, hidden bool) error
 
 	// EanbleWifiHotspot creates new hotspot
-	EnableWifiHotspot(ctx context.Context) error
+	EnableQuickWifiHotspot(ctx context.Context) error
 
 	// DeleteWifiConnection removes wifi-network with given name from saved connections.
 	DeleteWifiConnection(ctx context.Context, name string) error

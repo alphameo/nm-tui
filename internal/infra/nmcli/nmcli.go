@@ -921,7 +921,7 @@ func (*NMCLI) CreateWifiHotspot(ctx context.Context, id string, password string,
 	return nil
 }
 
-func (*NMCLI) EnableWifiHotspot(ctx context.Context) error {
+func (*NMCLI) EnableQuickWifiHotspot(ctx context.Context) error {
 	args := []string{
 		"device", "wifi", "hotspot",
 	}
@@ -929,14 +929,14 @@ func (*NMCLI) EnableWifiHotspot(ctx context.Context) error {
 	if err != nil {
 		stderr := infra.ExtractStderr(err)
 		slog.Error(
-			infra.ErrEnableWifiHotspot.Error(),
+			infra.ErrQuickEnableWifiHotspot.Error(),
 			"stderr", stderr,
 			"error", err,
 		)
-		return fmt.Errorf("%w: %s", infra.ErrEnableWifiHotspot, stderr)
+		return fmt.Errorf("%w: %s", infra.ErrQuickEnableWifiHotspot, stderr)
 	}
 	slog.Info(
-		"hotspot enabled",
+		"quick hotspot enabled",
 		"output", string(out),
 	)
 	return nil
