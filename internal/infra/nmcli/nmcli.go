@@ -892,7 +892,7 @@ func (*NMCLI) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStat
 
 func (*NMCLI) CreateWifiHotspot(ctx context.Context, id string, ssid string, password string) error {
 	args := []string{
-		"nmcli", "device", "wifi", "hotspot",
+		"device", "wifi", "hotspot",
 		"con-name", id,
 		"ssid", ssid,
 		"password", password,
