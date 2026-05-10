@@ -805,7 +805,7 @@ func (*NMCLI) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStat
 	}
 	res := strings.TrimSpace(string(out))
 	var mode infra.ConnectivityStatus
-	switch strings.TrimSpace(string(out)) {
+	switch res {
 	case "none":
 		mode = infra.ConnectivityNone
 	case "portal":
