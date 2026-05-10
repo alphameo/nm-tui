@@ -117,6 +117,7 @@ func (n *NMCLI) GetSavedWifis(ctx context.Context) ([]infra.SavedWifi, error) {
 	}
 
 	var wg sync.WaitGroup
+	var mu sync.Mutex
 	var res []infra.SavedWifi
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
@@ -161,6 +162,8 @@ func (n *NMCLI) GetSavedWifis(ctx context.Context) ([]infra.SavedWifi, error) {
 					"error", err,
 				)
 			}
+			mu.Lock()
+			defer mu.Unlock()
 			res[idx].Mode = mode
 		}(len(res) - 1)
 	}
@@ -424,35 +427,81 @@ func (*NMCLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, err
 
 func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, error) {
 	var errs []error
-	ssid, err := n.getWifiSSID(ctx, id)
-	if err != nil {
-		errs = append(errs, err)
+	info := infra.WifiInfo{
+		Name: id,
 	}
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 
-	password, err := n.GetWifiPassword(ctx, id)
-	if err != nil {
-		errs = append(errs, err)
-	}
+	wg.Add(6)
 
-	autoconnect, err := n.getWifiAutoconnect(ctx, id)
-	if err != nil {
-		errs = append(errs, err)
-	}
+	go func() {
+		defer wg.Done()
+		ssid, err := n.getWifiSSID(ctx, id)
+		mu.Lock()
+		defer mu.Unlock()
+		if err != nil {
+			errs = append(errs, err)
+		}
+		info.SSID = ssid
+	}()
 
-	autoconnectPriority, err := n.getWifiAutoconnectPriority(ctx, id)
-	if err != nil {
-		errs = append(errs, err)
-	}
+	go func() {
+		defer wg.Done()
+		password, err := n.GetWifiPassword(ctx, id)
+		mu.Lock()
+		defer mu.Unlock()
+		if err != nil {
+			errs = append(errs, err)
+		}
+		info.Password = password
+	}()
 
-	activated, err := n.getWifiActive(ctx, id)
-	if err != nil {
-		errs = append(errs, err)
-	}
+	go func() {
+		defer wg.Done()
+		autoconnect, err := n.getWifiAutoconnect(ctx, id)
+		mu.Lock()
+		defer mu.Unlock()
+		if err != nil {
+			errs = append(errs, err)
+		}
+		info.Autoconnect = autoconnect
+	}()
 
-	mode, err := n.getNetMode(ctx, id)
-	if err != nil {
-		errs = append(errs, err)
-	}
+	go func() {
+		defer wg.Done()
+		autoconnectPriority, err := n.getWifiAutoconnectPriority(ctx, id)
+		mu.Lock()
+		defer mu.Unlock()
+		if err != nil {
+			errs = append(errs, err)
+		}
+		info.AutoconnectPriority = autoconnectPriority
+	}()
+
+	go func() {
+		defer wg.Done()
+		activated, err := n.getWifiActive(ctx, id)
+		mu.Lock()
+		defer mu.Unlock()
+		if err != nil {
+			errs = append(errs, err)
+		}
+		info.Active = activated
+	}()
+
+	go func() {
+		defer wg.Done()
+		mode, err := n.getNetMode(ctx, id)
+		mu.Lock()
+		defer mu.Unlock()
+		if err != nil {
+			errs = append(errs, err)
+		}
+		info.Mode = mode
+	}()
+
+	wg.Wait()
 
 	if len(errs) != 0 {
 		sb := strings.Builder{}
@@ -471,15 +520,7 @@ func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, err
 		return infra.WifiInfo{}, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiInfo, id, bigErrStr)
 	}
 
-	return infra.WifiInfo{
-		Name:                id,
-		SSID:                ssid,
-		Password:            password,
-		Autoconnect:         autoconnect,
-		AutoconnectPriority: autoconnectPriority,
-		Active:              activated,
-		Mode:                mode,
-	}, nil
+	return info, nil
 }
 
 // UpdateWifiInfo is not atomic
