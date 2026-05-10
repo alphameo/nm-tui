@@ -118,6 +118,7 @@ func (n NMCLI) GetSavedWifis(ctx context.Context) ([]infra.SavedWifi, error) {
 	var res []infra.SavedWifi
 
 	lines := strings.SplitSeq(string(out), "\n")
+	var i int
 	for line := range lines {
 		if line == "" {
 			continue
@@ -145,7 +146,20 @@ func (n NMCLI) GetSavedWifis(ctx context.Context) ([]infra.SavedWifi, error) {
 			Name:   name,
 			SSID:   ssid,
 			Active: parts[1] == "activated",
+			Mode:   infra.NetworkNil,
 		})
+		mode, err := n.getNetMode(ctx, name)
+		if err != nil {
+			slog.Warn(
+				"failed to get mode for saved wifi",
+				"name", name,
+				"ssid", ssid,
+				"error", err,
+			)
+		} else {
+			res[i].Mode = mode
+		}
+		i++
 	}
 
 	slog.Info("retrieved saved wifi networks")
