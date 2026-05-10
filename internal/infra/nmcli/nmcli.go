@@ -922,9 +922,7 @@ func (*NMCLI) CreateWifiHotspot(ctx context.Context, id string, password string,
 }
 
 func (*NMCLI) EnableQuickWifiHotspot(ctx context.Context) error {
-	args := []string{
-		"device", "wifi", "hotspot",
-	}
+	args := []string{"device", "wifi", "hotspot"}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
 		stderr := infra.ExtractStderr(err)
