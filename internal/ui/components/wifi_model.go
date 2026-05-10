@@ -19,6 +19,7 @@ type wifiKeyMap struct {
 	rescan            key.Binding
 	create            key.Binding
 	openCaptivePortal key.Binding
+	enableHotspot     key.Binding
 }
 
 func (k *wifiKeyMap) ShortHelp() []key.Binding {
@@ -29,6 +30,7 @@ func (k *wifiKeyMap) ShortHelp() []key.Binding {
 		k.rescan,
 		k.create,
 		k.openCaptivePortal,
+		k.enableHotspot,
 	}
 }
 
@@ -40,6 +42,7 @@ func (k *wifiKeyMap) FullHelp() [][]key.Binding {
 		k.rescan,
 		k.create,
 		k.openCaptivePortal,
+		k.enableHotspot,
 	}}
 }
 
@@ -68,6 +71,10 @@ var wifiKeys = &wifiKeyMap{
 		key.WithKeys("ctrl+p"),
 		key.WithHelp("^p", "open captive portal"),
 	),
+	enableHotspot: key.NewBinding(
+		key.WithKeys("h"),
+		key.WithHelp("h", "enable quick hotspot"),
+	),
 }
 
 type WifiModel struct {
@@ -82,6 +89,8 @@ type WifiModel struct {
 
 	connector *WifiConnectorModel
 
+	wm infra.WifiManager
+
 	keys *wifiKeyMap
 
 	width  int
@@ -93,7 +102,7 @@ func NewWifiModel(
 	wifiSaved *WifiSavedModel,
 	connector *WifiConnectorModel,
 	keys *wifiKeyMap,
-	networkManager infra.WifiManager,
+	wifiManager infra.WifiManager,
 ) *WifiModel {
 	availableStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 	savedStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
@@ -105,6 +114,8 @@ func NewWifiModel(
 		savedStyle: &savedStyle,
 
 		connector: connector,
+
+		wm: wifiManager,
 
 		keys: keys,
 	}
@@ -201,6 +212,8 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 			}
 			return NotifyCmd("Opening captive portal")
 		}
+	case key.Matches(keyMsg, m.keys.enableHotspot):
+		return m, m.enableQuickHotspot()
 	}
 
 	var cmd tea.Cmd
@@ -255,5 +268,15 @@ type RescanWifiMsg struct {
 func RescanWifiCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
 		return RescanWifiMsg{delay: delay}
+	}
+}
+
+func (m *WifiModel) enableQuickHotspot() tea.Cmd {
+	return func() tea.Msg {
+		err := m.wm.EnableQuickWifiHotspot(context.Background())
+		if err != nil {
+			return NotifyCmd("Failed enabling quick wifi hotspot")
+		}
+		return RescanWifiCmd(0)
 	}
 }
