@@ -941,19 +941,3 @@ func (*NMCLI) EnableQuickWifiHotspot(ctx context.Context) error {
 	)
 	return nil
 }
-
-func (*NMCLI) ActivateWifiHotspot(ctx context.Context) error {
-	args := []string{"device", "wifi", "hotspot"}
-	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
-	if err != nil {
-		stderr := infra.ExtractStderr(err)
-		slog.Error(
-			infra.ErrDisableNetworking.Error(),
-			"stderr", stderr,
-			"error", err,
-		)
-		return fmt.Errorf("%w: %s", infra.ErrDisableNetworking, stderr)
-	}
-	slog.Info("networking disabled", "output", string(out))
-	return nil
-}
