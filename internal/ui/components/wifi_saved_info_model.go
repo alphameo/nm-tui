@@ -55,6 +55,9 @@ type WifiSavedInfoModel struct {
 
 	active bool
 
+	mode      string
+	modeStyle *lipgloss.Style
+
 	name      textinput.Model
 	nameBak   string
 	nameStyle *lipgloss.Style
@@ -83,6 +86,8 @@ func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManag
 	name.Placeholder = "name"
 	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
+	modeStyle := styles.DefaultStyle.Bold(true)
+
 	pw := textinput.New()
 	pw.SetWidth(20)
 	pw.Prompt = ""
@@ -101,6 +106,13 @@ func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManag
 	autoconnPriorStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	model := &WifiSavedInfoModel{
+		ssid: "",
+
+		active: false,
+
+		mode:      "",
+		modeStyle: &modeStyle,
+
 		name:      name,
 		nameStyle: &nameStyle,
 
@@ -131,6 +143,8 @@ func (m *WifiSavedInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	m.ssid = info.SSID
 
 	m.active = info.Active
+
+	m.mode = info.Mode.String()
 
 	m.name.Reset()
 	m.name.SetValue(info.Name)
@@ -239,6 +253,13 @@ func (m *WifiSavedInfoModel) View() tea.View {
 
 	ssid := sb.String()
 
+	mode := m.modeStyle.Render(m.mode)
+	mode = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"Mode     ",
+		mode,
+	)
+
 	name := m.name.View()
 	nameStyle := *m.nameStyle
 	if m.name.Focused() {
@@ -299,6 +320,7 @@ func (m *WifiSavedInfoModel) View() tea.View {
 	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Left,
 		ssid,
+		mode,
 		name,
 		pw,
 		autoconn,
