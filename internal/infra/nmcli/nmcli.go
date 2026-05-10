@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/alphameo/nm-tui/internal/infra"
 )
@@ -115,10 +116,9 @@ func (n *NMCLI) GetSavedWifis(ctx context.Context) ([]infra.SavedWifi, error) {
 		return nil, fmt.Errorf("%w: %s", infra.ErrGetSavedWifis, stderr)
 	}
 
+	var wg sync.WaitGroup
 	var res []infra.SavedWifi
-
 	lines := strings.SplitSeq(string(out), "\n")
-	var i int
 	for line := range lines {
 		if line == "" {
 			continue
@@ -142,25 +142,30 @@ func (n *NMCLI) GetSavedWifis(ctx context.Context) ([]infra.SavedWifi, error) {
 				"error", err,
 			)
 		}
-		res = append(res, infra.SavedWifi{
+		wg.Add(1)
+		wifi := infra.SavedWifi{
 			Name:   name,
 			SSID:   ssid,
 			Active: parts[1] == "activated",
 			Mode:   infra.NetworkNil,
-		})
-		mode, err := n.getNetMode(ctx, name)
-		if err != nil {
-			slog.Warn(
-				"failed to get mode for saved wifi",
-				"name", name,
-				"ssid", ssid,
-				"error", err,
-			)
-		} else {
-			res[i].Mode = mode
 		}
-		i++
+		res = append(res, wifi)
+		go func(idx int) {
+			defer wg.Done()
+			mode, err := n.getNetMode(ctx, name)
+			if err != nil {
+				slog.Warn(
+					"failed to get mode for saved wifi",
+					"name", name,
+					"ssid", ssid,
+					"error", err,
+				)
+			}
+			res[idx].Mode = mode
+		}(len(res) - 1)
 	}
+
+	wg.Wait()
 
 	slog.Info("retrieved saved wifi networks")
 	return res, nil
