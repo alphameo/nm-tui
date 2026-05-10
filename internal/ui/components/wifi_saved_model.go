@@ -95,6 +95,7 @@ type WifiSavedModel struct {
 	connColIdx int
 	ssidColIdx int
 	nameColIdx int
+	modeColIdx int
 
 	ssidWidthProportion  float32
 	indicatorStateHeight int
@@ -115,9 +116,9 @@ type WifiSavedModel struct {
 func NewWifiSavedModel(savedInfo *WifiInfoModel, keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: 1},
+		{Title: "Mode", Width: 4},
 		{Title: "SSID"},
 		{Title: "Name"},
-		{Title: "Mode"},
 	}
 	t := table.New(
 		table.WithColumns(cols),
@@ -131,8 +132,9 @@ func NewWifiSavedModel(savedInfo *WifiInfoModel, keys *wifiSavedKeyMap, networkM
 		dataTable: t,
 
 		connColIdx: 0,
-		ssidColIdx: 1,
-		nameColIdx: 2,
+		modeColIdx: 1,
+		ssidColIdx: 2,
+		nameColIdx: 3,
 
 		ssidWidthProportion: 0.5,
 
@@ -167,9 +169,10 @@ func (m *WifiSavedModel) Resize(width, height int) {
 	m.dataTable.SetHeight(height)
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
-	conColWidth := m.dataTable.Columns()[m.connColIdx].Width
+	connWidth := m.dataTable.Columns()[m.connColIdx].Width
+	modeWidth := m.dataTable.Columns()[m.modeColIdx].Width
 
-	computedWidth := width - tableUtilityOffset - conColWidth
+	computedWidth := width - tableUtilityOffset - connWidth - modeWidth
 	possibleNameWidth := int(float32(computedWidth) * m.ssidWidthProportion)
 	ssidWidth := computedWidth - possibleNameWidth
 	nameWidth := computedWidth - ssidWidth
@@ -308,6 +311,7 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 				}
 				rows = append(rows, table.Row{
 					connectionFlag,
+					wifiSaved.Mode.Icon(),
 					wifiSaved.SSID,
 					wifiSaved.Name,
 				})
