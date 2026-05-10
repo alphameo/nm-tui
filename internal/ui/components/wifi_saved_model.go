@@ -17,7 +17,8 @@ import (
 type wifiSavedState int
 
 const (
-	SavedScanning wifiSavedState = iota
+	SavedNil wifiSavedState = iota
+	SavedScanning
 	SavedConnecting
 	SavedDisconnecting
 	SavedDone
@@ -34,7 +35,7 @@ func (s *wifiSavedState) String() string {
 	case SavedDone:
 		return "󰄬"
 	default:
-		return "Undefined!!!"
+		return "Undefined"
 	}
 }
 
@@ -116,6 +117,7 @@ func NewWifiSavedModel(savedInfo *WifiSavedInfoModel, keys *wifiSavedKeyMap, net
 		{Title: "󱘖", Width: 1},
 		{Title: "SSID"},
 		{Title: "Name"},
+		{Title: "Mode"},
 	}
 	t := table.New(
 		table.WithColumns(cols),

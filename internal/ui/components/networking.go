@@ -17,7 +17,8 @@ import (
 type networkState int
 
 const (
-	NetworkScanning networkState = iota
+	NetworkNil networkState = iota
+	NetworkScanning
 	NetworkTogglingWifi
 	NetworkTogglingWWAN
 	NetworkTogglingNetworking
@@ -37,7 +38,7 @@ func (s *networkState) String() string {
 	case NetworkDone:
 		return "󰄬"
 	default:
-		return "Undefined!!!"
+		return "Undefined"
 	}
 }
 

@@ -18,7 +18,8 @@ import (
 type wifiAvailableState int
 
 const (
-	AvailableScanning wifiAvailableState = iota
+	AvailableNil wifiAvailableState = iota
+	AvailableScanning
 	AvailableConnecting
 	AvailableCreating
 	AvailableDone
@@ -35,7 +36,7 @@ func (s *wifiAvailableState) String() string {
 	case AvailableDone:
 		return "󰄬"
 	default:
-		return "Undefined!!!"
+		return "Undefined"
 	}
 }
 
