@@ -527,10 +527,6 @@ func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, err
 func (n *NMCLI) UpdateWifiInfo(ctx context.Context, id string, info infra.UpdateWifiInfo) error {
 	var errs []error
 
-	var wg sync.WaitGroup
-	wg.Add(4)
-	var mu sync.Mutex
-
 	err := n.updateWifiID(
 		ctx,
 		id,
@@ -539,6 +535,10 @@ func (n *NMCLI) UpdateWifiInfo(ctx context.Context, id string, info infra.Update
 	if err != nil {
 		errs = append(errs, err)
 	}
+
+	var wg sync.WaitGroup
+	wg.Add(3)
+	var mu sync.Mutex
 
 	go func() {
 		defer wg.Done()
@@ -569,7 +569,7 @@ func (n *NMCLI) UpdateWifiInfo(ctx context.Context, id string, info infra.Update
 	}()
 
 	go func() {
-		wg.Done()
+		defer wg.Done()
 		err := n.updateWifiAutoconnectPriority(
 			ctx,
 			info.Name,
