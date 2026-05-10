@@ -77,8 +77,8 @@ var wifiSavedKeys = &wifiSavedKeyMap{
 		key.WithHelp("󱁐", "connect"),
 	),
 	disconnect: key.NewBinding(
-		key.WithKeys("shift+ "),
-		key.WithHelp("shift+ ", "disconnect"),
+		key.WithKeys("ctrl+space"),
+		key.WithHelp("^󱁐", "disconnect"),
 	),
 	rescan: key.NewBinding(
 		key.WithKeys("r"),
