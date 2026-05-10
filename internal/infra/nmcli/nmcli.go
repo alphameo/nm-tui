@@ -281,7 +281,7 @@ func (NMCLI) GetWifiPassword(ctx context.Context, id string) (string, error) {
 		return "", fmt.Errorf("%w for %s: %s", infra.ErrGetWifiPassword, id, stderr)
 	}
 	slog.Info("retrieved wifi password", "id", id)
-	return strings.Trim(string(out), " \n"), nil
+	return strings.TrimSpace(string(out)), nil
 }
 
 func (NMCLI) getWifiSSID(ctx context.Context, id string) (string, error) {
@@ -302,7 +302,7 @@ func (NMCLI) getWifiSSID(ctx context.Context, id string) (string, error) {
 		return "", fmt.Errorf("%w %s: %s", infra.ErrGetWifiSSID, id, stderr)
 	}
 	slog.Info("retrieved wifi ssid", "id", id)
-	return strings.Trim(string(out), " \n"), nil
+	return strings.TrimSpace(string(out)), nil
 }
 
 func (NMCLI) getWifiAutoconnect(ctx context.Context, id string) (bool, error) {
@@ -322,7 +322,7 @@ func (NMCLI) getWifiAutoconnect(ctx context.Context, id string) (bool, error) {
 		)
 		return false, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiAutoconnect, id, stderr)
 	}
-	return strings.Trim(string(out), " \n") == "yes", nil
+	return strings.TrimSpace(string(out)) == "yes", nil
 }
 
 func (NMCLI) getWifiAutoconnectPriority(ctx context.Context, id string) (int, error) {
@@ -342,7 +342,7 @@ func (NMCLI) getWifiAutoconnectPriority(ctx context.Context, id string) (int, er
 		)
 		return 0, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiAutoconnectPriority, id, stderr)
 	}
-	autoconnectResp := strings.Trim(string(out), " \n")
+	autoconnectResp := strings.TrimSpace(string(out))
 	autoconnectPriority, err := strconv.Atoi(autoconnectResp)
 	if err != nil {
 		slog.Error(
@@ -373,7 +373,7 @@ func (NMCLI) getWifiActive(ctx context.Context, id string) (bool, error) {
 		)
 		return false, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiActivity, id, stderr)
 	}
-	return strings.Trim(string(out), " \n") == "activated", nil
+	return strings.TrimSpace(string(out)) == "activated", nil
 }
 
 func (NMCLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, error) {
@@ -393,7 +393,7 @@ func (NMCLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, erro
 		)
 		return infra.NetworkNil, fmt.Errorf("%w for %s: %s", infra.ErrGetNetMode, id, stderr)
 	}
-	res := strings.Trim(string(out), " \n")
+	res := strings.TrimSpace(string(out))
 	var mode infra.NetworkMode
 	switch res {
 	case "infrastructure":
@@ -621,7 +621,7 @@ func (NMCLI) GetWifiStatus(ctx context.Context) (bool, error) {
 		return false, fmt.Errorf("%w: %s", infra.ErrGetWifiStatus, stderr)
 	}
 	slog.Info("retrieved wifi status", "output", string(out))
-	return strings.Trim(string(out), " \n") == "enabled", nil
+	return strings.TrimSpace(string(out)) == "enabled", nil
 }
 
 func (NMCLI) GetWWANStatus(ctx context.Context) (bool, error) {
@@ -637,7 +637,7 @@ func (NMCLI) GetWWANStatus(ctx context.Context) (bool, error) {
 		return false, fmt.Errorf("%w: %s", infra.ErrGetWWANStatus, stderr)
 	}
 	slog.Info("retrieved wwan status", "output", string(out))
-	return strings.Trim(string(out), " \n") == "enabled", nil
+	return strings.TrimSpace(string(out)) == "enabled", nil
 }
 
 func (n NMCLI) GetRadioStatus(ctx context.Context) (infra.RadioStatus, error) {
@@ -751,7 +751,7 @@ func (NMCLI) GetNetworking(ctx context.Context) (bool, error) {
 		return false, fmt.Errorf("%w: %s", infra.ErrGetNetworking, stderr)
 	}
 	slog.Info("retrieved networking status", "output", string(out))
-	return strings.Trim(string(out), " \n") == "enabled", nil
+	return strings.TrimSpace(string(out)) == "enabled", nil
 }
 
 func (NMCLI) EnableNetworking(ctx context.Context) error {
@@ -798,9 +798,9 @@ func (NMCLI) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStatu
 		)
 		return infra.ConnectvityNil, fmt.Errorf("%w: %s", infra.ErrGetConnectivity, stderr)
 	}
-	res := strings.Trim(string(out), " \n")
+	res := strings.TrimSpace(string(out))
 	var mode infra.ConnectivityStatus
-	switch strings.Trim(string(out), " \n") {
+	switch strings.TrimSpace(string(out)) {
 	case "none":
 		mode = infra.ConnectivityNone
 	case "portal":
