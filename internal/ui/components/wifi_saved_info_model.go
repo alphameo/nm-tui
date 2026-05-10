@@ -53,7 +53,8 @@ var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
 type WifiSavedInfoModel struct {
 	ssid string
 
-	active bool
+	active      bool
+	activeStyle *lipgloss.Style
 
 	mode      string
 	modeStyle *lipgloss.Style
@@ -80,13 +81,15 @@ type WifiSavedInfoModel struct {
 }
 
 func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManager) *WifiSavedInfoModel {
+	activeStyle := styles.DefaultStyle.Foreground(styles.AccentColor)
+
+	modeStyle := styles.DefaultStyle.Bold(true)
+
 	name := textinput.New()
 	name.SetWidth(20)
 	name.Prompt = ""
 	name.Placeholder = "name"
 	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-
-	modeStyle := styles.DefaultStyle.Bold(true)
 
 	pw := textinput.New()
 	pw.SetWidth(20)
@@ -108,7 +111,8 @@ func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManag
 	model := &WifiSavedInfoModel{
 		ssid: "",
 
-		active: false,
+		active:      false,
+		activeStyle: &activeStyle,
 
 		mode:      "",
 		modeStyle: &modeStyle,
@@ -330,9 +334,7 @@ func (m *WifiSavedInfoModel) View() tea.View {
 
 func (m *WifiSavedInfoModel) connectionView() string {
 	if m.active {
-		return styles.DefaultStyle.
-			Foreground(styles.AccentColor).
-			Render(" (connected)")
+		return m.activeStyle.Render(" (connected)")
 	} else {
 		return ""
 	}
