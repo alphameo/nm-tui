@@ -254,10 +254,10 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 		func() tea.Msg {
 			list, err := m.wm.ScanWifis(context.Background())
 			if err != nil {
-				return tea.BatchMsg{
+				return tea.Batch(
 					m.setStateCmd(AvailableDone),
 					NotifyCmd("Cannot scan available wifi networks"),
-				}
+				)
 			}
 			rows := []table.Row{}
 			for _, wifiNet := range list {

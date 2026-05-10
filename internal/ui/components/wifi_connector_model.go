@@ -328,19 +328,19 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 				m.password.Value(),
 			)
 			if err != nil {
-				return tea.BatchMsg{
+				return tea.Batch(
 					SetWifiAvailableStateCmd(AvailableDone),
 					NotifyCmd(fmt.Sprintf(
 						"Cannot connect to %s via given password",
 						m.ssid.Value(),
 					)),
 					RescanWifiCmd(0),
-				}
+				)
 			}
-			return tea.BatchMsg{
+			return tea.Batch(
 				SetWifiAvailableStateCmd(AvailableDone),
 				RescanWifiCmd(0),
-			}
+			)
 		},
 	)
 }
@@ -361,19 +361,19 @@ func (m *WifiConnectorModel) createWifiConnCmd() tea.Cmd {
 				if m.hidden.Value() {
 					hidden = "hidden "
 				}
-				return tea.BatchMsg{
+				return tea.Batch(
 					SetWifiAvailableStateCmd(AvailableDone),
 					NotifyCmd(fmt.Sprintf(
 						"Cannot create connection to %s%s",
 						hidden, m.ssid.Value(),
 					)),
 					RescanWifiCmd(0),
-				}
+				)
 			}
-			return tea.BatchMsg{
+			return tea.Batch(
 				SetWifiAvailableStateCmd(AvailableDone),
 				RescanWifiCmd(0),
-			}
+			)
 		},
 	)
 }

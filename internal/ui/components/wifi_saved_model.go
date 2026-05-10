@@ -298,10 +298,10 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 		func() tea.Msg {
 			list, err := m.nm.GetSavedWifis(context.Background())
 			if err != nil {
-				return tea.BatchMsg{
+				return tea.Batch(
 					NotifyCmd("Cannot get saved wifi networks"),
 					m.setStateCmd(SavedDone),
-				}
+				)
 			}
 			rows := []table.Row{}
 			for _, wifiSaved := range list {
@@ -346,16 +346,16 @@ func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {
 			name := m.dataTable.SelectedRow()[m.nameColIdx]
 			err := m.nm.ActivateWifi(context.Background(), name)
 			if err != nil {
-				return tea.BatchMsg{
+				return tea.Batch(
 					m.setStateCmd(SavedDone),
 					NotifyCmd(fmt.Sprintf("Cannot connect to %s", name)),
-				}
+				)
 			}
-			return tea.BatchMsg{
+			return tea.Batch(
 				m.setStateCmd(SavedDone),
 				m.gotoTop(),
 				RescanWifiCmd(0),
-			}
+			)
 		},
 	)
 }
@@ -376,10 +376,10 @@ func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
 				fmt.Sprintf("Error while disconnecting from %s", name),
 			)
 		}
-		return tea.BatchMsg{
+		return tea.Batch(
 			m.gotoTop(),
-			RescanWifiCmd(200 * time.Millisecond),
-		}
+			RescanWifiCmd(200*time.Millisecond),
+		)
 	}
 }
 
