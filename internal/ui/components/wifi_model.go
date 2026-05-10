@@ -2,6 +2,7 @@ package components
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"charm.land/bubbles/v2/key"
@@ -20,6 +21,7 @@ type wifiKeyMap struct {
 	create            key.Binding
 	openCaptivePortal key.Binding
 	enableHotspot     key.Binding
+	createHotspot     key.Binding
 }
 
 func (k *wifiKeyMap) ShortHelp() []key.Binding {
@@ -31,6 +33,7 @@ func (k *wifiKeyMap) ShortHelp() []key.Binding {
 		k.create,
 		k.openCaptivePortal,
 		k.enableHotspot,
+		k.createHotspot,
 	}
 }
 
@@ -43,6 +46,7 @@ func (k *wifiKeyMap) FullHelp() [][]key.Binding {
 		k.create,
 		k.openCaptivePortal,
 		k.enableHotspot,
+		k.createHotspot,
 	}}
 }
 
@@ -72,8 +76,12 @@ var wifiKeys = &wifiKeyMap{
 		key.WithHelp("^p", "open captive portal"),
 	),
 	enableHotspot: key.NewBinding(
-		key.WithKeys("h"),
+		key.WithKeys("ctrl+h"),
 		key.WithHelp("h", "enable quick hotspot"),
+	),
+	createHotspot: key.NewBinding(
+		key.WithKeys("h"),
+		key.WithHelp("H", "create hotspot"),
 	),
 }
 
@@ -204,6 +212,8 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 		)
 	case key.Matches(keyMsg, m.keys.create):
 		return m, m.connector.openCreator()
+	case key.Matches(keyMsg, m.keys.createHotspot):
+		return m, m.connector.openHotspotter()
 	case key.Matches(keyMsg, m.keys.openCaptivePortal):
 		return m, func() tea.Msg {
 			err := infra.OpenCaptivePortal(context.Background())
@@ -275,7 +285,7 @@ func (m *WifiModel) enableQuickHotspot() tea.Cmd {
 	return func() tea.Msg {
 		err := m.wm.EnableQuickWifiHotspot(context.Background())
 		if err != nil {
-			return NotifyCmd("Failed enabling quick wifi hotspot")
+			return NotifyCmd(fmt.Sprintf("Failed enabling quick wifi hotspot:\n%v", err))
 		}
 		return RescanWifiCmd(0)
 	}
