@@ -17,6 +17,7 @@ type wifiKeyMap struct {
 	firstWindow       key.Binding
 	secondWindow      key.Binding
 	rescan            key.Binding
+	create            key.Binding
 	openCaptivePortal key.Binding
 }
 
@@ -26,6 +27,7 @@ func (k *wifiKeyMap) ShortHelp() []key.Binding {
 		k.firstWindow,
 		k.secondWindow,
 		k.rescan,
+		k.create,
 		k.openCaptivePortal,
 	}
 }
@@ -36,6 +38,7 @@ func (k *wifiKeyMap) FullHelp() [][]key.Binding {
 		k.firstWindow,
 		k.secondWindow,
 		k.rescan,
+		k.create,
 		k.openCaptivePortal,
 	}}
 }
@@ -57,6 +60,10 @@ var wifiKeys = &wifiKeyMap{
 		key.WithKeys("ctrl+r"),
 		key.WithHelp("^r", "rescan"),
 	),
+	create: key.NewBinding(
+		key.WithKeys("a"),
+		key.WithHelp("a", "create new"),
+	),
 	openCaptivePortal: key.NewBinding(
 		key.WithKeys("ctrl+p"),
 		key.WithHelp("^p", "open captive portal"),
@@ -73,13 +80,21 @@ type WifiModel struct {
 	windows        []SizedModel // used for batch operations for wifi models
 	focusWindowIdx int
 
+	connector *WifiConnectorModel
+
 	keys *wifiKeyMap
 
 	width  int
 	height int
 }
 
-func NewWifiModel(wifiAvailable *WifiAvailableModel, wifiSaved *WifiSavedModel, keys *wifiKeyMap, networkManager infra.WifiManager) *WifiModel {
+func NewWifiModel(
+	wifiAvailable *WifiAvailableModel,
+	wifiSaved *WifiSavedModel,
+	connector *WifiConnectorModel,
+	keys *wifiKeyMap,
+	networkManager infra.WifiManager,
+) *WifiModel {
 	availableStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 	savedStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 	w := &WifiModel{
@@ -88,6 +103,8 @@ func NewWifiModel(wifiAvailable *WifiAvailableModel, wifiSaved *WifiSavedModel, 
 
 		wifiSaved:  wifiSaved,
 		savedStyle: &savedStyle,
+
+		connector: connector,
 
 		keys: keys,
 	}
@@ -174,6 +191,8 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 			RescanWifiSavedCmd(0),
 			RescanWifiAvailableCmd(0),
 		)
+	case key.Matches(keyMsg, m.keys.create):
+		return m, m.connector.open("")
 	case key.Matches(keyMsg, m.keys.openCaptivePortal):
 		return m, func() tea.Msg {
 			err := infra.OpenCaptivePortal(context.Background())
