@@ -344,8 +344,8 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 				return tea.Batch(
 					SetWifiAvailableStateCmd(AvailableDone),
 					NotifyCmd(fmt.Sprintf(
-						"Cannot connect to %s via given password",
-						m.ssid.Value(),
+						"Cannot connect to %s via given password:\n%v",
+						m.ssid.Value(), err,
 					)),
 					RescanWifiCmd(0),
 				)
@@ -377,8 +377,8 @@ func (m *WifiConnectorModel) createWifiConnCmd() tea.Cmd {
 				return tea.Batch(
 					SetWifiAvailableStateCmd(AvailableDone),
 					NotifyCmd(fmt.Sprintf(
-						"Cannot create connection to %s%s",
-						hidden, m.ssid.Value(),
+						"Cannot create connection to %s%s:\n%v",
+						hidden, m.ssid.Value(), err,
 					)),
 					RescanWifiCmd(0),
 				)
@@ -405,8 +405,8 @@ func (m *WifiConnectorModel) createHotspotCmd() tea.Cmd {
 				return tea.Batch(
 					SetWifiAvailableStateCmd(AvailableDone),
 					NotifyCmd(fmt.Sprintf(
-						"Cannot create hotspot %s",
-						m.ssid.Value(),
+						"Cannot create hotspot %s:\n%v",
+						m.ssid.Value(), err,
 					)),
 					RescanWifiCmd(0),
 				)
