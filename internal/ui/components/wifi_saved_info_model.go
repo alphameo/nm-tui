@@ -260,7 +260,7 @@ func (m *WifiSavedInfoModel) View() tea.View {
 	mode := m.modeStyle.Render(m.mode)
 	mode = lipgloss.JoinHorizontal(
 		lipgloss.Center,
-		"Mode     ",
+		"Mode      ",
 		mode,
 	)
 
