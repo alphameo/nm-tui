@@ -86,7 +86,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	conn := NewWifiConnector(keys.wifiConnector, wifiManager)
 	a := NewWifiAvailableModel(conn, keys.wifiAvailable, wifiManager)
 
-	info := NewSavedInfoModel(keys.wifiSavedInfo, wifiManager)
+	info := NewWifiInfoModel(keys.wifiSavedInfo, wifiManager)
 	s := NewWifiSavedModel(info, keys.wifiSaved, wifiManager)
 
 	wifi := NewWifiModel(a, s, keys.wifi, wifiManager)

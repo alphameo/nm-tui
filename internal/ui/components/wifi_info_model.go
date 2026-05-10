@@ -50,7 +50,7 @@ var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
 	),
 }
 
-type WifiSavedInfoModel struct {
+type WifiInfoModel struct {
 	ssid string
 
 	active      bool
@@ -80,7 +80,7 @@ type WifiSavedInfoModel struct {
 	nm infra.WifiManager
 }
 
-func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManager) *WifiSavedInfoModel {
+func NewWifiInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManager) *WifiInfoModel {
 	activeStyle := styles.DefaultStyle.Foreground(styles.AccentColor)
 
 	modeStyle := styles.DefaultStyle.Bold(true)
@@ -108,7 +108,7 @@ func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManag
 	autoconnPrior.Validate = autoconnectPriorityValidator
 	autoconnPriorStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	model := &WifiSavedInfoModel{
+	model := &WifiInfoModel{
 		ssid: "",
 
 		active:      false,
@@ -143,7 +143,7 @@ func NewSavedInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManag
 	return model
 }
 
-func (m *WifiSavedInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
+func (m *WifiInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	m.ssid = info.SSID
 
 	m.active = info.Active
@@ -172,11 +172,11 @@ func (m *WifiSavedInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiSavedInfoModel) Init() tea.Cmd {
+func (m *WifiInfoModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiSavedInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -204,7 +204,7 @@ func (m *WifiSavedInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m *WifiSavedInfoModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiSavedInfoModel, tea.Cmd) {
+func (m *WifiInfoModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiInfoModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -246,7 +246,7 @@ func (m *WifiSavedInfoModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiSavedInfoMo
 	}
 }
 
-func (m *WifiSavedInfoModel) View() tea.View {
+func (m *WifiInfoModel) View() tea.View {
 	sb := strings.Builder{}
 	fmt.Fprintf(
 		&sb,
@@ -332,7 +332,7 @@ func (m *WifiSavedInfoModel) View() tea.View {
 	))
 }
 
-func (m *WifiSavedInfoModel) connectionView() string {
+func (m *WifiInfoModel) connectionView() string {
 	if m.active {
 		return m.activeStyle.Render(" (connected)")
 	} else {
@@ -340,7 +340,7 @@ func (m *WifiSavedInfoModel) connectionView() string {
 	}
 }
 
-func (m *WifiSavedInfoModel) focusNextCmd() tea.Cmd {
+func (m *WifiInfoModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -349,7 +349,7 @@ func (m *WifiSavedInfoModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiSavedInfoModel) focusPrevCmd() tea.Cmd {
+func (m *WifiInfoModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -358,7 +358,7 @@ func (m *WifiSavedInfoModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiSavedInfoModel) saveWifiInfoCmd() tea.Cmd {
+func (m *WifiInfoModel) saveWifiInfoCmd() tea.Cmd {
 	return func() tea.Msg {
 		ap, err := strconv.Atoi(m.autoconnPriority.Value())
 		if err != nil {

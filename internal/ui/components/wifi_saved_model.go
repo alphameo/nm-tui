@@ -102,7 +102,7 @@ type WifiSavedModel struct {
 	indicatorSpinner spinner.Model
 	indicatorState   wifiSavedState
 
-	savedInfo *WifiSavedInfoModel
+	savedInfo *WifiInfoModel
 
 	keys *wifiSavedKeyMap
 
@@ -112,7 +112,7 @@ type WifiSavedModel struct {
 	height int
 }
 
-func NewWifiSavedModel(savedInfo *WifiSavedInfoModel, keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
+func NewWifiSavedModel(savedInfo *WifiInfoModel, keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: 1},
 		{Title: "SSID"},
