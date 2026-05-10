@@ -161,7 +161,7 @@ type WifiManager interface {
 	CreateWifiConnection(ctx context.Context, id, ssid, password string, hidden bool) error
 
 	// CreateWifiHotspot creates new hotspot
-	CreateWifiHotspot(ctx context.Context, id string, password string, hidden bool) error
+	CreateWifiHotspot(ctx context.Context, id string, ssid string, password string) error
 
 	// EanbleWifiHotspot creates new hotspot
 	EnableQuickWifiHotspot(ctx context.Context) error
