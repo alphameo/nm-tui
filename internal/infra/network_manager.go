@@ -41,6 +41,21 @@ func (m NetworkMode) String() string {
 	}
 }
 
+func (m NetworkMode) Icon() string {
+	switch m {
+	case NetworkAccessPoint:
+		return "󰀃"
+	case NetworkInfra:
+		return "🖳"
+	case NetworkMesh:
+		return ""
+	case NetworkAdHoc:
+		return ""
+	default:
+		return "?"
+	}
+}
+
 type WifiInfo struct {
 	Name                string
 	SSID                string
