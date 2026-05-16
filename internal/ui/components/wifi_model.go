@@ -92,7 +92,7 @@ type WifiModel struct {
 	wifiSaved  *WifiSavedModel
 	savedStyle *lipgloss.Style
 
-	windows        []SizedModel // used for batch operations for wifi models
+	focuses        []Focusable // used for batch operations for wifi models
 	focusWindowIdx int
 
 	connector *WifiConnectorModel
@@ -128,8 +128,9 @@ func NewWifiModel(
 		keys: keys,
 	}
 
-	wins := []SizedModel{w.wifiAvailable, w.wifiSaved}
-	w.windows = wins
+	wins := []Focusable{w.wifiAvailable, w.wifiSaved}
+	w.wifiAvailable.Focus()
+	w.focuses = wins
 	return w
 }
 
@@ -167,11 +168,10 @@ func (m *WifiModel) Title() string {
 }
 
 func (m *WifiModel) Init() tea.Cmd {
-	var cmds []tea.Cmd
-	for _, window := range m.windows {
-		cmds = append(cmds, window.Init())
-	}
-	return tea.Batch(cmds...)
+	return tea.Batch(
+		m.wifiAvailable.Init(),
+		m.wifiSaved.Init(),
+	)
 }
 
 func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -200,11 +200,17 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.nextWindow):
-		m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.windows)
+		m.focuses[m.focusWindowIdx].Blur()
+		m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.focuses)
+		m.focuses[m.focusWindowIdx].Focus()
 	case key.Matches(keyMsg, m.keys.firstWindow):
 		m.focusWindowIdx = 0
+		m.wifiSaved.Blur()
+		m.wifiAvailable.Focus()
 	case key.Matches(keyMsg, m.keys.secondWindow):
 		m.focusWindowIdx = 1
+		m.wifiSaved.Focus()
+		m.wifiAvailable.Blur()
 	case key.Matches(keyMsg, m.keys.rescan):
 		return m, tea.Batch(
 			RescanWifiSavedCmd(0),

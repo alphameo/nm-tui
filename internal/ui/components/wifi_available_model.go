@@ -72,12 +72,17 @@ type WifiAvailableModel struct {
 	securityColIdx int
 	signalColIdx   int
 
+	tableFocusedStyle *table.Styles
+	tableBluredStyle  *table.Styles
+
 	securityWidthProportion float32
 
 	indicatorStateHeight int
 
 	indicatorSpinner spinner.Model
 	indicatorState   wifiAvailableState
+
+	focus bool
 
 	connector *WifiConnectorModel
 
@@ -96,11 +101,11 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		{Title: "Security"},
 		{Title: "", Width: 3},
 	}
-
+	initStyle := styles.DataTableStyle
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
-		table.WithStyles(styles.TableStyle),
+		table.WithStyles(initStyle),
 	)
 
 	s := spinner.New()
@@ -112,6 +117,9 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		ssidColIdx:     1,
 		securityColIdx: 2,
 		signalColIdx:   3,
+
+		tableFocusedStyle: &styles.TableStyle,
+		tableBluredStyle:  &initStyle,
 
 		securityWidthProportion: 0.3,
 
@@ -163,6 +171,21 @@ func (m *WifiAvailableModel) Width() int {
 
 func (m *WifiAvailableModel) Height() int {
 	return m.height
+}
+
+func (m *WifiAvailableModel) Focus() tea.Cmd {
+	m.focus = true
+	m.dataTable.SetStyles(*m.tableFocusedStyle)
+	return nil
+}
+
+func (m *WifiAvailableModel) Blur() {
+	m.focus = false
+	m.dataTable.SetStyles(*m.tableBluredStyle)
+}
+
+func (m *WifiAvailableModel) Focused() bool {
+	return m.focus
 }
 
 func (m *WifiAvailableModel) Init() tea.Cmd {
