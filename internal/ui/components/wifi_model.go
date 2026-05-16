@@ -10,7 +10,6 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
-	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type wifiKeyMap struct {
@@ -246,29 +245,8 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 }
 
 func (m *WifiModel) View() tea.View {
-	availableStyle := *m.availableStyle
-	savedStyle := *m.savedStyle
-	if m.focusWindowIdx == 0 {
-		availableStyle = availableStyle.BorderForeground(styles.AccentColor)
-	} else {
-		savedStyle = savedStyle.BorderForeground(styles.AccentColor)
-	}
-
-	availableView := renderer.RenderWithTitleAndKeybind(
-		m.wifiAvailable.View().Content,
-		"Available networks",
-		m.keys.firstWindow.Help().Key,
-		&availableStyle,
-		styles.AccentColor,
-	)
-
-	savedView := renderer.RenderWithTitleAndKeybind(
-		m.wifiSaved.View().Content,
-		"Saved networks",
-		m.keys.secondWindow.Help().Key,
-		&savedStyle,
-		styles.AccentColor,
-	)
+	availableView := m.wifiAvailable.View().Content
+	savedView := m.wifiSaved.View().Content
 
 	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Center,

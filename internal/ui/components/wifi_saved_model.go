@@ -12,6 +12,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type wifiSavedState int
@@ -106,7 +107,9 @@ type WifiSavedModel struct {
 	indicatorSpinner spinner.Model
 	indicatorState   wifiSavedState
 
-	focus bool
+	focus        bool
+	focusedStyle *lipgloss.Style
+	bluredStyle  *lipgloss.Style
 
 	savedInfo *WifiInfoModel
 
@@ -125,12 +128,15 @@ func NewWifiSavedModel(savedInfo *WifiInfoModel, keys *wifiSavedKeyMap, networkM
 		{Title: "SSID"},
 		{Title: "Name"},
 	}
-	initStyle := styles.DataTableStyle
+	initTableStyle := styles.DataTableStyle
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
-		table.WithStyles(initStyle),
+		table.WithStyles(initTableStyle),
 	)
+
+	bluredStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
+	focusedStyle := bluredStyle.BorderForeground(styles.AccentColor)
 
 	s := spinner.New()
 
@@ -143,17 +149,19 @@ func NewWifiSavedModel(savedInfo *WifiInfoModel, keys *wifiSavedKeyMap, networkM
 		nameColIdx: 3,
 
 		tableFocusedStyle: &styles.TableStyle,
-		tableBluredStyle:  &initStyle,
+		tableBluredStyle:  &initTableStyle,
 
 		ssidWidthProportion: 0.5,
 
 		indicatorSpinner: s,
 		indicatorState:   SavedDone,
 
-		savedInfo: savedInfo,
+		focusedStyle: &focusedStyle,
+		bluredStyle:  &bluredStyle,
 
-		keys: keys,
-		nm:   networkManager,
+		savedInfo: savedInfo,
+		keys:      keys,
+		nm:        networkManager,
 	}
 	model.bakeSizes()
 
@@ -283,13 +291,27 @@ func (m *WifiSavedModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiSavedModel, tea
 
 func (m *WifiSavedModel) View() tea.View {
 	view := m.dataTable.View()
-
 	statusline := m.indicatorView()
-	return tea.NewView(lipgloss.JoinVertical(
+	view = lipgloss.JoinVertical(
 		lipgloss.Center,
 		view,
 		statusline,
-	))
+	)
+
+	var style *lipgloss.Style
+	if m.focus {
+		style = m.focusedStyle
+	} else {
+		style = m.bluredStyle
+	}
+	view = renderer.RenderWithTitleAndKeybind(
+		view,
+		"Saved networks",
+		"2",
+		style,
+		style.GetBorderTopForeground(),
+	)
+	return tea.NewView(view)
 }
 
 func (m *WifiSavedModel) indicatorView() string {

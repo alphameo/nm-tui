@@ -13,6 +13,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type wifiAvailableState int
@@ -82,7 +83,9 @@ type WifiAvailableModel struct {
 	indicatorSpinner spinner.Model
 	indicatorState   wifiAvailableState
 
-	focus bool
+	focus        bool
+	focusedStyle *lipgloss.Style
+	bluredStyle  *lipgloss.Style
 
 	connector *WifiConnectorModel
 
@@ -101,12 +104,15 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		{Title: "Security"},
 		{Title: "", Width: 3},
 	}
-	initStyle := styles.DataTableStyle
+	initTableStyle := styles.DataTableStyle
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
-		table.WithStyles(initStyle),
+		table.WithStyles(initTableStyle),
 	)
+
+	bluredStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
+	focusedStyle := bluredStyle.BorderForeground(styles.AccentColor)
 
 	s := spinner.New()
 
@@ -119,16 +125,19 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		signalColIdx:   3,
 
 		tableFocusedStyle: &styles.TableStyle,
-		tableBluredStyle:  &initStyle,
+		tableBluredStyle:  &initTableStyle,
 
 		securityWidthProportion: 0.3,
 
 		indicatorSpinner: s,
 		indicatorState:   AvailableDone,
 
+		focusedStyle: &focusedStyle,
+		bluredStyle:  &bluredStyle,
+
 		connector: wifiConnector,
-		wm:        wifiManager,
 		keys:      keys,
+		wm:        wifiManager,
 	}
 
 	model.bakeSizes()
@@ -241,13 +250,27 @@ func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiAvailableMo
 
 func (m *WifiAvailableModel) View() tea.View {
 	view := m.dataTable.View()
-
 	statusline := m.indicatorView()
-	return tea.NewView(lipgloss.JoinVertical(
+	view = lipgloss.JoinVertical(
 		lipgloss.Center,
 		view,
 		statusline,
-	))
+	)
+
+	var style *lipgloss.Style
+	if m.focus {
+		style = m.focusedStyle
+	} else {
+		style = m.bluredStyle
+	}
+	view = renderer.RenderWithTitleAndKeybind(
+		view,
+		"Available networks",
+		"1",
+		style,
+		style.GetBorderTopForeground(),
+	)
+	return tea.NewView(view)
 }
 
 func (m *WifiAvailableModel) indicatorView() string {
