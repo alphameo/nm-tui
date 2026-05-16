@@ -6,25 +6,13 @@ import (
 	"log/slog"
 	"net"
 	"os/exec"
+	"runtime"
+	"strings"
 )
 
-const XDGOpen = "xdg-open"
-
-func getOutboundIP() (net.IP, error) {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrGetOutboundIP, err)
-	}
-	defer func() { _ = conn.Close() }()
-
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	return localAddr.IP, nil
-}
-
 // OpenCaptivePortal opens captive portal web-page in browser
-// Equivalent to xdg-open "http://$(ip --oneline route get 1.1.1.1 | awk '{print $3}')"
 func OpenCaptivePortal(ctx context.Context) error {
-	ip, err := getOutboundIP()
+	ip, err := getGatewayIP(ctx)
 	if err != nil {
 		slog.Error(err.Error(),
 			"err", err)
@@ -33,8 +21,8 @@ func OpenCaptivePortal(ctx context.Context) error {
 
 	url := fmt.Sprintf("http://%s", ip.String())
 
-	cmd := exec.CommandContext(ctx, XDGOpen, url)
-	if err := cmd.Start(); err != nil {
+	err = openURL(url)
+	if err != nil {
 		stderr := ExtractStderr(err)
 		slog.Error(ErrOpenCaptivePortal.Error(),
 			"err", err,
@@ -42,4 +30,39 @@ func OpenCaptivePortal(ctx context.Context) error {
 		return err
 	}
 	return nil
+}
+
+// Equivalent to xdg-open "http://$(ip --oneline route get 1.1.1.1 | awk '{print $3}')"
+func getGatewayIP(ctx context.Context) (net.IP, error) {
+	ipargs := []string{"--oneline", "route", "get", "1.1.1.1"}
+	route, err := exec.CommandContext(ctx, "ip", ipargs...).Output()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrGetGatewayIP, err)
+	}
+	out := strings.Split(string(route), " ")
+	if len(out) < 3 {
+		return nil, fmt.Errorf("%w: unexpected format", ErrGetGatewayIP)
+	}
+	return net.ParseIP(out[2]), nil
+}
+
+// openURL opens the URL in the default browser (cross-platform)
+func openURL(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "linux":
+		cmd = "xdg-open"
+	case "darwin":
+		cmd = "open"
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	default:
+		return fmt.Errorf("%w: %s", ErrUnsupportedPlarform, runtime.GOOS)
+	}
+
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
 }

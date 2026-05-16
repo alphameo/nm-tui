@@ -50,8 +50,9 @@ var (
 	ErrCreateWifiHotspot      error = errors.New("failed creating wifi hotspot")
 	ErrQuickEnableWifiHotspot error = errors.New("failed enabling quick wifi hotspot")
 
-	ErrOpenCaptivePortal error = errors.New("failed to open captive portal")
-	ErrGetOutboundIP     error = errors.New("failed getting outbound ip")
+	ErrOpenCaptivePortal   error = errors.New("failed to open captive portal")
+	ErrGetGatewayIP        error = errors.New("failed getting gateway ip")
+	ErrUnsupportedPlarform error = errors.New("unsupported platform")
 )
 
 func ExtractStderr(err error) string {
