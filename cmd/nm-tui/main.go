@@ -32,8 +32,8 @@ func main() {
 	}
 	logger := slog.New(slog.NewJSONHandler(f, opts))
 
-	slog.Info("The program is running")
 	slog.SetDefault(logger)
+	slog.Info("The program is running")
 	defer slog.Info("Program is closed")
 
 	nm := nmcli.New()
