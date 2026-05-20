@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/alphameo/nm-tui/internal/infra/nmcli"
@@ -12,8 +13,19 @@ import (
 )
 
 func main() {
-	logPath := os.ExpandEnv("$HOME") + "/.cache/nm-tui/log"
-	_, err := os.Stat(logPath)
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		panic(fmt.Errorf("failed to get cache directory: %w", err))
+	} else {
+		cacheDir = filepath.Join(cacheDir, "nm-tui")
+	}
+
+	if err := os.MkdirAll(cacheDir, 0700); err != nil {
+		panic(fmt.Errorf("failed to create cache directory: %w", err))
+	}
+
+	logPath := filepath.Join(cacheDir, "log")
+	_, err = os.Stat(logPath)
 	if errors.Is(err, os.ErrNotExist) {
 		_, err = os.Create(logPath)
 		fmt.Println(err)
