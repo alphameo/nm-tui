@@ -33,3 +33,6 @@ go.work.sum
 
 # Out binaries
 bin/
+
+# nix
+result
