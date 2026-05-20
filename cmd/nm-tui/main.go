@@ -26,6 +26,8 @@ func main() {
 		panic(err)
 	}
 
+	defer f.Close()
+
 	opts := &slog.HandlerOptions{
 		Level:     slog.LevelError,
 		AddSource: true,
