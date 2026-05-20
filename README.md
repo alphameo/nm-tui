@@ -10,15 +10,15 @@ Why `nm-tui`: builtin `nmtui` doesn't look great and there aren't many TUI alter
 
 ## 📌 Table of Contents
 
-- [💫 Features](#features)
-- [📹 Demo](#demo)
-- [🖼️ Screenshots](#screenshots)
-- [🗃️ Requirements](#requirements)
-- [📥 Installation](#installation)
-- [⚙️ Tech Stack](#tech-stack)
-- [🖲️ Contributing](#contributing)
-- [⚖️ License](#license)
-- [⭐ Inspirations](#inspirations)
+- [💫 Features](#-features)
+- [📹 Demo](#-demo)
+- [🖼️ Screenshots](#%EF%B8%8F-screenshots)
+- [🗃️ Requirements](#%EF%B8%8F-requirements)
+- [📥 Installation](#-installation)
+- [⚙️ Tech Stack](#%EF%B8%8F-tech-stack)
+- [🖲️ Contributing](#%EF%B8%8F-contributing)
+- [⚖️ License](#%EF%B8%8F-license)
+- [⭐ Inspirations](#-inspirations)
 
 ## 💫 Features
 
