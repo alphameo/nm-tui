@@ -422,20 +422,20 @@ func (m *WifiConnectorModel) createHotspotCmd() tea.Cmd {
 func (m *WifiConnectorModel) openConnector(wifiName string) tea.Cmd {
 	return tea.Batch(
 		m.setNew(wifiName, ConnectorConnector),
-		OpenPopup(m, "Wi-Fi network Connector"),
+		OpenPopup(m, "Connect to Wi-Fi"),
 	)
 }
 
 func (m *WifiConnectorModel) openCreator() tea.Cmd {
 	return tea.Batch(
 		m.setNew("", ConnectorCreator),
-		OpenPopup(m, "Wi-Fi profile Creator"),
+		OpenPopup(m, "Create Wi-Fi profile"),
 	)
 }
 
 func (m *WifiConnectorModel) openHotspotter() tea.Cmd {
 	return tea.Batch(
 		m.setNew("", ConnectorHotspotter),
-		OpenPopup(m, "Wi-Fi hotspot Creator"),
+		OpenPopup(m, "Create Wi-Fi hotspot"),
 	)
 }

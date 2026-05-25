@@ -268,7 +268,7 @@ func (m *WifiSavedModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiSavedModel, tea
 
 		return m, tea.Batch(
 			m.savedInfo.setNew(info),
-			OpenPopup(m.savedInfo, "Saved Wi-Fi network info"),
+			OpenPopup(m.savedInfo, "Saved network info"),
 		)
 
 	case key.Matches(keyMsg, m.keys.connect):
