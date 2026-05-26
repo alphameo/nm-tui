@@ -25,26 +25,38 @@ Why `nm-tui`: builtin `nmtui` doesn't look great and there aren't many TUI alter
 - 😎 TUI style looks cool
 - 📡 Scan and list available WiFi networks
 - 🔑 Connect to WiFi networks with password input
-- 📋 View detailed network information (signal strength, security, etc.)
+- 📜 View detailed network information (signal strength, security, etc.)
+- 🌐 Control device networking
+- 📡 Create hotspot
 - 🖥️ Clean, modern TUI built with Bubbletea
 - ⚡ Fast and lightweight — single static binary
 - 🐧 Linux only — designed specifically for NetworkManager
 
 ## 📹 Demo
 
-![Demo](../assets/demo1.gif)
+![Demo](../assets/demo-conn.gif)
 
 ## 🖼️ Screenshots
 
-### Main window
-
-<img src="../assets/main.png" alt="main window" />
-
-### Wifi connector and info
+### Main tabs
 
 <div style="display: flex; gap: 10px;">
-    <img src="../assets/wifi-connector.png" alt="wifi connector" width="400"/>
-    <img src="../assets/wifi-info.png" alt="wifi info" width="400"/>
+    <img src="../assets/wifi-tab.png" alt="wifi connector" width="400"/>
+    <img src="../assets/networking-tab.png" alt="wifi info" width="400"/>
+</div>
+
+### Wifi connection and Network info
+
+<div style="display: flex; gap: 10px;">
+    <img src="../assets/connect-to-wifi.png" alt="wifi connector" width="400"/>
+    <img src="../assets/network-info.png" alt="wifi info" width="400"/>
+</div>
+
+### Network and Access point creation
+
+<div style="display: flex; gap: 10px;">
+    <img src="../assets/create-wifi-profile.png" alt="wifi info" width="400"/>
+    <img src="../assets/create-wifi-hotspot.png" alt="wifi connector" width="400"/>
 </div>
 
 ## 🗃️ Requirements
