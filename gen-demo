@@ -1,0 +1,6 @@
+#!/bin/sh
+
+agg \
+    --font-family="JetBrainsMono NFM" \
+    --font-size=14 \
+    $@
