@@ -91,7 +91,7 @@ func NewWifiInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManage
 	name := textinput.New()
 	name.SetWidth(20)
 	name.Prompt = ""
-	name.Placeholder = "name"
+	name.Placeholder = "Name"
 	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	pw := textinput.New()
@@ -99,7 +99,7 @@ func NewWifiInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManage
 	pw.Prompt = ""
 	pw.EchoMode = textinput.EchoPassword
 	pw.EchoCharacter = '•'
-	pw.Placeholder = "password"
+	pw.Placeholder = "Password"
 	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	autoconn := toggle.New(false)
