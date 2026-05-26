@@ -394,3 +394,10 @@ func autoconnectPriorityValidator(input string) error {
 	}
 	return nil
 }
+
+func (m *WifiInfoModel) open(info infra.WifiInfo) tea.Cmd {
+	return tea.Batch(
+		m.setNew(info),
+		OpenPopup(m, "Create Wi-Fi hotspot"),
+	)
+}
