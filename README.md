@@ -61,8 +61,9 @@ Why `nm-tui`: builtin `nmtui` doesn't look great and there aren't many TUI alter
 
 ## 🗃️ Requirements
 
-- [NetworkManager](https://gitlab.freedesktop.org/NetworkManager/NetworkManager) as the main network manager
-- [Go](https://github.com/golang/go) v1.24.4
+- [`NetworkManager`](https://gitlab.freedesktop.org/NetworkManager/NetworkManager) as the main network manager
+- [`Go`](https://github.com/golang/go) v1.24.4
+- (optional) `xdg-open` on linux -- opens captive portal for connecting to the public wifi networks
 
 ## 📥 Installation
 
