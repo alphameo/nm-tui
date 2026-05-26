@@ -112,7 +112,7 @@ func NewWifiInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManage
 	autoconnPriorStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	model := &WifiInfoModel{
-		title: renderer.RenderTitle("Create Wi-Fi hotspot"),
+		title: renderer.RenderTitle("Saved network info"),
 
 		ssid: "",
 
