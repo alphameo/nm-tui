@@ -1,7 +1,7 @@
 .PHONY: build test clean all logs
 
 build:
-	go build -o bin/nm-tui ./cmd/nm-tui/main.go
+	CGO_ENABLED=0 go build -o bin/nm-tui ./cmd/nm-tui/main.go
 
 run:
 	go run ./cmd/nm-tui/main.go
