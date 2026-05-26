@@ -102,7 +102,7 @@ make clean-build
 
 ## ⚙️ Tech Stack
 
-- Programming language [Go](https://github.com/golang/go) v1.24.4
+- Programming language [Go](https://github.com/golang/go) v1.26.3
 - TUI framework [Bubbletea](https://github.com/charmbracelet/bubbletea) with [Bubbles](https://github.com/charmbracelet/bubbles) and [Lipgloss](https://github.com/charmbracelet/lipgloss)
 
 ## 🖲️ Contributing
