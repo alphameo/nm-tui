@@ -86,7 +86,7 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	ssid := textinput.New()
 	ssid.SetWidth(20)
 	ssid.Prompt = ""
-	ssid.Placeholder = "Name"
+	ssid.Placeholder = "SSID"
 	ssidStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	name := textinput.New()
