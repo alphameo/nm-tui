@@ -1,7 +1,6 @@
 package components
 
 import (
-	"fmt"
 	"time"
 
 	"charm.land/bubbles/v2/help"
@@ -38,8 +37,6 @@ var mainKeys = &mainKeyMap{
 type Popup struct {
 	content tea.Model
 	active  bool
-	title   string
-	style   *lipgloss.Style
 }
 type popupKeyMap struct {
 	close key.Binding
@@ -97,12 +94,8 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 		{Title: "Networking", Content: network},
 	}, styles.TabViewStyles, keys.tabs)
 
-	popupStyle := lipgloss.NewStyle().Inherit(styles.OverlayStyle).
-		Align(lipgloss.Center, lipgloss.Center).
-		Width(100).
-		Height(10)
 	p := &Popup{
-		active: false, style: &popupStyle,
+		active: false,
 	}
 
 	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
@@ -140,7 +133,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case PopupContentMsg:
 		m.popup.content = msg.model
-		m.popup.title = msg.title
 		return m, m.popup.content.Init()
 	case PopupActivityMsg:
 		m.popup.active = bool(msg)
@@ -215,18 +207,6 @@ func (m MainModel) View() tea.View {
 
 	if m.popup.active {
 		popupView := m.popup.content.View().Content
-		popupView = m.popup.style.Render(popupView)
-
-		title := fmt.Sprintf("[ %s ]", m.popup.title)
-
-		popupView = compositor.Compose(
-			title,
-			popupView,
-			compositor.Center,
-			compositor.Begin,
-			0,
-			0,
-		)
 		view = compositor.Compose(
 			popupView,
 			view,
@@ -270,14 +250,13 @@ func (m MainModel) View() tea.View {
 type (
 	PopupContentMsg struct {
 		model tea.Model
-		title string
 	}
 	PopupActivityMsg bool
 )
 
-func SetPopupContentCmd(content tea.Model, title string) tea.Cmd {
+func SetPopupContentCmd(content tea.Model) tea.Cmd {
 	return func() tea.Msg {
-		return PopupContentMsg{content, title}
+		return PopupContentMsg{content}
 	}
 }
 
@@ -287,9 +266,9 @@ func SetPopupActivityCmd(isActive bool) tea.Cmd {
 	}
 }
 
-func OpenPopup(content tea.Model, title string) tea.Cmd {
+func OpenPopup(content tea.Model) tea.Cmd {
 	return tea.Sequence(
-		SetPopupContentCmd(content, title),
+		SetPopupContentCmd(content),
 		SetPopupActivityCmd(true),
 	)
 }

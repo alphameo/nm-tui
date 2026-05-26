@@ -35,3 +35,7 @@ func RenderEnabledStatus(value bool) string {
 	}
 	return "Disabled"
 }
+
+func RenderTitle(title string) string {
+	return fmt.Sprintf("[ %s ]", title)
+}

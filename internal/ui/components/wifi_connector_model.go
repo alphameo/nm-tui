@@ -11,6 +11,8 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type wifiConnectorKeyMap struct {
@@ -60,6 +62,8 @@ type WifiConnectorModel struct {
 	ssid      textinput.Model
 	ssidStyle *lipgloss.Style
 	connType  ConnectorType
+
+	title string
 
 	name      textinput.Model
 	nameStyle *lipgloss.Style
@@ -155,6 +159,17 @@ func (m *WifiConnectorModel) setNew(ssid string, connType ConnectorType) tea.Cmd
 
 	m.hidden.SetValue(false)
 	m.hidden.Blur()
+
+	var title string
+	switch connType {
+	case ConnectorConnector:
+		title = "Connect to Wi-Fi"
+	case ConnectorCreator:
+		title = "Create Wi-Fi profile"
+	case ConnectorHotspotter:
+		title = "Create Wi-Fi hotspot"
+	}
+	m.title = renderer.RenderTitle(title)
 
 	return m.focuses[m.focusIdx].Focus()
 }
@@ -300,10 +315,22 @@ func (m *WifiConnectorModel) View() tea.View {
 		fields = append(fields, hidden)
 	}
 
-	return tea.NewView(lipgloss.JoinVertical(
+	view := lipgloss.JoinVertical(
 		lipgloss.Left,
 		fields...,
-	))
+	)
+
+	style := styles.OverlayStyle
+	view = style.Render(view)
+	view = compositor.Compose(
+		m.title,
+		view,
+		compositor.Center,
+		compositor.Begin,
+		0,
+		0,
+	)
+	return tea.NewView(view)
 }
 
 func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
@@ -420,22 +447,25 @@ func (m *WifiConnectorModel) createHotspotCmd() tea.Cmd {
 }
 
 func (m *WifiConnectorModel) openConnector(wifiName string) tea.Cmd {
+	m.connType = ConnectorConnector
 	return tea.Batch(
 		m.setNew(wifiName, ConnectorConnector),
-		OpenPopup(m, "Connect to Wi-Fi"),
+		OpenPopup(m),
 	)
 }
 
 func (m *WifiConnectorModel) openCreator() tea.Cmd {
+	m.connType = ConnectorCreator
 	return tea.Batch(
 		m.setNew("", ConnectorCreator),
-		OpenPopup(m, "Create Wi-Fi profile"),
+		OpenPopup(m),
 	)
 }
 
 func (m *WifiConnectorModel) openHotspotter() tea.Cmd {
+	m.connType = ConnectorHotspotter
 	return tea.Batch(
 		m.setNew("", ConnectorHotspotter),
-		OpenPopup(m, "Create Wi-Fi hotspot"),
+		OpenPopup(m),
 	)
 }

@@ -26,7 +26,9 @@ var (
 
 	OverlayStyle = DefaultStyle.
 			Border(Border).
-			Align(lipgloss.Center, lipgloss.Center)
+			Align(lipgloss.Center, lipgloss.Center).
+			Width(100).
+			Height(10)
 	NotifBorderedStyle = OverlayStyle.BorderForeground(NotifColor)
 )
 

@@ -13,6 +13,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
@@ -51,6 +52,8 @@ var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
 }
 
 type WifiInfoModel struct {
+	title string
+
 	ssid string
 
 	active      bool
@@ -109,6 +112,8 @@ func NewWifiInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManage
 	autoconnPriorStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	model := &WifiInfoModel{
+		title: renderer.RenderTitle("Create Wi-Fi hotspot"),
+
 		ssid: "",
 
 		active:      false,
@@ -321,7 +326,7 @@ func (m *WifiInfoModel) View() tea.View {
 		)
 	}
 
-	return tea.NewView(lipgloss.JoinVertical(
+	view := lipgloss.JoinVertical(
 		lipgloss.Left,
 		ssid,
 		mode,
@@ -329,7 +334,20 @@ func (m *WifiInfoModel) View() tea.View {
 		pw,
 		autoconn,
 		autoconnPrior,
-	))
+	)
+
+	style := styles.OverlayStyle
+	view = style.Render(view)
+	view = compositor.Compose(
+		m.title,
+		view,
+		compositor.Center,
+		compositor.Begin,
+		0,
+		0,
+	)
+
+	return tea.NewView(view)
 }
 
 func (m *WifiInfoModel) connectionView() string {
@@ -398,6 +416,6 @@ func autoconnectPriorityValidator(input string) error {
 func (m *WifiInfoModel) open(info infra.WifiInfo) tea.Cmd {
 	return tea.Batch(
 		m.setNew(info),
-		OpenPopup(m, "Create Wi-Fi hotspot"),
+		OpenPopup(m),
 	)
 }
