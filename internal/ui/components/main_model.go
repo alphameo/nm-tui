@@ -58,17 +58,17 @@ var popupKeys = &popupKeyMap{
 }
 
 type Notification struct {
-	message string
-	active  bool
-	title   string
-	style   *lipgloss.Style
+	message   string
+	active    bool
+	title     string
+	closeTime time.Duration
+	style     *lipgloss.Style
 }
 
 type MainModel struct {
-	tabs                  *tabview.Model
-	popup                 *Popup
-	notification          *Notification
-	notificationCloseTime time.Duration
+	tabs         *tabview.Model
+	popup        *Popup
+	notification *Notification
 
 	keyMngr *keyMapManager
 	help    help.Model
@@ -99,18 +99,17 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	}
 
 	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
-	n := &Notification{style: &notifStyle}
+	n := &Notification{style: &notifStyle, closeTime: notificationCloseTime}
 
 	help := help.New()
 	help.ShowAll = true
 
 	return &MainModel{
-		tabs:                  wifiTable,
-		popup:                 p,
-		notification:          n,
-		notificationCloseTime: notificationCloseTime,
-		keyMngr:               keys,
-		help:                  help,
+		tabs:         wifiTable,
+		popup:        p,
+		notification: n,
+		keyMngr:      keys,
+		help:         help,
 	}
 }
 
@@ -142,7 +141,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case NotificationActivityMsg:
 		m.notification.active = bool(msg)
-		return m, DeferedCloseNotificationCmd(m.notificationCloseTime)
+		return m, DeferedCloseNotificationCmd(m.notification.closeTime)
 	case tea.Cmd:
 		return m, msg
 	case tea.KeyPressMsg:
