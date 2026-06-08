@@ -101,7 +101,6 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	pw.EchoMode = textinput.EchoPassword
 	pw.EchoCharacter = '•'
 	pw.Placeholder = "Password"
-
 	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	hiddenStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
