@@ -10,8 +10,6 @@ type Styles struct {
 	InactiveTabBarStyle lipgloss.Style
 }
 
-var defaultStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
-
 func NewInactiveTabBarBorder(border lipgloss.Border) lipgloss.Border {
 	border.BottomLeft = border.MiddleBottom
 	border.BottomRight = border.MiddleBottom
@@ -52,5 +50,6 @@ func GenerateStyles(style *lipgloss.Style) *Styles {
 }
 
 func DefaulStyles() *Styles {
-	return GenerateStyles(&defaultStyle)
+	style := lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
+	return GenerateStyles(&style)
 }
