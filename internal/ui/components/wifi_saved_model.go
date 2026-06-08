@@ -354,7 +354,7 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 				}
 				rows = append(rows, table.Row{
 					connectionFlag,
-					wifiSaved.Mode.Icon(),
+					renderer.RenderNetworkModeIcon(wifiSaved.Mode),
 					wifiSaved.SSID,
 					wifiSaved.Name,
 				})
