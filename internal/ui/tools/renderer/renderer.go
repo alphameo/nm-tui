@@ -6,6 +6,7 @@ import (
 	"image/color"
 
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
 
@@ -38,4 +39,19 @@ func RenderEnabledStatus(value bool) string {
 
 func RenderTitle(title string) string {
 	return fmt.Sprintf("[ %s ]", title)
+}
+
+func RenderNetworkModeIcon(mode infra.NetworkMode) string {
+	switch mode {
+	case infra.NetworkAccessPoint:
+		return "󰀃"
+	case infra.NetworkInfra:
+		return "🖳"
+	case infra.NetworkMesh:
+		return ""
+	case infra.NetworkAdHoc:
+		return ""
+	default:
+		return "?"
+	}
 }
