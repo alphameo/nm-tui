@@ -315,11 +315,6 @@ func (m *NetworkModel) View() tea.View {
 		connectivity,
 	)
 	togglers = m.togglersStyle.Render(togglers)
-	// controls := lipgloss.JoinVertical(
-	// 	lipgloss.Left,
-	// 	togglers,
-	// 	connectivity,
-	// )
 
 	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -344,7 +339,8 @@ func (m *NetworkModel) indicatorView() string {
 }
 
 func (m *NetworkModel) RescanCmd() tea.Cmd {
-	return tea.Sequence(m.setStateCmd(NetworkScanning),
+	return tea.Sequence(
+		m.setStateCmd(NetworkScanning),
 		func() tea.Msg {
 			list, err := m.nm.GetNetworkDevices(context.Background())
 			if err != nil {
