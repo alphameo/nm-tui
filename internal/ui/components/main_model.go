@@ -150,8 +150,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var cmd tea.Cmd
 	var upd tea.Model
-	upd, cmd = m.tabs.Update(msg)
-	m.tabs = upd.(*tabview.Model)
+	m.tabs, cmd = m.tabs.Update(msg)
 	if cmd != nil {
 		return m, cmd
 	}
@@ -177,8 +176,8 @@ func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 	if key.Matches(keyMsg, m.keyMngr.main.quit) {
 		return tea.Quit
 	}
-	upd, cmd := m.tabs.Update(keyMsg)
-	m.tabs = upd.(*tabview.Model)
+	var cmd tea.Cmd
+	m.tabs, cmd = m.tabs.Update(keyMsg)
 	return cmd
 }
 
@@ -202,7 +201,7 @@ func (m *MainModel) Resize(width, height int) {
 }
 
 func (m MainModel) View() tea.View {
-	view := m.tabs.View().Content
+	view := m.tabs.View()
 
 	if m.popup.active {
 		popupView := m.popup.content.View().Content

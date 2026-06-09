@@ -277,7 +277,7 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 func (m *NetworkModel) View() tea.View {
 	table := styles.BorderedStyle.Render(m.devicesTable.View())
 
-	wwan := m.wwan.View().Content
+	wwan := m.wwan.View()
 	wwanStyle := *m.wwanStyle
 	if m.wwan.Focused() {
 		wwanStyle = m.wwanStyle.Foreground(styles.AccentColor)
@@ -285,7 +285,7 @@ func (m *NetworkModel) View() tea.View {
 	wwan = wwanStyle.Render(wwan)
 	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN       ", wwan)
 
-	wifi := m.wifi.View().Content
+	wifi := m.wifi.View()
 	wifiStyle := *m.wifiStyle
 	if m.wifi.Focused() {
 		wifiStyle = m.wifiStyle.Foreground(styles.AccentColor)
@@ -293,7 +293,7 @@ func (m *NetworkModel) View() tea.View {
 	wifi = wifiStyle.Render(wifi)
 	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi      ", wifi)
 
-	networking := m.networking.View().Content
+	networking := m.networking.View()
 	networkingStyle := *m.networkingStyle
 	if m.networking.Focused() {
 		networkingStyle = networkingStyle.Foreground(styles.AccentColor)
