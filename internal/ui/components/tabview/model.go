@@ -8,11 +8,10 @@ import (
 )
 
 type Model struct {
-	tabs []Tab
-
 	activeTab int
 
-	cachedTabTitles  []string
+	tabTitles        []string
+	tabContents      []SizedModel
 	cachedTabBarView string
 
 	styles       *Styles
@@ -24,14 +23,16 @@ type Model struct {
 
 func New(tabs []Tab, styles *Styles, keys *KeyMap) *Model {
 	tabTitles := []string{}
+	tabContents := []SizedModel{}
 	for _, t := range tabs {
 		tabTitles = append(tabTitles, t.Title)
+		tabContents = append(tabContents, t.Content)
 	}
 	m := &Model{
-		tabs:            tabs,
-		cachedTabTitles: tabTitles,
-		activeTab:       0,
-		keys:            keys,
+		tabTitles:   tabTitles,
+		tabContents: tabContents,
+		activeTab:   0,
+		keys:        keys,
 	}
 	m.SetStyles(styles)
 	return m
@@ -57,62 +58,62 @@ func (m *Model) Resize(width, height int) {
 
 	width -= m.borderOffset
 	height -= m.borderOffset
-	for _, t := range m.tabs {
-		t.Content.Resize(width, height)
+	for _, t := range m.tabContents {
+		t.Resize(width, height)
 	}
 }
 
 func (m *Model) Init() tea.Cmd {
 	var cmds []tea.Cmd
-	for _, t := range m.tabs {
-		cmds = append(cmds, t.Content.Init())
+	for _, t := range m.tabContents {
+		cmds = append(cmds, t.Init())
 	}
 	return tea.Batch(cmds...)
 }
 
-func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
 	}
 
-	upd, cmd := m.tabs[m.activeTab].Content.Update(msg)
-	m.tabs[m.activeTab].Content = upd.(SizedModel)
+	upd, cmd := m.tabContents[m.activeTab].Update(msg)
+	m.tabContents[m.activeTab] = upd.(SizedModel)
 	return m, cmd
 }
 
 func (m *Model) handleKey(keyMsg tea.KeyPressMsg) (*Model, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.TabNext):
-		m.activeTab = min(m.activeTab+1, len(m.tabs)-1)
+		m.activeTab = min(m.activeTab+1, len(m.tabContents)-1)
 		m.RerenderTabBar()
-		return m, m.tabs[m.activeTab].Content.Init()
+		return m, m.tabContents[m.activeTab].Init()
 	case key.Matches(keyMsg, m.keys.TabPrev):
 		m.activeTab = max(m.activeTab-1, 0)
 		m.RerenderTabBar()
-		return m, m.tabs[m.activeTab].Content.Init()
+		return m, m.tabContents[m.activeTab].Init()
 	}
 
-	upd, cmd := m.tabs[m.activeTab].Content.Update(keyMsg)
-	m.tabs[m.activeTab].Content = upd.(SizedModel)
+	upd, cmd := m.tabContents[m.activeTab].Update(keyMsg)
+	m.tabContents[m.activeTab] = upd.(SizedModel)
 	return m, cmd
 }
 
-func (m *Model) View() tea.View {
-	tabView := m.tabs[m.activeTab].Content.View().Content
+func (m *Model) View() string {
+	tabView := m.tabContents[m.activeTab].View().Content
 	tabView = m.styles.ContentStyle.Render(tabView)
 
-	return tea.NewView(lipgloss.JoinVertical(
+	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		m.cachedTabBarView,
 		tabView,
-	))
+	)
 }
 
 func (m *Model) RerenderTabBar() {
 	width := m.styles.ContentStyle.GetWidth()
 	m.cachedTabBarView = RenderTabBar(
-		m.cachedTabTitles,
+		m.tabTitles,
 		m.styles.ActiveTabBarStyle,
 		m.styles.InactiveTabBarStyle,
 		width,
