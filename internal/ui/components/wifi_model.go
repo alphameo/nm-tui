@@ -9,6 +9,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/tabview"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
@@ -173,7 +174,7 @@ func (m *WifiModel) Init() tea.Cmd {
 	)
 }
 
-func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiModel) Update(msg tea.Msg) (*WifiModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -193,6 +194,10 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
+}
+
+func (m *WifiModel) TabUpdate(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
+	return m.Update(msg)
 }
 
 func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
@@ -240,15 +245,15 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *WifiModel) View() tea.View {
+func (m *WifiModel) View() string {
 	availableView := m.wifiAvailable.View()
 	savedView := m.wifiSaved.View()
 
-	return tea.NewView(lipgloss.JoinVertical(
+	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		availableView,
 		savedView,
-	))
+	)
 }
 
 type RescanWifiMsg struct {

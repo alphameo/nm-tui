@@ -10,6 +10,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/tabview"
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
@@ -217,7 +218,7 @@ func (m *NetworkModel) Init() tea.Cmd {
 	)
 }
 
-func (m *NetworkModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *NetworkModel) Update(msg tea.Msg) (*NetworkModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -234,7 +235,11 @@ func (m *NetworkModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *NetworkModel) handleKey(keyMsg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
+func (m *NetworkModel) TabUpdate(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
+	return m.Update(msg)
+}
+
+func (m *NetworkModel) handleKey(keyMsg tea.KeyPressMsg) (*NetworkModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -274,7 +279,7 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *NetworkModel) View() tea.View {
+func (m *NetworkModel) View() string {
 	table := styles.BorderedStyle.Render(m.devicesTable.View())
 
 	wwan := m.wwan.View()
@@ -316,12 +321,12 @@ func (m *NetworkModel) View() tea.View {
 	)
 	togglers = m.togglersStyle.Render(togglers)
 
-	return tea.NewView(lipgloss.JoinVertical(
+	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		table,
 		togglers,
 		statusline,
-	))
+	)
 }
 
 func (m *NetworkModel) indicatorView() string {
