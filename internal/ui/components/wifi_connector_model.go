@@ -300,7 +300,7 @@ func (m *WifiConnectorModel) View() tea.View {
 		password,
 	}
 	if m.connType == ConnectorCreator {
-		hidden := m.hidden.View().Content
+		hidden := m.hidden.View()
 		hiddenStyle := *m.hiddenStyle
 		if m.hidden.Focused() {
 			hiddenStyle = hiddenStyle.Foreground(styles.AccentColor)
