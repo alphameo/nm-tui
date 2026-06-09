@@ -11,7 +11,7 @@ type Model struct {
 	activeTab int
 
 	tabTitles        []string
-	tabContents      []SizedModel
+	tabContents      []TabModel
 	cachedTabBarView string
 
 	styles       *Styles
@@ -21,9 +21,14 @@ type Model struct {
 	keys *KeyMap
 }
 
+type Tab struct {
+	Title   string
+	Content TabModel
+}
+
 func New(tabs []Tab, styles *Styles, keys *KeyMap) *Model {
 	tabTitles := []string{}
-	tabContents := []SizedModel{}
+	tabContents := []TabModel{}
 	for _, t := range tabs {
 		tabTitles = append(tabTitles, t.Title)
 		tabContents = append(tabContents, t.Content)
@@ -77,8 +82,8 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 		return m.handleKey(msg)
 	}
 
-	upd, cmd := m.tabContents[m.activeTab].Update(msg)
-	m.tabContents[m.activeTab] = upd.(SizedModel)
+	var cmd tea.Cmd
+	m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].TabUpdate(msg)
 	return m, cmd
 }
 
@@ -94,13 +99,13 @@ func (m *Model) handleKey(keyMsg tea.KeyPressMsg) (*Model, tea.Cmd) {
 		return m, m.tabContents[m.activeTab].Init()
 	}
 
-	upd, cmd := m.tabContents[m.activeTab].Update(keyMsg)
-	m.tabContents[m.activeTab] = upd.(SizedModel)
+	var cmd tea.Cmd
+	m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].TabUpdate(keyMsg)
 	return m, cmd
 }
 
 func (m *Model) View() string {
-	tabView := m.tabContents[m.activeTab].View().Content
+	tabView := m.tabContents[m.activeTab].View()
 	tabView = m.styles.ContentStyle.Render(tabView)
 
 	return lipgloss.JoinVertical(
