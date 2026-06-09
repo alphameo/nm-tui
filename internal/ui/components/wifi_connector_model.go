@@ -177,7 +177,7 @@ func (m *WifiConnectorModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiConnectorModel) Update(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -203,6 +203,10 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	default:
 		return m, nil
 	}
+}
+
+func (m *WifiConnectorModel) PopupUpdate(msg tea.Msg) (PopupModel, tea.Cmd) {
+	return m.Update(msg)
 }
 
 func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorModel, tea.Cmd) {
@@ -256,7 +260,7 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 	}
 }
 
-func (m *WifiConnectorModel) View() tea.View {
+func (m *WifiConnectorModel) View() string {
 	ssid := m.ssid.View()
 	if m.connType != ConnectorConnector {
 		ssidStyle := *m.ssidStyle
@@ -329,7 +333,7 @@ func (m *WifiConnectorModel) View() tea.View {
 		0,
 		0,
 	)
-	return tea.NewView(view)
+	return view
 }
 
 func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
