@@ -34,8 +34,13 @@ var mainKeys = &mainKeyMap{
 	),
 }
 
+type PopupModel interface {
+	Init() tea.Cmd
+	PopupUpdate(msg tea.Msg) (PopupModel, tea.Cmd)
+	View() string
+}
 type Popup struct {
-	content tea.Model
+	content PopupModel
 	active  bool
 }
 type popupKeyMap struct {
@@ -149,13 +154,12 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
-	var upd tea.Model
 	m.tabs, cmd = m.tabs.Update(msg)
 	if cmd != nil {
 		return m, cmd
 	}
 	if m.popup.active {
-		upd, cmd = m.popup.content.Update(msg)
+		upd, cmd := m.popup.content.PopupUpdate(msg)
 		m.popup.content = upd
 		if cmd != nil {
 			return m, cmd
@@ -169,7 +173,7 @@ func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 		if key.Matches(keyMsg, m.keyMngr.popup.close) {
 			return SetPopupActivityCmd(false)
 		}
-		upd, cmd := m.popup.content.Update(keyMsg)
+		upd, cmd := m.popup.content.PopupUpdate(keyMsg)
 		m.popup.content = upd
 		return cmd
 	}
@@ -204,7 +208,7 @@ func (m MainModel) View() tea.View {
 	view := m.tabs.View()
 
 	if m.popup.active {
-		popupView := m.popup.content.View().Content
+		popupView := m.popup.content.View()
 		view = compositor.Compose(
 			popupView,
 			view,
@@ -247,12 +251,12 @@ func (m MainModel) View() tea.View {
 
 type (
 	PopupContentMsg struct {
-		model tea.Model
+		model PopupModel
 	}
 	PopupActivityMsg bool
 )
 
-func SetPopupContentCmd(content tea.Model) tea.Cmd {
+func SetPopupContentCmd(content PopupModel) tea.Cmd {
 	return func() tea.Msg {
 		return PopupContentMsg{content}
 	}
@@ -264,7 +268,7 @@ func SetPopupActivityCmd(isActive bool) tea.Cmd {
 	}
 }
 
-func OpenPopup(content tea.Model) tea.Cmd {
+func OpenPopup(content PopupModel) tea.Cmd {
 	return tea.Sequence(
 		SetPopupContentCmd(content),
 		SetPopupActivityCmd(true),

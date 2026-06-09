@@ -181,7 +181,7 @@ func (m *WifiInfoModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiInfoModel) Update(msg tea.Msg) (*WifiInfoModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -207,6 +207,10 @@ func (m *WifiInfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	}
+}
+
+func (m *WifiInfoModel) PopupUpdate(msg tea.Msg) (PopupModel, tea.Cmd) {
+	return m.Update(msg)
 }
 
 func (m *WifiInfoModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiInfoModel, tea.Cmd) {
@@ -251,7 +255,7 @@ func (m *WifiInfoModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiInfoModel, tea.C
 	}
 }
 
-func (m *WifiInfoModel) View() tea.View {
+func (m *WifiInfoModel) View() string {
 	sb := strings.Builder{}
 	fmt.Fprintf(
 		&sb,
@@ -347,7 +351,7 @@ func (m *WifiInfoModel) View() tea.View {
 		0,
 	)
 
-	return tea.NewView(view)
+	return view
 }
 
 func (m *WifiInfoModel) connectionView() string {
