@@ -54,7 +54,7 @@ func (m *Model) Resize(width, height int) {
 
 	m.styles.ContentStyle = m.styles.ContentStyle.Width(width).Height(height)
 
-	m.RerenderTabBar()
+	m.renderTabBar()
 
 	width -= m.borderOffset
 	height -= m.borderOffset
@@ -86,11 +86,11 @@ func (m *Model) handleKey(keyMsg tea.KeyPressMsg) (*Model, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.TabNext):
 		m.activeTab = min(m.activeTab+1, len(m.tabContents)-1)
-		m.RerenderTabBar()
+		m.renderTabBar()
 		return m, m.tabContents[m.activeTab].Init()
 	case key.Matches(keyMsg, m.keys.TabPrev):
 		m.activeTab = max(m.activeTab-1, 0)
-		m.RerenderTabBar()
+		m.renderTabBar()
 		return m, m.tabContents[m.activeTab].Init()
 	}
 
@@ -110,7 +110,7 @@ func (m *Model) View() string {
 	)
 }
 
-func (m *Model) RerenderTabBar() {
+func (m *Model) renderTabBar() {
 	width := m.styles.ContentStyle.GetWidth()
 	m.cachedTabBarView = RenderTabBar(
 		m.tabTitles,
