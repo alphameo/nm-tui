@@ -184,13 +184,12 @@ func (m *WifiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		)
 	}
 	var cmds []tea.Cmd
+	var cmd tea.Cmd
 
-	upd, cmd := m.wifiAvailable.Update(msg)
-	m.wifiAvailable = upd.(*WifiAvailableModel)
+	m.wifiAvailable, cmd = m.wifiAvailable.Update(msg)
 	cmds = append(cmds, cmd)
 
-	upd, cmd = m.wifiSaved.Update(msg)
-	m.wifiSaved = upd.(*WifiSavedModel)
+	m.wifiSaved, cmd = m.wifiSaved.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
@@ -232,21 +231,18 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
-	var upd tea.Model
 	switch m.focusWindowIdx {
 	case 0:
-		upd, cmd = m.wifiAvailable.Update(keyMsg)
-		m.wifiAvailable = upd.(*WifiAvailableModel)
+		m.wifiAvailable, cmd = m.wifiAvailable.Update(keyMsg)
 	case 1:
-		upd, cmd = m.wifiSaved.Update(keyMsg)
-		m.wifiSaved = upd.(*WifiSavedModel)
+		m.wifiSaved, cmd = m.wifiSaved.Update(keyMsg)
 	}
 	return m, cmd
 }
 
 func (m *WifiModel) View() tea.View {
-	availableView := m.wifiAvailable.View().Content
-	savedView := m.wifiSaved.View().Content
+	availableView := m.wifiAvailable.View()
+	savedView := m.wifiSaved.View()
 
 	return tea.NewView(lipgloss.JoinVertical(
 		lipgloss.Center,

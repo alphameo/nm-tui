@@ -201,7 +201,7 @@ func (m *WifiAvailableModel) Init() tea.Cmd {
 	return m.RescanCmd()
 }
 
-func (m *WifiAvailableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *WifiAvailableModel) Update(msg tea.Msg) (*WifiAvailableModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -248,7 +248,7 @@ func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiAvailableMo
 	return m, nil
 }
 
-func (m *WifiAvailableModel) View() tea.View {
+func (m *WifiAvailableModel) View() string {
 	view := m.dataTable.View()
 	statusline := m.indicatorView()
 	view = lipgloss.JoinVertical(
@@ -270,7 +270,7 @@ func (m *WifiAvailableModel) View() tea.View {
 		style,
 		style.GetBorderTopForeground(),
 	)
-	return tea.NewView(view)
+	return view
 }
 
 func (m *WifiAvailableModel) indicatorView() string {
