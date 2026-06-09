@@ -293,7 +293,7 @@ func (m *WifiInfoModel) View() tea.View {
 		pw,
 	)
 
-	autoconn := m.autoconnect.View().Content
+	autoconn := m.autoconnect.View()
 	autoconnStyle := *m.autoconnStyle
 	if m.autoconnect.Focused() {
 		autoconnStyle = autoconnStyle.

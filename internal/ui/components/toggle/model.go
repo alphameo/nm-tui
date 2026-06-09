@@ -49,15 +49,15 @@ func (t *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	return t, nil
 }
 
-func (t *Model) View() tea.View {
+func (t *Model) View() string {
 	symbols := t.Symbols
 	if symbols == nil {
 		symbols = DefaultSymbols
 	}
 	if t.value {
-		return tea.NewView(symbols.Activated)
+		return symbols.Activated
 	} else {
-		return tea.NewView(symbols.Deactivated)
+		return symbols.Deactivated
 	}
 }
 
