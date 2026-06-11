@@ -124,7 +124,7 @@ func NewProfileCreator(keys *profileCreatorKeyMap, networkManager infra.WifiMana
 	return model
 }
 
-func (m *ProfileCreatorModel) reset() tea.Cmd {
+func (m *ProfileCreatorModel) Reset() tea.Cmd {
 	m.ssid.Reset()
 	m.focusIdx = 0
 
@@ -339,12 +339,5 @@ func (m *ProfileCreatorModel) createWifiConnCmd() tea.Cmd {
 				RescanWifiCmd(0),
 			)
 		},
-	)
-}
-
-func (m *ProfileCreatorModel) open() tea.Cmd {
-	return tea.Batch(
-		m.reset(),
-		OpenPopup(m),
 	)
 }

@@ -87,8 +87,6 @@ type WifiAvailableModel struct {
 	focusedStyle *lipgloss.Style
 	bluredStyle  *lipgloss.Style
 
-	connector *WifiConnectorModel
-
 	keys *wifiAvailableKeyMap
 
 	wm infra.WifiManager
@@ -97,7 +95,7 @@ type WifiAvailableModel struct {
 	height int
 }
 
-func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailableKeyMap, wifiManager infra.WifiManager) *WifiAvailableModel {
+func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiManager) *WifiAvailableModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: 1},
 		{Title: "SSID"},
@@ -135,9 +133,8 @@ func NewWifiAvailableModel(wifiConnector *WifiConnectorModel, keys *wifiAvailabl
 		focusedStyle: &focusedStyle,
 		bluredStyle:  &bluredStyle,
 
-		connector: wifiConnector,
-		keys:      keys,
-		wm:        wifiManager,
+		keys: keys,
+		wm:   wifiManager,
 	}
 
 	model.bakeSizes()
@@ -236,7 +233,7 @@ func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiAvailableMo
 	case key.Matches(keyMsg, m.keys.connect):
 		row := m.dataTable.SelectedRow()
 		if row != nil {
-			return m, m.connector.open(row[m.ssidColIdx])
+			return m, OpenConnectorCmd(row[m.ssidColIdx])
 		}
 		return m, nil
 	}
