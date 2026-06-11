@@ -12,7 +12,7 @@ type TabModel interface {
 	// func (m Model) TabUpdate(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 	//	return m.Update(msg)
 	//}
-	TabUpdate(msg tea.Msg) (TabModel, tea.Cmd)
+	UpdateAsTab(msg tea.Msg) (TabModel, tea.Cmd)
 
 	View() string
 

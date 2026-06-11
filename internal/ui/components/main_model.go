@@ -36,7 +36,7 @@ var mainKeys = &mainKeyMap{
 
 type PopupModel interface {
 	Init() tea.Cmd
-	PopupUpdate(msg tea.Msg) (PopupModel, tea.Cmd)
+	UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd)
 	View() string
 }
 type Popup struct {
@@ -159,7 +159,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 	if m.popup.active {
-		upd, cmd := m.popup.content.PopupUpdate(msg)
+		upd, cmd := m.popup.content.UpdateAsPopup(msg)
 		m.popup.content = upd
 		if cmd != nil {
 			return m, cmd
@@ -173,7 +173,7 @@ func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 		if key.Matches(keyMsg, m.keyMngr.popup.close) {
 			return SetPopupActivityCmd(false)
 		}
-		upd, cmd := m.popup.content.PopupUpdate(keyMsg)
+		upd, cmd := m.popup.content.UpdateAsPopup(keyMsg)
 		m.popup.content = upd
 		return cmd
 	}
