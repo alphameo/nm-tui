@@ -11,27 +11,28 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
-type wifiConnectorKeyMap struct {
+type hotspotCreatorKeyMap struct {
 	togglePWVisibility key.Binding
 	up                 key.Binding
 	down               key.Binding
-	connect            key.Binding
+	create             key.Binding
 }
 
-func (k *wifiConnectorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.connect}
+func (k *hotspotCreatorKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.create}
 }
 
-func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.connect}}
+func (k *hotspotCreatorKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.create}}
 }
 
-var wifiConnectorKeys = &wifiConnectorKeyMap{
-	connect: key.NewBinding(
+var hotspotCreatorKeys = &hotspotCreatorKeyMap{
+	create: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("enter", "connect"),
+		key.WithHelp("enter", "create"),
 	),
 	up: key.NewBinding(
 		key.WithKeys("ctrl+k"),
@@ -47,17 +48,11 @@ var wifiConnectorKeys = &wifiConnectorKeyMap{
 	),
 }
 
-type ConnectorType int
+type hotspotCreatorModel struct {
+	title string
 
-const (
-	ConnectorUntyped ConnectorType = iota
-	ConnectorHotspotter
-	ConnectorConnector
-	ConnectorCreator
-)
-
-type WifiConnectorModel struct {
-	ssid string
+	ssid      textinput.Model
+	ssidStyle *lipgloss.Style
 
 	name      textinput.Model
 	nameStyle *lipgloss.Style
@@ -68,12 +63,18 @@ type WifiConnectorModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *wifiConnectorKeyMap
+	keys *hotspotCreatorKeyMap
 
 	nm infra.WifiManager
 }
 
-func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManager) *WifiConnectorModel {
+func NewHotspotCreator(keys *hotspotCreatorKeyMap, networkManager infra.WifiManager) *hotspotCreatorModel {
+	ssid := textinput.New()
+	ssid.SetWidth(20)
+	ssid.Prompt = ""
+	ssid.Placeholder = "SSID"
+	ssidStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
+
 	name := textinput.New()
 	name.SetWidth(20)
 	name.Prompt = ""
@@ -88,8 +89,11 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	pw.Placeholder = "Password"
 	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	model := &WifiConnectorModel{
-		ssid: "",
+	model := &hotspotCreatorModel{
+		title: renderer.RenderTitle("Create Wi-Fi hotspot"),
+
+		ssid:      ssid,
+		ssidStyle: &ssidStyle,
 
 		name:      name,
 		nameStyle: &nameStyle,
@@ -103,6 +107,7 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	}
 
 	inp := []Focusable{
+		&model.ssid,
 		&model.name,
 		&model.password,
 	}
@@ -111,33 +116,34 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	return model
 }
 
-func (m *WifiConnectorModel) setNew(ssid string) tea.Cmd {
-	m.ssid = ssid
-
-	m.name.SetValue(ssid)
+func (m *hotspotCreatorModel) reset() tea.Cmd {
+	m.ssid.Reset()
 	m.focusIdx = 0
 
+	m.name.Reset()
+	m.name.Blur()
+
 	m.password.Reset()
-	pw, err := m.nm.GetWifiPassword(context.Background(), ssid)
-	if err == nil {
-		m.password.SetValue(pw)
-	}
 	m.password.Blur()
 
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) Init() tea.Cmd {
+func (m *hotspotCreatorModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) Update(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) {
+func (m *hotspotCreatorModel) Update(msg tea.Msg) (*hotspotCreatorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
 	}
 
 	switch {
+	case m.ssid.Focused():
+		upd, cmd := m.ssid.Update(msg)
+		m.ssid = upd
+		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(msg)
 		m.name = upd
@@ -151,11 +157,11 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) 
 	}
 }
 
-func (m *WifiConnectorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
+func (m *hotspotCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorModel, tea.Cmd) {
+func (m *hotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*hotspotCreatorModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -168,14 +174,18 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 			m.password.EchoMode = textinput.EchoPassword
 		}
 		return m, nil
-	case key.Matches(keyMsg, m.keys.connect):
+	case key.Matches(keyMsg, m.keys.create):
 		return m, tea.Sequence(
 			SetPopupActivityCmd(false),
-			m.connectToWifiCmd(),
+			m.createHotspotCmd(),
 		)
 	}
 
 	switch {
+	case m.ssid.Focused():
+		upd, cmd := m.ssid.Update(keyMsg)
+		m.ssid = upd
+		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(keyMsg)
 		m.name = upd
@@ -189,8 +199,13 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 	}
 }
 
-func (m *WifiConnectorModel) View() string {
-	ssid := m.ssid
+func (m *hotspotCreatorModel) View() string {
+	ssid := m.ssid.View()
+	ssidStyle := *m.ssidStyle
+	if m.ssid.Focused() {
+		ssidStyle = ssidStyle.BorderForeground(styles.AccentColor)
+	}
+	ssid = ssidStyle.Render(ssid)
 	ssid = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"SSID     ",
@@ -234,7 +249,7 @@ func (m *WifiConnectorModel) View() string {
 	style := styles.OverlayStyle
 	view = style.Render(view)
 	view = compositor.Compose(
-		styles.NetworkConnectorTitle,
+		m.title,
 		view,
 		compositor.Center,
 		compositor.Begin,
@@ -244,7 +259,7 @@ func (m *WifiConnectorModel) View() string {
 	return view
 }
 
-func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
+func (m *hotspotCreatorModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -253,7 +268,7 @@ func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
+func (m *hotspotCreatorModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -262,22 +277,22 @@ func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
+func (m *hotspotCreatorModel) createHotspotCmd() tea.Cmd {
 	return tea.Sequence(
-		SetWifiAvailableStateCmd(AvailableConnecting),
+		SetWifiAvailableStateCmd(AvailableCreating),
 		func() tea.Msg {
-			err := m.nm.ConnectWifi(
+			err := m.nm.CreateWifiHotspot(
 				context.Background(),
 				m.name.Value(),
-				m.ssid,
+				m.ssid.Value(),
 				m.password.Value(),
 			)
 			if err != nil {
 				return tea.Batch(
 					SetWifiAvailableStateCmd(AvailableDone),
 					NotifyCmd(fmt.Sprintf(
-						"Cannot connect to %s via given password:\n%v",
-						m.ssid, err,
+						"Cannot create hotspot %s:\n%v",
+						m.ssid.Value(), err,
 					)),
 					RescanWifiCmd(0),
 				)
@@ -290,9 +305,9 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 	)
 }
 
-func (m *WifiConnectorModel) open(wifiName string) tea.Cmd {
+func (m *hotspotCreatorModel) open() tea.Cmd {
 	return tea.Batch(
-		m.setNew(wifiName),
+		m.reset(),
 		OpenPopup(m),
 	)
 }

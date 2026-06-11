@@ -9,29 +9,30 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
 
-type wifiConnectorKeyMap struct {
+type profileCreatorKeyMap struct {
 	togglePWVisibility key.Binding
 	up                 key.Binding
 	down               key.Binding
-	connect            key.Binding
+	create             key.Binding
 }
 
-func (k *wifiConnectorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.connect}
+func (k *profileCreatorKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.create}
 }
 
-func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.connect}}
+func (k *profileCreatorKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.create}}
 }
 
-var wifiConnectorKeys = &wifiConnectorKeyMap{
-	connect: key.NewBinding(
+var profileCreatorKeys = &profileCreatorKeyMap{
+	create: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("enter", "connect"),
+		key.WithHelp("enter", "create"),
 	),
 	up: key.NewBinding(
 		key.WithKeys("ctrl+k"),
@@ -47,17 +48,9 @@ var wifiConnectorKeys = &wifiConnectorKeyMap{
 	),
 }
 
-type ConnectorType int
-
-const (
-	ConnectorUntyped ConnectorType = iota
-	ConnectorHotspotter
-	ConnectorConnector
-	ConnectorCreator
-)
-
-type WifiConnectorModel struct {
-	ssid string
+type profileCreatorModel struct {
+	ssid      textinput.Model
+	ssidStyle *lipgloss.Style
 
 	name      textinput.Model
 	nameStyle *lipgloss.Style
@@ -65,15 +58,24 @@ type WifiConnectorModel struct {
 	password textinput.Model
 	pwStyle  *lipgloss.Style
 
+	hidden      *toggle.Model
+	hiddenStyle *lipgloss.Style
+
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *wifiConnectorKeyMap
+	keys *profileCreatorKeyMap
 
 	nm infra.WifiManager
 }
 
-func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManager) *WifiConnectorModel {
+func NewProfileCreator(keys *profileCreatorKeyMap, networkManager infra.WifiManager) *profileCreatorModel {
+	ssid := textinput.New()
+	ssid.SetWidth(20)
+	ssid.Prompt = ""
+	ssid.Placeholder = "SSID"
+	ssidStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
+
 	name := textinput.New()
 	name.SetWidth(20)
 	name.Prompt = ""
@@ -88,8 +90,13 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	pw.Placeholder = "Password"
 	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	model := &WifiConnectorModel{
-		ssid: "",
+	hiddenStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
+
+	t := toggle.New(false)
+
+	model := &profileCreatorModel{
+		ssid:      ssid,
+		ssidStyle: &ssidStyle,
 
 		name:      name,
 		nameStyle: &nameStyle,
@@ -97,47 +104,57 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 		password: pw,
 		pwStyle:  &pwStyle,
 
+		hidden:      t,
+		hiddenStyle: &hiddenStyle,
+
 		keys: keys,
 
 		nm: networkManager,
 	}
 
 	inp := []Focusable{
+		&model.ssid,
 		&model.name,
 		&model.password,
+		model.hidden,
 	}
 	model.focuses = inp
+	model.focusIdx = 0
 
 	return model
 }
 
-func (m *WifiConnectorModel) setNew(ssid string) tea.Cmd {
-	m.ssid = ssid
-
-	m.name.SetValue(ssid)
+func (m *profileCreatorModel) reset() tea.Cmd {
+	m.ssid.Reset()
 	m.focusIdx = 0
 
+	m.name.Reset()
+	m.name.Blur()
+
 	m.password.Reset()
-	pw, err := m.nm.GetWifiPassword(context.Background(), ssid)
-	if err == nil {
-		m.password.SetValue(pw)
-	}
 	m.password.Blur()
 
+	m.hidden.SetValue(false)
+	m.hidden.Blur()
+
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) Init() tea.Cmd {
+func (m *profileCreatorModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) Update(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) {
+func (m *profileCreatorModel) Update(msg tea.Msg) (*profileCreatorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
 	}
 
 	switch {
+	case m.ssid.Focused():
+		upd, cmd := m.ssid.Update(msg)
+		m.ssid = upd
+		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(msg)
 		m.name = upd
@@ -146,16 +163,20 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) 
 		upd, cmd := m.password.Update(msg)
 		m.password = upd
 		return m, cmd
+	case m.hidden.Focused():
+		upd, cmd := m.hidden.Update(msg)
+		m.hidden = upd
+		return m, cmd
 	default:
 		return m, nil
 	}
 }
 
-func (m *WifiConnectorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
+func (m *profileCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorModel, tea.Cmd) {
+func (m *profileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*profileCreatorModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -168,14 +189,18 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 			m.password.EchoMode = textinput.EchoPassword
 		}
 		return m, nil
-	case key.Matches(keyMsg, m.keys.connect):
+	case key.Matches(keyMsg, m.keys.create):
 		return m, tea.Sequence(
 			SetPopupActivityCmd(false),
-			m.connectToWifiCmd(),
+			m.createWifiConnCmd(),
 		)
 	}
 
 	switch {
+	case m.ssid.Focused():
+		upd, cmd := m.ssid.Update(keyMsg)
+		m.ssid = upd
+		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(keyMsg)
 		m.name = upd
@@ -184,13 +209,22 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 		upd, cmd := m.password.Update(keyMsg)
 		m.password = upd
 		return m, cmd
+	case m.hidden.Focused():
+		upd, cmd := m.hidden.Update(keyMsg)
+		m.hidden = upd
+		return m, cmd
 	default:
 		return m, nil
 	}
 }
 
-func (m *WifiConnectorModel) View() string {
-	ssid := m.ssid
+func (m *profileCreatorModel) View() string {
+	ssid := m.ssid.View()
+	ssidStyle := *m.ssidStyle
+	if m.ssid.Focused() {
+		ssidStyle = ssidStyle.BorderForeground(styles.AccentColor)
+	}
+	ssid = ssidStyle.Render(ssid)
 	ssid = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"SSID     ",
@@ -220,10 +254,23 @@ func (m *WifiConnectorModel) View() string {
 		password,
 	)
 
+	hidden := m.hidden.View()
+	hiddenStyle := *m.hiddenStyle
+	if m.hidden.Focused() {
+		hiddenStyle = hiddenStyle.Foreground(styles.AccentColor)
+	}
+	hidden = hiddenStyle.Render(hidden)
+	hidden = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"Hidden ",
+		hidden,
+	)
+
 	fields := []string{
 		ssid,
 		name,
 		password,
+		hidden,
 	}
 
 	view := lipgloss.JoinVertical(
@@ -234,7 +281,7 @@ func (m *WifiConnectorModel) View() string {
 	style := styles.OverlayStyle
 	view = style.Render(view)
 	view = compositor.Compose(
-		styles.NetworkConnectorTitle,
+		styles.ProfileCreatorTitle,
 		view,
 		compositor.Center,
 		compositor.Begin,
@@ -244,7 +291,7 @@ func (m *WifiConnectorModel) View() string {
 	return view
 }
 
-func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
+func (m *profileCreatorModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -253,7 +300,7 @@ func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
+func (m *profileCreatorModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -262,22 +309,27 @@ func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
+func (m *profileCreatorModel) createWifiConnCmd() tea.Cmd {
 	return tea.Sequence(
-		SetWifiAvailableStateCmd(AvailableConnecting),
+		SetWifiAvailableStateCmd(AvailableCreating),
 		func() tea.Msg {
-			err := m.nm.ConnectWifi(
+			err := m.nm.CreateWifiConnection(
 				context.Background(),
 				m.name.Value(),
-				m.ssid,
+				m.ssid.Value(),
 				m.password.Value(),
+				m.hidden.Value(),
 			)
 			if err != nil {
+				var hidden string
+				if m.hidden.Value() {
+					hidden = "hidden "
+				}
 				return tea.Batch(
 					SetWifiAvailableStateCmd(AvailableDone),
 					NotifyCmd(fmt.Sprintf(
-						"Cannot connect to %s via given password:\n%v",
-						m.ssid, err,
+						"Cannot create connection to %s%s:\n%v",
+						hidden, m.ssid.Value(), err,
 					)),
 					RescanWifiCmd(0),
 				)
@@ -290,9 +342,9 @@ func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
 	)
 }
 
-func (m *WifiConnectorModel) open(wifiName string) tea.Cmd {
+func (m *profileCreatorModel) open() tea.Cmd {
 	return tea.Batch(
-		m.setNew(wifiName),
+		m.reset(),
 		OpenPopup(m),
 	)
 }

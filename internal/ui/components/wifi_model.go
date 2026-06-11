@@ -95,7 +95,8 @@ type WifiModel struct {
 	focuses        []Focusable // used for batch operations for wifi models
 	focusWindowIdx int
 
-	connector *WifiConnectorModel
+	profileCreator *profileCreatorModel
+	hotspotCreator *hotspotCreatorModel
 
 	wm infra.WifiManager
 
@@ -108,7 +109,8 @@ type WifiModel struct {
 func NewWifiModel(
 	wifiAvailable *WifiAvailableModel,
 	wifiSaved *WifiSavedModel,
-	connector *WifiConnectorModel,
+	profileCreator *profileCreatorModel,
+	hotspotCreator *hotspotCreatorModel,
 	keys *wifiKeyMap,
 	wifiManager infra.WifiManager,
 ) *WifiModel {
@@ -121,7 +123,8 @@ func NewWifiModel(
 		wifiSaved:  wifiSaved,
 		savedStyle: &savedStyle,
 
-		connector: connector,
+		profileCreator: profileCreator,
+		hotspotCreator: hotspotCreator,
 
 		wm: wifiManager,
 
@@ -220,9 +223,9 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 			RescanWifiAvailableCmd(0),
 		)
 	case key.Matches(keyMsg, m.keys.create):
-		return m, m.connector.openCreator()
+		return m, m.profileCreator.open()
 	case key.Matches(keyMsg, m.keys.createHotspot):
-		return m, m.connector.openHotspotter()
+		return m, m.hotspotCreator.open()
 	case key.Matches(keyMsg, m.keys.openCaptivePortal):
 		return m, func() tea.Msg {
 			err := infra.OpenCaptivePortal(context.Background())
