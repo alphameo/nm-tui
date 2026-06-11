@@ -43,22 +43,22 @@ func (s *networkState) String() string {
 	}
 }
 
-type networkKeyMap struct {
+type networkingKeyMap struct {
 	up     key.Binding
 	down   key.Binding
 	rescan key.Binding
 	toggle key.Binding
 }
 
-func (k networkKeyMap) ShortHelp() []key.Binding {
+func (k networkingKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.up, k.down}
 }
 
-func (k networkKeyMap) FullHelp() [][]key.Binding {
+func (k networkingKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.up, k.down}}
 }
 
-var networkKeys = &networkKeyMap{
+var networkingKeys = &networkingKeyMap{
 	up: key.NewBinding(
 		key.WithKeys("ctrl+k"),
 		key.WithHelp("^k", "up"),
@@ -77,7 +77,7 @@ var networkKeys = &networkKeyMap{
 	),
 }
 
-type NetworkModel struct {
+type NetworkingModel struct {
 	devicesTable *table.Model
 
 	deviceColIdx int
@@ -109,7 +109,7 @@ type NetworkModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *networkKeyMap
+	keys *networkingKeyMap
 
 	nm infra.NetworkManager
 
@@ -117,7 +117,7 @@ type NetworkModel struct {
 	width  int
 }
 
-func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *NetworkModel {
+func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkManager) *NetworkingModel {
 	cols := []table.Column{
 		{Title: "Device"},
 		{Title: "Type"},
@@ -137,7 +137,7 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 
 	s := spinner.New()
 
-	model := &NetworkModel{
+	model := &NetworkingModel{
 		devicesTable: &t,
 		deviceColIdx: 0,
 		typeColIdx:   1,
@@ -179,7 +179,7 @@ func NewNetworkModel(networkManager infra.NetworkManager, keys *networkKeyMap) *
 	return model
 }
 
-func (m *NetworkModel) Resize(width, height int) {
+func (m *NetworkingModel) Resize(width, height int) {
 	m.height = height
 	m.width = width
 
@@ -203,22 +203,22 @@ func (m *NetworkModel) Resize(width, height int) {
 	m.devicesTable.UpdateViewport()
 }
 
-func (m *NetworkModel) Width() int {
+func (m *NetworkingModel) Width() int {
 	return m.width
 }
 
-func (m *NetworkModel) Height() int {
+func (m *NetworkingModel) Height() int {
 	return m.height
 }
 
-func (m *NetworkModel) Init() tea.Cmd {
+func (m *NetworkingModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.RescanCmd(),
 		m.focuses[m.focusIdx].Focus(),
 	)
 }
 
-func (m *NetworkModel) Update(msg tea.Msg) (*NetworkModel, tea.Cmd) {
+func (m *NetworkingModel) Update(msg tea.Msg) (*NetworkingModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -235,11 +235,11 @@ func (m *NetworkModel) Update(msg tea.Msg) (*NetworkModel, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *NetworkModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
+func (m *NetworkingModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *NetworkModel) handleKey(keyMsg tea.KeyPressMsg) (*NetworkModel, tea.Cmd) {
+func (m *NetworkingModel) handleKey(keyMsg tea.KeyPressMsg) (*NetworkingModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -279,7 +279,7 @@ func (m *NetworkModel) handleKey(keyMsg tea.KeyPressMsg) (*NetworkModel, tea.Cmd
 	return m, nil
 }
 
-func (m *NetworkModel) View() string {
+func (m *NetworkingModel) View() string {
 	table := styles.BorderedStyle.Render(m.devicesTable.View())
 
 	wwan := m.wwan.View()
@@ -329,7 +329,7 @@ func (m *NetworkModel) View() string {
 	)
 }
 
-func (m *NetworkModel) indicatorView() string {
+func (m *NetworkingModel) indicatorView() string {
 	var view string
 	if m.indicatorState != NetworkDone {
 		view = fmt.Sprintf(
@@ -343,7 +343,7 @@ func (m *NetworkModel) indicatorView() string {
 	return view
 }
 
-func (m *NetworkModel) RescanCmd() tea.Cmd {
+func (m *NetworkingModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(NetworkScanning),
 		func() tea.Msg {
@@ -389,7 +389,7 @@ func (m *NetworkModel) RescanCmd() tea.Cmd {
 	)
 }
 
-func (m *NetworkModel) focusNextCmd() tea.Cmd {
+func (m *NetworkingModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -398,7 +398,7 @@ func (m *NetworkModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *NetworkModel) focusPrevCmd() tea.Cmd {
+func (m *NetworkingModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -407,7 +407,7 @@ func (m *NetworkModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *NetworkModel) setStateCmd(state networkState) tea.Cmd {
+func (m *NetworkingModel) setStateCmd(state networkState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return NilMsg{}
@@ -420,7 +420,7 @@ func (m *NetworkModel) setStateCmd(state networkState) tea.Cmd {
 	}
 }
 
-func (m *NetworkModel) toggleWWAN() tea.Cmd {
+func (m *NetworkingModel) toggleWWAN() tea.Cmd {
 	if m.indicatorState != NetworkDone {
 		return nil
 	}
@@ -442,7 +442,7 @@ func (m *NetworkModel) toggleWWAN() tea.Cmd {
 	)
 }
 
-func (m *NetworkModel) toggleWIFI() tea.Cmd {
+func (m *NetworkingModel) toggleWIFI() tea.Cmd {
 	if m.indicatorState != NetworkDone {
 		return nil
 	}
@@ -464,7 +464,7 @@ func (m *NetworkModel) toggleWIFI() tea.Cmd {
 	)
 }
 
-func (m *NetworkModel) toggleNetworking() tea.Cmd {
+func (m *NetworkingModel) toggleNetworking() tea.Cmd {
 	if m.indicatorState != NetworkDone {
 		return nil
 	}

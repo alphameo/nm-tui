@@ -75,10 +75,10 @@ type MainModel struct {
 	popup        *Popup
 	notification *Notification
 
-	connector      *WifiConnectorModel
+	connector      *ConnectorModel
 	profileCreator *ProfileCreatorModel
 	hotspotCreator *HotspotCreatorModel
-	profileEditor  *WifiInfoModel
+	profileEditor  *ProfileEditorModel
 
 	keyMngr *keyMapManager
 	help    help.Model
@@ -90,10 +90,10 @@ type MainModel struct {
 func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
 
-	connector := NewWifiConnector(keys.wifiConnector, wifiManager)
+	connector := NewConnectorModel(keys.connector, wifiManager)
 	profileCreator := NewProfileCreator(profileCreatorKeys, wifiManager)
 	hotspotCreator := NewHotspotCreator(hotspotCreatorKeys, wifiManager)
-	profileEditor := NewWifiInfoModel(keys.wifiSavedInfo, wifiManager)
+	profileEditor := NewProfileEditorModel(keys.profileEditor, wifiManager)
 
 	a := NewWifiAvailableModel(keys.wifiAvailable, wifiManager)
 	s := NewWifiSavedModel(keys.wifiSaved, wifiManager)
@@ -171,7 +171,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		)
 	case openProfileEditorMsg:
 		return m, tea.Batch(
-			m.profileEditor.setNew(infra.WifiInfo(msg)),
+			m.profileEditor.setNew(infra.NetworkInfo(msg)),
 			OpenPopup(m.profileEditor),
 		)
 	case NotificationTextMsg:
@@ -312,7 +312,7 @@ type (
 	openConnectorMsg      string
 	openHotspotCreatorMsg struct{}
 	openProfileCreatorMsg struct{}
-	openProfileEditorMsg  infra.WifiInfo
+	openProfileEditorMsg  infra.NetworkInfo
 )
 
 func OpenConnectorCmd(ssid string) tea.Cmd {
@@ -333,7 +333,7 @@ func OpenProfileCreatorCmd() tea.Cmd {
 	}
 }
 
-func OpenProfileEditorCmd(info infra.WifiInfo) tea.Cmd {
+func OpenProfileEditorCmd(info infra.NetworkInfo) tea.Cmd {
 	return func() tea.Msg {
 		return openProfileEditorMsg(info)
 	}

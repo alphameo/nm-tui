@@ -16,22 +16,22 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
 
-type wifiSavedInfoKeyMap struct {
+type profileEditorKeyMap struct {
 	togglePWVisibility key.Binding
 	up                 key.Binding
 	down               key.Binding
 	submit             key.Binding
 }
 
-func (k wifiSavedInfoKeyMap) ShortHelp() []key.Binding {
+func (k profileEditorKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.submit}
 }
 
-func (k wifiSavedInfoKeyMap) FullHelp() [][]key.Binding {
+func (k profileEditorKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.submit}}
 }
 
-var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
+var profileEditorKeys = &profileEditorKeyMap{
 	togglePWVisibility: key.NewBinding(
 		key.WithKeys("ctrl+r"),
 		key.WithHelp("^r", "toggle password visibility"),
@@ -50,7 +50,7 @@ var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
 	),
 }
 
-type WifiInfoModel struct {
+type ProfileEditorModel struct {
 	ssid string
 
 	active      bool
@@ -75,12 +75,12 @@ type WifiInfoModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *wifiSavedInfoKeyMap
+	keys *profileEditorKeyMap
 
 	nm infra.WifiManager
 }
 
-func NewWifiInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManager) *WifiInfoModel {
+func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiManager) *ProfileEditorModel {
 	activeStyle := styles.DefaultStyle.Foreground(styles.AccentColor)
 
 	modeStyle := styles.DefaultStyle.Bold(true)
@@ -108,7 +108,7 @@ func NewWifiInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManage
 	autoconnPrior.Validate = autoconnectPriorityValidator
 	autoconnPriorStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	model := &WifiInfoModel{
+	model := &ProfileEditorModel{
 		ssid: "",
 
 		active:      false,
@@ -143,7 +143,7 @@ func NewWifiInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManage
 	return model
 }
 
-func (m *WifiInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
+func (m *ProfileEditorModel) setNew(info infra.NetworkInfo) tea.Cmd {
 	m.ssid = info.SSID
 
 	m.active = info.Active
@@ -172,11 +172,11 @@ func (m *WifiInfoModel) setNew(info infra.WifiInfo) tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiInfoModel) Init() tea.Cmd {
+func (m *ProfileEditorModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiInfoModel) Update(msg tea.Msg) (*WifiInfoModel, tea.Cmd) {
+func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -204,11 +204,11 @@ func (m *WifiInfoModel) Update(msg tea.Msg) (*WifiInfoModel, tea.Cmd) {
 	}
 }
 
-func (m *WifiInfoModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
+func (m *ProfileEditorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *WifiInfoModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiInfoModel, tea.Cmd) {
+func (m *ProfileEditorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileEditorModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -250,7 +250,7 @@ func (m *WifiInfoModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiInfoModel, tea.C
 	}
 }
 
-func (m *WifiInfoModel) View() string {
+func (m *ProfileEditorModel) View() string {
 	sb := strings.Builder{}
 	fmt.Fprintf(
 		&sb,
@@ -349,7 +349,7 @@ func (m *WifiInfoModel) View() string {
 	return view
 }
 
-func (m *WifiInfoModel) connectionView() string {
+func (m *ProfileEditorModel) connectionView() string {
 	if m.active {
 		return m.activeStyle.Render(" (connected)")
 	} else {
@@ -357,7 +357,7 @@ func (m *WifiInfoModel) connectionView() string {
 	}
 }
 
-func (m *WifiInfoModel) focusNextCmd() tea.Cmd {
+func (m *ProfileEditorModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -366,7 +366,7 @@ func (m *WifiInfoModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiInfoModel) focusPrevCmd() tea.Cmd {
+func (m *ProfileEditorModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -375,7 +375,7 @@ func (m *WifiInfoModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiInfoModel) saveWifiInfoCmd() tea.Cmd {
+func (m *ProfileEditorModel) saveWifiInfoCmd() tea.Cmd {
 	return func() tea.Msg {
 		ap, err := strconv.Atoi(m.autoconnPriority.Value())
 		if err != nil {
