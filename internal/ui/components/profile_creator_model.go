@@ -69,7 +69,7 @@ type ProfileCreatorModel struct {
 	nm infra.WifiManager
 }
 
-func NewProfileCreator(keys *profileCreatorKeyMap, networkManager infra.WifiManager) *ProfileCreatorModel {
+func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.WifiManager) *ProfileCreatorModel {
 	ssid := textinput.New()
 	ssid.SetWidth(20)
 	ssid.Prompt = ""

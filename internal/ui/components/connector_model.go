@@ -13,22 +13,22 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
 
-type wifiConnectorKeyMap struct {
+type connectorKeyMap struct {
 	togglePWVisibility key.Binding
 	up                 key.Binding
 	down               key.Binding
 	connect            key.Binding
 }
 
-func (k *wifiConnectorKeyMap) ShortHelp() []key.Binding {
+func (k *connectorKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.connect}
 }
 
-func (k *wifiConnectorKeyMap) FullHelp() [][]key.Binding {
+func (k *connectorKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.connect}}
 }
 
-var wifiConnectorKeys = &wifiConnectorKeyMap{
+var connectorKeys = &connectorKeyMap{
 	connect: key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "connect"),
@@ -47,16 +47,7 @@ var wifiConnectorKeys = &wifiConnectorKeyMap{
 	),
 }
 
-type ConnectorType int
-
-const (
-	ConnectorUntyped ConnectorType = iota
-	ConnectorHotspotter
-	ConnectorConnector
-	ConnectorCreator
-)
-
-type WifiConnectorModel struct {
+type ConnectorModel struct {
 	ssid string
 
 	name      textinput.Model
@@ -68,12 +59,12 @@ type WifiConnectorModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *wifiConnectorKeyMap
+	keys *connectorKeyMap
 
 	nm infra.WifiManager
 }
 
-func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManager) *WifiConnectorModel {
+func NewConnectorModel(keys *connectorKeyMap, networkManager infra.WifiManager) *ConnectorModel {
 	name := textinput.New()
 	name.SetWidth(20)
 	name.Prompt = ""
@@ -88,7 +79,7 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	pw.Placeholder = "Password"
 	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	model := &WifiConnectorModel{
+	model := &ConnectorModel{
 		ssid: "",
 
 		name:      name,
@@ -111,7 +102,7 @@ func NewWifiConnector(keys *wifiConnectorKeyMap, networkManager infra.WifiManage
 	return model
 }
 
-func (m *WifiConnectorModel) setNew(ssid string) tea.Cmd {
+func (m *ConnectorModel) setNew(ssid string) tea.Cmd {
 	m.ssid = ssid
 
 	m.name.SetValue(ssid)
@@ -127,11 +118,11 @@ func (m *WifiConnectorModel) setNew(ssid string) tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) Init() tea.Cmd {
+func (m *ConnectorModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) Update(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) {
+func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -151,11 +142,11 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) 
 	}
 }
 
-func (m *WifiConnectorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
+func (m *ConnectorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorModel, tea.Cmd) {
+func (m *ConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*ConnectorModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -189,7 +180,7 @@ func (m *WifiConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiConnectorMo
 	}
 }
 
-func (m *WifiConnectorModel) View() string {
+func (m *ConnectorModel) View() string {
 	ssid := m.ssid
 	ssid = lipgloss.JoinHorizontal(
 		lipgloss.Center,
@@ -244,7 +235,7 @@ func (m *WifiConnectorModel) View() string {
 	return view
 }
 
-func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
+func (m *ConnectorModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -253,7 +244,7 @@ func (m *WifiConnectorModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
+func (m *ConnectorModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -262,7 +253,7 @@ func (m *WifiConnectorModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *WifiConnectorModel) connectToWifiCmd() tea.Cmd {
+func (m *ConnectorModel) connectToWifiCmd() tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(AvailableConnecting),
 		func() tea.Msg {

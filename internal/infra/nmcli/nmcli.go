@@ -425,9 +425,9 @@ func (*NMCLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, err
 	return mode, nil
 }
 
-func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, error) {
+func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.NetworkInfo, error) {
 	var errs []error
-	info := infra.WifiInfo{
+	info := infra.NetworkInfo{
 		Name: id,
 	}
 	var wg sync.WaitGroup
@@ -517,7 +517,7 @@ func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.WifiInfo, err
 			"id", id,
 			"failed operations", bigErrStr,
 		)
-		return infra.WifiInfo{}, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiInfo, id, bigErrStr)
+		return infra.NetworkInfo{}, fmt.Errorf("%w for %s: %s", infra.ErrGetWifiInfo, id, bigErrStr)
 	}
 
 	return info, nil

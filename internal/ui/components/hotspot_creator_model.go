@@ -68,7 +68,7 @@ type HotspotCreatorModel struct {
 	nm infra.WifiManager
 }
 
-func NewHotspotCreator(keys *hotspotCreatorKeyMap, networkManager infra.WifiManager) *HotspotCreatorModel {
+func NewHotspotCreatorModel(keys *hotspotCreatorKeyMap, networkManager infra.WifiManager) *HotspotCreatorModel {
 	ssid := textinput.New()
 	ssid.SetWidth(20)
 	ssid.Prompt = ""

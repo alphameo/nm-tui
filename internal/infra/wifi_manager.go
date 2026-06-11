@@ -41,7 +41,7 @@ func (m NetworkMode) String() string {
 	}
 }
 
-type WifiInfo struct {
+type NetworkInfo struct {
 	Name                string
 	SSID                string
 	Password            string
@@ -98,7 +98,7 @@ type WifiManager interface {
 	GetWifiPassword(ctx context.Context, name string) (string, error)
 
 	// GetWifiInfo gives information about saved wifi-network with given name.
-	GetWifiInfo(ctx context.Context, name string) (WifiInfo, error)
+	GetWifiInfo(ctx context.Context, name string) (NetworkInfo, error)
 
 	// UpdateWifiInfo updates information about wifi-network with given name.
 	UpdateWifiInfo(ctx context.Context, name string, info UpdateWifiInfo) error
