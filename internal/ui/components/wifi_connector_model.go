@@ -205,7 +205,7 @@ func (m *WifiConnectorModel) Update(msg tea.Msg) (*WifiConnectorModel, tea.Cmd) 
 	}
 }
 
-func (m *WifiConnectorModel) PopupUpdate(msg tea.Msg) (PopupModel, tea.Cmd) {
+func (m *WifiConnectorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 	return m.Update(msg)
 }
 

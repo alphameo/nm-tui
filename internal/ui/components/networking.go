@@ -235,7 +235,7 @@ func (m *NetworkModel) Update(msg tea.Msg) (*NetworkModel, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *NetworkModel) TabUpdate(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
+func (m *NetworkModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 	return m.Update(msg)
 }
 

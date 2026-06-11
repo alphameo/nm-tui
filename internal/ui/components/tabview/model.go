@@ -83,7 +83,7 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
-	m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].TabUpdate(msg)
+	m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].UpdateAsTab(msg)
 	return m, cmd
 }
 
@@ -100,7 +100,7 @@ func (m *Model) handleKey(keyMsg tea.KeyPressMsg) (*Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
-	m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].TabUpdate(keyMsg)
+	m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].UpdateAsTab(keyMsg)
 	return m, cmd
 }
 

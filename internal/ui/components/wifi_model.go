@@ -196,7 +196,7 @@ func (m *WifiModel) Update(msg tea.Msg) (*WifiModel, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *WifiModel) TabUpdate(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
+func (m *WifiModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
