@@ -75,6 +75,11 @@ type MainModel struct {
 	popup        *Popup
 	notification *Notification
 
+	connector      *WifiConnectorModel
+	profileCreator *ProfileCreatorModel
+	hotspotCreator *HotspotCreatorModel
+	profileEditor  *WifiInfoModel
+
 	keyMngr *keyMapManager
 	help    help.Model
 
@@ -85,15 +90,15 @@ type MainModel struct {
 func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager) *MainModel {
 	keys := defaultKeyMap
 
-	conn := NewWifiConnector(keys.wifiConnector, wifiManager)
-	a := NewWifiAvailableModel(conn, keys.wifiAvailable, wifiManager)
-
-	info := NewWifiInfoModel(keys.wifiSavedInfo, wifiManager)
-	s := NewWifiSavedModel(info, keys.wifiSaved, wifiManager)
-
+	connector := NewWifiConnector(keys.wifiConnector, wifiManager)
 	profileCreator := NewProfileCreator(profileCreatorKeys, wifiManager)
 	hotspotCreator := NewHotspotCreator(hotspotCreatorKeys, wifiManager)
-	wifi := NewWifiModel(a, s, profileCreator, hotspotCreator, keys.wifi, wifiManager)
+	profileEditor := NewWifiInfoModel(keys.wifiSavedInfo, wifiManager)
+
+	a := NewWifiAvailableModel(keys.wifiAvailable, wifiManager)
+	s := NewWifiSavedModel(keys.wifiSaved, wifiManager)
+
+	wifi := NewWifiModel(a, s, keys.wifi, wifiManager)
 	network := NewNetworkModel(networkManager, keys.network)
 
 	wifiTable := tabview.New([]tabview.Tab{
@@ -115,8 +120,14 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 		tabs:         wifiTable,
 		popup:        p,
 		notification: n,
-		keyMngr:      keys,
-		help:         help,
+
+		connector:      connector,
+		profileCreator: profileCreator,
+		hotspotCreator: hotspotCreator,
+		profileEditor:  profileEditor,
+
+		keyMngr: keys,
+		help:    help,
 	}
 }
 
@@ -143,6 +154,26 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case PopupActivityMsg:
 		m.popup.active = bool(msg)
 		return m, nil
+	case openConnectorMsg:
+		return m, tea.Batch(
+			m.connector.setNew(string(msg)),
+			OpenPopup(m.connector),
+		)
+	case openHotspotCreatorMsg:
+		return m, tea.Batch(
+			m.hotspotCreator.Reset(),
+			OpenPopup(m.hotspotCreator),
+		)
+	case openProfileCreatorMsg:
+		return m, tea.Batch(
+			m.profileCreator.Reset(),
+			OpenPopup(m.profileCreator),
+		)
+	case openProfileEditorMsg:
+		return m, tea.Batch(
+			m.profileEditor.setNew(infra.WifiInfo(msg)),
+			OpenPopup(m.profileEditor),
+		)
 	case NotificationTextMsg:
 		m.notification.message = string(msg)
 		return m, nil
@@ -275,6 +306,37 @@ func OpenPopup(content PopupModel) tea.Cmd {
 		SetPopupContentCmd(content),
 		SetPopupActivityCmd(true),
 	)
+}
+
+type (
+	openConnectorMsg      string
+	openHotspotCreatorMsg struct{}
+	openProfileCreatorMsg struct{}
+	openProfileEditorMsg  infra.WifiInfo
+)
+
+func OpenConnectorCmd(ssid string) tea.Cmd {
+	return func() tea.Msg {
+		return openConnectorMsg(ssid)
+	}
+}
+
+func OpenHotspotCreatorCmd() tea.Cmd {
+	return func() tea.Msg {
+		return openHotspotCreatorMsg{}
+	}
+}
+
+func OpenProfileCreatorCmd() tea.Cmd {
+	return func() tea.Msg {
+		return openProfileCreatorMsg{}
+	}
+}
+
+func OpenProfileEditorCmd(info infra.WifiInfo) tea.Cmd {
+	return func() tea.Msg {
+		return openProfileEditorMsg(info)
+	}
 }
 
 type (

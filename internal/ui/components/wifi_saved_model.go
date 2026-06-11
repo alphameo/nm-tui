@@ -111,8 +111,6 @@ type WifiSavedModel struct {
 	focusedStyle *lipgloss.Style
 	bluredStyle  *lipgloss.Style
 
-	savedInfo *WifiInfoModel
-
 	keys *wifiSavedKeyMap
 
 	nm infra.WifiManager
@@ -121,7 +119,7 @@ type WifiSavedModel struct {
 	height int
 }
 
-func NewWifiSavedModel(savedInfo *WifiInfoModel, keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
+func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
 	cols := []table.Column{
 		{Title: "󱘖", Width: 1},
 		{Title: "Mode", Width: 4},
@@ -159,9 +157,8 @@ func NewWifiSavedModel(savedInfo *WifiInfoModel, keys *wifiSavedKeyMap, networkM
 		focusedStyle: &focusedStyle,
 		bluredStyle:  &bluredStyle,
 
-		savedInfo: savedInfo,
-		keys:      keys,
-		nm:        networkManager,
+		keys: keys,
+		nm:   networkManager,
 	}
 	model.bakeSizes()
 
@@ -266,7 +263,7 @@ func (m *WifiSavedModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiSavedModel, tea
 			)
 		}
 
-		return m, m.savedInfo.open(info)
+		return m, OpenProfileEditorCmd(info)
 
 	case key.Matches(keyMsg, m.keys.connect):
 		return m, m.connectToSelectedCmd()

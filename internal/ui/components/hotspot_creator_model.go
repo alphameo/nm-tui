@@ -116,7 +116,7 @@ func NewHotspotCreator(keys *hotspotCreatorKeyMap, networkManager infra.WifiMana
 	return model
 }
 
-func (m *HotspotCreatorModel) reset() tea.Cmd {
+func (m *HotspotCreatorModel) Reset() tea.Cmd {
 	m.ssid.Reset()
 	m.focusIdx = 0
 
@@ -302,12 +302,5 @@ func (m *HotspotCreatorModel) createHotspotCmd() tea.Cmd {
 				RescanWifiCmd(0),
 			)
 		},
-	)
-}
-
-func (m *HotspotCreatorModel) open() tea.Cmd {
-	return tea.Batch(
-		m.reset(),
-		OpenPopup(m),
 	)
 }

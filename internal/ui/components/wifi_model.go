@@ -109,8 +109,6 @@ type WifiModel struct {
 func NewWifiModel(
 	wifiAvailable *WifiAvailableModel,
 	wifiSaved *WifiSavedModel,
-	profileCreator *ProfileCreatorModel,
-	hotspotCreator *HotspotCreatorModel,
 	keys *wifiKeyMap,
 	wifiManager infra.WifiManager,
 ) *WifiModel {
@@ -122,9 +120,6 @@ func NewWifiModel(
 
 		wifiSaved:  wifiSaved,
 		savedStyle: &savedStyle,
-
-		profileCreator: profileCreator,
-		hotspotCreator: hotspotCreator,
 
 		wm: wifiManager,
 
@@ -223,9 +218,9 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 			RescanWifiAvailableCmd(0),
 		)
 	case key.Matches(keyMsg, m.keys.create):
-		return m, m.profileCreator.open()
+		return m, OpenProfileCreatorCmd()
 	case key.Matches(keyMsg, m.keys.createHotspot):
-		return m, m.hotspotCreator.open()
+		return m, OpenHotspotCreatorCmd()
 	case key.Matches(keyMsg, m.keys.openCaptivePortal):
 		return m, func() tea.Msg {
 			err := infra.OpenCaptivePortal(context.Background())
