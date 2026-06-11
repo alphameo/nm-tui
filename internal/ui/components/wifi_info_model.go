@@ -14,7 +14,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
-	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type wifiSavedInfoKeyMap struct {
@@ -52,8 +51,6 @@ var wifiSavedInfoKeys = &wifiSavedInfoKeyMap{
 }
 
 type WifiInfoModel struct {
-	title string
-
 	ssid string
 
 	active      bool
@@ -112,8 +109,6 @@ func NewWifiInfoModel(keys *wifiSavedInfoKeyMap, networkManager infra.WifiManage
 	autoconnPriorStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	model := &WifiInfoModel{
-		title: renderer.RenderTitle("Saved network info"),
-
 		ssid: "",
 
 		active:      false,
@@ -322,7 +317,7 @@ func (m *WifiInfoModel) View() string {
 		autoconnPrior,
 	)
 	if m.autoconnPriority.Err != nil {
-		autoconPriorityErrView := renderer.ErrorSymbolColored
+		autoconPriorityErrView := styles.ErrorSymbolColored
 		autoconnPrior = lipgloss.JoinHorizontal(
 			lipgloss.Center,
 			autoconnPrior,
@@ -343,7 +338,7 @@ func (m *WifiInfoModel) View() string {
 	style := styles.OverlayStyle
 	view = style.Render(view)
 	view = compositor.Compose(
-		m.title,
+		styles.SavedNetworkInfoTitle,
 		view,
 		compositor.Center,
 		compositor.Begin,

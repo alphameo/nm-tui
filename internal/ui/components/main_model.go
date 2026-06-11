@@ -91,7 +91,9 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	info := NewWifiInfoModel(keys.wifiSavedInfo, wifiManager)
 	s := NewWifiSavedModel(info, keys.wifiSaved, wifiManager)
 
-	wifi := NewWifiModel(a, s, conn, keys.wifi, wifiManager)
+	profileCreator := NewProfileCreator(profileCreatorKeys, wifiManager)
+	hotspotCreator := NewHotspotCreator(hotspotCreatorKeys, wifiManager)
+	wifi := NewWifiModel(a, s, profileCreator, hotspotCreator, keys.wifi, wifiManager)
 	network := NewNetworkModel(networkManager, keys.network)
 
 	wifiTable := tabview.New([]tabview.Tab{
