@@ -48,7 +48,7 @@ var profileCreatorKeys = &profileCreatorKeyMap{
 	),
 }
 
-type profileCreatorModel struct {
+type ProfileCreatorModel struct {
 	ssid      textinput.Model
 	ssidStyle *lipgloss.Style
 
@@ -69,7 +69,7 @@ type profileCreatorModel struct {
 	nm infra.WifiManager
 }
 
-func NewProfileCreator(keys *profileCreatorKeyMap, networkManager infra.WifiManager) *profileCreatorModel {
+func NewProfileCreator(keys *profileCreatorKeyMap, networkManager infra.WifiManager) *ProfileCreatorModel {
 	ssid := textinput.New()
 	ssid.SetWidth(20)
 	ssid.Prompt = ""
@@ -94,7 +94,7 @@ func NewProfileCreator(keys *profileCreatorKeyMap, networkManager infra.WifiMana
 
 	t := toggle.New(false)
 
-	model := &profileCreatorModel{
+	model := &ProfileCreatorModel{
 		ssid:      ssid,
 		ssidStyle: &ssidStyle,
 
@@ -124,7 +124,7 @@ func NewProfileCreator(keys *profileCreatorKeyMap, networkManager infra.WifiMana
 	return model
 }
 
-func (m *profileCreatorModel) reset() tea.Cmd {
+func (m *ProfileCreatorModel) reset() tea.Cmd {
 	m.ssid.Reset()
 	m.focusIdx = 0
 
@@ -140,11 +140,11 @@ func (m *profileCreatorModel) reset() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *profileCreatorModel) Init() tea.Cmd {
+func (m *ProfileCreatorModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *profileCreatorModel) Update(msg tea.Msg) (*profileCreatorModel, tea.Cmd) {
+func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -172,11 +172,11 @@ func (m *profileCreatorModel) Update(msg tea.Msg) (*profileCreatorModel, tea.Cmd
 	}
 }
 
-func (m *profileCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
+func (m *ProfileCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *profileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*profileCreatorModel, tea.Cmd) {
+func (m *ProfileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileCreatorModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -218,7 +218,7 @@ func (m *profileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*profileCreator
 	}
 }
 
-func (m *profileCreatorModel) View() string {
+func (m *ProfileCreatorModel) View() string {
 	ssid := m.ssid.View()
 	ssidStyle := *m.ssidStyle
 	if m.ssid.Focused() {
@@ -291,7 +291,7 @@ func (m *profileCreatorModel) View() string {
 	return view
 }
 
-func (m *profileCreatorModel) focusNextCmd() tea.Cmd {
+func (m *ProfileCreatorModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -300,7 +300,7 @@ func (m *profileCreatorModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *profileCreatorModel) focusPrevCmd() tea.Cmd {
+func (m *ProfileCreatorModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -309,7 +309,7 @@ func (m *profileCreatorModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *profileCreatorModel) createWifiConnCmd() tea.Cmd {
+func (m *ProfileCreatorModel) createWifiConnCmd() tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(AvailableCreating),
 		func() tea.Msg {
@@ -342,7 +342,7 @@ func (m *profileCreatorModel) createWifiConnCmd() tea.Cmd {
 	)
 }
 
-func (m *profileCreatorModel) open() tea.Cmd {
+func (m *ProfileCreatorModel) open() tea.Cmd {
 	return tea.Batch(
 		m.reset(),
 		OpenPopup(m),

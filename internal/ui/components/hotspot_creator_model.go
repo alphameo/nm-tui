@@ -48,7 +48,7 @@ var hotspotCreatorKeys = &hotspotCreatorKeyMap{
 	),
 }
 
-type hotspotCreatorModel struct {
+type HotspotCreatorModel struct {
 	title string
 
 	ssid      textinput.Model
@@ -68,7 +68,7 @@ type hotspotCreatorModel struct {
 	nm infra.WifiManager
 }
 
-func NewHotspotCreator(keys *hotspotCreatorKeyMap, networkManager infra.WifiManager) *hotspotCreatorModel {
+func NewHotspotCreator(keys *hotspotCreatorKeyMap, networkManager infra.WifiManager) *HotspotCreatorModel {
 	ssid := textinput.New()
 	ssid.SetWidth(20)
 	ssid.Prompt = ""
@@ -89,7 +89,7 @@ func NewHotspotCreator(keys *hotspotCreatorKeyMap, networkManager infra.WifiMana
 	pw.Placeholder = "Password"
 	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	model := &hotspotCreatorModel{
+	model := &HotspotCreatorModel{
 		title: renderer.RenderTitle("Create Wi-Fi hotspot"),
 
 		ssid:      ssid,
@@ -116,7 +116,7 @@ func NewHotspotCreator(keys *hotspotCreatorKeyMap, networkManager infra.WifiMana
 	return model
 }
 
-func (m *hotspotCreatorModel) reset() tea.Cmd {
+func (m *HotspotCreatorModel) reset() tea.Cmd {
 	m.ssid.Reset()
 	m.focusIdx = 0
 
@@ -129,11 +129,11 @@ func (m *hotspotCreatorModel) reset() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *hotspotCreatorModel) Init() tea.Cmd {
+func (m *HotspotCreatorModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *hotspotCreatorModel) Update(msg tea.Msg) (*hotspotCreatorModel, tea.Cmd) {
+func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKey(msg)
@@ -157,11 +157,11 @@ func (m *hotspotCreatorModel) Update(msg tea.Msg) (*hotspotCreatorModel, tea.Cmd
 	}
 }
 
-func (m *hotspotCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
+func (m *HotspotCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *hotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*hotspotCreatorModel, tea.Cmd) {
+func (m *HotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*HotspotCreatorModel, tea.Cmd) {
 	switch {
 	case key.Matches(keyMsg, m.keys.down):
 		return m, m.focusNextCmd()
@@ -199,7 +199,7 @@ func (m *hotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*hotspotCreator
 	}
 }
 
-func (m *hotspotCreatorModel) View() string {
+func (m *HotspotCreatorModel) View() string {
 	ssid := m.ssid.View()
 	ssidStyle := *m.ssidStyle
 	if m.ssid.Focused() {
@@ -259,7 +259,7 @@ func (m *hotspotCreatorModel) View() string {
 	return view
 }
 
-func (m *hotspotCreatorModel) focusNextCmd() tea.Cmd {
+func (m *HotspotCreatorModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -268,7 +268,7 @@ func (m *hotspotCreatorModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *hotspotCreatorModel) focusPrevCmd() tea.Cmd {
+func (m *HotspotCreatorModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -277,7 +277,7 @@ func (m *hotspotCreatorModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *hotspotCreatorModel) createHotspotCmd() tea.Cmd {
+func (m *HotspotCreatorModel) createHotspotCmd() tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(AvailableCreating),
 		func() tea.Msg {
@@ -305,7 +305,7 @@ func (m *hotspotCreatorModel) createHotspotCmd() tea.Cmd {
 	)
 }
 
-func (m *hotspotCreatorModel) open() tea.Cmd {
+func (m *HotspotCreatorModel) open() tea.Cmd {
 	return tea.Batch(
 		m.reset(),
 		OpenPopup(m),

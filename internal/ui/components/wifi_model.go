@@ -95,8 +95,8 @@ type WifiModel struct {
 	focuses        []Focusable // used for batch operations for wifi models
 	focusWindowIdx int
 
-	profileCreator *profileCreatorModel
-	hotspotCreator *hotspotCreatorModel
+	profileCreator *ProfileCreatorModel
+	hotspotCreator *HotspotCreatorModel
 
 	wm infra.WifiManager
 
@@ -109,8 +109,8 @@ type WifiModel struct {
 func NewWifiModel(
 	wifiAvailable *WifiAvailableModel,
 	wifiSaved *WifiSavedModel,
-	profileCreator *profileCreatorModel,
-	hotspotCreator *hotspotCreatorModel,
+	profileCreator *ProfileCreatorModel,
+	hotspotCreator *HotspotCreatorModel,
 	keys *wifiKeyMap,
 	wifiManager infra.WifiManager,
 ) *WifiModel {
