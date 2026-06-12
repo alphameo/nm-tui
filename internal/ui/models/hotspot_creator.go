@@ -170,7 +170,7 @@ func (m *HotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*HotspotCreator
 			return m, nil
 		}
 		return m, tea.Sequence(
-			SetPopupActivityCmd(false),
+			ClosePopupCmd(),
 			m.createHotspotCmd(),
 		)
 	}

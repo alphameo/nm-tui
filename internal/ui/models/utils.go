@@ -4,7 +4,6 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
-	"github.com/alphameo/nm-tui/internal/infra"
 )
 
 type Focusable interface {
@@ -22,36 +21,29 @@ var NilCmd = func() tea.Msg {
 }
 
 type (
-	PopupContentMsg struct {
+	OpenPopupMsg struct {
 		model PopupModel
 	}
-	PopupActivityMsg bool
+	ClosePopupMsg struct{}
 )
 
-func SetPopupContentCmd(content PopupModel) tea.Cmd {
+func OpenPopupCmd(content PopupModel) tea.Cmd {
 	return func() tea.Msg {
-		return PopupContentMsg{content}
+		return OpenPopupMsg{model: content}
 	}
 }
 
-func SetPopupActivityCmd(isActive bool) tea.Cmd {
+func ClosePopupCmd() tea.Cmd {
 	return func() tea.Msg {
-		return PopupActivityMsg(isActive)
+		return ClosePopupMsg{}
 	}
-}
-
-func OpenPopup(content PopupModel) tea.Cmd {
-	return tea.Sequence(
-		SetPopupContentCmd(content),
-		SetPopupActivityCmd(true),
-	)
 }
 
 type (
 	openConnectorMsg      string
 	openHotspotCreatorMsg struct{}
 	openProfileCreatorMsg struct{}
-	openProfileEditorMsg  infra.NetworkInfo
+	openProfileEditorMsg  string
 )
 
 func OpenConnectorCmd(ssid string) tea.Cmd {
@@ -72,9 +64,9 @@ func OpenProfileCreatorCmd() tea.Cmd {
 	}
 }
 
-func OpenProfileEditorCmd(info infra.NetworkInfo) tea.Cmd {
+func OpenProfileEditorCmd(name string) tea.Cmd {
 	return func() tea.Msg {
-		return openProfileEditorMsg(info)
+		return openProfileEditorMsg(name)
 	}
 }
 

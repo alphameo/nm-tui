@@ -104,31 +104,33 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
-	case PopupContentMsg:
+	case OpenPopupMsg:
 		m.popup.content = msg.model
+		m.popup.active = true
 		return m, m.popup.content.Init()
-	case PopupActivityMsg:
-		m.popup.active = bool(msg)
+	case ClosePopupMsg:
+		m.popup.content = nil
+		m.popup.active = false
 		return m, nil
 	case openConnectorMsg:
 		return m, tea.Batch(
 			m.connector.setNew(string(msg)),
-			OpenPopup(m.connector),
+			OpenPopupCmd(m.connector),
 		)
 	case openHotspotCreatorMsg:
 		return m, tea.Batch(
 			m.hotspotCreator.Reset(),
-			OpenPopup(m.hotspotCreator),
+			OpenPopupCmd(m.hotspotCreator),
 		)
 	case openProfileCreatorMsg:
 		return m, tea.Batch(
 			m.profileCreator.Reset(),
-			OpenPopup(m.profileCreator),
+			OpenPopupCmd(m.profileCreator),
 		)
 	case openProfileEditorMsg:
 		return m, tea.Batch(
-			m.profileEditor.setNew(infra.NetworkInfo(msg)),
-			OpenPopup(m.profileEditor),
+			m.profileEditor.setNew(string(msg)),
+			OpenPopupCmd(m.profileEditor),
 		)
 	case NotificationTextMsg:
 		m.notification.message = string(msg)
@@ -160,7 +162,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 	if m.popup.active {
 		if key.Matches(keyMsg, m.keyMngr.popup.close) {
-			return SetPopupActivityCmd(false)
+			return ClosePopupCmd()
 		}
 		upd, cmd := m.popup.content.UpdateAsPopup(keyMsg)
 		m.popup.content = upd

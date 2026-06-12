@@ -185,7 +185,7 @@ func (m *ProfileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileCreator
 			return m, nil
 		}
 		return m, tea.Sequence(
-			SetPopupActivityCmd(false),
+			ClosePopupCmd(),
 			m.createWifiConnCmd(),
 		)
 	}

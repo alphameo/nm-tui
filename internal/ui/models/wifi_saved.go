@@ -256,14 +256,8 @@ func (m *WifiSavedModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiSavedModel, tea
 			return m, nil
 		}
 		name := row[m.nameColIdx]
-		info, err := m.nm.GetWifiInfo(context.Background(), name)
-		if err != nil {
-			return m, NotifyCmd(
-				fmt.Sprintf("Cannot get information about %s", name),
-			)
-		}
 
-		return m, OpenProfileEditorCmd(info)
+		return m, OpenProfileEditorCmd(name)
 
 	case key.Matches(keyMsg, m.keys.connect):
 		return m, m.connectToSelectedCmd()
