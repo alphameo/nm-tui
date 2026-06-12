@@ -51,15 +51,10 @@ func profileCreatorKeys() *profileCreatorKeyMap {
 }
 
 type ProfileCreatorModel struct {
-	ssid      textinput.Model
-	ssidStyle *lipgloss.Style
-
-	name textinput.Model
-
+	ssid     textinput.Model
+	name     textinput.Model
 	password textinput.Model
-
-	hidden      *toggle.Model
-	hiddenStyle *lipgloss.Style
+	hidden   *toggle.Model
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
@@ -74,7 +69,6 @@ func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.Wif
 	ssid.SetWidth(20)
 	ssid.Prompt = ""
 	ssid.Placeholder = "SSID"
-	ssidStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	name := textinput.New()
 	name.SetWidth(20)
@@ -90,21 +84,14 @@ func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.Wif
 	pw.Validate = passwordValidator
 	pw.Err = passwordValidator(pw.Value())
 
-	hiddenStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
-
 	hidden := toggle.New()
 	hidden.Symbols = styles.ToggleSymbols
 
 	model := &ProfileCreatorModel{
-		ssid:      ssid,
-		ssidStyle: &ssidStyle,
-
-		name: name,
-
+		ssid:     ssid,
+		name:     name,
 		password: pw,
-
-		hidden:      hidden,
-		hiddenStyle: &hiddenStyle,
+		hidden:   hidden,
 
 		keys: keys,
 
@@ -221,17 +208,8 @@ func (m *ProfileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileCreator
 }
 
 func (m *ProfileCreatorModel) View() string {
-	ssid := m.ssid.View()
-	ssidStyle := *m.ssidStyle
-	if m.ssid.Focused() {
-		ssidStyle = ssidStyle.BorderForeground(styles.AccentColor)
-	}
-	ssid = ssidStyle.Render(ssid)
-	ssid = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"SSID     ",
-		ssid,
-	)
+	ssid := styles.ViewInput(&m.ssid)
+	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID     ", ssid)
 
 	name := styles.ViewInput(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
@@ -239,17 +217,8 @@ func (m *ProfileCreatorModel) View() string {
 	password := styles.ViewInput(&m.password)
 	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
 
-	hidden := m.hidden.View()
-	hiddenStyle := *m.hiddenStyle
-	if m.hidden.Focused() {
-		hiddenStyle = hiddenStyle.Foreground(styles.AccentColor)
-	}
-	hidden = hiddenStyle.Render(hidden)
-	hidden = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Hidden ",
-		hidden,
-	)
+	hidden := styles.ViewToggle(m.hidden)
+	hidden = lipgloss.JoinHorizontal(lipgloss.Center, "Hidden ", hidden)
 
 	fields := []string{
 		ssid,

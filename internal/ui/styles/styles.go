@@ -15,6 +15,8 @@ var (
 	NotifColor  = lipgloss.Color("#e4bf7a")
 
 	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor)
+	AccentStyle  = lipgloss.NewStyle().Foreground(AccentColor)
+	BoldStyle    = DefaultStyle.Bold(true)
 
 	Border        = lipgloss.RoundedBorder()
 	BorderedStyle = DefaultStyle.Border(Border)
@@ -33,8 +35,10 @@ var (
 
 	InputFieldStyle        = lipgloss.NewStyle().Inherit(BorderedStyle)
 	InputFieldFocusedStyle = InputFieldStyle.BorderForeground(AccentColor)
-	ToggleStyle            = lipgloss.NewStyle().Inherit(DefaultStyle)
+	ToggleStyle            = lipgloss.NewStyle().Inherit(DefaultStyle).Margin(0, 1)
 	ToggleFocusedStyle     = ToggleStyle.Foreground(AccentColor)
+
+	NetworkTogglersStyle = lipgloss.NewStyle().Margin(1, 0)
 )
 
 func tableStyle() table.Styles {
