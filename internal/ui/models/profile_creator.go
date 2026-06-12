@@ -30,23 +30,25 @@ func (k *profileCreatorKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.create}}
 }
 
-var profileCreatorKeys = &profileCreatorKeyMap{
-	create: key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", "create"),
-	),
-	up: key.NewBinding(
-		key.WithKeys("ctrl+k"),
-		key.WithHelp("^k", "up"),
-	),
-	down: key.NewBinding(
-		key.WithKeys("ctrl+j"),
-		key.WithHelp("^j", "down"),
-	),
-	togglePWVisibility: key.NewBinding(
-		key.WithKeys("ctrl+r"),
-		key.WithHelp("^r", "toggle password visibility"),
-	),
+func profileCreatorKeys() *profileCreatorKeyMap {
+	return &profileCreatorKeyMap{
+		create: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "create"),
+		),
+		up: key.NewBinding(
+			key.WithKeys("ctrl+k"),
+			key.WithHelp("^k", "up"),
+		),
+		down: key.NewBinding(
+			key.WithKeys("ctrl+j"),
+			key.WithHelp("^j", "down"),
+		),
+		togglePWVisibility: key.NewBinding(
+			key.WithKeys("ctrl+r"),
+			key.WithHelp("^r", "toggle password visibility"),
+		),
+	}
 }
 
 type ProfileCreatorModel struct {
@@ -77,7 +79,7 @@ func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.Wif
 
 	hiddenStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
-	t := toggle.New(false)
+	t := components.DefaultToggle()
 
 	model := &ProfileCreatorModel{
 		ssid:      ssid,

@@ -31,23 +31,25 @@ func (k profileEditorKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.save}}
 }
 
-var profileEditorKeys = &profileEditorKeyMap{
-	togglePWVisibility: key.NewBinding(
-		key.WithKeys("ctrl+r"),
-		key.WithHelp("^r", "toggle password visibility"),
-	),
-	up: key.NewBinding(
-		key.WithKeys("ctrl+k"),
-		key.WithHelp("^k", "up"),
-	),
-	down: key.NewBinding(
-		key.WithKeys("ctrl+j"),
-		key.WithHelp("^j", "down"),
-	),
-	save: key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", "submit"),
-	),
+func profileEditorKeys() *profileEditorKeyMap {
+	return &profileEditorKeyMap{
+		togglePWVisibility: key.NewBinding(
+			key.WithKeys("ctrl+r"),
+			key.WithHelp("^r", "toggle password visibility"),
+		),
+		up: key.NewBinding(
+			key.WithKeys("ctrl+k"),
+			key.WithHelp("^k", "up"),
+		),
+		down: key.NewBinding(
+			key.WithKeys("ctrl+j"),
+			key.WithHelp("^j", "down"),
+		),
+		save: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "submit"),
+		),
+	}
 }
 
 type ProfileEditorModel struct {
@@ -82,7 +84,7 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 
 	modeStyle := styles.DefaultStyle.Bold(true)
 
-	autoconn := toggle.New(false)
+	autoconn := components.DefaultToggle()
 	autoconnStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
 	autoconnPrior := textinput.New()
@@ -247,6 +249,7 @@ func (m *ProfileEditorModel) View() string {
 		lipgloss.Center,
 		"SSID     ",
 		ssid,
+		m.connectionView(),
 	)
 
 	mode := m.modeStyle.Render(m.mode)

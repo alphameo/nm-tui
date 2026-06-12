@@ -14,18 +14,18 @@ func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
 }
 
 type keyMapManager struct {
-	main           *mainKeyMap
-	popup          *popupKeyMap
-	tabs           *tabview.KeyMap
-	toggle         *toggle.KeyMap
-	networking     *networkingKeyMap
-	wifi           *wifiKeyMap
-	wifiSaved      *wifiSavedKeyMap
-	profileEditor  *profileEditorKeyMap
-	wifiAvailable  *wifiAvailableKeyMap
-	connector      *connectorKeyMap
-	profileCreator *profileCreatorKeyMap
-	hotspotCreator *hotspotCreatorKeyMap
+	main           mainKeyMap
+	popup          popupKeyMap
+	tabs           tabview.KeyMap
+	toggle         toggle.KeyMap
+	networking     networkingKeyMap
+	wifi           wifiKeyMap
+	wifiSaved      wifiSavedKeyMap
+	profileEditor  profileEditorKeyMap
+	wifiAvailable  wifiAvailableKeyMap
+	connector      connectorKeyMap
+	profileCreator profileCreatorKeyMap
+	hotspotCreator hotspotCreatorKeyMap
 }
 
 func (k *keyMapManager) ShortHelp() []key.Binding {
@@ -44,17 +44,19 @@ func (k *keyMapManager) FullHelp() [][]key.Binding {
 	}
 }
 
-var defaultKeyMap = &keyMapManager{
-	main:           mainKeys,
-	popup:          popupKeys,
-	tabs:           tabview.DefaultKeys,
-	toggle:         toggle.DefaultKeys,
-	networking:     networkingKeys,
-	wifi:           wifiKeys,
-	wifiSaved:      wifiSavedKeys,
-	wifiAvailable:  wifiAvailableKeys,
-	profileEditor:  profileEditorKeys,
-	connector:      connectorKeys,
-	profileCreator: profileCreatorKeys,
-	hotspotCreator: hotspotCreatorKeys,
+func defaultKeys() keyMapManager {
+	return keyMapManager{
+		main:           *mainKeys(),
+		popup:          *popupKeys(),
+		tabs:           *tabview.DefaultKeys(),
+		toggle:         *toggle.DefaultKeys(),
+		networking:     *networkingKeys(),
+		wifi:           *wifiKeys(),
+		wifiSaved:      *wifiSavedKeys(),
+		wifiAvailable:  *wifiAvailableKeys(),
+		profileEditor:  *profileEditorKeys(),
+		connector:      *connectorKeys(),
+		profileCreator: *profileCreatorKeys(),
+		hotspotCreator: *hotspotCreatorKeys(),
+	}
 }
