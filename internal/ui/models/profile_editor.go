@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/textinput"
@@ -243,20 +242,17 @@ func (m *ProfileEditorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileEditorMo
 }
 
 func (m *ProfileEditorModel) View() string {
-	sb := strings.Builder{}
-	fmt.Fprintf(
-		&sb,
-		"SSID      %s%s",
-		m.ssid,
-		m.connectionView(),
+	ssid := m.ssid
+	ssid = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		"SSID     ",
+		ssid,
 	)
-
-	ssid := sb.String()
 
 	mode := m.modeStyle.Render(m.mode)
 	mode = lipgloss.JoinHorizontal(
 		lipgloss.Center,
-		"Mode      ",
+		"Mode     ",
 		mode,
 	)
 
