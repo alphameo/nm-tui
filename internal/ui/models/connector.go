@@ -168,7 +168,6 @@ func (m *ConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*ConnectorModel, tea
 
 func (m *ConnectorModel) View() string {
 	ssid := m.ssid
-	ssid = lipgloss.NewStyle().Margin(1).Render(ssid)
 	ssid = lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		"SSID     ",
