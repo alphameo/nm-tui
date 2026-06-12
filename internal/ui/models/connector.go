@@ -51,9 +51,9 @@ var connectorKeys = &connectorKeyMap{
 type ConnectorModel struct {
 	ssid string
 
-	name      textinput.Model
-	nameStyle *lipgloss.Style
-	password  components.Password
+	name components.Name
+
+	password components.Password
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
@@ -64,17 +64,10 @@ type ConnectorModel struct {
 }
 
 func NewConnectorModel(keys *connectorKeyMap, networkManager infra.WifiManager) *ConnectorModel {
-	name := textinput.New()
-	name.SetWidth(20)
-	name.Prompt = ""
-	name.Placeholder = "Name"
-	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-
 	model := &ConnectorModel{
 		ssid: "",
 
-		name:      name,
-		nameStyle: &nameStyle,
+		name: components.DefaultName(),
 
 		password: components.DefaultPassword(),
 
@@ -121,7 +114,7 @@ func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
 	switch {
 	case m.name.Focused():
 		upd, cmd := m.name.Update(msg)
-		m.name = upd
+		m.name = components.NewName(&upd)
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
@@ -162,7 +155,7 @@ func (m *ConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*ConnectorModel, tea
 	switch {
 	case m.name.Focused():
 		upd, cmd := m.name.Update(keyMsg)
-		m.name = upd
+		m.name = components.NewName(&upd)
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
@@ -182,21 +175,9 @@ func (m *ConnectorModel) View() string {
 		ssid,
 	)
 
-	name := m.name.View()
-	nameStyle := *m.nameStyle
-	if m.name.Focused() {
-		nameStyle = nameStyle.BorderForeground(styles.AccentColor)
-	}
-	name = nameStyle.Render(name)
-	name = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Name     ",
-		name,
-	)
-
 	fields := []string{
 		ssid,
-		name,
+		m.name.View(),
 		m.password.View(),
 	}
 

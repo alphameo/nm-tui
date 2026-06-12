@@ -53,8 +53,7 @@ type ProfileCreatorModel struct {
 	ssid      textinput.Model
 	ssidStyle *lipgloss.Style
 
-	name      textinput.Model
-	nameStyle *lipgloss.Style
+	name components.Name
 
 	password components.Password
 
@@ -76,12 +75,6 @@ func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.Wif
 	ssid.Placeholder = "SSID"
 	ssidStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	name := textinput.New()
-	name.SetWidth(20)
-	name.Prompt = ""
-	name.Placeholder = "Name"
-	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-
 	hiddenStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
 	t := toggle.New(false)
@@ -90,8 +83,7 @@ func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.Wif
 		ssid:      ssid,
 		ssidStyle: &ssidStyle,
 
-		name:      name,
-		nameStyle: &nameStyle,
+		name: components.DefaultName(),
 
 		password: components.DefaultPassword(),
 
@@ -148,7 +140,7 @@ func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd
 		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(msg)
-		m.name = upd
+		m.name = components.NewName(&upd)
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
@@ -197,7 +189,7 @@ func (m *ProfileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileCreator
 		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(keyMsg)
-		m.name = upd
+		m.name = components.NewName(&upd)
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
@@ -225,18 +217,6 @@ func (m *ProfileCreatorModel) View() string {
 		ssid,
 	)
 
-	name := m.name.View()
-	nameStyle := *m.nameStyle
-	if m.name.Focused() {
-		nameStyle = nameStyle.BorderForeground(styles.AccentColor)
-	}
-	name = nameStyle.Render(name)
-	name = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Name     ",
-		name,
-	)
-
 	hidden := m.hidden.View()
 	hiddenStyle := *m.hiddenStyle
 	if m.hidden.Focused() {
@@ -251,7 +231,7 @@ func (m *ProfileCreatorModel) View() string {
 
 	fields := []string{
 		ssid,
-		name,
+		m.name.View(),
 		m.password.View(),
 		hidden,
 	}
