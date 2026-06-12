@@ -170,16 +170,18 @@ func (m *ConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*ConnectorModel, tea
 
 func (m *ConnectorModel) View() string {
 	ssid := m.ssid
-	ssid = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"SSID     ",
-		ssid,
-	)
+	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID      ", ssid)
+
+	name := m.name.View()
+	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
+
+	password := m.password.View()
+	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
 
 	fields := []string{
 		ssid,
-		m.name.View(),
-		m.password.View(),
+		name,
+		password,
 	}
 
 	view := lipgloss.JoinVertical(

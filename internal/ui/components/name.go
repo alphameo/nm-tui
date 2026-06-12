@@ -33,7 +33,6 @@ func (m *Name) View() string {
 	view = style.Render(view)
 	view = lipgloss.JoinHorizontal(
 		lipgloss.Center,
-		"Name     ",
 		view,
 	)
 

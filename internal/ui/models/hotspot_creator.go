@@ -200,10 +200,16 @@ func (m *HotspotCreatorModel) View() string {
 		ssid,
 	)
 
+	name := m.name.View()
+	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
+
+	password := m.password.View()
+	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
+
 	fields := []string{
 		ssid,
-		m.name.View(),
-		m.password.View(),
+		name,
+		password,
 	}
 
 	view := lipgloss.JoinVertical(
