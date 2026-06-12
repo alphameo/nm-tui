@@ -273,49 +273,19 @@ func (m *ProfileEditorModel) View() string {
 	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
 
 	mode := m.modeStyle.Render(m.mode)
-	mode = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Mode     ",
-		mode,
-	)
+	mode = lipgloss.JoinHorizontal(lipgloss.Center, "Mode     ", mode)
 
-	autoconn := m.autoconnect.View()
-	autoconnStyle := *m.autoconnStyle
-	if m.autoconnect.Focused() {
-		autoconnStyle = autoconnStyle.
-			Foreground(styles.AccentColor)
-	}
-	autoconn = autoconnStyle.Render(autoconn)
-	autoconn = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Autoconnect          ",
-		autoconn,
-	)
+	autoconn := styles.ViewToggle(m.autoconnect)
+	autoconn = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconn)
 
-	autoconnPrior := m.autoconnPriority.View()
-	autoconnPriorStyle := *m.autoconnPriorStyle
-	if m.autoconnPriority.Focused() {
-		autoconnPriorStyle = autoconnPriorStyle.BorderForeground(styles.AccentColor)
-	}
-	autoconnPrior = autoconnPriorStyle.Render(autoconnPrior)
-	autoconnPrior = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Autoconnect priority ",
-		autoconnPrior,
-	)
-	if m.autoconnPriority.Err != nil {
-		autoconPriorityErrView := styles.ErrorSymbolColored
-		autoconnPrior = lipgloss.JoinHorizontal(
-			lipgloss.Center,
-			autoconnPrior,
-			autoconPriorityErrView,
-		)
-	}
+	autoconnPrior := styles.ViewInputWithValidation(&m.autoconnPriority)
+	autoconnPrior = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", autoconnPrior)
 
 	view := lipgloss.JoinVertical(
 		lipgloss.Left,
 		ssid,
 		mode,
+		"",
 		name,
 		password,
 		autoconn,

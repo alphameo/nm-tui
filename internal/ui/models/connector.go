@@ -52,8 +52,7 @@ func connectorKeys() *connectorKeyMap {
 type ConnectorModel struct {
 	ssid string
 
-	name textinput.Model
-
+	name     textinput.Model
 	password textinput.Model
 
 	focuses  []Focusable // used for batch operations on input focusable elements

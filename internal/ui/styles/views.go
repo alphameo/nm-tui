@@ -3,6 +3,7 @@ package styles
 import (
 	"charm.land/bubbles/v2/textinput"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 )
 
 func ViewInput(input *textinput.Model) string {
@@ -12,6 +13,23 @@ func ViewInput(input *textinput.Model) string {
 		style = InputFieldFocusedStyle
 	} else {
 		style = InputFieldStyle
+	}
+	view = style.Render(view)
+	view = lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		view,
+	)
+
+	return view
+}
+
+func ViewToggle(toggle *toggle.Model) string {
+	view := toggle.View()
+	var style lipgloss.Style
+	if toggle.Focused() {
+		style = ToggleFocusedStyle
+	} else {
+		style = ToggleStyle
 	}
 	view = style.Render(view)
 	view = lipgloss.JoinHorizontal(
