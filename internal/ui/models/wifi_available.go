@@ -16,6 +16,23 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
+type wifiAvailableConfig struct {
+	connColIdx              int
+	ssidColIdx              int
+	securityColIdx          int
+	signalColIdx            int
+	securityWidthProportion float32
+}
+
+var wifiAvailableCfg = wifiAvailableConfig{
+	connColIdx:     0,
+	ssidColIdx:     1,
+	securityColIdx: 2,
+	signalColIdx:   3,
+
+	securityWidthProportion: 0.3,
+}
+
 type wifiAvailableState int
 
 const (
@@ -70,20 +87,12 @@ func wifiAvailableKeys() *wifiAvailableKeyMap {
 type WifiAvailableModel struct {
 	dataTable table.Model
 
-	connColIdx     int
-	ssidColIdx     int
-	securityColIdx int
-	signalColIdx   int
-
 	tableFocusedStyle *table.Styles
 	tableBluredStyle  *table.Styles
 
-	securityWidthProportion float32
-
+	indicatorSpinner     spinner.Model
+	indicatorState       wifiAvailableState
 	indicatorStateHeight int
-
-	indicatorSpinner spinner.Model
-	indicatorState   wifiAvailableState
 
 	focus        bool
 	focusedStyle *lipgloss.Style
@@ -98,12 +107,12 @@ type WifiAvailableModel struct {
 }
 
 func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiManager) *WifiAvailableModel {
-	cols := []table.Column{
-		{Title: "󱘖", Width: 1},
-		{Title: "SSID"},
-		{Title: "Security"},
-		{Title: "", Width: 3},
-	}
+	cols := make([]table.Column, 4)
+	cols[wifiAvailableCfg.connColIdx] = table.Column{Title: "󱘖", Width: 1}
+	cols[wifiAvailableCfg.ssidColIdx] = table.Column{Title: "SSID"}
+	cols[wifiAvailableCfg.securityColIdx] = table.Column{Title: "Security"}
+	cols[wifiAvailableCfg.signalColIdx] = table.Column{Title: "", Width: 3}
+
 	initTableStyle := styles.DataTableStyle
 	t := table.New(
 		table.WithColumns(cols),
@@ -119,15 +128,8 @@ func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiMana
 	model := &WifiAvailableModel{
 		dataTable: t,
 
-		connColIdx:     0,
-		ssidColIdx:     1,
-		securityColIdx: 2,
-		signalColIdx:   3,
-
 		tableFocusedStyle: &styles.TableStyle,
 		tableBluredStyle:  &initTableStyle,
-
-		securityWidthProportion: 0.3,
 
 		indicatorSpinner: s,
 		indicatorState:   AvailableDone,
@@ -163,13 +165,13 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
 
-	secColWidth := int(float32(width) * m.securityWidthProportion)
-	signalColWidth := m.dataTable.Columns()[m.signalColIdx].Width
-	conColWidth := m.dataTable.Columns()[m.connColIdx].Width
+	secColWidth := int(float32(width) * wifiAvailableCfg.securityWidthProportion)
+	signalColWidth := m.dataTable.Columns()[wifiAvailableCfg.signalColIdx].Width
+	conColWidth := m.dataTable.Columns()[wifiAvailableCfg.connColIdx].Width
 	ssidWidth := width - signalColWidth - tableUtilityOffset - conColWidth - secColWidth
 
-	m.dataTable.Columns()[m.securityColIdx].Width = secColWidth
-	m.dataTable.Columns()[m.ssidColIdx].Width = ssidWidth
+	m.dataTable.Columns()[wifiAvailableCfg.securityColIdx].Width = secColWidth
+	m.dataTable.Columns()[wifiAvailableCfg.ssidColIdx].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
@@ -235,7 +237,7 @@ func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiAvailableMo
 	case key.Matches(keyMsg, m.keys.connect):
 		row := m.dataTable.SelectedRow()
 		if row != nil {
-			return m, OpenConnectorCmd(row[m.ssidColIdx])
+			return m, OpenConnectorCmd(row[wifiAvailableCfg.ssidColIdx])
 		}
 		return m, nil
 	}

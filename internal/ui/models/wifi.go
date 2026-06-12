@@ -88,8 +88,7 @@ func wifiKeys() *wifiKeyMap {
 
 type WifiModel struct {
 	wifiAvailable *WifiAvailableModel
-
-	wifiSaved *WifiSavedModel
+	wifiSaved     *WifiSavedModel
 
 	focuses        []Focusable // used for batch operations for wifi models
 	focusWindowIdx int

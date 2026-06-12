@@ -59,10 +59,8 @@ type ProfileEditorModel struct {
 	name    textinput.Model
 	nameBak string
 
-	password textinput.Model
-
-	autoconnect *toggle.Model
-
+	password         textinput.Model
+	autoconnect      *toggle.Model
 	autoconnPriority textinput.Model
 
 	focuses  []Focusable // used for batch operations on input focusable elements
