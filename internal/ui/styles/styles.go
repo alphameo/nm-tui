@@ -37,8 +37,6 @@ var (
 	InputFieldFocusedStyle = InputFieldStyle.BorderForeground(AccentColor)
 	ToggleStyle            = lipgloss.NewStyle().Inherit(DefaultStyle).Margin(0, 1)
 	ToggleFocusedStyle     = ToggleStyle.Foreground(AccentColor)
-
-	NetworkTogglersStyle = lipgloss.NewStyle().Margin(1, 0)
 )
 
 func tableStyle() table.Styles {

@@ -17,6 +17,8 @@ import (
 
 type networkState int
 
+var NetworkTogglersStyle = lipgloss.NewStyle().Margin(1, 0)
+
 const (
 	NetworkNil networkState = iota
 	NetworkScanning
@@ -293,7 +295,7 @@ func (m *NetworkingModel) View() string {
 		"",
 		connectivity,
 	)
-	togglers = styles.NetworkTogglersStyle.Render(togglers)
+	togglers = NetworkTogglersStyle.Render(togglers)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
