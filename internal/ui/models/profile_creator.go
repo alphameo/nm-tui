@@ -219,6 +219,12 @@ func (m *ProfileCreatorModel) View() string {
 		ssid,
 	)
 
+	name := m.name.View()
+	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
+
+	password := m.password.View()
+	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
+
 	hidden := m.hidden.View()
 	hiddenStyle := *m.hiddenStyle
 	if m.hidden.Focused() {
@@ -233,8 +239,8 @@ func (m *ProfileCreatorModel) View() string {
 
 	fields := []string{
 		ssid,
-		m.name.View(),
-		m.password.View(),
+		name,
+		password,
 		hidden,
 	}
 

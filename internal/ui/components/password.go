@@ -44,7 +44,6 @@ func (m *Password) View() string {
 	view = style.Render(view)
 	view = lipgloss.JoinHorizontal(
 		lipgloss.Center,
-		"Password ",
 		view,
 		errIndicator,
 	)

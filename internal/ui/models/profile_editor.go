@@ -252,6 +252,12 @@ func (m *ProfileEditorModel) View() string {
 		m.connectionView(),
 	)
 
+	name := m.name.View()
+	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
+
+	password := m.password.View()
+	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
+
 	mode := m.modeStyle.Render(m.mode)
 	mode = lipgloss.JoinHorizontal(
 		lipgloss.Center,
@@ -296,8 +302,8 @@ func (m *ProfileEditorModel) View() string {
 		lipgloss.Left,
 		ssid,
 		mode,
-		m.name.View(),
-		m.password.View(),
+		name,
+		password,
 		autoconn,
 		autoconnPrior,
 	)
