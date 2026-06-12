@@ -94,9 +94,7 @@ type WifiAvailableModel struct {
 	indicatorState       wifiAvailableState
 	indicatorStateHeight int
 
-	focus        bool
-	focusedStyle *lipgloss.Style
-	bluredStyle  *lipgloss.Style
+	focus bool
 
 	keys *wifiAvailableKeyMap
 
@@ -120,9 +118,6 @@ func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiMana
 		table.WithStyles(initTableStyle),
 	)
 
-	bluredStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-	focusedStyle := bluredStyle.BorderForeground(styles.AccentColor)
-
 	s := spinner.New()
 
 	model := &WifiAvailableModel{
@@ -133,9 +128,6 @@ func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiMana
 
 		indicatorSpinner: s,
 		indicatorState:   AvailableDone,
-
-		focusedStyle: &focusedStyle,
-		bluredStyle:  &bluredStyle,
 
 		keys: keys,
 		wm:   wifiManager,
@@ -258,11 +250,11 @@ func (m *WifiAvailableModel) View() string {
 		statusline,
 	)
 
-	var style *lipgloss.Style
+	var style lipgloss.Style
 	if m.focus {
-		style = m.focusedStyle
+		style = styles.BorderedFocusedStyle
 	} else {
-		style = m.bluredStyle
+		style = styles.BorderedStyle
 	}
 	view = renderer.RenderWithTitleAndKeybind(
 		view,
@@ -303,7 +295,7 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 			for _, wifiNet := range list {
 				var connectionFlag string
 				if wifiNet.Active {
-					connectionFlag = ""
+					connectionFlag = styles.CheckSymbol
 				}
 				rows = append(rows, table.Row{
 					connectionFlag,

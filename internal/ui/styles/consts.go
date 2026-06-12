@@ -8,6 +8,7 @@ import (
 
 const (
 	ErrorSymbol = "✗"
+	CheckSymbol = ""
 	PWCharacter = '•'
 )
 

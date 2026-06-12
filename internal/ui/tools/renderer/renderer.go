@@ -10,7 +10,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
 
-func RenderWithTitleAndKeybind(view, title, keybind string, style *lipgloss.Style, accentColor color.Color) string {
+func RenderWithTitleAndKeybind(view, title, keybind string, style lipgloss.Style, accentColor color.Color) string {
 	view = style.Render(view)
 	keybind = fmt.Sprintf("[%s]", keybind)
 	keybindStyle := lipgloss.NewStyle().Foreground(style.GetBorderTopForeground())

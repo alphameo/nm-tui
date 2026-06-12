@@ -6,13 +6,18 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 )
 
-func ViewInput(input *textinput.Model) string {
-	view := input.View()
+type focusable interface {
+	View() string
+	Focused() bool
+}
+
+func ViewBorderedFocusable(component focusable) string {
+	view := component.View()
 	var style lipgloss.Style
-	if input.Focused() {
-		style = InputFieldFocusedStyle
+	if component.Focused() {
+		style = BorderedFocusedStyle
 	} else {
-		style = InputFieldStyle
+		style = BorderedStyle
 	}
 	view = style.Render(view)
 	view = lipgloss.JoinHorizontal(
@@ -48,9 +53,9 @@ func ViewInputWithValidation(password *textinput.Model) string {
 		errIndicator = ErrorSymbolColored
 	}
 	if password.Focused() {
-		style = InputFieldFocusedStyle
+		style = BorderedFocusedStyle
 	} else {
-		style = InputFieldStyle
+		style = BorderedStyle
 	}
 	view = style.Render(view)
 	view = lipgloss.JoinHorizontal(
