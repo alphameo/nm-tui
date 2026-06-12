@@ -10,7 +10,6 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
 type wifiKeyMap struct {
@@ -88,11 +87,9 @@ func wifiKeys() *wifiKeyMap {
 }
 
 type WifiModel struct {
-	wifiAvailable  *WifiAvailableModel
-	availableStyle *lipgloss.Style
+	wifiAvailable *WifiAvailableModel
 
-	wifiSaved  *WifiSavedModel
-	savedStyle *lipgloss.Style
+	wifiSaved *WifiSavedModel
 
 	focuses        []Focusable // used for batch operations for wifi models
 	focusWindowIdx int
@@ -111,14 +108,10 @@ func NewWifiModel(
 	keys *wifiKeyMap,
 	wifiManager infra.WifiManager,
 ) *WifiModel {
-	availableStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-	savedStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 	w := &WifiModel{
-		wifiAvailable:  wifiAvailable,
-		availableStyle: &availableStyle,
+		wifiAvailable: wifiAvailable,
 
-		wifiSaved:  wifiSaved,
-		savedStyle: &savedStyle,
+		wifiSaved: wifiSaved,
 
 		wm: wifiManager,
 
@@ -140,16 +133,6 @@ func (m *WifiModel) Resize(width, height int) {
 
 	m.wifiAvailable.Resize(width, availableHeight)
 	m.wifiSaved.Resize(width, savedHeight)
-
-	availableBluredStyle := m.availableStyle.
-		Width(m.wifiAvailable.Width()).
-		Height(m.wifiAvailable.Height())
-	m.availableStyle = &availableBluredStyle
-
-	savedBluredStyle := m.savedStyle.
-		Width(m.wifiSaved.Width()).
-		Height(m.wifiSaved.Height())
-	m.savedStyle = &savedBluredStyle
 }
 
 func (m *WifiModel) Width() int {
