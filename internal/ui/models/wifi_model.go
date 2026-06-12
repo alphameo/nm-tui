@@ -95,9 +95,6 @@ type WifiModel struct {
 	focuses        []Focusable // used for batch operations for wifi models
 	focusWindowIdx int
 
-	profileCreator *ProfileCreatorModel
-	hotspotCreator *HotspotCreatorModel
-
 	wm infra.WifiManager
 
 	keys *wifiKeyMap
