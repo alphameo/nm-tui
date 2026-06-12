@@ -193,10 +193,10 @@ func (m *HotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*HotspotCreator
 }
 
 func (m *HotspotCreatorModel) View() string {
-	ssid := styles.ViewInput(&m.ssid)
+	ssid := styles.ViewBorderedFocusable(&m.ssid)
 	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID     ", ssid)
 
-	name := styles.ViewInput(&m.name)
+	name := styles.ViewBorderedFocusable(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
 
 	password := styles.ViewInputWithValidation(&m.password)

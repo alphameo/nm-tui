@@ -103,9 +103,7 @@ type WifiSavedModel struct {
 	indicatorState       wifiSavedState
 	indicatorStateHeight int
 
-	focus        bool
-	focusedStyle *lipgloss.Style
-	bluredStyle  *lipgloss.Style
+	focus bool
 
 	keys *wifiSavedKeyMap
 
@@ -146,9 +144,6 @@ func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) 
 		table.WithStyles(initTableStyle),
 	)
 
-	bluredStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-	focusedStyle := bluredStyle.BorderForeground(styles.AccentColor)
-
 	s := spinner.New()
 
 	model := &WifiSavedModel{
@@ -159,9 +154,6 @@ func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) 
 
 		indicatorSpinner: s,
 		indicatorState:   SavedDone,
-
-		focusedStyle: &focusedStyle,
-		bluredStyle:  &bluredStyle,
 
 		keys: keys,
 		nm:   networkManager,
@@ -292,11 +284,11 @@ func (m *WifiSavedModel) View() string {
 		statusline,
 	)
 
-	var style *lipgloss.Style
+	var style lipgloss.Style
 	if m.focus {
-		style = m.focusedStyle
+		style = styles.BorderedFocusedStyle
 	} else {
-		style = m.bluredStyle
+		style = styles.BorderedStyle
 	}
 	view = renderer.RenderWithTitleAndKeybind(
 		view,
@@ -347,7 +339,7 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 			for _, wifiSaved := range list {
 				var connectionFlag string
 				if wifiSaved.Active {
-					connectionFlag = ""
+					connectionFlag = styles.CheckSymbol
 				}
 				rows = append(rows, table.Row{
 					connectionFlag,

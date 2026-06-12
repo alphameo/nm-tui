@@ -208,13 +208,13 @@ func (m *ProfileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileCreator
 }
 
 func (m *ProfileCreatorModel) View() string {
-	ssid := styles.ViewInput(&m.ssid)
+	ssid := styles.ViewBorderedFocusable(&m.ssid)
 	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID     ", ssid)
 
-	name := styles.ViewInput(&m.name)
+	name := styles.ViewBorderedFocusable(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
 
-	password := styles.ViewInput(&m.password)
+	password := styles.ViewBorderedFocusable(&m.password)
 	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
 
 	hidden := styles.ViewToggle(m.hidden)

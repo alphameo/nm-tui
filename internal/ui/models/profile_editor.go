@@ -243,7 +243,7 @@ func (m *ProfileEditorModel) View() string {
 		m.connectionView(),
 	)
 
-	name := styles.ViewInput(&m.name)
+	name := styles.ViewBorderedFocusable(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
 
 	password := styles.ViewInputWithValidation(&m.password)

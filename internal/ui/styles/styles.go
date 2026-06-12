@@ -18,8 +18,9 @@ var (
 	AccentStyle  = lipgloss.NewStyle().Foreground(AccentColor)
 	BoldStyle    = DefaultStyle.Bold(true)
 
-	Border        = lipgloss.RoundedBorder()
-	BorderedStyle = DefaultStyle.Border(Border)
+	Border               = lipgloss.RoundedBorder()
+	BorderedStyle        = DefaultStyle.Border(Border)
+	BorderedFocusedStyle = lipgloss.NewStyle().Inherit(BorderedStyle).BorderForeground(AccentColor)
 
 	TableStyle     = tableStyle()
 	DataTableStyle = dataTableStyle()
@@ -33,10 +34,8 @@ var (
 			BorderForeground(AccentColor)
 	NotifBorderedStyle = OverlayStyle.BorderForeground(NotifColor)
 
-	InputFieldStyle        = lipgloss.NewStyle().Inherit(BorderedStyle)
-	InputFieldFocusedStyle = InputFieldStyle.BorderForeground(AccentColor)
-	ToggleStyle            = lipgloss.NewStyle().Inherit(DefaultStyle).Margin(0, 1)
-	ToggleFocusedStyle     = ToggleStyle.Foreground(AccentColor)
+	ToggleStyle        = lipgloss.NewStyle().Inherit(DefaultStyle).Margin(0, 1)
+	ToggleFocusedStyle = ToggleStyle.Foreground(AccentColor)
 )
 
 func tableStyle() table.Styles {

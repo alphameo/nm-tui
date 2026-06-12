@@ -184,7 +184,7 @@ func (m *ConnectorModel) View() string {
 	ssid := m.ssid
 	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID      ", ssid)
 
-	name := styles.ViewInput(&m.name)
+	name := styles.ViewBorderedFocusable(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
 
 	password := styles.ViewInputWithValidation(&m.password)
