@@ -1,4 +1,4 @@
-package components
+package models
 
 import tea "charm.land/bubbletea/v2"
 

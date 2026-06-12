@@ -4,7 +4,7 @@ package styles
 import (
 	"charm.land/bubbles/v2/table"
 	"charm.land/lipgloss/v2"
-	"github.com/alphameo/nm-tui/internal/ui/components/tabview"
+	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 )
 
 var (
