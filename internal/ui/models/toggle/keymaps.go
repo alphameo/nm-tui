@@ -14,9 +14,11 @@ func (k *KeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.Toggle}}
 }
 
-var DefaultKeys = &KeyMap{
-	Toggle: key.NewBinding(
-		key.WithKeys("space"),
-		key.WithHelp("󱁐", "toggle"),
-	),
+func DefaultKeys() KeyMap {
+	return KeyMap{
+		Toggle: key.NewBinding(
+			key.WithKeys("space"),
+			key.WithHelp("󱁐", "toggle"),
+		),
+	}
 }

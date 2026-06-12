@@ -11,23 +11,26 @@ type Symbols struct {
 	Deactivated string
 }
 
-var DefaultSymbols = &Symbols{
-	Activated:   "[⏺]",
-	Deactivated: "[ ]",
+func DefaultSymbols() Symbols {
+	return Symbols{
+		Activated:   "[x]",
+		Deactivated: "[ ]",
+	}
 }
 
 type Model struct {
 	value   bool
 	focus   bool
-	Symbols *Symbols
+	Symbols Symbols
 
-	Keys *KeyMap
+	Keys KeyMap
 }
 
-func New(initial bool) *Model {
+func New() *Model {
 	return &Model{
-		value: initial,
-		Keys:  DefaultKeys,
+		value:   false,
+		Symbols: DefaultSymbols(),
+		Keys:    DefaultKeys(),
 	}
 }
 
@@ -51,9 +54,6 @@ func (t *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 
 func (t *Model) View() string {
 	symbols := t.Symbols
-	if symbols == nil {
-		symbols = DefaultSymbols
-	}
 	if t.value {
 		return symbols.Activated
 	} else {
