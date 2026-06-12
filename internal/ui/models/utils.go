@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	tea "charm.land/bubbletea/v2"
@@ -99,4 +101,13 @@ func DeferedCloseNotificationCmd(t time.Duration) tea.Cmd {
 		time.Sleep(t)
 		return NotificationActivityMsg(false)
 	}
+}
+
+var ErrPasswordFmt error = errors.New("wrong password format")
+
+func passwordValidator(input string) error {
+	if len(input) < 8 {
+		return fmt.Errorf("%w: length < 8", ErrPasswordFmt)
+	}
+	return nil
 }

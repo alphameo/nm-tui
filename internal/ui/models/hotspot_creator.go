@@ -9,10 +9,8 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
-	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type hotspotCreatorKeyMap struct {
@@ -52,14 +50,12 @@ func hotspotCreatorKeys() *hotspotCreatorKeyMap {
 }
 
 type HotspotCreatorModel struct {
-	title string
-
 	ssid      textinput.Model
 	ssidStyle *lipgloss.Style
 
-	name components.Name
+	name textinput.Model
 
-	password components.Password
+	password textinput.Model
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
@@ -76,15 +72,27 @@ func NewHotspotCreatorModel(keys *hotspotCreatorKeyMap, networkManager infra.Wif
 	ssid.Placeholder = "SSID"
 	ssidStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	model := &HotspotCreatorModel{
-		title: renderer.RenderTitle("Create Wi-Fi hotspot"),
+	name := textinput.New()
+	name.SetWidth(20)
+	name.Prompt = ""
+	name.Placeholder = "Name"
 
+	pw := textinput.New()
+	pw.SetWidth(20)
+	pw.Prompt = ""
+	pw.EchoMode = textinput.EchoPassword
+	pw.EchoCharacter = styles.PWCharacter
+	pw.Placeholder = "Password"
+	pw.Validate = passwordValidator
+	pw.Err = passwordValidator(pw.Value())
+
+	model := &HotspotCreatorModel{
 		ssid:      ssid,
 		ssidStyle: &ssidStyle,
 
-		name: components.DefaultName(),
+		name: name,
 
-		password: components.DefaultPassword(),
+		password: pw,
 
 		keys: keys,
 
@@ -131,11 +139,11 @@ func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd
 		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(msg)
-		m.name = components.NewName(&upd)
+		m.name = upd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
-		m.password = components.NewPassword(&upd)
+		m.password = upd
 		return m, cmd
 	default:
 		return m, nil
@@ -176,11 +184,11 @@ func (m *HotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*HotspotCreator
 		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(keyMsg)
-		m.name = components.NewName(&upd)
+		m.name = upd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
-		m.password = components.NewPassword(&upd)
+		m.password = upd
 		return m, cmd
 	default:
 		return m, nil
@@ -200,10 +208,10 @@ func (m *HotspotCreatorModel) View() string {
 		ssid,
 	)
 
-	name := m.name.View()
+	name := styles.ViewInput(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
 
-	password := m.password.View()
+	password := styles.ViewInputWithValidation(&m.password)
 	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
 
 	fields := []string{
@@ -220,7 +228,7 @@ func (m *HotspotCreatorModel) View() string {
 	style := styles.OverlayStyle
 	view = style.Render(view)
 	view = compositor.Compose(
-		m.title,
+		styles.HotspotCreatorTitle,
 		view,
 		compositor.Center,
 		compositor.Begin,

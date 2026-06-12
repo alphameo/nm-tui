@@ -10,7 +10,6 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
@@ -61,10 +60,10 @@ type ProfileEditorModel struct {
 	mode      string
 	modeStyle *lipgloss.Style
 
-	name    components.Name
+	name    textinput.Model
 	nameBak string
 
-	password components.Password
+	password textinput.Model
 
 	autoconnect   *toggle.Model
 	autoconnStyle *lipgloss.Style
@@ -82,9 +81,24 @@ type ProfileEditorModel struct {
 func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiManager) *ProfileEditorModel {
 	activeStyle := styles.DefaultStyle.Foreground(styles.AccentColor)
 
+	name := textinput.New()
+	name.SetWidth(20)
+	name.Prompt = ""
+	name.Placeholder = "Name"
+
+	pw := textinput.New()
+	pw.SetWidth(20)
+	pw.Prompt = ""
+	pw.EchoMode = textinput.EchoPassword
+	pw.EchoCharacter = styles.PWCharacter
+	pw.Placeholder = "Password"
+	pw.Validate = passwordValidator
+	pw.Err = passwordValidator(pw.Value())
+
 	modeStyle := styles.DefaultStyle.Bold(true)
 
-	autoconn := components.DefaultToggle()
+	autoconn := toggle.New()
+	autoconn.Symbols = styles.ToggleSymbols
 	autoconnStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
 	autoconnPrior := textinput.New()
@@ -102,9 +116,9 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 		mode:      "",
 		modeStyle: &modeStyle,
 
-		name: components.DefaultName(),
+		name: name,
 
-		password: components.DefaultPassword(),
+		password: pw,
 
 		autoconnect:   autoconn,
 		autoconnStyle: &autoconnStyle,
@@ -174,11 +188,11 @@ func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) 
 		switch {
 		case m.name.Focused():
 			upd, cmd := m.name.Update(msg)
-			m.name = components.NewName(&upd)
+			m.name = upd
 			return m, cmd
 		case m.password.Focused():
 			upd, cmd := m.password.Update(msg)
-			m.password = components.NewPassword(&upd)
+			m.password = upd
 			return m, cmd
 		case m.autoconnect.Focused():
 			upd, cmd := m.autoconnect.Update(msg)
@@ -224,11 +238,11 @@ func (m *ProfileEditorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileEditorMo
 	switch {
 	case m.name.Focused():
 		upd, cmd := m.name.Update(keyMsg)
-		m.name = components.NewName(&upd)
+		m.name = upd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
-		m.password = components.NewPassword(&upd)
+		m.password = upd
 		return m, cmd
 	case m.autoconnect.Focused():
 		upd, cmd := m.autoconnect.Update(keyMsg)
@@ -252,10 +266,10 @@ func (m *ProfileEditorModel) View() string {
 		m.connectionView(),
 	)
 
-	name := m.name.View()
+	name := styles.ViewInput(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
 
-	password := m.password.View()
+	password := styles.ViewInputWithValidation(&m.password)
 	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
 
 	mode := m.modeStyle.Render(m.mode)
