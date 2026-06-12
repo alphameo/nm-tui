@@ -58,7 +58,6 @@ type HotspotCreatorModel struct {
 	nameStyle *lipgloss.Style
 
 	password PasswordModel
-	pwStyle  *lipgloss.Style
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
