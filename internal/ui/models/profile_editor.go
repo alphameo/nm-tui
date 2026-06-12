@@ -52,26 +52,21 @@ func profileEditorKeys() *profileEditorKeyMap {
 }
 
 type ProfileEditorModel struct {
-	ssid string
-
-	active      bool
-	activeStyle *lipgloss.Style
-
-	mode      string
-	modeStyle *lipgloss.Style
+	ssid   string
+	active bool
+	mode   string
 
 	name    textinput.Model
 	nameBak string
 
 	password textinput.Model
 
-	autoconnect   *toggle.Model
-	autoconnStyle *lipgloss.Style
+	autoconnect *toggle.Model
 
-	autoconnPriority   textinput.Model
-	autoconnPriorStyle *lipgloss.Style
-	focuses            []Focusable // used for batch operations on input focusable elements
-	focusIdx           int
+	autoconnPriority textinput.Model
+
+	focuses  []Focusable // used for batch operations on input focusable elements
+	focusIdx int
 
 	keys *profileEditorKeyMap
 
@@ -79,8 +74,6 @@ type ProfileEditorModel struct {
 }
 
 func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiManager) *ProfileEditorModel {
-	activeStyle := styles.DefaultStyle.Foreground(styles.AccentColor)
-
 	name := textinput.New()
 	name.SetWidth(20)
 	name.Prompt = ""
@@ -95,36 +88,22 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 	pw.Validate = passwordValidator
 	pw.Err = passwordValidator(pw.Value())
 
-	modeStyle := styles.DefaultStyle.Bold(true)
-
 	autoconn := toggle.New()
 	autoconn.Symbols = styles.ToggleSymbols
-	autoconnStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
 	autoconnPrior := textinput.New()
 	autoconnPrior.SetWidth(4)
 	autoconnPrior.Prompt = ""
 	autoconnPrior.Validate = autoconnectPriorityValidator
-	autoconnPriorStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	model := &ProfileEditorModel{
-		ssid: "",
-
-		active:      false,
-		activeStyle: &activeStyle,
-
-		mode:      "",
-		modeStyle: &modeStyle,
-
-		name: name,
-
-		password: pw,
-
-		autoconnect:   autoconn,
-		autoconnStyle: &autoconnStyle,
-
-		autoconnPriority:   autoconnPrior,
-		autoconnPriorStyle: &autoconnPriorStyle,
+		ssid:             "",
+		active:           false,
+		mode:             "",
+		name:             name,
+		password:         pw,
+		autoconnect:      autoconn,
+		autoconnPriority: autoconnPrior,
 
 		keys: keys,
 		nm:   networkManager,
@@ -272,7 +251,7 @@ func (m *ProfileEditorModel) View() string {
 	password := styles.ViewInputWithValidation(&m.password)
 	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
 
-	mode := m.modeStyle.Render(m.mode)
+	mode := styles.BoldStyle.Render(m.mode)
 	mode = lipgloss.JoinHorizontal(lipgloss.Center, "Mode     ", mode)
 
 	autoconn := styles.ViewToggle(m.autoconnect)
@@ -308,7 +287,7 @@ func (m *ProfileEditorModel) View() string {
 
 func (m *ProfileEditorModel) connectionView() string {
 	if m.active {
-		return m.activeStyle.Render(" (connected)")
+		return styles.AccentStyle.Render(" (connected)")
 	} else {
 		return ""
 	}

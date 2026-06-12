@@ -91,19 +91,11 @@ type NetworkingModel struct {
 	typeWidthProportion   float32
 	stateWidthProportion  float32
 
-	wwan      *toggle.Model
-	wwanStyle *lipgloss.Style
+	wwan       *toggle.Model
+	wifi       *toggle.Model
+	networking *toggle.Model
 
-	wifi      *toggle.Model
-	wifiStyle *lipgloss.Style
-
-	networking      *toggle.Model
-	networkingStyle *lipgloss.Style
-
-	togglersStyle *lipgloss.Style
-
-	connectivity      string
-	connectivityStyle *lipgloss.Style
+	connectivity string
 
 	indicatorSpinner spinner.Model
 	indicatorState   networkState
@@ -140,12 +132,6 @@ func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkMana
 	networking := toggle.New()
 	networking.Symbols = styles.ToggleSymbols
 
-	wwanStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
-	wifiStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
-	networkingStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
-	togglersStyle := lipgloss.NewStyle().Margin(1, 0)
-	connectivityStyle := styles.DefaultStyle.Bold(true)
-
 	s := spinner.New()
 
 	model := &NetworkingModel{
@@ -162,19 +148,11 @@ func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkMana
 		indicatorSpinner: s,
 		indicatorState:   NetworkDone,
 
-		wwan:      wwan,
-		wwanStyle: &wwanStyle,
+		wwan:       wwan,
+		wifi:       wifi,
+		networking: networking,
 
-		wifi:      wifi,
-		wifiStyle: &wifiStyle,
-
-		networking:      networking,
-		networkingStyle: &networkingStyle,
-
-		togglersStyle: &togglersStyle,
-
-		connectivity:      "",
-		connectivityStyle: &connectivityStyle,
+		connectivity: "",
 
 		nm:   networkManager,
 		keys: keys,
@@ -198,7 +176,7 @@ func (m *NetworkingModel) Resize(width, height int) {
 	height -= styles.BorderOffset
 
 	m.devicesTable.SetWidth(width)
-	m.devicesTable.SetHeight(height - 8)
+	m.devicesTable.SetHeight(height - 9)
 
 	tableUtilityOffset := len(m.devicesTable.Columns()) * 2
 
@@ -293,31 +271,16 @@ func (m *NetworkingModel) handleKey(keyMsg tea.KeyPressMsg) (*NetworkingModel, t
 func (m *NetworkingModel) View() string {
 	table := styles.BorderedStyle.Render(m.devicesTable.View())
 
-	wwan := m.wwan.View()
-	wwanStyle := *m.wwanStyle
-	if m.wwan.Focused() {
-		wwanStyle = m.wwanStyle.Foreground(styles.AccentColor)
-	}
-	wwan = wwanStyle.Render(wwan)
+	wwan := styles.ViewToggle(m.wwan)
 	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN       ", wwan)
 
-	wifi := m.wifi.View()
-	wifiStyle := *m.wifiStyle
-	if m.wifi.Focused() {
-		wifiStyle = m.wifiStyle.Foreground(styles.AccentColor)
-	}
-	wifi = wifiStyle.Render(wifi)
+	wifi := styles.ViewToggle(m.wifi)
 	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi      ", wifi)
 
-	networking := m.networking.View()
-	networkingStyle := *m.networkingStyle
-	if m.networking.Focused() {
-		networkingStyle = networkingStyle.Foreground(styles.AccentColor)
-	}
-	networking = networkingStyle.Render(networking)
+	networking := styles.ViewToggle(m.networking)
 	networking = lipgloss.JoinHorizontal(lipgloss.Center, "Networking ", networking)
 
-	connectivity := m.connectivityStyle.Render(m.connectivity)
+	connectivity := styles.BoldStyle.Render(m.connectivity)
 	connectivity = fmt.Sprintf("Connectivity %s", connectivity)
 
 	statusline := m.indicatorView()
@@ -327,10 +290,10 @@ func (m *NetworkingModel) View() string {
 		wwan,
 		wifi,
 		networking,
-		" ",
+		"",
 		connectivity,
 	)
-	togglers = m.togglersStyle.Render(togglers)
+	togglers = styles.NetworkTogglersStyle.Render(togglers)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,

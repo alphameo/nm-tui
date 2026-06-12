@@ -50,8 +50,7 @@ func hotspotCreatorKeys() *hotspotCreatorKeyMap {
 }
 
 type HotspotCreatorModel struct {
-	ssid      textinput.Model
-	ssidStyle *lipgloss.Style
+	ssid textinput.Model
 
 	name textinput.Model
 
@@ -70,7 +69,6 @@ func NewHotspotCreatorModel(keys *hotspotCreatorKeyMap, networkManager infra.Wif
 	ssid.SetWidth(20)
 	ssid.Prompt = ""
 	ssid.Placeholder = "SSID"
-	ssidStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	name := textinput.New()
 	name.SetWidth(20)
@@ -87,8 +85,7 @@ func NewHotspotCreatorModel(keys *hotspotCreatorKeyMap, networkManager infra.Wif
 	pw.Err = passwordValidator(pw.Value())
 
 	model := &HotspotCreatorModel{
-		ssid:      ssid,
-		ssidStyle: &ssidStyle,
+		ssid: ssid,
 
 		name: name,
 
@@ -196,17 +193,8 @@ func (m *HotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*HotspotCreator
 }
 
 func (m *HotspotCreatorModel) View() string {
-	ssid := m.ssid.View()
-	ssidStyle := *m.ssidStyle
-	if m.ssid.Focused() {
-		ssidStyle = ssidStyle.BorderForeground(styles.AccentColor)
-	}
-	ssid = ssidStyle.Render(ssid)
-	ssid = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"SSID     ",
-		ssid,
-	)
+	ssid := styles.ViewInput(&m.ssid)
+	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID     ", ssid)
 
 	name := styles.ViewInput(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
