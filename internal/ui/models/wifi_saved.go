@@ -94,20 +94,14 @@ func wifiSavedKeys() *wifiSavedKeyMap {
 }
 
 type WifiSavedModel struct {
-	dataTable  table.Model
-	connColIdx int
-	ssidColIdx int
-	nameColIdx int
-	modeColIdx int
+	dataTable table.Model
 
 	tableFocusedStyle *table.Styles
 	tableBluredStyle  *table.Styles
 
-	ssidWidthProportion  float32
+	indicatorSpinner     spinner.Model
+	indicatorState       wifiSavedState
 	indicatorStateHeight int
-
-	indicatorSpinner spinner.Model
-	indicatorState   wifiSavedState
 
 	focus        bool
 	focusedStyle *lipgloss.Style
@@ -121,13 +115,30 @@ type WifiSavedModel struct {
 	height int
 }
 
+type wifiSavedConfig struct {
+	connColIdx int
+	ssidColIdx int
+	nameColIdx int
+	modeColIdx int
+
+	ssidWidthProportion float32
+}
+
+var wifiSavedCfg = wifiSavedConfig{
+	connColIdx:          0,
+	modeColIdx:          1,
+	ssidColIdx:          2,
+	nameColIdx:          3,
+	ssidWidthProportion: 0.5,
+}
+
 func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
-	cols := []table.Column{
-		{Title: "󱘖", Width: 1},
-		{Title: "Mode", Width: 4},
-		{Title: "SSID"},
-		{Title: "Name"},
-	}
+	cols := make([]table.Column, 4)
+	cols[wifiSavedCfg.connColIdx] = table.Column{Title: "󱘖", Width: 1}
+	cols[wifiSavedCfg.modeColIdx] = table.Column{Title: "Mode", Width: 4}
+	cols[wifiSavedCfg.ssidColIdx] = table.Column{Title: "SSID"}
+	cols[wifiSavedCfg.nameColIdx] = table.Column{Title: "Name"}
+
 	initTableStyle := styles.DataTableStyle
 	t := table.New(
 		table.WithColumns(cols),
@@ -143,15 +154,8 @@ func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) 
 	model := &WifiSavedModel{
 		dataTable: t,
 
-		connColIdx: 0,
-		modeColIdx: 1,
-		ssidColIdx: 2,
-		nameColIdx: 3,
-
 		tableFocusedStyle: &styles.TableStyle,
 		tableBluredStyle:  &initTableStyle,
-
-		ssidWidthProportion: 0.5,
 
 		indicatorSpinner: s,
 		indicatorState:   SavedDone,
@@ -185,16 +189,16 @@ func (m *WifiSavedModel) Resize(width, height int) {
 	m.dataTable.SetHeight(height)
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
-	connWidth := m.dataTable.Columns()[m.connColIdx].Width
-	modeWidth := m.dataTable.Columns()[m.modeColIdx].Width
+	connWidth := m.dataTable.Columns()[wifiSavedCfg.connColIdx].Width
+	modeWidth := m.dataTable.Columns()[wifiSavedCfg.modeColIdx].Width
 
 	computedWidth := width - tableUtilityOffset - connWidth - modeWidth
-	possibleNameWidth := int(float32(computedWidth) * m.ssidWidthProportion)
+	possibleNameWidth := int(float32(computedWidth) * wifiSavedCfg.ssidWidthProportion)
 	ssidWidth := computedWidth - possibleNameWidth
 	nameWidth := computedWidth - ssidWidth
 
-	m.dataTable.Columns()[m.nameColIdx].Width = nameWidth
-	m.dataTable.Columns()[m.ssidColIdx].Width = ssidWidth
+	m.dataTable.Columns()[wifiSavedCfg.nameColIdx].Width = nameWidth
+	m.dataTable.Columns()[wifiSavedCfg.ssidColIdx].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
@@ -257,7 +261,7 @@ func (m *WifiSavedModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiSavedModel, tea
 		if row == nil {
 			return m, nil
 		}
-		name := row[m.nameColIdx]
+		name := row[wifiSavedCfg.nameColIdx]
 
 		return m, OpenProfileEditorCmd(name)
 
@@ -379,7 +383,7 @@ func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(SavedConnecting),
 		func() tea.Msg {
-			name := m.dataTable.SelectedRow()[m.nameColIdx]
+			name := m.dataTable.SelectedRow()[wifiSavedCfg.nameColIdx]
 			err := m.nm.ActivateWifi(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
@@ -406,7 +410,7 @@ func (m *WifiSavedModel) gotoTop() tea.Cmd {
 func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
 	return tea.Sequence(m.setStateCmd(SavedDisconnecting),
 		func() tea.Msg {
-			name := m.dataTable.SelectedRow()[m.nameColIdx]
+			name := m.dataTable.SelectedRow()[wifiSavedCfg.nameColIdx]
 			err := m.nm.DeactivateWifi(context.Background(), name)
 			if err != nil {
 				return NotifyCmd(
@@ -423,7 +427,7 @@ func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
 func (m *WifiSavedModel) deleteSelectedCmd() tea.Cmd {
 	row := m.dataTable.SelectedRow()
 	return func() tea.Msg {
-		name := row[m.nameColIdx]
+		name := row[wifiSavedCfg.nameColIdx]
 		err := m.nm.DeleteWifiConnection(context.Background(), name)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Error while deleting %s", name))

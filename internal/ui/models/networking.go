@@ -15,9 +15,30 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
-type networkState int
+type networkingConfig struct {
+	togglersStyle lipgloss.Style
+	deviceColIdx  int
+	typeColIdx    int
+	connColIdx    int
+	stateColIdx   int
 
-var NetworkTogglersStyle = lipgloss.NewStyle().Margin(1, 0)
+	deviceWidthProportion float32
+	typeWidthProportion   float32
+	stateWidthProportion  float32
+}
+
+var networkingCfg = networkingConfig{
+	togglersStyle:         lipgloss.NewStyle().Margin(1, 0),
+	deviceColIdx:          0,
+	typeColIdx:            1,
+	connColIdx:            2,
+	stateColIdx:           3,
+	deviceWidthProportion: 0.2,
+	typeWidthProportion:   0.15,
+	stateWidthProportion:  0.3,
+}
+
+type networkState int
 
 const (
 	NetworkNil networkState = iota
@@ -84,15 +105,6 @@ func networkingKeys() *networkingKeyMap {
 type NetworkingModel struct {
 	devicesTable *table.Model
 
-	deviceColIdx int
-	typeColIdx   int
-	connColIdx   int
-	stateColIdx  int
-
-	deviceWidthProportion float32
-	typeWidthProportion   float32
-	stateWidthProportion  float32
-
 	wwan       *toggle.Model
 	wifi       *toggle.Model
 	networking *toggle.Model
@@ -114,12 +126,12 @@ type NetworkingModel struct {
 }
 
 func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkManager) *NetworkingModel {
-	cols := []table.Column{
-		{Title: "Device"},
-		{Title: "Type"},
-		{Title: "Connection"},
-		{Title: "State"},
-	}
+	cols := make([]table.Column, 4)
+	cols[networkingCfg.deviceColIdx] = table.Column{Title: "Device"}
+	cols[networkingCfg.typeColIdx] = table.Column{Title: "Type"}
+	cols[networkingCfg.connColIdx] = table.Column{Title: "Connection"}
+	cols[networkingCfg.stateColIdx] = table.Column{Title: "State"}
+
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithStyles(styles.DataTableStyle),
@@ -137,16 +149,7 @@ func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkMana
 	s := spinner.New()
 
 	model := &NetworkingModel{
-		devicesTable: &t,
-		deviceColIdx: 0,
-		typeColIdx:   1,
-		connColIdx:   2,
-		stateColIdx:  3,
-
-		deviceWidthProportion: 0.2,
-		typeWidthProportion:   0.15,
-		stateWidthProportion:  0.3,
-
+		devicesTable:     &t,
 		indicatorSpinner: s,
 		indicatorState:   NetworkDone,
 
@@ -182,15 +185,15 @@ func (m *NetworkingModel) Resize(width, height int) {
 
 	tableUtilityOffset := len(m.devicesTable.Columns()) * 2
 
-	deviceColWidth := int(float32(width) * m.deviceWidthProportion)
-	typeColWidth := int(float32(width) * m.typeWidthProportion)
-	stateWidth := int(float32(width) * m.stateWidthProportion)
+	deviceColWidth := int(float32(width) * networkingCfg.deviceWidthProportion)
+	typeColWidth := int(float32(width) * networkingCfg.typeWidthProportion)
+	stateWidth := int(float32(width) * networkingCfg.stateWidthProportion)
 	connWidth := width - typeColWidth - deviceColWidth - tableUtilityOffset - stateWidth
 
-	m.devicesTable.Columns()[m.deviceColIdx].Width = deviceColWidth
-	m.devicesTable.Columns()[m.typeColIdx].Width = typeColWidth
-	m.devicesTable.Columns()[m.stateColIdx].Width = stateWidth
-	m.devicesTable.Columns()[m.connColIdx].Width = connWidth
+	m.devicesTable.Columns()[networkingCfg.deviceColIdx].Width = deviceColWidth
+	m.devicesTable.Columns()[networkingCfg.typeColIdx].Width = typeColWidth
+	m.devicesTable.Columns()[networkingCfg.stateColIdx].Width = stateWidth
+	m.devicesTable.Columns()[networkingCfg.connColIdx].Width = connWidth
 	m.devicesTable.UpdateViewport()
 }
 
@@ -295,7 +298,7 @@ func (m *NetworkingModel) View() string {
 		"",
 		connectivity,
 	)
-	togglers = NetworkTogglersStyle.Render(togglers)
+	togglers = networkingCfg.togglersStyle.Render(togglers)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
