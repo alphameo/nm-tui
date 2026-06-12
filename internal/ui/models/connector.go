@@ -154,7 +154,7 @@ func (m *ConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*ConnectorModel, tea
 			return m, nil
 		}
 		return m, tea.Sequence(
-			SetPopupActivityCmd(false),
+			ClosePopupCmd(),
 			m.connectToWifiCmd(),
 		)
 	}

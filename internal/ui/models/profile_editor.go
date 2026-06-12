@@ -133,7 +133,14 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 	return model
 }
 
-func (m *ProfileEditorModel) setNew(info infra.NetworkInfo) tea.Cmd {
+func (m *ProfileEditorModel) setNew(name string) tea.Cmd {
+	info, err := m.nm.GetWifiInfo(context.Background(), name)
+	if err != nil {
+		return NotifyCmd(
+			fmt.Sprintf("Cannot get information about %s", name),
+		)
+	}
+
 	m.ssid = info.SSID
 
 	m.active = info.Active
@@ -216,7 +223,7 @@ func (m *ProfileEditorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileEditorMo
 			return m, nil
 		}
 		return m, tea.Sequence(
-			SetPopupActivityCmd(false),
+			ClosePopupCmd(),
 			m.saveProfileInfoCmd(),
 		)
 	}
