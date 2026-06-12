@@ -34,42 +34,6 @@ var mainKeys = &mainKeyMap{
 	),
 }
 
-type PopupModel interface {
-	Init() tea.Cmd
-	UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd)
-	View() string
-}
-type Popup struct {
-	content PopupModel
-	active  bool
-}
-type popupKeyMap struct {
-	close key.Binding
-}
-
-func (k *popupKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.close}
-}
-
-func (k *popupKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.close}}
-}
-
-var popupKeys = &popupKeyMap{
-	close: key.NewBinding(
-		key.WithKeys("ctrl+q", "esc", "ctrl+c"),
-		key.WithHelp("esc/^q/^c", "close popup"),
-	),
-}
-
-type Notification struct {
-	message   string
-	active    bool
-	title     string
-	closeTime time.Duration
-	style     *lipgloss.Style
-}
-
 type MainModel struct {
 	tabs         *tabview.Model
 	popup        *Popup
@@ -133,14 +97,6 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 
 func (m MainModel) Init() tea.Cmd {
 	return m.tabs.Init()
-}
-
-// NilMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
-type NilMsg struct{}
-
-// NilCmd is a function, which returns fictive Msg to trigger Model Update
-var NilCmd = func() tea.Msg {
-	return NilMsg{}
 }
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -218,25 +174,6 @@ func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 	return cmd
 }
 
-func (m *MainModel) Width() int {
-	return m.width
-}
-
-func (m *MainModel) Height() int {
-	return m.height
-}
-
-func (m *MainModel) Resize(width, height int) {
-	m.width = width
-	m.height = height
-	helpHeight := lipgloss.Height(m.help.View(m.keyMngr))
-
-	m.tabs.Resize(width, m.height-helpHeight)
-
-	notifStyle := m.notification.style.Width(width / 2)
-	m.notification.style = &notifStyle
-}
-
 func (m MainModel) View() tea.View {
 	view := m.tabs.View()
 
@@ -282,90 +219,21 @@ func (m MainModel) View() tea.View {
 	return v
 }
 
-type (
-	PopupContentMsg struct {
-		model PopupModel
-	}
-	PopupActivityMsg bool
-)
-
-func SetPopupContentCmd(content PopupModel) tea.Cmd {
-	return func() tea.Msg {
-		return PopupContentMsg{content}
-	}
+func (m *MainModel) Width() int {
+	return m.width
 }
 
-func SetPopupActivityCmd(isActive bool) tea.Cmd {
-	return func() tea.Msg {
-		return PopupActivityMsg(isActive)
-	}
+func (m *MainModel) Height() int {
+	return m.height
 }
 
-func OpenPopup(content PopupModel) tea.Cmd {
-	return tea.Sequence(
-		SetPopupContentCmd(content),
-		SetPopupActivityCmd(true),
-	)
-}
+func (m *MainModel) Resize(width, height int) {
+	m.width = width
+	m.height = height
+	helpHeight := lipgloss.Height(m.help.View(m.keyMngr))
 
-type (
-	openConnectorMsg      string
-	openHotspotCreatorMsg struct{}
-	openProfileCreatorMsg struct{}
-	openProfileEditorMsg  infra.NetworkInfo
-)
+	m.tabs.Resize(width, m.height-helpHeight)
 
-func OpenConnectorCmd(ssid string) tea.Cmd {
-	return func() tea.Msg {
-		return openConnectorMsg(ssid)
-	}
-}
-
-func OpenHotspotCreatorCmd() tea.Cmd {
-	return func() tea.Msg {
-		return openHotspotCreatorMsg{}
-	}
-}
-
-func OpenProfileCreatorCmd() tea.Cmd {
-	return func() tea.Msg {
-		return openProfileCreatorMsg{}
-	}
-}
-
-func OpenProfileEditorCmd(info infra.NetworkInfo) tea.Cmd {
-	return func() tea.Msg {
-		return openProfileEditorMsg(info)
-	}
-}
-
-type (
-	NotificationTextMsg     string
-	NotificationActivityMsg bool
-)
-
-func SetNotificationTextCmd(text string) tea.Cmd {
-	return func() tea.Msg {
-		return NotificationTextMsg(text)
-	}
-}
-
-func SetNotificationActivityCmd(isActive bool) tea.Cmd {
-	return func() tea.Msg {
-		return NotificationActivityMsg(isActive)
-	}
-}
-
-func NotifyCmd(text string) tea.Cmd {
-	return tea.Sequence(
-		SetNotificationTextCmd(text),
-		SetNotificationActivityCmd(true),
-	)
-}
-
-func DeferedCloseNotificationCmd(t time.Duration) tea.Cmd {
-	return func() tea.Msg {
-		time.Sleep(t)
-		return NotificationActivityMsg(false)
-	}
+	notifStyle := m.notification.style.Width(width / 2)
+	m.notification.style = &notifStyle
 }
