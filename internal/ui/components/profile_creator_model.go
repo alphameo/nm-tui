@@ -55,8 +55,7 @@ type ProfileCreatorModel struct {
 	name      textinput.Model
 	nameStyle *lipgloss.Style
 
-	password textinput.Model
-	pwStyle  *lipgloss.Style
+	password PasswordModel
 
 	hidden      *toggle.Model
 	hiddenStyle *lipgloss.Style
@@ -82,14 +81,6 @@ func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.Wif
 	name.Placeholder = "Name"
 	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	pw := textinput.New()
-	pw.SetWidth(20)
-	pw.Prompt = ""
-	pw.EchoMode = textinput.EchoPassword
-	pw.EchoCharacter = '•'
-	pw.Placeholder = "Password"
-	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-
 	hiddenStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
 	t := toggle.New(false)
@@ -101,8 +92,7 @@ func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.Wif
 		name:      name,
 		nameStyle: &nameStyle,
 
-		password: pw,
-		pwStyle:  &pwStyle,
+		password: NewPasswordModel(),
 
 		hidden:      t,
 		hiddenStyle: &hiddenStyle,
@@ -161,7 +151,7 @@ func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
-		m.password = upd
+		m.password = PasswordModel{&upd}
 		return m, cmd
 	case m.hidden.Focused():
 		upd, cmd := m.hidden.Update(msg)
@@ -190,6 +180,9 @@ func (m *ProfileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileCreator
 		}
 		return m, nil
 	case key.Matches(keyMsg, m.keys.create):
+		if m.password.Err != nil {
+			return m, nil
+		}
 		return m, tea.Sequence(
 			SetPopupActivityCmd(false),
 			m.createWifiConnCmd(),
@@ -207,7 +200,7 @@ func (m *ProfileCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileCreator
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
-		m.password = upd
+		m.password = PasswordModel{&upd}
 		return m, cmd
 	case m.hidden.Focused():
 		upd, cmd := m.hidden.Update(keyMsg)
@@ -242,17 +235,6 @@ func (m *ProfileCreatorModel) View() string {
 		"Name     ",
 		name,
 	)
-	password := m.password.View()
-	pwStyle := *m.pwStyle
-	if m.password.Focused() {
-		pwStyle = pwStyle.BorderForeground(styles.AccentColor)
-	}
-	password = pwStyle.Render(password)
-	password = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Password ",
-		password,
-	)
 
 	hidden := m.hidden.View()
 	hiddenStyle := *m.hiddenStyle
@@ -269,7 +251,7 @@ func (m *ProfileCreatorModel) View() string {
 	fields := []string{
 		ssid,
 		name,
-		password,
+		m.password.ViewStyled(),
 		hidden,
 	}
 

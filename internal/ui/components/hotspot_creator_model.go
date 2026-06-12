@@ -57,7 +57,7 @@ type HotspotCreatorModel struct {
 	name      textinput.Model
 	nameStyle *lipgloss.Style
 
-	password textinput.Model
+	password PasswordModel
 	pwStyle  *lipgloss.Style
 
 	focuses  []Focusable // used for batch operations on input focusable elements
@@ -81,14 +81,6 @@ func NewHotspotCreatorModel(keys *hotspotCreatorKeyMap, networkManager infra.Wif
 	name.Placeholder = "Name"
 	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	pw := textinput.New()
-	pw.SetWidth(20)
-	pw.Prompt = ""
-	pw.EchoMode = textinput.EchoPassword
-	pw.EchoCharacter = '•'
-	pw.Placeholder = "Password"
-	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-
 	model := &HotspotCreatorModel{
 		title: renderer.RenderTitle("Create Wi-Fi hotspot"),
 
@@ -98,8 +90,7 @@ func NewHotspotCreatorModel(keys *hotspotCreatorKeyMap, networkManager infra.Wif
 		name:      name,
 		nameStyle: &nameStyle,
 
-		password: pw,
-		pwStyle:  &pwStyle,
+		password: NewPasswordModel(),
 
 		keys: keys,
 
@@ -150,7 +141,7 @@ func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
-		m.password = upd
+		m.password = PasswordModel{&upd}
 		return m, cmd
 	default:
 		return m, nil
@@ -175,6 +166,9 @@ func (m *HotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*HotspotCreator
 		}
 		return m, nil
 	case key.Matches(keyMsg, m.keys.create):
+		if m.password.Err != nil {
+			return m, nil
+		}
 		return m, tea.Sequence(
 			SetPopupActivityCmd(false),
 			m.createHotspotCmd(),
@@ -192,7 +186,7 @@ func (m *HotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*HotspotCreator
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
-		m.password = upd
+		m.password = PasswordModel{&upd}
 		return m, cmd
 	default:
 		return m, nil
@@ -223,22 +217,11 @@ func (m *HotspotCreatorModel) View() string {
 		"Name     ",
 		name,
 	)
-	password := m.password.View()
-	pwStyle := *m.pwStyle
-	if m.password.Focused() {
-		pwStyle = pwStyle.BorderForeground(styles.AccentColor)
-	}
-	password = pwStyle.Render(password)
-	password = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Password ",
-		password,
-	)
 
 	fields := []string{
 		ssid,
 		name,
-		password,
+		m.password.ViewStyled(),
 	}
 
 	view := lipgloss.JoinVertical(

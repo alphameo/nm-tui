@@ -20,15 +20,15 @@ type profileEditorKeyMap struct {
 	togglePWVisibility key.Binding
 	up                 key.Binding
 	down               key.Binding
-	submit             key.Binding
+	save               key.Binding
 }
 
 func (k profileEditorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.submit}
+	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.save}
 }
 
 func (k profileEditorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.submit}}
+	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.save}}
 }
 
 var profileEditorKeys = &profileEditorKeyMap{
@@ -44,7 +44,7 @@ var profileEditorKeys = &profileEditorKeyMap{
 		key.WithKeys("ctrl+j"),
 		key.WithHelp("^j", "down"),
 	),
-	submit: key.NewBinding(
+	save: key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "submit"),
 	),
@@ -63,17 +63,15 @@ type ProfileEditorModel struct {
 	nameBak   string
 	nameStyle *lipgloss.Style
 
-	password textinput.Model
-	pwStyle  *lipgloss.Style
+	password PasswordModel
 
 	autoconnect   *toggle.Model
 	autoconnStyle *lipgloss.Style
 
 	autoconnPriority   textinput.Model
 	autoconnPriorStyle *lipgloss.Style
-
-	focuses  []Focusable // used for batch operations on input focusable elements
-	focusIdx int
+	focuses            []Focusable // used for batch operations on input focusable elements
+	focusIdx           int
 
 	keys *profileEditorKeyMap
 
@@ -90,14 +88,6 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 	name.Prompt = ""
 	name.Placeholder = "Name"
 	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-
-	pw := textinput.New()
-	pw.SetWidth(20)
-	pw.Prompt = ""
-	pw.EchoMode = textinput.EchoPassword
-	pw.EchoCharacter = '•'
-	pw.Placeholder = "Password"
-	pwStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
 	autoconn := toggle.New(false)
 	autoconnStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
@@ -120,8 +110,7 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 		name:      name,
 		nameStyle: &nameStyle,
 
-		password: pw,
-		pwStyle:  &pwStyle,
+		password: NewPasswordModel(),
 
 		autoconnect:   autoconn,
 		autoconnStyle: &autoconnStyle,
@@ -188,7 +177,7 @@ func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) 
 			return m, cmd
 		case m.password.Focused():
 			upd, cmd := m.password.Update(msg)
-			m.password = upd
+			m.password = PasswordModel{&upd}
 			return m, cmd
 		case m.autoconnect.Focused():
 			upd, cmd := m.autoconnect.Update(msg)
@@ -221,10 +210,13 @@ func (m *ProfileEditorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileEditorMo
 			m.password.EchoMode = textinput.EchoPassword
 		}
 		return m, nil
-	case key.Matches(keyMsg, m.keys.submit):
+	case key.Matches(keyMsg, m.keys.save):
+		if m.password.Err != nil {
+			return m, nil
+		}
 		return m, tea.Sequence(
 			SetPopupActivityCmd(false),
-			m.saveWifiInfoCmd(),
+			m.saveProfileInfoCmd(),
 		)
 	}
 
@@ -235,7 +227,7 @@ func (m *ProfileEditorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileEditorMo
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
-		m.password = upd
+		m.password = PasswordModel{&upd}
 		return m, cmd
 	case m.autoconnect.Focused():
 		upd, cmd := m.autoconnect.Update(keyMsg)
@@ -280,18 +272,6 @@ func (m *ProfileEditorModel) View() string {
 		name,
 	)
 
-	pw := m.password.View()
-	pwStyle := *m.pwStyle
-	if m.password.Focused() {
-		pwStyle = pwStyle.BorderForeground(styles.AccentColor)
-	}
-	pw = pwStyle.Render(pw)
-	pw = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Password ",
-		pw,
-	)
-
 	autoconn := m.autoconnect.View()
 	autoconnStyle := *m.autoconnStyle
 	if m.autoconnect.Focused() {
@@ -330,7 +310,7 @@ func (m *ProfileEditorModel) View() string {
 		ssid,
 		mode,
 		name,
-		pw,
+		m.password.ViewStyled(),
 		autoconn,
 		autoconnPrior,
 	)
@@ -375,7 +355,7 @@ func (m *ProfileEditorModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *ProfileEditorModel) saveWifiInfoCmd() tea.Cmd {
+func (m *ProfileEditorModel) saveProfileInfoCmd() tea.Cmd {
 	return func() tea.Msg {
 		ap, err := strconv.Atoi(m.autoconnPriority.Value())
 		if err != nil {

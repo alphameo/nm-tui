@@ -30,6 +30,9 @@ var (
 			Padding(2, 4).
 			BorderForeground(AccentColor)
 	NotifBorderedStyle = OverlayStyle.BorderForeground(NotifColor)
+
+	InputFieldStyle        = lipgloss.NewStyle().Inherit(BorderedStyle)
+	InputFieldFocusedStyle = InputFieldStyle.BorderForeground(AccentColor)
 )
 
 func tableStyle() table.Styles {
