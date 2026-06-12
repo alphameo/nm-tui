@@ -87,9 +87,6 @@ func wifiAvailableKeys() *wifiAvailableKeyMap {
 type WifiAvailableModel struct {
 	dataTable table.Model
 
-	tableFocusedStyle *table.Styles
-	tableBluredStyle  *table.Styles
-
 	indicatorSpinner     spinner.Model
 	indicatorState       wifiAvailableState
 	indicatorStateHeight int
@@ -122,9 +119,6 @@ func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiMana
 
 	model := &WifiAvailableModel{
 		dataTable: t,
-
-		tableFocusedStyle: &styles.TableStyle,
-		tableBluredStyle:  &initTableStyle,
 
 		indicatorSpinner: s,
 		indicatorState:   AvailableDone,
@@ -177,13 +171,11 @@ func (m *WifiAvailableModel) Height() int {
 
 func (m *WifiAvailableModel) Focus() tea.Cmd {
 	m.focus = true
-	m.dataTable.SetStyles(*m.tableFocusedStyle)
 	return nil
 }
 
 func (m *WifiAvailableModel) Blur() {
 	m.focus = false
-	m.dataTable.SetStyles(*m.tableBluredStyle)
 }
 
 func (m *WifiAvailableModel) Focused() bool {

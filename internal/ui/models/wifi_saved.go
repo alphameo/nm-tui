@@ -96,9 +96,6 @@ func wifiSavedKeys() *wifiSavedKeyMap {
 type WifiSavedModel struct {
 	dataTable table.Model
 
-	tableFocusedStyle *table.Styles
-	tableBluredStyle  *table.Styles
-
 	indicatorSpinner     spinner.Model
 	indicatorState       wifiSavedState
 	indicatorStateHeight int
@@ -148,9 +145,6 @@ func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) 
 
 	model := &WifiSavedModel{
 		dataTable: t,
-
-		tableFocusedStyle: &styles.TableStyle,
-		tableBluredStyle:  &initTableStyle,
 
 		indicatorSpinner: s,
 		indicatorState:   SavedDone,
@@ -204,13 +198,11 @@ func (m *WifiSavedModel) Height() int {
 
 func (m *WifiSavedModel) Focus() tea.Cmd {
 	m.focus = true
-	m.dataTable.SetStyles(*m.tableFocusedStyle)
 	return nil
 }
 
 func (m *WifiSavedModel) Blur() {
 	m.focus = false
-	m.dataTable.SetStyles(*m.tableBluredStyle)
 }
 
 func (m *WifiSavedModel) Focused() bool {
