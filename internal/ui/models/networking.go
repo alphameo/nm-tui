@@ -10,7 +10,6 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -132,6 +131,15 @@ func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkMana
 		table.WithStyles(styles.DataTableStyle),
 	)
 
+	wwan := toggle.New()
+	wwan.Symbols = styles.ToggleSymbols
+
+	wifi := toggle.New()
+	wifi.Symbols = styles.ToggleSymbols
+
+	networking := toggle.New()
+	networking.Symbols = styles.ToggleSymbols
+
 	wwanStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 	wifiStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 	networkingStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
@@ -154,13 +162,13 @@ func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkMana
 		indicatorSpinner: s,
 		indicatorState:   NetworkDone,
 
-		wwan:      components.DefaultToggle(),
+		wwan:      wwan,
 		wwanStyle: &wwanStyle,
 
-		wifi:      components.DefaultToggle(),
+		wifi:      wifi,
 		wifiStyle: &wifiStyle,
 
-		networking:      components.DefaultToggle(),
+		networking:      networking,
 		networkingStyle: &networkingStyle,
 
 		togglersStyle: &togglersStyle,

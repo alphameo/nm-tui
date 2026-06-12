@@ -9,7 +9,6 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
@@ -53,9 +52,9 @@ func connectorKeys() *connectorKeyMap {
 type ConnectorModel struct {
 	ssid string
 
-	name components.Name
+	name textinput.Model
 
-	password components.Password
+	password textinput.Model
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
@@ -66,12 +65,26 @@ type ConnectorModel struct {
 }
 
 func NewConnectorModel(keys *connectorKeyMap, networkManager infra.WifiManager) *ConnectorModel {
+	name := textinput.New()
+	name.SetWidth(20)
+	name.Prompt = ""
+	name.Placeholder = "Name"
+
+	pw := textinput.New()
+	pw.SetWidth(20)
+	pw.Prompt = ""
+	pw.EchoMode = textinput.EchoPassword
+	pw.EchoCharacter = styles.PWCharacter
+	pw.Placeholder = "Password"
+	pw.Validate = passwordValidator
+	pw.Err = passwordValidator(pw.Value())
+
 	model := &ConnectorModel{
 		ssid: "",
 
-		name: components.DefaultName(),
+		name: name,
 
-		password: components.DefaultPassword(),
+		password: pw,
 
 		keys: keys,
 
@@ -116,11 +129,11 @@ func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
 	switch {
 	case m.name.Focused():
 		upd, cmd := m.name.Update(msg)
-		m.name = components.NewName(&upd)
+		m.name = upd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
-		m.password = components.NewPassword(&upd)
+		m.password = upd
 		return m, cmd
 	default:
 		return m, nil
@@ -157,11 +170,11 @@ func (m *ConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*ConnectorModel, tea
 	switch {
 	case m.name.Focused():
 		upd, cmd := m.name.Update(keyMsg)
-		m.name = components.NewName(&upd)
+		m.name = upd
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
-		m.password = components.NewPassword(&upd)
+		m.password = upd
 		return m, cmd
 	default:
 		return m, nil
@@ -172,10 +185,10 @@ func (m *ConnectorModel) View() string {
 	ssid := m.ssid
 	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID      ", ssid)
 
-	name := m.name.View()
+	name := styles.ViewInput(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
 
-	password := m.password.View()
+	password := styles.ViewInputWithValidation(&m.password)
 	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
 
 	fields := []string{
