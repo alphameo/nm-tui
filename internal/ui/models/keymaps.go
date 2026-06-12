@@ -1,9 +1,9 @@
-package components
+package models
 
 import (
 	"charm.land/bubbles/v2/key"
-	"github.com/alphameo/nm-tui/internal/ui/components/tabview"
-	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
+	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
+	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 )
 
 func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {

@@ -1,4 +1,4 @@
-package components
+package models
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
-	"github.com/alphameo/nm-tui/internal/ui/components/tabview"
-	"github.com/alphameo/nm-tui/internal/ui/components/toggle"
+	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
+	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
