@@ -27,11 +27,13 @@ func (k *mainKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.quit}}
 }
 
-var mainKeys = &mainKeyMap{
-	quit: key.NewBinding(
-		key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),
-		key.WithHelp("esc/q/^q/^c", "quit"),
-	),
+func mainKeys() *mainKeyMap {
+	return &mainKeyMap{
+		quit: key.NewBinding(
+			key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),
+			key.WithHelp("esc/q/^q/^c", "quit"),
+		),
+	}
 }
 
 type MainModel struct {
@@ -52,23 +54,23 @@ type MainModel struct {
 }
 
 func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager) *MainModel {
-	keys := defaultKeyMap
+	keys := defaultKeys()
 
-	connector := NewConnectorModel(keys.connector, wifiManager)
-	profileCreator := NewProfileCreatorModel(keys.profileCreator, wifiManager)
-	hotspotCreator := NewHotspotCreatorModel(keys.hotspotCreator, wifiManager)
-	profileEditor := NewProfileEditorModel(keys.profileEditor, wifiManager)
+	connector := NewConnectorModel(&keys.connector, wifiManager)
+	profileCreator := NewProfileCreatorModel(&keys.profileCreator, wifiManager)
+	hotspotCreator := NewHotspotCreatorModel(&keys.hotspotCreator, wifiManager)
+	profileEditor := NewProfileEditorModel(&keys.profileEditor, wifiManager)
 
-	a := NewWifiAvailableModel(keys.wifiAvailable, wifiManager)
-	s := NewWifiSavedModel(keys.wifiSaved, wifiManager)
+	a := NewWifiAvailableModel(&keys.wifiAvailable, wifiManager)
+	s := NewWifiSavedModel(&keys.wifiSaved, wifiManager)
 
-	wifi := NewWifiModel(a, s, keys.wifi, wifiManager)
-	network := NewNetworkingModel(keys.networking, networkManager)
+	wifi := NewWifiModel(a, s, &keys.wifi, wifiManager)
+	network := NewNetworkingModel(&keys.networking, networkManager)
 
 	wifiTable := tabview.New([]tabview.Tab{
 		{Title: "Wi-Fi", Content: wifi},
 		{Title: "Networking", Content: network},
-	}, styles.TabViewStyles, keys.tabs)
+	}, styles.TabViewStyles, &keys.tabs)
 
 	p := &Popup{
 		active: false,
@@ -90,7 +92,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 		hotspotCreator: hotspotCreator,
 		profileEditor:  profileEditor,
 
-		keyMngr: keys,
+		keyMngr: &keys,
 		help:    help,
 	}
 }
@@ -213,7 +215,7 @@ func (m MainModel) View() tea.View {
 
 	help := m.help.View(m.keyMngr)
 	if m.popup.active {
-		help = m.help.View(m.keyMngr.popup)
+		help = m.help.View(&m.keyMngr.popup)
 	}
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	v := tea.NewView(view)

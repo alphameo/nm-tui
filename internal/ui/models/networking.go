@@ -10,6 +10,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -58,23 +59,25 @@ func (k networkingKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.up, k.down}}
 }
 
-var networkingKeys = &networkingKeyMap{
-	up: key.NewBinding(
-		key.WithKeys("ctrl+k"),
-		key.WithHelp("^k", "up"),
-	),
-	down: key.NewBinding(
-		key.WithKeys("ctrl+j"),
-		key.WithHelp("^j", "down"),
-	),
-	toggle: key.NewBinding(
-		key.WithKeys("space"),
-		key.WithHelp("󱁐", "toggle"),
-	),
-	rescan: key.NewBinding(
-		key.WithKeys("r"),
-		key.WithHelp("r", "rescan state"),
-	),
+func networkingKeys() *networkingKeyMap {
+	return &networkingKeyMap{
+		up: key.NewBinding(
+			key.WithKeys("ctrl+k"),
+			key.WithHelp("^k", "up"),
+		),
+		down: key.NewBinding(
+			key.WithKeys("ctrl+j"),
+			key.WithHelp("^j", "down"),
+		),
+		toggle: key.NewBinding(
+			key.WithKeys("space"),
+			key.WithHelp("󱁐", "toggle"),
+		),
+		rescan: key.NewBinding(
+			key.WithKeys("r"),
+			key.WithHelp("r", "rescan state"),
+		),
+	}
 }
 
 type NetworkingModel struct {
@@ -151,13 +154,13 @@ func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkMana
 		indicatorSpinner: s,
 		indicatorState:   NetworkDone,
 
-		wwan:      toggle.New(false),
+		wwan:      components.DefaultToggle(),
 		wwanStyle: &wwanStyle,
 
-		wifi:      toggle.New(false),
+		wifi:      components.DefaultToggle(),
 		wifiStyle: &wifiStyle,
 
-		networking:      toggle.New(false),
+		networking:      components.DefaultToggle(),
 		networkingStyle: &networkingStyle,
 
 		togglersStyle: &togglersStyle,

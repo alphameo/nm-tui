@@ -30,7 +30,7 @@ func New() *Model {
 	return &Model{
 		value:   false,
 		Symbols: DefaultSymbols(),
-		Keys:    DefaultKeys(),
+		Keys:    *DefaultKeys(),
 	}
 }
 

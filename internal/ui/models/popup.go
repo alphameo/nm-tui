@@ -28,9 +28,11 @@ func (k *popupKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.close}}
 }
 
-var popupKeys = &popupKeyMap{
-	close: key.NewBinding(
-		key.WithKeys("ctrl+q", "esc", "ctrl+c"),
-		key.WithHelp("esc/^q/^c", "close popup"),
-	),
+func popupKeys() *popupKeyMap {
+	return &popupKeyMap{
+		close: key.NewBinding(
+			key.WithKeys("ctrl+q", "esc", "ctrl+c"),
+			key.WithHelp("esc/^q/^c", "close popup"),
+		),
+	}
 }
