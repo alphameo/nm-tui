@@ -55,8 +55,7 @@ type HotspotCreatorModel struct {
 	ssid      textinput.Model
 	ssidStyle *lipgloss.Style
 
-	name      textinput.Model
-	nameStyle *lipgloss.Style
+	name components.Name
 
 	password components.Password
 
@@ -75,20 +74,13 @@ func NewHotspotCreatorModel(keys *hotspotCreatorKeyMap, networkManager infra.Wif
 	ssid.Placeholder = "SSID"
 	ssidStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
 
-	name := textinput.New()
-	name.SetWidth(20)
-	name.Prompt = ""
-	name.Placeholder = "Name"
-	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-
 	model := &HotspotCreatorModel{
 		title: renderer.RenderTitle("Create Wi-Fi hotspot"),
 
 		ssid:      ssid,
 		ssidStyle: &ssidStyle,
 
-		name:      name,
-		nameStyle: &nameStyle,
+		name: components.DefaultName(),
 
 		password: components.DefaultPassword(),
 
@@ -137,7 +129,7 @@ func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd
 		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(msg)
-		m.name = upd
+		m.name = components.NewName(&upd)
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
@@ -182,7 +174,7 @@ func (m *HotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*HotspotCreator
 		return m, cmd
 	case m.name.Focused():
 		upd, cmd := m.name.Update(keyMsg)
-		m.name = upd
+		m.name = components.NewName(&upd)
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
@@ -206,21 +198,9 @@ func (m *HotspotCreatorModel) View() string {
 		ssid,
 	)
 
-	name := m.name.View()
-	nameStyle := *m.nameStyle
-	if m.name.Focused() {
-		nameStyle = nameStyle.BorderForeground(styles.AccentColor)
-	}
-	name = nameStyle.Render(name)
-	name = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Name     ",
-		name,
-	)
-
 	fields := []string{
 		ssid,
-		name,
+		m.name.View(),
 		m.password.View(),
 	}
 

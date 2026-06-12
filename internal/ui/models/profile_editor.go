@@ -60,9 +60,8 @@ type ProfileEditorModel struct {
 	mode      string
 	modeStyle *lipgloss.Style
 
-	name      textinput.Model
-	nameBak   string
-	nameStyle *lipgloss.Style
+	name    components.Name
+	nameBak string
 
 	password components.Password
 
@@ -84,12 +83,6 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 
 	modeStyle := styles.DefaultStyle.Bold(true)
 
-	name := textinput.New()
-	name.SetWidth(20)
-	name.Prompt = ""
-	name.Placeholder = "Name"
-	nameStyle := lipgloss.NewStyle().Inherit(styles.BorderedStyle)
-
 	autoconn := toggle.New(false)
 	autoconnStyle := lipgloss.NewStyle().Inherit(styles.DefaultStyle)
 
@@ -108,8 +101,7 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 		mode:      "",
 		modeStyle: &modeStyle,
 
-		name:      name,
-		nameStyle: &nameStyle,
+		name: components.DefaultName(),
 
 		password: components.DefaultPassword(),
 
@@ -181,7 +173,7 @@ func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) 
 		switch {
 		case m.name.Focused():
 			upd, cmd := m.name.Update(msg)
-			m.name = upd
+			m.name = components.NewName(&upd)
 			return m, cmd
 		case m.password.Focused():
 			upd, cmd := m.password.Update(msg)
@@ -231,7 +223,7 @@ func (m *ProfileEditorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileEditorMo
 	switch {
 	case m.name.Focused():
 		upd, cmd := m.name.Update(keyMsg)
-		m.name = upd
+		m.name = components.NewName(&upd)
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
@@ -266,18 +258,6 @@ func (m *ProfileEditorModel) View() string {
 		lipgloss.Center,
 		"Mode      ",
 		mode,
-	)
-
-	name := m.name.View()
-	nameStyle := *m.nameStyle
-	if m.name.Focused() {
-		nameStyle = nameStyle.BorderForeground(styles.AccentColor)
-	}
-	name = nameStyle.Render(name)
-	name = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		"Name     ",
-		name,
 	)
 
 	autoconn := m.autoconnect.View()
@@ -317,7 +297,7 @@ func (m *ProfileEditorModel) View() string {
 		lipgloss.Left,
 		ssid,
 		mode,
-		name,
+		m.name.View(),
 		m.password.View(),
 		autoconn,
 		autoconnPrior,
