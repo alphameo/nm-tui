@@ -21,6 +21,7 @@ func NewPasswordModel() PasswordModel {
 	input.EchoCharacter = '•'
 	input.Placeholder = "Password"
 	input.Validate = passwordValidator
+	input.Err = passwordValidator(input.Value())
 	return PasswordModel{&input}
 }
 
