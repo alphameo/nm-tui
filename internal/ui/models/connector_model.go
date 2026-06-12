@@ -9,6 +9,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
@@ -52,7 +53,7 @@ type ConnectorModel struct {
 
 	name      textinput.Model
 	nameStyle *lipgloss.Style
-	password  PasswordModel
+	password  components.Password
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
@@ -75,7 +76,7 @@ func NewConnectorModel(keys *connectorKeyMap, networkManager infra.WifiManager) 
 		name:      name,
 		nameStyle: &nameStyle,
 
-		password: NewPasswordModel(),
+		password: components.DefaultPassword(),
 
 		keys: keys,
 
@@ -124,7 +125,7 @@ func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(msg)
-		m.password = PasswordModel{&upd}
+		m.password = components.NewPassword(&upd)
 		return m, cmd
 	default:
 		return m, nil
@@ -165,7 +166,7 @@ func (m *ConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*ConnectorModel, tea
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
-		m.password = PasswordModel{&upd}
+		m.password = components.NewPassword(&upd)
 		return m, cmd
 	default:
 		return m, nil
@@ -196,7 +197,7 @@ func (m *ConnectorModel) View() string {
 	fields := []string{
 		ssid,
 		name,
-		m.password.ViewStyled(),
+		m.password.View(),
 	}
 
 	view := lipgloss.JoinVertical(

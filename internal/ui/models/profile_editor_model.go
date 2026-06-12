@@ -11,6 +11,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/components"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
@@ -63,7 +64,7 @@ type ProfileEditorModel struct {
 	nameBak   string
 	nameStyle *lipgloss.Style
 
-	password PasswordModel
+	password components.Password
 
 	autoconnect   *toggle.Model
 	autoconnStyle *lipgloss.Style
@@ -110,7 +111,7 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 		name:      name,
 		nameStyle: &nameStyle,
 
-		password: NewPasswordModel(),
+		password: components.DefaultPassword(),
 
 		autoconnect:   autoconn,
 		autoconnStyle: &autoconnStyle,
@@ -177,7 +178,7 @@ func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) 
 			return m, cmd
 		case m.password.Focused():
 			upd, cmd := m.password.Update(msg)
-			m.password = PasswordModel{&upd}
+			m.password = components.NewPassword(&upd)
 			return m, cmd
 		case m.autoconnect.Focused():
 			upd, cmd := m.autoconnect.Update(msg)
@@ -227,7 +228,7 @@ func (m *ProfileEditorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileEditorMo
 		return m, cmd
 	case m.password.Focused():
 		upd, cmd := m.password.Update(keyMsg)
-		m.password = PasswordModel{&upd}
+		m.password = components.NewPassword(&upd)
 		return m, cmd
 	case m.autoconnect.Focused():
 		upd, cmd := m.autoconnect.Update(keyMsg)
@@ -310,7 +311,7 @@ func (m *ProfileEditorModel) View() string {
 		ssid,
 		mode,
 		name,
-		m.password.ViewStyled(),
+		m.password.View(),
 		autoconn,
 		autoconnPrior,
 	)

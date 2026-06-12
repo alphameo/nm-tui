@@ -1,4 +1,4 @@
-package models
+package components
 
 import (
 	"errors"
@@ -9,11 +9,15 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
-type PasswordModel struct {
+type Password struct {
 	*textinput.Model
 }
 
-func NewPasswordModel() PasswordModel {
+func NewPassword(input *textinput.Model) Password {
+	return Password{Model: input}
+}
+
+func DefaultPassword() Password {
 	input := textinput.New()
 	input.SetWidth(20)
 	input.Prompt = ""
@@ -22,11 +26,11 @@ func NewPasswordModel() PasswordModel {
 	input.Placeholder = "Password"
 	input.Validate = passwordValidator
 	input.Err = passwordValidator(input.Value())
-	return PasswordModel{&input}
+	return NewPassword(&input)
 }
 
-func (m *PasswordModel) ViewStyled() string {
-	view := m.View()
+func (m *Password) View() string {
+	view := m.Model.View()
 	var style lipgloss.Style
 	errIndicator := " "
 	if m.Err != nil {
