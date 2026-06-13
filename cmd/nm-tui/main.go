@@ -38,7 +38,9 @@ func main() {
 		panic(err)
 	}
 
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	opts := &slog.HandlerOptions{
 		Level:     slog.LevelError,
