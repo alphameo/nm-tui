@@ -20,7 +20,7 @@ func main() {
 		cacheDir = filepath.Join(cacheDir, "nm-tui")
 	}
 
-	if err := os.MkdirAll(cacheDir, 0700); err != nil {
+	if err := os.MkdirAll(cacheDir, 0o700); err != nil {
 		panic(fmt.Errorf("failed to create cache directory: %w", err))
 	}
 
