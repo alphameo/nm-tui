@@ -1,0 +1,103 @@
+colors {
+    text "#cbcbcb"
+    accent "#865fff"
+    muted "#595959"
+    error "#ff0000"
+    notif "#e4bf7a"
+}
+paths {
+    cache_dir ""
+    log_file ""
+}
+keys {
+    main {
+        quit {
+            keys q ctrl+q esc ctrl+c
+        }
+    }
+    popup {
+        close {
+            keys ctrl+q esc ctrl+c
+        }
+    }
+    tabs {
+        next {
+            keys "]"
+        }
+        prev {
+            keys "["
+        }
+    }
+    toggle {
+        toggle {
+            keys space
+        }
+    }
+    wifi {
+        next_window {
+            keys tab
+        }
+        first_window {
+            keys "1"
+        }
+        second_window {
+            keys "2"
+        }
+        rescan {
+            keys ctrl+r
+        }
+        create {
+            keys a
+        }
+        open_captive_portal {
+            keys ctrl+p
+        }
+        enable_hotspot {
+            keys ctrl+h
+        }
+        create_hotspot {
+            keys h
+        }
+    }
+    wifi_available {
+        rescan {
+            keys r
+        }
+        connect {
+            keys enter
+        }
+    }
+    wifi_saved {
+        edit {
+            keys enter
+        }
+        connect {
+            keys space
+        }
+        disconnect {
+            keys ctrl+space
+        }
+        rescan {
+            keys r
+        }
+        delete {
+            keys d
+        }
+    }
+    networking {
+        up {
+            keys ctrl+k
+        }
+        down {
+            keys ctrl+j
+        }
+        toggle {
+            keys space
+        }
+        rescan {
+            keys r
+        }
+    }
+ // connector, profile_creator, profile_editor, hotspot_creator follow same pattern
+}
+
