@@ -171,11 +171,13 @@ func (m *WifiAvailableModel) Height() int {
 
 func (m *WifiAvailableModel) Focus() tea.Cmd {
 	m.focus = true
+	m.dataTable.SetStyles(styles.TableStyle)
 	return nil
 }
 
 func (m *WifiAvailableModel) Blur() {
 	m.focus = false
+	m.dataTable.SetStyles(styles.DataTableStyle)
 }
 
 func (m *WifiAvailableModel) Focused() bool {
