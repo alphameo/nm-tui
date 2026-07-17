@@ -1,41 +1,37 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/alphameo/nm-tui/internal/infra/nmcli"
 	"github.com/alphameo/nm-tui/internal/ui/models"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
 func main() {
+	cfg, cfgErr := config.Load()
+	if cfg != nil {
+		styles.Init(cfg.Colors)
+	}
+
 	cacheDir, err := os.UserCacheDir()
 	if err != nil {
-		panic(fmt.Errorf("failed to get cache directory: %w", err))
+		panic(fmt.Errorf("get cache directory: %w", err))
 	} else {
 		cacheDir = filepath.Join(cacheDir, "nm-tui")
 	}
-
 	if err := os.MkdirAll(cacheDir, 0o700); err != nil {
-		panic(fmt.Errorf("failed to create cache directory: %w", err))
+		panic(fmt.Errorf("create cache directory: %w", err))
 	}
-
 	logPath := filepath.Join(cacheDir, "log")
-	_, err = os.Stat(logPath)
-	if errors.Is(err, os.ErrNotExist) {
-		_, err = os.Create(logPath)
-		fmt.Println(err)
-		if err != nil {
-			os.Exit(1)
-		}
-	}
 	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("open log file: %w", err))
 	}
 
 	defer func() {
@@ -49,6 +45,10 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(f, opts))
 
 	slog.SetDefault(logger)
+	if cfgErr != nil {
+		slog.Error("load config: " + cfgErr.Error())
+		return
+	}
 	slog.Info("The program is running")
 	defer slog.Info("Program is closed")
 

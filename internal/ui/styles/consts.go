@@ -1,7 +1,6 @@
 package styles
 
 import (
-	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
@@ -13,10 +12,10 @@ const (
 )
 
 var (
-	BorderOffset int = lipgloss.Width(Border.Left) * 2
-	TabBarHeight int = BorderOffset + 1
+	BorderOffset int
+	TabBarHeight int
 
-	ErrorSymbolColored = DefaultStyle.Foreground(ErrorColor).Render(ErrorSymbol)
+	ErrorSymbolColored string
 	ToggleSymbols      = toggle.Symbols{Activated: " ", Deactivated: " "}
 
 	ProfileCreatorTitle   = renderer.RenderTitle("Create Network profile")

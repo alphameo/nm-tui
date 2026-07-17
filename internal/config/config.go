@@ -16,24 +16,46 @@ type Config struct {
 }
 
 type ColorConfig struct {
-	Text   string `kdl:"text,argument"`
-	Accent string `kdl:"accent,argument"`
-	Muted  string `kdl:"muted,argument"`
-	Error  string `kdl:"error,argument"`
-	Notif  string `kdl:"notif,argument"`
+	Text   string `kdl:"text"`
+	Accent string `kdl:"accent"`
+	Muted  string `kdl:"muted"`
+	Error  string `kdl:"error"`
+	Notif  string `kdl:"notif"`
+}
+
+func DefaultColorConfig() ColorConfig {
+	return ColorConfig{
+		Text:   "#cbcbcb",
+		Accent: "#865fff",
+		Muted:  "#595959",
+		Error:  "#ff0000",
+		Notif:  "#e4bf7a",
+	}
 }
 
 type PathConfig struct {
-	CacheDir string `kdl:"cache_dir,argument"`
-	LogFile  string `kdl:"log_file,argument"`
+	CacheDir string `kdl:"cache_dir"`
+	LogFile  string `kdl:"log_file"`
 }
 
-func Load(path string) (*Config, error) {
+const (
+	configDirName = "nm-tui"
+	configName    = "config.kdl"
+)
+
+func Load() (*Config, error) {
+	path, err := resolveConfigPath()
+	if err != nil {
+		return nil, fmt.Errorf("resolve config path: %w", err)
+	}
+
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open config: %w", err)
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	var cfg Config
 	if err := kdl.Decode(f, &cfg); err != nil {
@@ -43,15 +65,20 @@ func Load(path string) (*Config, error) {
 }
 
 func LoadOrDefaults() *Config {
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		return nil
-	}
-	cfg, err := Load(filepath.Join(configDir, "nm-tui", "config.kdl"))
+	cfg, err := Load()
 	if err != nil {
 		return nil
 	}
 	return cfg
+}
+
+func resolveConfigPath() (string, error) {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	path := filepath.Join(configDir, configDirName, configName)
+	return path, nil
 }
 
 func HelpFromKeys(keys []string) string {
