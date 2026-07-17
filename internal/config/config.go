@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/calico32/kdl-go"
 )
@@ -97,12 +96,4 @@ func resolveConfigPath() (string, error) {
 	}
 	path := filepath.Join(configDir, configDirName, configName)
 	return path, nil
-}
-
-func HelpFromKeys(keys []string) string {
-	transformed := make([]string, len(keys))
-	for i, key := range keys {
-		transformed[i] = strings.ReplaceAll(key, "ctrl+", "^")
-	}
-	return strings.Join(transformed, "/")
 }
