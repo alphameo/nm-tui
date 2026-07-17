@@ -14,10 +14,15 @@ import (
 )
 
 func main() {
-	cfg, cfgErr := config.Load()
-	if cfg != nil {
-		styles.Init(cfg.Colors)
+	loggerOpts := &slog.HandlerOptions{
+		Level:     slog.LevelError,
+		AddSource: true,
 	}
+	stdLogger := slog.New(slog.NewJSONHandler(os.Stderr, loggerOpts))
+	slog.SetDefault(stdLogger)
+
+	cfg := config.LoadOrDefaults()
+	styles.Init(cfg.Colors)
 
 	cacheDir, err := os.UserCacheDir()
 	if err != nil {
@@ -38,17 +43,9 @@ func main() {
 		_ = f.Close()
 	}()
 
-	opts := &slog.HandlerOptions{
-		Level:     slog.LevelError,
-		AddSource: true,
-	}
-	logger := slog.New(slog.NewJSONHandler(f, opts))
+	fileLogger := slog.New(slog.NewJSONHandler(f, loggerOpts))
 
-	slog.SetDefault(logger)
-	if cfgErr != nil {
-		slog.Error("load config: " + cfgErr.Error())
-		return
-	}
+	slog.SetDefault(fileLogger)
 	slog.Info("The program is running")
 	defer slog.Info("Program is closed")
 

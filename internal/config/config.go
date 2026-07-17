@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,6 +31,22 @@ func DefaultColorConfig() ColorConfig {
 		Muted:  "#595959",
 		Error:  "#ff0000",
 		Notif:  "#e4bf7a",
+	}
+}
+
+func DefaultKeys() Keys {
+	return Keys{}
+}
+
+func DefaultPathConfig() PathConfig {
+	return PathConfig{}
+}
+
+func DefaultConfig() Config {
+	return Config{
+		Colors: DefaultColorConfig(),
+		Keys:   DefaultKeys(),
+		Paths:  DefaultPathConfig(),
 	}
 }
 
@@ -64,12 +81,13 @@ func Load() (*Config, error) {
 	return &cfg, nil
 }
 
-func LoadOrDefaults() *Config {
+func LoadOrDefaults() Config {
 	cfg, err := Load()
 	if err != nil {
-		return nil
+		slog.Error("config loading failed", "err", err.Error())
+		return DefaultConfig()
 	}
-	return cfg
+	return *cfg
 }
 
 func resolveConfigPath() (string, error) {
