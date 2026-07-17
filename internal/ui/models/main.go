@@ -70,7 +70,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	wifiTable := tabview.New([]tabview.Tab{
 		{Title: "Wi-Fi", Content: wifi},
 		{Title: "Networking", Content: network},
-	}, styles.TabViewStyles, &keys.tabs)
+	}, &styles.TabViewStyles, &keys.tabs)
 
 	p := &Popup{
 		active: false,
