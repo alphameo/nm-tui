@@ -1,5 +1,7 @@
 package config
 
+import "strings"
+
 type Keys struct {
 	Main           MainKeys           `kdl:"main"`
 	Popup          PopupKeys          `kdl:"popup"`
@@ -93,4 +95,12 @@ type HotspotCreatorKeys struct {
 	Up                 KeyBinding `kdl:"up"`
 	Down               KeyBinding `kdl:"down"`
 	Create             KeyBinding `kdl:"create"`
+}
+
+func HelpFromKeys(keys []string) string {
+	transformed := make([]string, len(keys))
+	for i, key := range keys {
+		transformed[i] = strings.ReplaceAll(key, "ctrl+", "^")
+	}
+	return strings.Join(transformed, "/")
 }
