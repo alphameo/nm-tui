@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -65,6 +66,102 @@ func DefaultConfig() Config {
 	}
 }
 
+func (c *ColorConfig) tryMerge(src *ColorConfig) []error {
+	var errs []error
+	v, err := resolveColor(src.Text)
+	if err != nil {
+		err := fmt.Errorf("text color: %w", err)
+		errs = append(errs, err)
+	} else {
+		c.Text = v
+	}
+
+	v, err = resolveColor(src.Accent)
+	if err != nil {
+		err := fmt.Errorf("accent color: %w", err)
+		errs = append(errs, err)
+	} else {
+		c.Accent = v
+	}
+
+	v, err = resolveColor(src.Error)
+	if err != nil {
+		err := fmt.Errorf("error color: %w", err)
+		errs = append(errs, err)
+	} else {
+		c.Error = v
+	}
+
+	v, err = resolveColor(src.Muted)
+	if err != nil {
+		err := fmt.Errorf("muted color: %w", err)
+		errs = append(errs, err)
+	} else {
+		c.Muted = v
+	}
+
+	v, err = resolveColor(src.Notif)
+	if err != nil {
+		err := fmt.Errorf("notif color: %w", err)
+		errs = append(errs, err)
+	} else {
+		c.Notif = v
+	}
+	return errs
+}
+
+func (c *LogConfig) tryMerge(src *LogConfig) []error {
+	var errs []error
+	if src.FilePath == "" {
+		err := fmt.Errorf("invalid log filepath: %s", src.FilePath)
+		errs = append(errs, err)
+	} else {
+		c.FilePath = src.FilePath
+	}
+
+	if !validLogLevel(src.Level) {
+		err := fmt.Errorf("invalid log level: %s", src.Level)
+		errs = append(errs, err)
+	} else {
+		c.Level = src.Level
+	}
+	return errs
+}
+
+func (c *Config) tryMerge(src *Config) []error {
+	var errs []error
+
+	logErrs := c.Logging.tryMerge(&src.Logging)
+	errs = append(errs, logErrs...)
+
+	colorErrs := c.Colors.tryMerge(&src.Colors)
+	errs = append(errs, colorErrs...)
+
+	return errs
+}
+
+func validLogLevel(s string) bool {
+	switch strings.ToLower(s) {
+	case "debug", "info", "warn", "error":
+		return true
+	}
+	return false
+}
+
+func validHex(color string) bool {
+	if len(color) != 7 || color[0] != '#' {
+		return false
+	}
+	_, err := strconv.ParseUint(color[1:], 16, 64)
+	return err == nil
+}
+func resolveColor(color string) (string, error) {
+	if validHex(color) {
+		return color, nil
+	}
+	return "", fmt.Errorf("color not resolved: %s", color)
+}
+
 func Load() (*Config, error) {
 	path, err := resolveConfigPath()
 	if err != nil {
@@ -89,12 +186,17 @@ func Load() (*Config, error) {
 }
 
 func LoadOrDefaults() Config {
-	cfg, err := Load()
+	defaultCfg := DefaultConfig()
+	userCfg, err := Load()
 	if err != nil {
-		slog.Error("config loading failed", "err", err.Error())
-		return DefaultConfig()
+		slog.Warn("user config loading failed", "err", err.Error())
+		return defaultCfg
 	}
-	return *cfg
+	errs := defaultCfg.tryMerge(userCfg)
+	for _, err := range errs {
+		slog.Warn(err.Error())
+	}
+	return *userCfg
 }
 
 func resolveConfigPath() (string, error) {
