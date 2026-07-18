@@ -33,7 +33,6 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("open log file: %w", err))
 	}
-
 	defer func() {
 		_ = f.Close()
 	}()
@@ -42,6 +41,7 @@ func main() {
 	fileLogger := slog.New(slog.NewJSONHandler(f, loggerOpts))
 
 	slog.SetDefault(fileLogger)
+
 	slog.Info("The program is running")
 	defer slog.Info("Program is closed")
 
