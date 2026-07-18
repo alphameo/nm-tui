@@ -52,7 +52,7 @@ func DefaultLogConfig() LogConfig {
 	}
 	logPath := filepath.Join(stateDir, appName, "log")
 	return LogConfig{
-		Level:    "info",
+		Level:    "error",
 		FilePath: logPath,
 	}
 }
