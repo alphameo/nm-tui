@@ -5,8 +5,14 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/calico32/kdl-go"
+)
+
+const (
+	appName        = "nm-tui"
+	configFileName = "config.kdl"
 )
 
 type Config struct {
@@ -33,12 +39,14 @@ func DefaultColorConfig() ColorConfig {
 	}
 }
 
-func DefaultKeys() Keys {
-	return Keys{}
-}
-
 func DefaultPathConfig() PathConfig {
-	return PathConfig{}
+	stateDir := os.Getenv("XDG_STATE_HOME")
+	if stateDir == "" {
+		home, _ := os.UserHomeDir()
+		stateDir = filepath.Join(home, ".local", "state")
+	}
+	logPath := filepath.Join(stateDir, appName, "log")
+	return PathConfig{LogFile: logPath}
 }
 
 func DefaultConfig() Config {
@@ -53,11 +61,6 @@ type PathConfig struct {
 	CacheDir string `kdl:"cache_dir"`
 	LogFile  string `kdl:"log_file"`
 }
-
-const (
-	configDirName = "nm-tui"
-	configName    = "config.kdl"
-)
 
 func Load() (*Config, error) {
 	path, err := resolveConfigPath()
@@ -77,6 +80,8 @@ func Load() (*Config, error) {
 	if err := kdl.Decode(f, &cfg); err != nil {
 		return nil, fmt.Errorf("decode config: %w", err)
 	}
+
+	cfg.Paths.LogFile = expandPath(cfg.Paths.LogFile)
 	return &cfg, nil
 }
 
@@ -94,6 +99,14 @@ func resolveConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	path := filepath.Join(configDir, configDirName, configName)
+	path := filepath.Join(configDir, appName, configFileName)
 	return path, nil
+}
+
+func expandPath(path string) string {
+	if strings.HasPrefix(path, "~/") {
+		home, _ := os.UserHomeDir()
+		path = filepath.Join(home, path[2:])
+	}
+	return os.ExpandEnv(path)
 }
