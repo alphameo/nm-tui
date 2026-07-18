@@ -16,7 +16,7 @@ import (
 
 func main() {
 	loggerOpts := &slog.HandlerOptions{
-		Level:     slog.LevelError,
+		Level:     slog.LevelWarn,
 		AddSource: true,
 	}
 	stdLogger := slog.New(slog.NewJSONHandler(os.Stderr, loggerOpts))
@@ -30,11 +30,15 @@ func main() {
 
 	logPathDir := filepath.Dir(cfg.Logging.FilePath)
 	if err := os.MkdirAll(logPathDir, 0o700); err != nil {
-		panic(fmt.Errorf("create log directory: %w", err))
+		err := fmt.Errorf("create log directory: %w", err)
+		slog.Error(err.Error())
+		panic(err)
 	}
-	f, cfgErr := os.OpenFile(cfg.Logging.FilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
-	if cfgErr != nil {
-		panic(fmt.Errorf("open log file: %w", cfgErr))
+	f, err := os.OpenFile(cfg.Logging.FilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
+	if err != nil {
+		err := fmt.Errorf("open log file: %w", cfgErr)
+		slog.Error(err.Error())
+		panic(err)
 	}
 	defer func() {
 		_ = f.Close()
@@ -44,6 +48,9 @@ func main() {
 	fileLogger := slog.New(slog.NewJSONHandler(f, loggerOpts))
 
 	slog.SetDefault(fileLogger)
+	if cfgErr != nil {
+		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
+	}
 
 	slog.Info("The program is running")
 	defer slog.Info("Program is closed")
