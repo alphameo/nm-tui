@@ -24,11 +24,11 @@ func main() {
 	cfg := config.LoadOrDefaults()
 	styles.Init(cfg.Colors)
 
-	pathDir := filepath.Dir(cfg.Paths.LogFile)
+	pathDir := filepath.Dir(cfg.Logging.FilePath)
 	if err := os.MkdirAll(pathDir, 0o700); err != nil {
 		panic(fmt.Errorf("create log directory: %w", err))
 	}
-	f, err := os.OpenFile(cfg.Paths.LogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
+	f, err := os.OpenFile(cfg.Logging.FilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
 	if err != nil {
 		panic(fmt.Errorf("open log file: %w", err))
 	}
