@@ -6,7 +6,7 @@ colors {
     notif "#e4bf7a"
 }
 logging {
-    level ""
+    level error
     file_path "~/.local/state/nm-tui/nm-tui.log"
 }
 keys {
