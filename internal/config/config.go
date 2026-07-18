@@ -1,8 +1,8 @@
 package config
 
 import (
+	"errors"
 	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -231,18 +231,14 @@ func Load() (*Config, error) {
 	return &cfg, nil
 }
 
-func LoadOrDefaults() Config {
+func LoadOrDefaults() (Config, error) {
 	cfg := DefaultConfig()
 	userCfg, err := Load()
 	if err != nil {
-		slog.Warn("user config loading failed", "err", err.Error())
-		return cfg
+		return cfg, fmt.Errorf("user config loading failed: %w", err)
 	}
 	errs := cfg.merge(userCfg)
-	for _, err := range errs {
-		slog.Warn("error inside user config, fallback to default values", "error", err.Error())
-	}
-	return cfg
+	return cfg, fmt.Errorf("user config: %w", errors.Join(errs...))
 }
 
 func resolveConfigPath() (string, error) {
