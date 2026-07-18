@@ -66,7 +66,7 @@ func DefaultConfig() Config {
 	}
 }
 
-func (c *ColorConfig) tryMerge(src *ColorConfig) []error {
+func (c *ColorConfig) merge(src *ColorConfig) []error {
 	var errs []error
 	v, err := resolveColor(src.Text)
 	if err != nil {
@@ -110,7 +110,7 @@ func (c *ColorConfig) tryMerge(src *ColorConfig) []error {
 	return errs
 }
 
-func (c *LogConfig) tryMerge(src *LogConfig) []error {
+func (c *LogConfig) merge(src *LogConfig) []error {
 	var errs []error
 	if src.FilePath == "" {
 		err := fmt.Errorf("invalid log filepath: %s", src.FilePath)
@@ -128,13 +128,13 @@ func (c *LogConfig) tryMerge(src *LogConfig) []error {
 	return errs
 }
 
-func (c *Config) tryMerge(src *Config) []error {
+func (c *Config) merge(src *Config) []error {
 	var errs []error
 
-	logErrs := c.Logging.tryMerge(&src.Logging)
+	logErrs := c.Logging.merge(&src.Logging)
 	errs = append(errs, logErrs...)
 
-	colorErrs := c.Colors.tryMerge(&src.Colors)
+	colorErrs := c.Colors.merge(&src.Colors)
 	errs = append(errs, colorErrs...)
 
 	return errs
@@ -238,7 +238,7 @@ func LoadOrDefaults() Config {
 		slog.Warn("user config loading failed", "err", err.Error())
 		return cfg
 	}
-	errs := cfg.tryMerge(userCfg)
+	errs := cfg.merge(userCfg)
 	for _, err := range errs {
 		slog.Warn("error inside user config, fallback to default values", "error", err.Error())
 	}
