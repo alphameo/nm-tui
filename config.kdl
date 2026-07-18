@@ -1,12 +1,17 @@
 colors {
-    text "#cbcbcb"
-    accent "#865fff"
-    muted "#595959"
-    error "#ff0000"
-    notif "#e4bf7a"
+    // text "#cbcbcb"
+    // accent "#865fff"
+    // muted "#595959"
+    // error "#ff0000"
+    // notif "#e4bf7a"
+    text none
+    accent blue
+    muted bright_black
+    error red
+    notif yellow
 }
 logging {
-    level error
+    level warn
     file_path "~/.local/state/nm-tui/nm-tui.log"
 }
 keys {
