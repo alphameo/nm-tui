@@ -37,11 +37,11 @@ type LogConfig struct {
 
 func DefaultColorConfig() ColorConfig {
 	return ColorConfig{
-		Text:   "#cbcbcb",
-		Accent: "#865fff",
-		Muted:  "#595959",
-		Error:  "#ff0000",
-		Notif:  "#e4bf7a",
+		Text:   "none",
+		Accent: "blue",
+		Muted:  "bright_black",
+		Error:  "red",
+		Notif:  "yellow",
 	}
 }
 
