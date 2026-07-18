@@ -157,7 +157,7 @@ func (m *ConnectorModel) handleKey(keyMsg tea.KeyPressMsg) (*ConnectorModel, tea
 		}
 		return m, nil
 	case key.Matches(keyMsg, m.keys.connect):
-		if m.password.Err == nil {
+		if m.password.Err != nil {
 			return m, nil
 		}
 		return m, tea.Sequence(
