@@ -22,16 +22,19 @@ func main() {
 	stdLogger := slog.New(slog.NewJSONHandler(os.Stderr, loggerOpts))
 	slog.SetDefault(stdLogger)
 
-	cfg := config.LoadOrDefaults()
+	cfg, cfgErr := config.LoadOrDefaults()
+	if cfgErr != nil {
+		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
+	}
 	styles.Init(cfg.Colors)
 
 	logPathDir := filepath.Dir(cfg.Logging.FilePath)
 	if err := os.MkdirAll(logPathDir, 0o700); err != nil {
 		panic(fmt.Errorf("create log directory: %w", err))
 	}
-	f, err := os.OpenFile(cfg.Logging.FilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
-	if err != nil {
-		panic(fmt.Errorf("open log file: %w", err))
+	f, cfgErr := os.OpenFile(cfg.Logging.FilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
+	if cfgErr != nil {
+		panic(fmt.Errorf("open log file: %w", cfgErr))
 	}
 	defer func() {
 		_ = f.Close()
