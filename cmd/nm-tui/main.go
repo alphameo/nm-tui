@@ -24,17 +24,11 @@ func main() {
 	cfg := config.LoadOrDefaults()
 	styles.Init(cfg.Colors)
 
-	cacheDir, err := os.UserCacheDir()
-	if err != nil {
-		panic(fmt.Errorf("get cache directory: %w", err))
-	} else {
-		cacheDir = filepath.Join(cacheDir, "nm-tui")
+	pathDir := filepath.Dir(cfg.Paths.LogFile)
+	if err := os.MkdirAll(pathDir, 0o700); err != nil {
+		panic(fmt.Errorf("create log directory: %w", err))
 	}
-	if err := os.MkdirAll(cacheDir, 0o700); err != nil {
-		panic(fmt.Errorf("create cache directory: %w", err))
-	}
-	logPath := filepath.Join(cacheDir, "log")
-	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
+	f, err := os.OpenFile(cfg.Paths.LogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
 	if err != nil {
 		panic(fmt.Errorf("open log file: %w", err))
 	}
