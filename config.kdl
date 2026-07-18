@@ -5,9 +5,9 @@ colors {
     error "#ff0000"
     notif "#e4bf7a"
 }
-paths {
-    cache_dir ""
-    log_file ""
+logging {
+    level ""
+    file_path "~/.local/state/nm-tui/nm-tui.log"
 }
 keys {
     main {

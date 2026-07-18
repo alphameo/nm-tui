@@ -16,9 +16,9 @@ const (
 )
 
 type Config struct {
-	Colors ColorConfig `kdl:"colors"`
-	Keys   Keys        `kdl:"keys"`
-	Paths  PathConfig  `kdl:"paths"`
+	Colors  ColorConfig `kdl:"colors"`
+	Keys    Keys        `kdl:"keys"`
+	Logging LogConfig   `kdl:"logging"`
 }
 
 type ColorConfig struct {
@@ -27,6 +27,11 @@ type ColorConfig struct {
 	Muted  string `kdl:"muted"`
 	Error  string `kdl:"error"`
 	Notif  string `kdl:"notif"`
+}
+
+type LogConfig struct {
+	Level    string `kdl:"level"`
+	FilePath string `kdl:"file_path"`
 }
 
 func DefaultColorConfig() ColorConfig {
@@ -39,27 +44,25 @@ func DefaultColorConfig() ColorConfig {
 	}
 }
 
-func DefaultPathConfig() PathConfig {
+func DefaultLogConfig() LogConfig {
 	stateDir := os.Getenv("XDG_STATE_HOME")
 	if stateDir == "" {
 		home, _ := os.UserHomeDir()
 		stateDir = filepath.Join(home, ".local", "state")
 	}
 	logPath := filepath.Join(stateDir, appName, "log")
-	return PathConfig{LogFile: logPath}
+	return LogConfig{
+		Level:    "info",
+		FilePath: logPath,
+	}
 }
 
 func DefaultConfig() Config {
 	return Config{
-		Colors: DefaultColorConfig(),
-		Keys:   DefaultKeys(),
-		Paths:  DefaultPathConfig(),
+		Colors:  DefaultColorConfig(),
+		Keys:    DefaultKeys(),
+		Logging: DefaultLogConfig(),
 	}
-}
-
-type PathConfig struct {
-	CacheDir string `kdl:"cache_dir"`
-	LogFile  string `kdl:"log_file"`
 }
 
 func Load() (*Config, error) {
@@ -81,7 +84,7 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("decode config: %w", err)
 	}
 
-	cfg.Paths.LogFile = expandPath(cfg.Paths.LogFile)
+	cfg.Logging.FilePath = expandPath(cfg.Logging.FilePath)
 	return &cfg, nil
 }
 
