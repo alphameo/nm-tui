@@ -227,7 +227,6 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("decode config: %w", err)
 	}
 
-	cfg.Logging.FilePath = expandPath(cfg.Logging.FilePath)
 	return &cfg, nil
 }
 
@@ -248,12 +247,4 @@ func resolveConfigPath() (string, error) {
 	}
 	path := filepath.Join(configDir, appName, configFileName)
 	return path, nil
-}
-
-func expandPath(path string) string {
-	if strings.HasPrefix(path, "~/") {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, path[2:])
-	}
-	return os.ExpandEnv(path)
 }
