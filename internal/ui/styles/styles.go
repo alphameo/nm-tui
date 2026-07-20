@@ -2,7 +2,9 @@
 package styles
 
 import (
+	"fmt"
 	"image/color"
+	"strings"
 
 	"charm.land/bubbles/v2/table"
 	"charm.land/lipgloss/v2"
@@ -37,12 +39,11 @@ var (
 	ToggleFocusedStyle lipgloss.Style
 )
 
-func Init(colors config.ColorConfig) {
-	TextColor = lipgloss.Color(colors.Text)
-	AccentColor = lipgloss.Color(colors.Accent)
-	MutedColor = lipgloss.Color(colors.Muted)
-	ErrorColor = lipgloss.Color(colors.Error)
-	NotifColor = lipgloss.Color(colors.Notif)
+func Init(colors config.ColorConfig) error {
+	err := convertColorConfig(colors)
+	if err != nil {
+		return err
+	}
 
 	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor)
 	AccentStyle = lipgloss.NewStyle().Foreground(AccentColor)
@@ -71,6 +72,8 @@ func Init(colors config.ColorConfig) {
 	ToggleFocusedStyle = ToggleStyle.Foreground(AccentColor)
 
 	ErrorSymbolColored = DefaultStyle.Foreground(ErrorColor).Render(ErrorSymbol)
+
+	return nil
 }
 
 func tableStyle() table.Styles {
@@ -98,4 +101,84 @@ func dataTableStyle() table.Styles {
 		Foreground(TextColor).
 		Bold(false)
 	return style
+}
+
+func convertColorConfig(colors config.ColorConfig) error {
+	color, err := resolveCfgColor(colors.Text)
+	if err != nil {
+		return err
+	}
+	TextColor = lipgloss.Color(color)
+
+	color, err = resolveCfgColor(colors.Accent)
+	if err != nil {
+		return err
+	}
+	AccentColor = lipgloss.Color(color)
+
+	color, err = resolveCfgColor(colors.Muted)
+	if err != nil {
+		return err
+	}
+	MutedColor = lipgloss.Color(color)
+
+	color, err = resolveCfgColor(colors.Error)
+	if err != nil {
+		return err
+	}
+	ErrorColor = lipgloss.Color(color)
+
+	color, err = resolveCfgColor(colors.Notif)
+	if err != nil {
+		return err
+	}
+	NotifColor = lipgloss.Color(color)
+
+	return nil
+}
+
+func resolveCfgColor(cfgColor string) (string, error) {
+	c := strings.ToLower(cfgColor)
+	switch c {
+	case config.CBlack:
+		return "0", nil
+	case config.CRed:
+		return "1", nil
+	case config.CGreen:
+		return "2", nil
+	case config.CYellow:
+		return "3", nil
+	case config.CBlue:
+		return "4", nil
+	case config.CMagenta:
+		return "5", nil
+	case config.CCyan:
+		return "6", nil
+	case config.CWhite:
+		return "7", nil
+	case config.CBrightBlack:
+		return "8", nil
+	case config.CBrightRed:
+		return "9", nil
+	case config.CBrightGreen:
+		return "10", nil
+	case config.CBrightYellow:
+		return "11", nil
+	case config.CBrightBlue:
+		return "12", nil
+	case config.CBrightMagenta:
+		return "13", nil
+	case config.CBrightCyan:
+		return "14", nil
+	case config.CBrightWhite:
+		return "15", nil
+	case config.CNone:
+		return "", nil
+	}
+
+	if config.ValidHex(c) {
+		return c, nil
+	}
+
+	return "", fmt.Errorf("color not resolved: %s", cfgColor)
 }
