@@ -52,9 +52,10 @@ func DefaultLogConfig() LogConfig {
 		stateDir = filepath.Join(home, ".local", "state")
 	}
 	logPath := filepath.Join(stateDir, appName, "log")
-	return LogConfig{
-		Level:    "error",
-		FilePath: logPath,
+	level := LogError
+	return &LogConfig{
+		Level:    &level,
+		FilePath: &logPath,
 	}
 }
 
@@ -112,6 +113,7 @@ func (c *ColorConfig) merge(src *ColorConfig) []error {
 
 func (c *LogConfig) merge(src *LogConfig) []error {
 	var errs []error
+
 	if src.FilePath == "" {
 		err := fmt.Errorf("invalid log filepath: %s", src.FilePath)
 		errs = append(errs, err)
@@ -140,9 +142,16 @@ func (c *Config) merge(src *Config) []error {
 	return errs
 }
 
+const (
+	LogDebug = "debug"
+	LogInfo  = "info"
+	LogWarn  = "warn"
+	LogError = "error"
+)
+
 func validLogLevel(s string) bool {
 	switch strings.ToLower(s) {
-	case "debug", "info", "warn", "error":
+	case LogDebug, LogInfo, LogWarn, LogError:
 		return true
 	}
 	return false

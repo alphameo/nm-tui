@@ -137,8 +137,8 @@ func convertColorConfig(colors config.ColorConfig) error {
 	return nil
 }
 
-func resolveCfgColor(cfgColor string) (string, error) {
-	c := strings.ToLower(cfgColor)
+func resolveCfgColor(cfgColor *string) (string, error) {
+	c := strings.ToLower(*cfgColor)
 	switch c {
 	case config.CBlack:
 		return "0", nil
