@@ -68,44 +68,44 @@ func DefaultConfig() Config {
 
 func (c *ColorConfig) merge(src *ColorConfig) []error {
 	var errs []error
-	v, err := resolveColor(src.Text)
+	err := validateColor(src.Text)
 	if err != nil {
 		err := fmt.Errorf("text color: %w", err)
 		errs = append(errs, err)
 	} else {
-		c.Text = v
+		c.Text = src.Text
 	}
 
-	v, err = resolveColor(src.Accent)
+	err = validateColor(src.Accent)
 	if err != nil {
 		err := fmt.Errorf("accent color: %w", err)
 		errs = append(errs, err)
 	} else {
-		c.Accent = v
+		c.Accent = src.Accent
 	}
 
-	v, err = resolveColor(src.Error)
+	err = validateColor(src.Error)
 	if err != nil {
 		err := fmt.Errorf("error color: %w", err)
 		errs = append(errs, err)
 	} else {
-		c.Error = v
+		c.Error = src.Error
 	}
 
-	v, err = resolveColor(src.Muted)
+	err = validateColor(src.Muted)
 	if err != nil {
 		err := fmt.Errorf("muted color: %w", err)
 		errs = append(errs, err)
 	} else {
-		c.Muted = v
+		c.Muted = src.Muted
 	}
 
-	v, err = resolveColor(src.Notif)
+	err = validateColor(src.Notif)
 	if err != nil {
 		err := fmt.Errorf("notif color: %w", err)
 		errs = append(errs, err)
 	} else {
-		c.Notif = v
+		c.Notif = src.Notif
 	}
 	return errs
 }
@@ -148,7 +148,39 @@ func validLogLevel(s string) bool {
 	return false
 }
 
-func validHex(color string) bool {
+const (
+	CBlack         = "black"
+	CRed           = "red"
+	CGreen         = "green"
+	CYellow        = "yellow"
+	CBlue          = "blue"
+	CMagenta       = "magenta"
+	CCyan          = "cyan"
+	CWhite         = "white"
+	CBrightBlack   = "bright_black"
+	CBrightRed     = "bright_red"
+	CBrightGreen   = "bright_green"
+	CBrightYellow  = "bright_yellow"
+	CBrightBlue    = "bright_blue"
+	CBrightMagenta = "bright_magenta"
+	CBrightCyan    = "bright_cyan"
+	CBrightWhite   = "bright_white"
+	CNone          = "none"
+)
+
+func ValidCfgColor(color string) bool {
+	switch color {
+	case CBlack, CRed, CGreen, CYellow, CBlue, CMagenta, CCyan, CWhite,
+		CBrightBlack, CBrightRed, CBrightGreen, CBrightYellow,
+		CBrightBlue, CBrightMagenta, CBrightCyan, CBrightWhite,
+		CNone:
+		return true
+	default:
+		return false
+	}
+}
+
+func ValidHex(color string) bool {
 	if len(color) != 7 || color[0] != '#' {
 		return false
 	}
@@ -156,56 +188,14 @@ func validHex(color string) bool {
 	return err == nil
 }
 
-func resolveWordColor(color string) (string, error) {
-	c := strings.ToLower(color)
-	switch c {
-	case "black":
-		return "0", nil
-	case "red":
-		return "1", nil
-	case "green":
-		return "2", nil
-	case "yellow":
-		return "3", nil
-	case "blue":
-		return "4", nil
-	case "magenta":
-		return "5", nil
-	case "cyan":
-		return "6", nil
-	case "white":
-		return "7", nil
-	case "bright_black":
-		return "8", nil
-	case "bright_red":
-		return "9", nil
-	case "bright_green":
-		return "10", nil
-	case "bright_yellow":
-		return "11", nil
-	case "bright_blue":
-		return "12", nil
-	case "bright_magenta":
-		return "13", nil
-	case "bright_cyan":
-		return "14", nil
-	case "bright_white":
-		return "15", nil
-	case "none":
-		return "", nil
-	default:
-		return "", fmt.Errorf("ansi color not recognized: %s", color)
+func validateColor(color string) error {
+	if ValidHex(color) {
+		return nil
 	}
-}
-
-func resolveColor(color string) (string, error) {
-	if validHex(color) {
-		return color, nil
+	if ValidCfgColor(color) {
+		return nil
 	}
-	if resolvedColor, err := resolveWordColor(color); err == nil {
-		return resolvedColor, nil
-	}
-	return "", fmt.Errorf("color not resolved: %s", color)
+	return fmt.Errorf("unknown color: %s", color)
 }
 
 func Load() (*Config, error) {
