@@ -237,7 +237,13 @@ func LoadOrDefaults() (Config, error) {
 		return cfg, fmt.Errorf("user config loading failed: %w", err)
 	}
 	errs := cfg.merge(userCfg)
-	return cfg, fmt.Errorf("user config: %w", errors.Join(errs...))
+
+	if len(errs) > 0 {
+		err = fmt.Errorf("user config: %w", errors.Join(errs...))
+	} else {
+		err = nil
+	}
+	return cfg, err
 }
 
 func resolveConfigPath() (string, error) {
