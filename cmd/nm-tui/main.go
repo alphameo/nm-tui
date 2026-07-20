@@ -28,13 +28,14 @@ func main() {
 	}
 	styles.Init(cfg.Colors)
 
-	logPathDir := filepath.Dir(cfg.Logging.FilePath)
+	logPath := expandPath(cfg.Logging.FilePath)
+	logPathDir := filepath.Dir(logPath)
 	if err := os.MkdirAll(logPathDir, 0o700); err != nil {
 		err := fmt.Errorf("create log directory: %w", err)
 		slog.Error(err.Error())
 		panic(err)
 	}
-	f, err := os.OpenFile(cfg.Logging.FilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
+	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
 	if err != nil {
 		err := fmt.Errorf("open log file: %w", cfgErr)
 		slog.Error(err.Error())
@@ -75,4 +76,12 @@ func ResolveLogLevel(level string) slog.Level {
 	default:
 		return slog.LevelError
 	}
+}
+
+func expandPath(path string) string {
+	if strings.HasPrefix(path, "~/") {
+		home, _ := os.UserHomeDir()
+		path = filepath.Join(home, path[2:])
+	}
+	return os.ExpandEnv(path)
 }
