@@ -45,7 +45,13 @@ func main() {
 		_ = f.Close()
 	}()
 
-	loggerOpts.Level = ResolveLogLevel(cfg.Logging.Level)
+	logLevel, err := resolveLogLevel(*cfg.Logging.Level)
+	if err != nil {
+		err = fmt.Errorf("log level: %w", err)
+		slog.Error(err.Error())
+		panic(err)
+	}
+	loggerOpts.Level = logLevel
 	fileLogger := slog.New(slog.NewJSONHandler(f, loggerOpts))
 
 	slog.SetDefault(fileLogger)
@@ -63,19 +69,20 @@ func main() {
 	}
 }
 
-func ResolveLogLevel(level string) slog.Level {
-	switch strings.ToLower(level) {
-	case "debug":
-		return slog.LevelDebug
-	case "info":
-		return slog.LevelInfo
-	case "warn":
-		return slog.LevelWarn
-	case "error":
-		return slog.LevelError
-	default:
-		return slog.LevelError
+func resolveLogLevel(level string) (slog.Level, error) {
+	logLevel := strings.ToLower(level)
+	switch logLevel {
+	case config.LogDebug:
+		return slog.LevelDebug, nil
+	case config.LogInfo:
+		return slog.LevelInfo, nil
+	case config.LogWarn:
+		return slog.LevelWarn, nil
+	case config.LogError:
+		return slog.LevelError, nil
 	}
+
+	return slog.LevelError, fmt.Errorf("log level not resolved: %s", logLevel)
 }
 
 func expandPath(path string) string {
