@@ -37,7 +37,7 @@ func main() {
 	}
 	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
 	if err != nil {
-		err := fmt.Errorf("open log file: %w", cfgErr)
+		err := fmt.Errorf("open log file: %w", err)
 		slog.Error(err.Error())
 		panic(err)
 	}
