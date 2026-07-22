@@ -32,30 +32,12 @@ func DefaultColorConfig() *ColorConfig {
 
 func (c *ColorConfig) merge(src *ColorConfig) []error {
 	var errs []error
-	err := mergeColor(c.Text, src.Text, "text")
-	if err != nil {
-		errs = append(errs, err)
-	}
 
-	err = mergeColor(c.Accent, src.Accent, "accent")
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	err = mergeColor(c.Error, src.Error, "error")
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	err = mergeColor(c.Muted, src.Muted, "muted")
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	err = mergeColor(c.Notif, src.Notif, "notif")
-	if err != nil {
-		errs = append(errs, err)
-	}
+	errs = append(errs, mergeColor(c.Text, src.Text, "text"))
+	errs = append(errs, mergeColor(c.Accent, src.Accent, "accent"))
+	errs = append(errs, mergeColor(c.Error, src.Error, "error"))
+	errs = append(errs, mergeColor(c.Muted, src.Muted, "muted"))
+	errs = append(errs, mergeColor(c.Notif, src.Notif, "notif"))
 
 	return errs
 }
