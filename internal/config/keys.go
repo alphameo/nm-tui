@@ -17,8 +17,8 @@ type Keys struct {
 	HotspotCreator HotspotCreatorKeys `kdl:"hotspot_creator"`
 }
 
-func DefaultKeys() Keys {
-	return Keys{}
+func DefaultKeys() *Keys {
+	return &Keys{}
 }
 
 type KeyBinding struct {
