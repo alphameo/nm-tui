@@ -236,7 +236,7 @@ var validKey = map[string]bool{
 	"isolevel3shift": true, "isolevel5shift": true,
 }
 
-func init() {
+func initKeyConfig() {
 	for i := 1; i <= 63; i++ {
 		validKey[fmt.Sprintf("f%d", i)] = true
 	}
