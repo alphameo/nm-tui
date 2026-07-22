@@ -104,31 +104,31 @@ func dataTableStyle() table.Styles {
 }
 
 func convertColorConfig(colors config.ColorConfig) error {
-	color, err := resolveCfgColor(colors.Text)
+	color, err := resolveCfgColor(*colors.Text)
 	if err != nil {
 		return err
 	}
 	TextColor = lipgloss.Color(color)
 
-	color, err = resolveCfgColor(colors.Accent)
+	color, err = resolveCfgColor(*colors.Accent)
 	if err != nil {
 		return err
 	}
 	AccentColor = lipgloss.Color(color)
 
-	color, err = resolveCfgColor(colors.Muted)
+	color, err = resolveCfgColor(*colors.Muted)
 	if err != nil {
 		return err
 	}
 	MutedColor = lipgloss.Color(color)
 
-	color, err = resolveCfgColor(colors.Error)
+	color, err = resolveCfgColor(*colors.Error)
 	if err != nil {
 		return err
 	}
 	ErrorColor = lipgloss.Color(color)
 
-	color, err = resolveCfgColor(colors.Notif)
+	color, err = resolveCfgColor(*colors.Notif)
 	if err != nil {
 		return err
 	}
@@ -137,8 +137,8 @@ func convertColorConfig(colors config.ColorConfig) error {
 	return nil
 }
 
-func resolveCfgColor(cfgColor *string) (string, error) {
-	c := strings.ToLower(*cfgColor)
+func resolveCfgColor(cfgColor string) (string, error) {
+	c := strings.ToLower(cfgColor)
 	switch c {
 	case config.CBlack:
 		return "0", nil
