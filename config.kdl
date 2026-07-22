@@ -7,83 +7,43 @@ colors {
     text none
     accent blue
     muted bright_black
-    error red
-    notif yellow
+    error default
+    notif default
 }
 logging {
     level warn
     file_path "~/.local/state/nm-tui/nm-tui.log"
 }
 keys {
-    toggle {
-        keys space
-    }
+    toggle space
     main {
-        next_tab {
-            keys "]"
-        }
-        prev_tab {
-            keys "["
-        }
-        focus_next {
-            keys tab
-        }
-        focus_prev {
-            keys shift+tab
-        }
-        quit {
-            keys esc ctrl+c q ctrl+q
-        }
+        next_tab "]"
+        prev_tab "["
+        focus_next tab
+        focus_prev shift+tab
+        quit esc ctrl+c q ctrl+q
     }
     dialog {
-        focus_down {
-            keys ctrl+j
-        }
-        focus_up {
-            keys tab
-        }
-        toggle_pw_visibility {
-            keys ctrl+p
-        }
-        accept {
-            keys ctrl+enter
-        }
-        close {
-            keys ctrl+q
-        }
+        focus_down ctrl+j
+        focus_up tab
+        toggle_pw_visibility ctrl+p
+        accept ctrl+enter
+        close ctrl+q
     }
     wifi {
-        create_profile {
-            keys a c
-        }
-        open_network_login {
-            keys l
-        }
-        enable_hotspot {
-            keys ctrl+h
-        }
-        create_hotspot {
-            keys h
-        }
+        create_profile a c
+        open_network_login l
+        enable_hotspot ctrl+h
+        create_hotspot h
     }
     wifi_available {
-        connect {
-            keys enter
-        }
+        connect enter
     }
     wifi_saved {
-        edit {
-            keys enter
-        }
-        connect {
-            keys space
-        }
-        disconnect {
-            keys ctrl+space
-        }
-        delete {
-            keys d delete
-        }
+        edit enter
+        connect space
+        disconnect ctrl+space
+        delete d delete
     }
 }
 

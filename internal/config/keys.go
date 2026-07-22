@@ -5,10 +5,24 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"github.com/calico32/kdl-go"
 )
 
-type KeyBinding struct {
-	Keys []string `kdl:"keys,arguments"`
+type KeyBinding []string
+
+func keyBinding(keys ...string) *KeyBinding {
+	k := KeyBinding(keys)
+	return &k
+}
+
+func (k *KeyBinding) UnmarshalKDL(node *kdl.Node) error {
+	args := node.Arguments()
+	*k = make(KeyBinding, len(args))
+	for i, arg := range args {
+		(*k)[i] = arg.String()
+	}
+	return nil
 }
 
 type KeyConfig struct {
@@ -58,35 +72,35 @@ type WifiSavedKeys struct {
 
 func DefaultKeys() *KeyConfig {
 	return &KeyConfig{
-		Toggle: &KeyBinding{Keys: []string{"space"}},
+		Toggle: keyBinding("space"),
 		Main: &MainKeys{
-			NextTab:   &KeyBinding{Keys: []string{"]"}},
-			PrevTab:   &KeyBinding{Keys: []string{"["}},
-			FocusNext: &KeyBinding{Keys: []string{"tab"}},
-			FocusPrev: &KeyBinding{Keys: []string{"shift+tab"}},
-			Quit:      &KeyBinding{Keys: []string{"esc", "ctrl+c", "q", "ctrl+q"}},
+			NextTab:   keyBinding("]"),
+			PrevTab:   keyBinding("["),
+			FocusNext: keyBinding("tab"),
+			FocusPrev: keyBinding("shift+tab"),
+			Quit:      keyBinding("esc", "ctrl+c", "q", "ctrl+q"),
 		},
 		Dialog: &DialogKeys{
-			FocusDown:          &KeyBinding{Keys: []string{"ctrl+j"}},
-			FocusUp:            &KeyBinding{Keys: []string{"tab"}},
-			TogglePWVisibility: &KeyBinding{Keys: []string{"ctrl+p"}},
-			Accept:             &KeyBinding{Keys: []string{"ctrl+enter"}},
-			Close:              &KeyBinding{Keys: []string{"ctrl+q"}},
+			FocusDown:          keyBinding("ctrl+j"),
+			FocusUp:            keyBinding("tab"),
+			TogglePWVisibility: keyBinding("ctrl+p"),
+			Accept:             keyBinding("ctrl+enter"),
+			Close:              keyBinding("ctrl+q"),
 		},
 		Wifi: &WifiKeys{
-			CreateProfile:     &KeyBinding{Keys: []string{"a", "c"}},
-			OpenCaptivePortal: &KeyBinding{Keys: []string{"l"}},
-			EnableHotspot:     &KeyBinding{Keys: []string{"ctrl+h"}},
-			CreateHotspot:     &KeyBinding{Keys: []string{"h"}},
+			CreateProfile:     keyBinding("a", "c"),
+			OpenCaptivePortal: keyBinding("l"),
+			EnableHotspot:     keyBinding("ctrl+h"),
+			CreateHotspot:     keyBinding("h"),
 		},
 		WifiAvailable: &WifiAvailableKeys{
-			Connect: &KeyBinding{Keys: []string{"enter"}},
+			Connect: keyBinding("enter"),
 		},
 		WifiSaved: &WifiSavedKeys{
-			Edit:       &KeyBinding{Keys: []string{"enter"}},
-			Connect:    &KeyBinding{Keys: []string{"space"}},
-			Disconnect: &KeyBinding{Keys: []string{"ctrl+space"}},
-			Delete:     &KeyBinding{Keys: []string{"d", "delete"}},
+			Edit:       keyBinding("enter"),
+			Connect:    keyBinding("space"),
+			Disconnect: keyBinding("ctrl+space"),
+			Delete:     keyBinding("d", "delete"),
 		},
 	}
 }
@@ -97,7 +111,7 @@ func (k *KeyConfig) merge(src *KeyConfig) []error {
 	}
 
 	var errs []error
-	errs = append(errs, k.Toggle.merge(src.Toggle)...)
+	errs = append(errs, mergeKeyList(k.Toggle, src.Toggle, "toggle")...)
 	errs = append(errs, k.Main.merge(src.Main)...)
 	errs = append(errs, k.Dialog.merge(src.Dialog)...)
 	errs = append(errs, k.Wifi.merge(src.Wifi)...)
@@ -112,11 +126,11 @@ func (m *MainKeys) merge(src *MainKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, m.NextTab.merge(src.NextTab)...)
-	errs = append(errs, m.PrevTab.merge(src.PrevTab)...)
-	errs = append(errs, m.FocusNext.merge(src.FocusNext)...)
-	errs = append(errs, m.FocusPrev.merge(src.FocusPrev)...)
-	errs = append(errs, m.Quit.merge(src.Quit)...)
+	errs = append(errs, mergeKeyList(m.NextTab, src.NextTab, "main.next_tab")...)
+	errs = append(errs, mergeKeyList(m.PrevTab, src.PrevTab, "main.prev_tab")...)
+	errs = append(errs, mergeKeyList(m.FocusNext, src.FocusNext, "main.focus_next")...)
+	errs = append(errs, mergeKeyList(m.FocusPrev, src.FocusPrev, "main.focus_prev")...)
+	errs = append(errs, mergeKeyList(m.Quit, src.Quit, "main.quit")...)
 	return errs
 }
 
@@ -126,11 +140,11 @@ func (d *DialogKeys) merge(src *DialogKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, d.FocusDown.merge(src.FocusDown)...)
-	errs = append(errs, d.FocusUp.merge(src.FocusUp)...)
-	errs = append(errs, d.TogglePWVisibility.merge(src.TogglePWVisibility)...)
-	errs = append(errs, d.Accept.merge(src.Accept)...)
-	errs = append(errs, d.Close.merge(src.Close)...)
+	errs = append(errs, mergeKeyList(d.FocusDown, src.FocusDown, "dialog.focus_down")...)
+	errs = append(errs, mergeKeyList(d.FocusUp, src.FocusUp, "dialog.focus_up")...)
+	errs = append(errs, mergeKeyList(d.TogglePWVisibility, src.TogglePWVisibility, "dialog.toggle_pw_visibility")...)
+	errs = append(errs, mergeKeyList(d.Accept, src.Accept, "dialog.accept")...)
+	errs = append(errs, mergeKeyList(d.Close, src.Close, "dialog.close")...)
 	return errs
 }
 
@@ -140,10 +154,10 @@ func (w *WifiKeys) merge(src *WifiKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, w.CreateProfile.merge(src.CreateProfile)...)
-	errs = append(errs, w.OpenCaptivePortal.merge(src.OpenCaptivePortal)...)
-	errs = append(errs, w.EnableHotspot.merge(src.EnableHotspot)...)
-	errs = append(errs, w.CreateHotspot.merge(src.CreateHotspot)...)
+	errs = append(errs, mergeKeyList(w.CreateProfile, src.CreateProfile, "wifi.create_profile")...)
+	errs = append(errs, mergeKeyList(w.OpenCaptivePortal, src.OpenCaptivePortal, "wifi.open_network_login")...)
+	errs = append(errs, mergeKeyList(w.EnableHotspot, src.EnableHotspot, "wifi.enable_hotspot")...)
+	errs = append(errs, mergeKeyList(w.CreateHotspot, src.CreateHotspot, "wifi.create_hotspot")...)
 	return errs
 }
 
@@ -153,7 +167,7 @@ func (a *WifiAvailableKeys) merge(src *WifiAvailableKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, a.Connect.merge(src.Connect)...)
+	errs = append(errs, mergeKeyList(a.Connect, src.Connect, "wifi_available.connect")...)
 	return errs
 }
 
@@ -163,29 +177,29 @@ func (s *WifiSavedKeys) merge(src *WifiSavedKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, s.Edit.merge(src.Edit)...)
-	errs = append(errs, s.Connect.merge(src.Connect)...)
-	errs = append(errs, s.Disconnect.merge(src.Disconnect)...)
-	errs = append(errs, s.Delete.merge(src.Delete)...)
+	errs = append(errs, mergeKeyList(s.Edit, src.Edit, "wifi_saved.edit")...)
+	errs = append(errs, mergeKeyList(s.Connect, src.Connect, "wifi_saved.connect")...)
+	errs = append(errs, mergeKeyList(s.Disconnect, src.Disconnect, "wifi_saved.disconnect")...)
+	errs = append(errs, mergeKeyList(s.Delete, src.Delete, "wifi_saved.delete")...)
 	return errs
 }
 
-func (b *KeyBinding) merge(src *KeyBinding) []error {
+func mergeKeyList(dst *KeyBinding, src *KeyBinding, tag string) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	for _, k := range src.Keys {
-		if !validKeyName(k) {
-			errs = append(errs, fmt.Errorf("invalid key: %q", k))
+	for _, v := range *src {
+		if !validKeyName(v) {
+			errs = append(errs, fmt.Errorf("invalid key %s: %q", tag, v))
 		}
 	}
 	if len(errs) > 0 {
 		return errs
 	}
 
-	b.Keys = src.Keys
+	*dst = *src
 	return nil
 }
 
