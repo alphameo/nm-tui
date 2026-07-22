@@ -15,47 +15,49 @@ logging {
     file_path "~/.local/state/nm-tui/nm-tui.log"
 }
 keys {
+    toggle {
+        keys space
+    }
     main {
-        quit {
-            keys q ctrl+q esc ctrl+c
-        }
-    }
-    popup {
-        close {
-            keys ctrl+q esc ctrl+c
-        }
-    }
-    tabs {
-        next {
+        next_tab {
             keys "]"
         }
-        prev {
+        prev_tab {
             keys "["
         }
+        focus_next {
+            keys tab
+        }
+        focus_prev {
+            keys shift+tab
+        }
+        quit {
+            keys esc ctrl+c q ctrl+q
+        }
     }
-    toggle {
-        toggle {
-            keys space
+    dialog {
+        focus_down {
+            keys ctrl+j
+        }
+        focus_up {
+            keys tab
+        }
+        toggle_pw_visibility {
+            keys ctrl+p
+        }
+        accept {
+            keys ctrl+enter
+        }
+        close {
+            keys ctrl+q
         }
     }
     wifi {
-        next_window {
-            keys tab
+        create_profile {
+            keys a c
         }
-        first_window {
-            keys "1"
-        }
-        second_window {
-            keys "2"
-        }
-        rescan {
-            keys ctrl+r
-        }
-        create {
-            keys a
-        }
-        open_captive_portal {
-            keys ctrl+p
+        open_network_login {
+            keys l
         }
         enable_hotspot {
             keys ctrl+h
@@ -65,9 +67,6 @@ keys {
         }
     }
     wifi_available {
-        rescan {
-            keys r
-        }
         connect {
             keys enter
         }
@@ -82,27 +81,9 @@ keys {
         disconnect {
             keys ctrl+space
         }
-        rescan {
-            keys r
-        }
         delete {
-            keys d
+            keys d delete
         }
     }
-    networking {
-        up {
-            keys ctrl+k
-        }
-        down {
-            keys ctrl+j
-        }
-        toggle {
-            keys space
-        }
-        rescan {
-            keys r
-        }
-    }
- // connector, profile_creator, profile_editor, hotspot_creator follow same pattern
 }
 
