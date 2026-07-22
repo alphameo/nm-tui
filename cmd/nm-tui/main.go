@@ -26,7 +26,6 @@ func main() {
 	if cfgErr != nil {
 		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
 	}
-	styles.Init(*cfg.Colors)
 
 	logPath := expandPath(*cfg.Logging.FilePath)
 	logPathDir := filepath.Dir(logPath)
@@ -57,6 +56,12 @@ func main() {
 	slog.SetDefault(fileLogger)
 	if cfgErr != nil {
 		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
+	}
+
+	slog.Info("Style initialization")
+	err = styles.Init(*cfg.Colors)
+	if err != nil {
+		slog.Error("errors during style initialization", "error", err.Error())
 	}
 
 	slog.Info("The program is running")
