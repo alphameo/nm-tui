@@ -73,7 +73,7 @@ func validateColor(color string) error {
 	if ValidCfgColor(c) {
 		return nil
 	}
-	return fmt.Errorf("unknown color: %s", color)
+	return fmt.Errorf("unknown color: %q", color)
 }
 
 const (
