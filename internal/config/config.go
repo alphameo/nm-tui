@@ -14,6 +14,7 @@ import (
 const (
 	appName        = "nm-tui"
 	configFileName = "config.kdl"
+	defaultKeyword = "default"
 )
 
 type Config struct {
@@ -108,7 +109,13 @@ func mergeColor(dst *string, src *string, tag string) error {
 		return nil
 	}
 
-	err := validateColor(src)
+	color := *src
+
+	if color == defaultKeyword {
+		return nil
+	}
+
+	err := validateColor(color)
 	if err != nil {
 		return fmt.Errorf("%s color: %w", tag, err)
 	}
@@ -117,23 +124,24 @@ func mergeColor(dst *string, src *string, tag string) error {
 }
 
 func (c *LogConfig) merge(src *LogConfig) []error {
+	if src == nil {
+		return nil
+	}
+
 	var errs []error
 
-	if src.FilePath != nil {
-		filepath := *src.FilePath
-		if filepath == "" {
-			err := fmt.Errorf("invalid log filepath: %s", filepath)
-			errs = append(errs, err)
+	if src.FilePath != nil && *src.FilePath != defaultKeyword {
+		if *src.FilePath == "" {
+			errs = append(errs, fmt.Errorf("empty log filepath"))
 		} else {
 			c.FilePath = src.FilePath
 		}
 	}
 
-	if src.Level != nil {
-		if !validLogLevel(src.Level) {
-			err := fmt.Errorf("invalid log level: %s", *src.Level)
-			errs = append(errs, err)
-		} else if src.Level != nil {
+	if src.Level != nil && *src.Level != defaultKeyword {
+		if !validLogLevel(*src.Level) {
+			errs = append(errs, fmt.Errorf("invalid log level: %s", *src.Level))
+		} else {
 			c.Level = src.Level
 		}
 	}
@@ -163,11 +171,8 @@ const (
 	LogError = "error"
 )
 
-func validLogLevel(level *string) bool {
-	if level == nil {
-		return true
-	}
-	switch strings.ToLower(*level) {
+func validLogLevel(level string) bool {
+	switch strings.ToLower(level) {
 	case LogDebug, LogInfo, LogWarn, LogError:
 		return true
 	}
@@ -214,18 +219,19 @@ func ValidHex(color string) bool {
 	return err == nil
 }
 
-func validateColor(color *string) error {
-	if color == nil {
+func validateColor(color string) error {
+	c := strings.ToLower(color)
+	if c == defaultKeyword {
 		return nil
 	}
-	c := strings.ToLower(*color)
+
 	if ValidHex(c) {
 		return nil
 	}
 	if ValidCfgColor(c) {
 		return nil
 	}
-	return fmt.Errorf("unknown color: %s", *color)
+	return fmt.Errorf("unknown color: %s", color)
 }
 
 func Load() (*Config, error) {
