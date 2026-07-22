@@ -16,7 +16,7 @@ const (
 
 type Config struct {
 	Colors  *ColorConfig `kdl:"colors"`
-	Keys    *Keys        `kdl:"keys"`
+	Keys    *KeyConfig   `kdl:"keys"`
 	Logging *LogConfig   `kdl:"logging"`
 }
 
