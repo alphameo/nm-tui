@@ -43,7 +43,7 @@ func (c *LogConfig) merge(src *LogConfig) []error {
 
 	if src.Level != nil && *src.Level != defaultKeyword {
 		if !validLogLevel(*src.Level) {
-			errs = append(errs, fmt.Errorf("invalid log level: %s", *src.Level))
+			errs = append(errs, fmt.Errorf("invalid log level: %q", *src.Level))
 		} else {
 			c.Level = src.Level
 		}
