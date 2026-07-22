@@ -32,13 +32,15 @@ func (c *Config) merge(src *Config) []error {
 	var errs []error
 
 	if src.Logging != nil {
-		logErrs := c.Logging.merge(src.Logging)
-		errs = append(errs, logErrs...)
+		errs = append(errs, c.Logging.merge(src.Logging)...)
 	}
 
 	if src.Colors != nil {
-		colorErrs := c.Colors.merge(src.Colors)
-		errs = append(errs, colorErrs...)
+		errs = append(errs, c.Colors.merge(src.Colors)...)
+	}
+
+	if src.Keys != nil {
+		errs = append(errs, c.Keys.merge(src.Keys)...)
 	}
 
 	return errs
