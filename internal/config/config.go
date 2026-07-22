@@ -17,35 +17,41 @@ const (
 )
 
 type Config struct {
-	Colors  ColorConfig `kdl:"colors"`
-	Keys    Keys        `kdl:"keys"`
-	Logging LogConfig   `kdl:"logging"`
+	Colors  *ColorConfig `kdl:"colors"`
+	Keys    *Keys        `kdl:"keys"`
+	Logging *LogConfig   `kdl:"logging"`
 }
 
 type ColorConfig struct {
-	Text   string `kdl:"text"`
-	Accent string `kdl:"accent"`
-	Muted  string `kdl:"muted"`
-	Error  string `kdl:"error"`
-	Notif  string `kdl:"notif"`
+	Text   *string `kdl:"text"`
+	Accent *string `kdl:"accent"`
+	Muted  *string `kdl:"muted"`
+	Error  *string `kdl:"error"`
+	Notif  *string `kdl:"notif"`
 }
 
 type LogConfig struct {
-	Level    string `kdl:"level"`
-	FilePath string `kdl:"file_path"`
+	Level    *string `kdl:"level"`
+	FilePath *string `kdl:"file_path"`
 }
 
-func DefaultColorConfig() ColorConfig {
-	return ColorConfig{
-		Text:   "none",
-		Accent: "blue",
-		Muted:  "bright_black",
-		Error:  "red",
-		Notif:  "yellow",
+func DefaultColorConfig() *ColorConfig {
+	text := CNone
+	accent := CBlue
+	muted := CBrightBlack
+	error := CRed
+	notif := CYellow
+
+	return &ColorConfig{
+		Text:   &text,
+		Accent: &accent,
+		Muted:  &muted,
+		Error:  &error,
+		Notif:  &notif,
 	}
 }
 
-func DefaultLogConfig() LogConfig {
+func DefaultLogConfig() *LogConfig {
 	stateDir := os.Getenv("XDG_STATE_HOME")
 	if stateDir == "" {
 		home, _ := os.UserHomeDir()
@@ -69,63 +75,67 @@ func DefaultConfig() Config {
 
 func (c *ColorConfig) merge(src *ColorConfig) []error {
 	var errs []error
-	err := validateColor(src.Text)
+	err := mergeColor(c.Text, src.Text, "text")
 	if err != nil {
-		err := fmt.Errorf("text color: %w", err)
 		errs = append(errs, err)
-	} else {
-		c.Text = src.Text
 	}
 
-	err = validateColor(src.Accent)
+	err = mergeColor(c.Accent, src.Accent, "accent")
 	if err != nil {
-		err := fmt.Errorf("accent color: %w", err)
 		errs = append(errs, err)
-	} else {
-		c.Accent = src.Accent
 	}
 
-	err = validateColor(src.Error)
+	err = mergeColor(c.Error, src.Error, "error")
 	if err != nil {
-		err := fmt.Errorf("error color: %w", err)
 		errs = append(errs, err)
-	} else {
-		c.Error = src.Error
 	}
 
-	err = validateColor(src.Muted)
+	err = mergeColor(c.Muted, src.Muted, "muted")
 	if err != nil {
-		err := fmt.Errorf("muted color: %w", err)
 		errs = append(errs, err)
-	} else {
-		c.Muted = src.Muted
 	}
 
-	err = validateColor(src.Notif)
+	err = mergeColor(c.Notif, src.Notif, "notif")
 	if err != nil {
-		err := fmt.Errorf("notif color: %w", err)
 		errs = append(errs, err)
-	} else {
-		c.Notif = src.Notif
 	}
+
 	return errs
+}
+
+func mergeColor(dst *string, src *string, tag string) error {
+	if src == nil {
+		return nil
+	}
+
+	err := validateColor(src)
+	if err != nil {
+		return fmt.Errorf("%s color: %w", tag, err)
+	}
+	*dst = *src
+	return nil
 }
 
 func (c *LogConfig) merge(src *LogConfig) []error {
 	var errs []error
 
-	if src.FilePath == "" {
-		err := fmt.Errorf("invalid log filepath: %s", src.FilePath)
-		errs = append(errs, err)
-	} else {
-		c.FilePath = src.FilePath
+	if src.FilePath != nil {
+		filepath := *src.FilePath
+		if filepath == "" {
+			err := fmt.Errorf("invalid log filepath: %s", filepath)
+			errs = append(errs, err)
+		} else {
+			c.FilePath = src.FilePath
+		}
 	}
 
-	if !validLogLevel(src.Level) {
-		err := fmt.Errorf("invalid log level: %s", src.Level)
-		errs = append(errs, err)
-	} else {
-		c.Level = src.Level
+	if src.Level != nil {
+		if !validLogLevel(src.Level) {
+			err := fmt.Errorf("invalid log level: %s", *src.Level)
+			errs = append(errs, err)
+		} else if src.Level != nil {
+			c.Level = src.Level
+		}
 	}
 	return errs
 }
@@ -133,11 +143,15 @@ func (c *LogConfig) merge(src *LogConfig) []error {
 func (c *Config) merge(src *Config) []error {
 	var errs []error
 
-	logErrs := c.Logging.merge(&src.Logging)
-	errs = append(errs, logErrs...)
+	if src.Logging != nil {
+		logErrs := c.Logging.merge(src.Logging)
+		errs = append(errs, logErrs...)
+	}
 
-	colorErrs := c.Colors.merge(&src.Colors)
-	errs = append(errs, colorErrs...)
+	if src.Colors != nil {
+		colorErrs := c.Colors.merge(src.Colors)
+		errs = append(errs, colorErrs...)
+	}
 
 	return errs
 }
@@ -149,8 +163,11 @@ const (
 	LogError = "error"
 )
 
-func validLogLevel(s string) bool {
-	switch strings.ToLower(s) {
+func validLogLevel(level *string) bool {
+	if level == nil {
+		return true
+	}
+	switch strings.ToLower(*level) {
 	case LogDebug, LogInfo, LogWarn, LogError:
 		return true
 	}
@@ -197,14 +214,18 @@ func ValidHex(color string) bool {
 	return err == nil
 }
 
-func validateColor(color string) error {
-	if ValidHex(color) {
+func validateColor(color *string) error {
+	if color == nil {
 		return nil
 	}
-	if ValidCfgColor(color) {
+	c := strings.ToLower(*color)
+	if ValidHex(c) {
 		return nil
 	}
-	return fmt.Errorf("unknown color: %s", color)
+	if ValidCfgColor(c) {
+		return nil
+	}
+	return fmt.Errorf("unknown color: %s", *color)
 }
 
 func Load() (*Config, error) {

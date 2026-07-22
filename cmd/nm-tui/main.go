@@ -26,9 +26,9 @@ func main() {
 	if cfgErr != nil {
 		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
 	}
-	styles.Init(cfg.Colors)
+	styles.Init(*cfg.Colors)
 
-	logPath := expandPath(cfg.Logging.FilePath)
+	logPath := expandPath(*cfg.Logging.FilePath)
 	logPathDir := filepath.Dir(logPath)
 	if err := os.MkdirAll(logPathDir, 0o700); err != nil {
 		err := fmt.Errorf("create log directory: %w", err)
