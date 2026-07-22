@@ -4,9 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
 
 	"github.com/calico32/kdl-go"
 )
@@ -23,129 +20,12 @@ type Config struct {
 	Logging *LogConfig   `kdl:"logging"`
 }
 
-type ColorConfig struct {
-	Text   *string `kdl:"text"`
-	Accent *string `kdl:"accent"`
-	Muted  *string `kdl:"muted"`
-	Error  *string `kdl:"error"`
-	Notif  *string `kdl:"notif"`
-}
-
-type LogConfig struct {
-	Level    *string `kdl:"level"`
-	FilePath *string `kdl:"file_path"`
-}
-
-func DefaultColorConfig() *ColorConfig {
-	text := CNone
-	accent := CBlue
-	muted := CBrightBlack
-	error := CRed
-	notif := CYellow
-
-	return &ColorConfig{
-		Text:   &text,
-		Accent: &accent,
-		Muted:  &muted,
-		Error:  &error,
-		Notif:  &notif,
-	}
-}
-
-func DefaultLogConfig() *LogConfig {
-	stateDir := os.Getenv("XDG_STATE_HOME")
-	if stateDir == "" {
-		home, _ := os.UserHomeDir()
-		stateDir = filepath.Join(home, ".local", "state")
-	}
-	logPath := filepath.Join(stateDir, appName, "log")
-	level := LogError
-	return &LogConfig{
-		Level:    &level,
-		FilePath: &logPath,
-	}
-}
-
 func DefaultConfig() Config {
 	return Config{
 		Colors:  DefaultColorConfig(),
 		Keys:    DefaultKeys(),
 		Logging: DefaultLogConfig(),
 	}
-}
-
-func (c *ColorConfig) merge(src *ColorConfig) []error {
-	var errs []error
-	err := mergeColor(c.Text, src.Text, "text")
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	err = mergeColor(c.Accent, src.Accent, "accent")
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	err = mergeColor(c.Error, src.Error, "error")
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	err = mergeColor(c.Muted, src.Muted, "muted")
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	err = mergeColor(c.Notif, src.Notif, "notif")
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	return errs
-}
-
-func mergeColor(dst *string, src *string, tag string) error {
-	if src == nil {
-		return nil
-	}
-
-	color := *src
-
-	if color == defaultKeyword {
-		return nil
-	}
-
-	err := validateColor(color)
-	if err != nil {
-		return fmt.Errorf("%s color: %w", tag, err)
-	}
-	*dst = *src
-	return nil
-}
-
-func (c *LogConfig) merge(src *LogConfig) []error {
-	if src == nil {
-		return nil
-	}
-
-	var errs []error
-
-	if src.FilePath != nil && *src.FilePath != defaultKeyword {
-		if *src.FilePath == "" {
-			errs = append(errs, fmt.Errorf("empty log filepath"))
-		} else {
-			c.FilePath = src.FilePath
-		}
-	}
-
-	if src.Level != nil && *src.Level != defaultKeyword {
-		if !validLogLevel(*src.Level) {
-			errs = append(errs, fmt.Errorf("invalid log level: %s", *src.Level))
-		} else {
-			c.Level = src.Level
-		}
-	}
-	return errs
 }
 
 func (c *Config) merge(src *Config) []error {
@@ -162,76 +42,6 @@ func (c *Config) merge(src *Config) []error {
 	}
 
 	return errs
-}
-
-const (
-	LogDebug = "debug"
-	LogInfo  = "info"
-	LogWarn  = "warn"
-	LogError = "error"
-)
-
-func validLogLevel(level string) bool {
-	switch strings.ToLower(level) {
-	case LogDebug, LogInfo, LogWarn, LogError:
-		return true
-	}
-	return false
-}
-
-const (
-	CBlack         = "black"
-	CRed           = "red"
-	CGreen         = "green"
-	CYellow        = "yellow"
-	CBlue          = "blue"
-	CMagenta       = "magenta"
-	CCyan          = "cyan"
-	CWhite         = "white"
-	CBrightBlack   = "bright_black"
-	CBrightRed     = "bright_red"
-	CBrightGreen   = "bright_green"
-	CBrightYellow  = "bright_yellow"
-	CBrightBlue    = "bright_blue"
-	CBrightMagenta = "bright_magenta"
-	CBrightCyan    = "bright_cyan"
-	CBrightWhite   = "bright_white"
-	CNone          = "none"
-)
-
-func ValidCfgColor(color string) bool {
-	switch color {
-	case CBlack, CRed, CGreen, CYellow, CBlue, CMagenta, CCyan, CWhite,
-		CBrightBlack, CBrightRed, CBrightGreen, CBrightYellow,
-		CBrightBlue, CBrightMagenta, CBrightCyan, CBrightWhite,
-		CNone:
-		return true
-	default:
-		return false
-	}
-}
-
-func ValidHex(color string) bool {
-	if len(color) != 7 || color[0] != '#' {
-		return false
-	}
-	_, err := strconv.ParseUint(color[1:], 16, 64)
-	return err == nil
-}
-
-func validateColor(color string) error {
-	c := strings.ToLower(color)
-	if c == defaultKeyword {
-		return nil
-	}
-
-	if ValidHex(c) {
-		return nil
-	}
-	if ValidCfgColor(c) {
-		return nil
-	}
-	return fmt.Errorf("unknown color: %s", color)
 }
 
 func Load() (*Config, error) {
@@ -270,13 +80,4 @@ func LoadOrDefaults() (Config, error) {
 		err = nil
 	}
 	return cfg, err
-}
-
-func resolveConfigPath() (string, error) {
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
-	}
-	path := filepath.Join(configDir, appName, configFileName)
-	return path, nil
 }
