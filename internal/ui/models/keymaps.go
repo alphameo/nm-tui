@@ -72,8 +72,8 @@ func initKeys(keys config.KeyConfig) keyMapManager {
 			createHotspot:     NewKey(*keys.Wifi.CreateHotspot, "create hotspot"),
 			enableHotspot:     NewKey(*keys.Wifi.EnableHotspot, "enable hotspot"),
 			openCaptivePortal: NewKey(*keys.Wifi.OpenCaptivePortal, "open captive portal"),
-			firstWindow:       NewKey(*keys.FocusFirst, "focus first window"),
-			secondWindow:      NewKey(*keys.FocusSecond, "focus second window"),
+			firstWindow:       NewKey(*keys.Focus1, "focus first window"),
+			secondWindow:      NewKey(*keys.Focus2, "focus second window"),
 		},
 		wifiSaved: wifiSavedKeyMap{
 			rescan:     NewKey(*keys.RescanFocused, "rescan wifi saved"),
