@@ -1,12 +1,14 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -45,8 +47,13 @@ type MainModel struct {
 	height int
 }
 
-func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager) *MainModel {
-	keys := defaultKeys()
+func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager, cfg config.Config) (*MainModel, error) {
+	err := styles.Init(*cfg.Colors)
+	if err != nil {
+		return nil, fmt.Errorf("style initialization: %w", err)
+	}
+
+	keys := initKeys(*cfg.Keys)
 
 	connector := NewConnectorModel(&keys.connector, wifiManager)
 	profileCreator := NewProfileCreatorModel(&keys.profileCreator, wifiManager)
@@ -86,7 +93,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 
 		keyMngr: &keys,
 		help:    help,
-	}
+	}, nil
 }
 
 func (m MainModel) Init() tea.Cmd {
