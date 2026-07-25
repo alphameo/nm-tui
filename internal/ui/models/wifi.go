@@ -17,7 +17,7 @@ type wifiKeyMap struct {
 	firstWindow       key.Binding
 	secondWindow      key.Binding
 	rescan            key.Binding
-	create            key.Binding
+	createProfile     key.Binding
 	openCaptivePortal key.Binding
 	enableHotspot     key.Binding
 	createHotspot     key.Binding
@@ -135,7 +135,7 @@ func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
 			RescanWifiSavedCmd(0),
 			RescanWifiAvailableCmd(0),
 		)
-	case key.Matches(keyMsg, m.keys.create):
+	case key.Matches(keyMsg, m.keys.createProfile):
 		return m, OpenProfileCreatorCmd()
 	case key.Matches(keyMsg, m.keys.createHotspot):
 		return m, OpenHotspotCreatorCmd()
