@@ -20,35 +20,6 @@ type connectorKeyMap struct {
 	connect            key.Binding
 }
 
-func (k *connectorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.connect}
-}
-
-func (k *connectorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.connect}}
-}
-
-func connectorKeys() *connectorKeyMap {
-	return &connectorKeyMap{
-		connect: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "connect"),
-		),
-		up: key.NewBinding(
-			key.WithKeys("ctrl+k"),
-			key.WithHelp("^k", "up"),
-		),
-		down: key.NewBinding(
-			key.WithKeys("ctrl+j"),
-			key.WithHelp("^j", "down"),
-		),
-		togglePWVisibility: key.NewBinding(
-			key.WithKeys("ctrl+r"),
-			key.WithHelp("^r", "toggle password visibility"),
-		),
-	}
-}
-
 type ConnectorModel struct {
 	ssid string
 

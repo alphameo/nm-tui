@@ -22,35 +22,6 @@ type profileEditorKeyMap struct {
 	save               key.Binding
 }
 
-func (k profileEditorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.save}
-}
-
-func (k profileEditorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.save}}
-}
-
-func profileEditorKeys() *profileEditorKeyMap {
-	return &profileEditorKeyMap{
-		togglePWVisibility: key.NewBinding(
-			key.WithKeys("ctrl+r"),
-			key.WithHelp("^r", "toggle password visibility"),
-		),
-		up: key.NewBinding(
-			key.WithKeys("ctrl+k"),
-			key.WithHelp("^k", "up"),
-		),
-		down: key.NewBinding(
-			key.WithKeys("ctrl+j"),
-			key.WithHelp("^j", "down"),
-		),
-		save: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "submit"),
-		),
-	}
-}
-
 type ProfileEditorModel struct {
 	ssid   string
 	active bool

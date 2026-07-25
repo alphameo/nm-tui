@@ -21,35 +21,6 @@ type profileCreatorKeyMap struct {
 	create             key.Binding
 }
 
-func (k *profileCreatorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.create}
-}
-
-func (k *profileCreatorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.create}}
-}
-
-func profileCreatorKeys() *profileCreatorKeyMap {
-	return &profileCreatorKeyMap{
-		create: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "create"),
-		),
-		up: key.NewBinding(
-			key.WithKeys("ctrl+k"),
-			key.WithHelp("^k", "up"),
-		),
-		down: key.NewBinding(
-			key.WithKeys("ctrl+j"),
-			key.WithHelp("^j", "down"),
-		),
-		togglePWVisibility: key.NewBinding(
-			key.WithKeys("ctrl+r"),
-			key.WithHelp("^r", "toggle password visibility"),
-		),
-	}
-}
-
 type ProfileCreatorModel struct {
 	ssid     textinput.Model
 	name     textinput.Model
