@@ -11,7 +11,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/alphameo/nm-tui/internal/infra/nmcli"
 	"github.com/alphameo/nm-tui/internal/ui/models"
-	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
 func main() {
@@ -58,19 +57,18 @@ func main() {
 		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
 	}
 
-	slog.Info("Style initialization")
-	err = styles.Init(*cfg.Colors)
-	if err != nil {
-		slog.Error("errors during style initialization", "error", err.Error())
-	}
-
 	slog.Info("The program is running")
 	defer slog.Info("Program is closed")
 
 	nm := nmcli.New()
-	p := tea.NewProgram(models.NewMainModel(nm, nm))
+	model, err := models.NewMainModel(nm, nm, cfg)
+	if err != nil {
+		slog.Error("error during model initialization", "errors", err.Error())
+	}
+
+	p := tea.NewProgram(model)
 	if _, err := p.Run(); err != nil {
-		slog.Error(err.Error())
+		slog.Error("runtime error", "error", err.Error())
 	}
 }
 

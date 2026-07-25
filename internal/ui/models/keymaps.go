@@ -46,20 +46,78 @@ func (k *keyMapManager) FullHelp() [][]key.Binding {
 	}
 }
 
-func defaultKeys() keyMapManager {
+func initKeys(keys config.KeyConfig) keyMapManager {
 	return keyMapManager{
-		main:           *mainKeys(),
-		tabs:           *tabview.DefaultKeys(),
-		toggle:         *toggle.DefaultKeys(),
-		networking:     *networkingKeys(),
-		wifi:           *wifiKeys(),
-		wifiSaved:      *wifiSavedKeys(),
-		wifiAvailable:  *wifiAvailableKeys(),
-		profileEditor:  *profileEditorKeys(),
-		connector:      *connectorKeys(),
-		profileCreator: *profileCreatorKeys(),
-		hotspotCreator: *hotspotCreatorKeys(),
+		main: mainKeyMap{
+			quit:       NewKey(*keys.Main.Quit, "quit"),
+			closePopup: NewKey(*keys.Dialog.Close, "close dialog"),
+		},
+		tabs: tabview.KeyMap{
+			TabNext: NewKey(*keys.Main.NextTab, "next tab"),
+			TabPrev: NewKey(*keys.Main.PrevTab, "prev tab"),
+		},
+		toggle: toggle.KeyMap{
+			Toggle: NewKey(*keys.Toggle, "toggle"),
+		},
+		networking: networkingKeyMap{
+			up:     NewKey(*keys.Dialog.FocusUp, "focus up"),
+			down:   NewKey(*keys.Dialog.FocusDown, "focus down"),
+			rescan: NewKey(*keys.Rescan, "rescan"),
+			toggle: NewKey(*keys.Toggle, "toggle"),
+		},
+		wifi: wifiKeyMap{
+			nextWindow:        NewKey(*keys.Main.FocusNext, "focus next"),
+			rescan:            NewKey(*keys.Rescan, "rescan"),
+			createProfile:     NewKey(*keys.Wifi.CreateProfile, "create profile"),
+			createHotspot:     NewKey(*keys.Wifi.CreateHotspot, "create hotspot"),
+			enableHotspot:     NewKey(*keys.Wifi.EnableHotspot, "enable hotspot"),
+			openCaptivePortal: NewKey(*keys.Wifi.OpenCaptivePortal, "open captive portal"),
+			firstWindow:       NewKey(*keys.FocusFirst, "focus first window"),
+			secondWindow:      NewKey(*keys.FocusSecond, "focus second window"),
+		},
+		wifiSaved: wifiSavedKeyMap{
+			rescan:     NewKey(*keys.RescanFocused, "rescan wifi saved"),
+			edit:       NewKey(*keys.WifiSaved.Edit, "edit profile"),
+			connect:    NewKey(*keys.WifiSaved.Connect, "connect"),
+			disconnect: NewKey(*keys.WifiSaved.Disconnect, "disconnect"),
+			delete:     NewKey(*keys.WifiSaved.Delete, "delete profile"),
+		},
+		wifiAvailable: wifiAvailableKeyMap{
+			rescan:  NewKey(*keys.RescanFocused, "rescan wifi saved"),
+			connect: NewKey(*keys.WifiAvailable.Connect, "connect"),
+		},
+		profileEditor: profileEditorKeyMap{
+			up:                 NewKey(*keys.Dialog.FocusUp, "focus up"),
+			down:               NewKey(*keys.Dialog.FocusDown, "focus down"),
+			save:               NewKey(*keys.Dialog.Accept, "save changes"),
+			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "toggle password visibility"),
+		},
+		connector: connectorKeyMap{
+			up:                 NewKey(*keys.Dialog.FocusUp, "focus up"),
+			down:               NewKey(*keys.Dialog.FocusDown, "focus down"),
+			connect:            NewKey(*keys.Dialog.Accept, "connect"),
+			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "toggle password visibility"),
+		},
+		profileCreator: profileCreatorKeyMap{
+			up:                 NewKey(*keys.Dialog.FocusUp, "focus up"),
+			down:               NewKey(*keys.Dialog.FocusDown, "focus down"),
+			create:             NewKey(*keys.Dialog.Accept, "create"),
+			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "toggle password visibility"),
+		},
+		hotspotCreator: hotspotCreatorKeyMap{
+			up:                 NewKey(*keys.Dialog.FocusUp, "focus up"),
+			down:               NewKey(*keys.Dialog.FocusDown, "focus down"),
+			create:             NewKey(*keys.Dialog.Accept, "create"),
+			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "toggle password visibility"),
+		},
 	}
+}
+
+func NewKey(keys []string, desc string) key.Binding {
+	return key.NewBinding(
+		key.WithKeys(keys...),
+		key.WithHelp(HelpFromKeys(keys...), desc),
+	)
 }
 
 func HelpFromKeys(keys ...string) string {
