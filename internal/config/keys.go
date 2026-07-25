@@ -26,7 +26,11 @@ func (k *KeyBinding) UnmarshalKDL(node *kdl.Node) error {
 }
 
 type KeyConfig struct {
-	Toggle *KeyBinding `kdl:"toggle"`
+	Toggle        *KeyBinding `kdl:"toggle"`
+	Rescan        *KeyBinding `kdl:"rescan"`
+	RescanFocused *KeyBinding `kdl:"rescan_focused"`
+	FocusFirst    *KeyBinding `kdl:"focus_first"`
+	FocusSecond   *KeyBinding `kdl:"focus_second"`
 
 	Main   *MainKeys   `kdl:"main"`
 	Dialog *DialogKeys `kdl:"dialog"`
@@ -72,7 +76,11 @@ type WifiSavedKeys struct {
 
 func DefaultKeys() *KeyConfig {
 	return &KeyConfig{
-		Toggle: keyBinding("space"),
+		Toggle:        keyBinding("space"),
+		Rescan:        keyBinding("r"),
+		RescanFocused: keyBinding("ctrl+r"),
+		FocusFirst:    keyBinding("1"),
+		FocusSecond:   keyBinding("2"),
 		Main: &MainKeys{
 			NextTab:   keyBinding("]"),
 			PrevTab:   keyBinding("["),
