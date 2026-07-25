@@ -28,16 +28,6 @@ func (k *mainKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{{k.quit}}
 }
 
-func mainKeys() *mainKeyMap {
-	return &mainKeyMap{
-		quit: key.NewBinding(
-			key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),
-			key.WithHelp("esc/q/^q/^c", "quit"),
-		),
-		closePopup: key.NewBinding(key.WithKeys("ctrl+q", "esc", "ctrl+c")),
-	}
-}
-
 type MainModel struct {
 	tabs         *tabview.Model
 	popup        *Popup
