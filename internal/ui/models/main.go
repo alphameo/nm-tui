@@ -16,7 +16,8 @@ import (
 const notificationCloseTime time.Duration = 50 * time.Second
 
 type mainKeyMap struct {
-	quit key.Binding
+	quit       key.Binding
+	closePopup key.Binding
 }
 
 func (k *mainKeyMap) ShortHelp() []key.Binding {
@@ -33,6 +34,7 @@ func mainKeys() *mainKeyMap {
 			key.WithKeys("q", "ctrl+q", "esc", "ctrl+c"),
 			key.WithHelp("esc/q/^q/^c", "quit"),
 		),
+		closePopup: key.NewBinding(key.WithKeys("ctrl+q", "esc", "ctrl+c")),
 	}
 }
 
@@ -163,7 +165,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 	if m.popup.active {
-		if key.Matches(keyMsg, m.keyMngr.popup.close) {
+		if key.Matches(keyMsg, m.keyMngr.main.closePopup) {
 			return ClosePopupCmd()
 		}
 		upd, cmd := m.popup.content.UpdateAsPopup(keyMsg)
@@ -214,9 +216,6 @@ func (m MainModel) View() tea.View {
 	}
 
 	help := m.help.View(m.keyMngr)
-	if m.popup.active {
-		help = m.help.View(&m.keyMngr.popup)
-	}
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	v := tea.NewView(view)
 	v.AltScreen = true
