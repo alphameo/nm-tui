@@ -23,69 +23,6 @@ type wifiKeyMap struct {
 	createHotspot     key.Binding
 }
 
-func (k *wifiKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{
-		k.nextWindow,
-		k.firstWindow,
-		k.secondWindow,
-		k.rescan,
-		k.create,
-		k.openCaptivePortal,
-		k.enableHotspot,
-		k.createHotspot,
-	}
-}
-
-func (k *wifiKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{
-		k.nextWindow,
-		k.firstWindow,
-		k.secondWindow,
-		k.rescan,
-		k.create,
-		k.openCaptivePortal,
-		k.enableHotspot,
-		k.createHotspot,
-	}}
-}
-
-func wifiKeys() *wifiKeyMap {
-	return &wifiKeyMap{
-		nextWindow: key.NewBinding(
-			key.WithKeys("tab"),
-			key.WithHelp("tab", "next window"),
-		),
-		firstWindow: key.NewBinding(
-			key.WithKeys("1"),
-			key.WithHelp("1", "first window"),
-		),
-		secondWindow: key.NewBinding(
-			key.WithKeys("2"),
-			key.WithHelp("2", "second window"),
-		),
-		rescan: key.NewBinding(
-			key.WithKeys("ctrl+r"),
-			key.WithHelp("^r", "rescan"),
-		),
-		create: key.NewBinding(
-			key.WithKeys("a"),
-			key.WithHelp("a", "create new"),
-		),
-		openCaptivePortal: key.NewBinding(
-			key.WithKeys("ctrl+p"),
-			key.WithHelp("^p", "open captive portal"),
-		),
-		enableHotspot: key.NewBinding(
-			key.WithKeys("ctrl+h"),
-			key.WithHelp("h", "enable quick hotspot"),
-		),
-		createHotspot: key.NewBinding(
-			key.WithKeys("h"),
-			key.WithHelp("H", "create hotspot"),
-		),
-	}
-}
-
 type WifiModel struct {
 	wifiAvailable *WifiAvailableModel
 	wifiSaved     *WifiSavedModel

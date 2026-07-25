@@ -48,51 +48,6 @@ type wifiSavedKeyMap struct {
 	delete     key.Binding
 }
 
-func (k *wifiSavedKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{
-		k.edit,
-		k.connect,
-		k.disconnect,
-		k.rescan,
-		k.delete,
-	}
-}
-
-func (k *wifiSavedKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{
-		k.edit,
-		k.connect,
-		k.disconnect,
-		k.rescan,
-		k.delete,
-	}}
-}
-
-func wifiSavedKeys() *wifiSavedKeyMap {
-	return &wifiSavedKeyMap{
-		edit: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "edit"),
-		),
-		connect: key.NewBinding(
-			key.WithKeys("space"),
-			key.WithHelp("󱁐", "connect"),
-		),
-		disconnect: key.NewBinding(
-			key.WithKeys("ctrl+space"),
-			key.WithHelp("^󱁐", "disconnect"),
-		),
-		rescan: key.NewBinding(
-			key.WithKeys("r"),
-			key.WithHelp("r", "rescan saved"),
-		),
-		delete: key.NewBinding(
-			key.WithKeys("d"),
-			key.WithHelp("d", "delete"),
-		),
-	}
-}
-
 type WifiSavedModel struct {
 	dataTable table.Model
 

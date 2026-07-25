@@ -20,35 +20,6 @@ type hotspotCreatorKeyMap struct {
 	create             key.Binding
 }
 
-func (k *hotspotCreatorKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.togglePWVisibility, k.up, k.down, k.create}
-}
-
-func (k *hotspotCreatorKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.togglePWVisibility, k.up, k.down, k.create}}
-}
-
-func hotspotCreatorKeys() *hotspotCreatorKeyMap {
-	return &hotspotCreatorKeyMap{
-		create: key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "create"),
-		),
-		up: key.NewBinding(
-			key.WithKeys("ctrl+k"),
-			key.WithHelp("^k", "up"),
-		),
-		down: key.NewBinding(
-			key.WithKeys("ctrl+j"),
-			key.WithHelp("^j", "down"),
-		),
-		togglePWVisibility: key.NewBinding(
-			key.WithKeys("ctrl+r"),
-			key.WithHelp("^r", "toggle password visibility"),
-		),
-	}
-}
-
 type HotspotCreatorModel struct {
 	ssid textinput.Model
 

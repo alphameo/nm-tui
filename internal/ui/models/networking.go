@@ -73,35 +73,6 @@ type networkingKeyMap struct {
 	toggle key.Binding
 }
 
-func (k networkingKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.up, k.down}
-}
-
-func (k networkingKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.up, k.down}}
-}
-
-func networkingKeys() *networkingKeyMap {
-	return &networkingKeyMap{
-		up: key.NewBinding(
-			key.WithKeys("ctrl+k"),
-			key.WithHelp("^k", "up"),
-		),
-		down: key.NewBinding(
-			key.WithKeys("ctrl+j"),
-			key.WithHelp("^j", "down"),
-		),
-		toggle: key.NewBinding(
-			key.WithKeys("space"),
-			key.WithHelp("󱁐", "toggle"),
-		),
-		rescan: key.NewBinding(
-			key.WithKeys("r"),
-			key.WithHelp("r", "rescan state"),
-		),
-	}
-}
-
 type NetworkingModel struct {
 	devicesTable *table.Model
 
