@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"charm.land/bubbles/v2/key"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
@@ -59,4 +61,12 @@ func defaultKeys() keyMapManager {
 		profileCreator: *profileCreatorKeys(),
 		hotspotCreator: *hotspotCreatorKeys(),
 	}
+}
+
+func HelpFromKeys(keys ...string) string {
+	transformed := make([]string, len(keys))
+	for i, key := range keys {
+		transformed[i] = strings.ReplaceAll(key, "ctrl+", "^")
+	}
+	return strings.Join(transformed, "/")
 }

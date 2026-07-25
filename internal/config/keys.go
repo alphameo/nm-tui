@@ -273,11 +273,3 @@ func validKeyName(s string) bool {
 
 	return true
 }
-
-func HelpFromKeys(keys []string) string {
-	transformed := make([]string, len(keys))
-	for i, key := range keys {
-		transformed[i] = strings.ReplaceAll(key, "ctrl+", "^")
-	}
-	return strings.Join(transformed, "/")
-}
