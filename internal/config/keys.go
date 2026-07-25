@@ -29,8 +29,16 @@ type KeyConfig struct {
 	Toggle        *KeyBinding `kdl:"toggle"`
 	Rescan        *KeyBinding `kdl:"rescan"`
 	RescanFocused *KeyBinding `kdl:"rescan_focused"`
-	FocusFirst    *KeyBinding `kdl:"focus_first"`
-	FocusSecond   *KeyBinding `kdl:"focus_second"`
+	Focus1        *KeyBinding `kdl:"focus_1"`
+	Focus2        *KeyBinding `kdl:"focus_2"`
+	Focus3        *KeyBinding `kdl:"focus_3"`
+	Focus4        *KeyBinding `kdl:"focus_4"`
+	Focus5        *KeyBinding `kdl:"focus_5"`
+	Focus6        *KeyBinding `kdl:"focus_6"`
+	Focus7        *KeyBinding `kdl:"focus_7"`
+	Focus8        *KeyBinding `kdl:"focus_8"`
+	Focus9        *KeyBinding `kdl:"focus_9"`
+	Focus10       *KeyBinding `kdl:"focus_10"`
 
 	Main   *MainKeys   `kdl:"main"`
 	Dialog *DialogKeys `kdl:"dialog"`
@@ -79,8 +87,16 @@ func DefaultKeys() *KeyConfig {
 		Toggle:        keyBinding("space"),
 		Rescan:        keyBinding("r"),
 		RescanFocused: keyBinding("ctrl+r"),
-		FocusFirst:    keyBinding("1"),
-		FocusSecond:   keyBinding("2"),
+		Focus1:        keyBinding("1"),
+		Focus2:        keyBinding("2"),
+		Focus3:        keyBinding("3"),
+		Focus4:        keyBinding("4"),
+		Focus5:        keyBinding("5"),
+		Focus6:        keyBinding("6"),
+		Focus7:        keyBinding("7"),
+		Focus8:        keyBinding("8"),
+		Focus9:        keyBinding("9"),
+		Focus10:       keyBinding("10"),
 		Main: &MainKeys{
 			NextTab:   keyBinding("]"),
 			PrevTab:   keyBinding("["),
@@ -90,7 +106,7 @@ func DefaultKeys() *KeyConfig {
 		},
 		Dialog: &DialogKeys{
 			FocusDown:          keyBinding("ctrl+j"),
-			FocusUp:            keyBinding("tab"),
+			FocusUp:            keyBinding("ctrl+k"),
 			TogglePWVisibility: keyBinding("ctrl+p"),
 			Accept:             keyBinding("ctrl+enter"),
 			Close:              keyBinding("ctrl+q"),

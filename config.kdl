@@ -16,6 +16,18 @@ logging {
 }
 keys {
     toggle space
+    rescan r
+    rescan_focused ctrl+r
+    focus_1 1
+    focus_2 2
+    focus_3 3
+    focus_4 4
+    focus_5 5
+    focus_6 6
+    focus_7 7
+    focus_8 8
+    focus_9 9
+    focus_10 10
     main {
         next_tab "]"
         prev_tab "["
@@ -25,7 +37,7 @@ keys {
     }
     dialog {
         focus_down ctrl+j
-        focus_up tab
+        focus_up ctrl+k
         toggle_pw_visibility ctrl+p
         accept ctrl+enter
         close ctrl+q
