@@ -52,7 +52,7 @@ func (s *wifiAvailableState) String() string {
 	case AvailableCreating:
 		return "Creating Connection"
 	case AvailableDone:
-		return styles.CheckSymbol
+		return styles.SymbolCheck
 	default:
 		return "Undefined"
 	}
@@ -82,10 +82,10 @@ type WifiAvailableModel struct {
 
 func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiManager) *WifiAvailableModel {
 	cols := make([]table.Column, 4)
-	cols[wifiAvailableCfg.connColIdx] = table.Column{Title: styles.ConnectionSymbol, Width: 1}
+	cols[wifiAvailableCfg.connColIdx] = table.Column{Title: styles.SymbolConnection, Width: 1}
 	cols[wifiAvailableCfg.ssidColIdx] = table.Column{Title: "SSID"}
 	cols[wifiAvailableCfg.securityColIdx] = table.Column{Title: "Security"}
-	cols[wifiAvailableCfg.signalColIdx] = table.Column{Title: styles.SignalSymbol, Width: 3}
+	cols[wifiAvailableCfg.signalColIdx] = table.Column{Title: styles.SymbolSignal, Width: 3}
 
 	initTableStyle := styles.DataTableStyle
 	t := table.New(
@@ -268,7 +268,7 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 			for _, wifiNet := range list {
 				var connectionFlag string
 				if wifiNet.Active {
-					connectionFlag = styles.CheckSymbol
+					connectionFlag = styles.SymbolCheck
 				}
 				rows = append(rows, table.Row{
 					connectionFlag,

@@ -71,7 +71,7 @@ func Init(colors config.ColorConfig) error {
 	ToggleStyle = DefaultStyle.Margin(0, 1)
 	ToggleFocusedStyle = ToggleStyle.Foreground(AccentColor)
 
-	ErrorSymbolColored = DefaultStyle.Foreground(ErrorColor).Render(ErrorSymbol)
+	SymbolColoredError = DefaultStyle.Foreground(ErrorColor).Render(SymbolError)
 
 	return nil
 }

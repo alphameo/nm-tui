@@ -5,21 +5,21 @@ import (
 )
 
 const (
-	ErrorSymbol       = "✗"
-	CheckSymbol       = ""
-	PWCharacter       = '•'
-	ConnectionSymbol  = "󱘖"
-	SignalSymbol      = ""
-	AccessPointSymbol = "󰀃"
-	InfraSymbol       = "🖳"
-	MeshSymbol        = ""
-	AdHocSymbol       = ""
+	SymbolError       = "✗"
+	SymbolCheck       = ""
+	CharacterPassword = '•'
+	SymbolConnection  = "󱘖"
+	SymbolSignal      = ""
+	SymbolAccessPoint = "󰀃"
+	SymbolInfra       = "🖳"
+	SymbolMesh        = ""
+	SymbolAdHoc       = ""
 )
 
 var (
 	BorderOffset int
 	TabBarHeight int
 
-	ErrorSymbolColored string
-	ToggleSymbols      = toggle.Symbols{Activated: " ", Deactivated: " "}
+	SymbolColoredError string
+	SymbolsToggle      = toggle.Symbols{Activated: " ", Deactivated: " "}
 )
