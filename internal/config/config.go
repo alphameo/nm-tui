@@ -22,6 +22,7 @@ type Config struct {
 	Colors  *ColorConfig `kdl:"colors"`
 	Keys    *KeyConfig   `kdl:"keys"`
 	Logging *LogConfig   `kdl:"logging"`
+	Icons   *IconConfig  `kdl:"icons"`
 }
 
 func DefaultConfig() Config {
@@ -29,6 +30,7 @@ func DefaultConfig() Config {
 		Colors:  DefaultColorConfig(),
 		Keys:    DefaultKeys(),
 		Logging: DefaultLogConfig(),
+		Icons:   DefaultIconConfig(),
 	}
 }
 
@@ -45,6 +47,13 @@ func (c *Config) merge(src *Config) []error {
 
 	if src.Keys != nil {
 		errs = append(errs, c.Keys.merge(src.Keys)...)
+	}
+
+	if src.Icons != nil {
+		if *src.Icons.NerdPreset {
+			c.Icons = DefaultNerdIconConfig()
+		}
+		errs = append(errs, c.Icons.merge(src.Icons)...)
 	}
 
 	return errs
