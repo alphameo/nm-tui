@@ -95,6 +95,7 @@ func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiMana
 	)
 
 	s := spinner.New()
+	s.Spinner = styles.Spinner
 
 	model := &WifiAvailableModel{
 		dataTable: t,

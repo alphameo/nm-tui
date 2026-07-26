@@ -97,6 +97,7 @@ func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) 
 	)
 
 	s := spinner.New()
+	s.Spinner = styles.Spinner
 
 	model := &WifiSavedModel{
 		dataTable: t,
