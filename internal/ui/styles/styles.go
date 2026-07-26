@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"strings"
 
+	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/table"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/config"
@@ -37,6 +38,8 @@ var (
 
 	ToggleStyle        lipgloss.Style
 	ToggleFocusedStyle lipgloss.Style
+
+	Spinner spinner.Spinner = spinner.Line
 )
 
 func Init(colors config.ColorConfig) error {
