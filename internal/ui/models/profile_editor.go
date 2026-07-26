@@ -61,13 +61,13 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 	pw.SetWidth(20)
 	pw.Prompt = ""
 	pw.EchoMode = textinput.EchoPassword
-	pw.EchoCharacter = styles.PWCharacter
+	pw.EchoCharacter = styles.CharacterPassword
 	pw.Placeholder = "Password"
 	pw.Validate = passwordValidator
 	pw.Err = passwordValidator(pw.Value())
 
 	autoconn := toggle.New()
-	autoconn.Symbols = styles.ToggleSymbols
+	autoconn.Symbols = styles.SymbolsToggle
 
 	autoconnPrior := textinput.New()
 	autoconnPrior.SetWidth(4)

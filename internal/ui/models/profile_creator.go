@@ -59,13 +59,13 @@ func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.Wif
 	pw.SetWidth(20)
 	pw.Prompt = ""
 	pw.EchoMode = textinput.EchoPassword
-	pw.EchoCharacter = styles.PWCharacter
+	pw.EchoCharacter = styles.CharacterPassword
 	pw.Placeholder = "Password"
 	pw.Validate = passwordValidator
 	pw.Err = passwordValidator(pw.Value())
 
 	hidden := toggle.New()
-	hidden.Symbols = styles.ToggleSymbols
+	hidden.Symbols = styles.SymbolsToggle
 
 	model := &ProfileCreatorModel{
 		ssid:     ssid,

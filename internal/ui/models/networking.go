@@ -109,15 +109,16 @@ func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkMana
 	)
 
 	wwan := toggle.New()
-	wwan.Symbols = styles.ToggleSymbols
+	wwan.Symbols = styles.SymbolsToggle
 
 	wifi := toggle.New()
-	wifi.Symbols = styles.ToggleSymbols
+	wifi.Symbols = styles.SymbolsToggle
 
 	networking := toggle.New()
-	networking.Symbols = styles.ToggleSymbols
+	networking.Symbols = styles.SymbolsToggle
 
 	s := spinner.New()
+	s.Spinner = styles.Spinner
 
 	model := &NetworkingModel{
 		devicesTable:     &t,

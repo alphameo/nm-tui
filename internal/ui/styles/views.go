@@ -50,7 +50,7 @@ func ViewInputWithValidation(password *textinput.Model) string {
 	var style lipgloss.Style
 	errIndicator := " "
 	if password.Err != nil {
-		errIndicator = ErrorSymbolColored
+		errIndicator = SymbolColoredError
 	}
 	if password.Focused() {
 		style = BorderedFocusedStyle
