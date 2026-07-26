@@ -15,11 +15,11 @@ type ColorConfig struct {
 }
 
 func DefaultColorConfig() *ColorConfig {
-	text := CNone
-	accent := CBlue
-	muted := CBrightBlack
-	error := CRed
-	notif := CYellow
+	text := ColorNone
+	accent := ColorBlue
+	muted := ColorBrightBlack
+	error := ColorRed
+	notif := ColorYellow
 
 	return &ColorConfig{
 		Text:   &text,
@@ -83,31 +83,32 @@ func validateColor(color string) error {
 }
 
 const (
-	CBlack         = "black"
-	CRed           = "red"
-	CGreen         = "green"
-	CYellow        = "yellow"
-	CBlue          = "blue"
-	CMagenta       = "magenta"
-	CCyan          = "cyan"
-	CWhite         = "white"
-	CBrightBlack   = "bright_black"
-	CBrightRed     = "bright_red"
-	CBrightGreen   = "bright_green"
-	CBrightYellow  = "bright_yellow"
-	CBrightBlue    = "bright_blue"
-	CBrightMagenta = "bright_magenta"
-	CBrightCyan    = "bright_cyan"
-	CBrightWhite   = "bright_white"
-	CNone          = "none"
+	ColorBlack         = "black"
+	ColorRed           = "red"
+	ColorGreen         = "green"
+	ColorYellow        = "yellow"
+	ColorBlue          = "blue"
+	ColorMagenta       = "magenta"
+	ColorCyan          = "cyan"
+	ColorWhite         = "white"
+	ColorBrightBlack   = "bright_black"
+	ColorBrightRed     = "bright_red"
+	ColorBrightGreen   = "bright_green"
+	ColorBrightYellow  = "bright_yellow"
+	ColorBrightBlue    = "bright_blue"
+	ColorBrightMagenta = "bright_magenta"
+	ColorBrightCyan    = "bright_cyan"
+	ColorBrightWhite   = "bright_white"
+	ColorNone          = "none"
 )
 
 func ValidCfgColor(color string) bool {
 	switch color {
-	case CBlack, CRed, CGreen, CYellow, CBlue, CMagenta, CCyan, CWhite,
-		CBrightBlack, CBrightRed, CBrightGreen, CBrightYellow,
-		CBrightBlue, CBrightMagenta, CBrightCyan, CBrightWhite,
-		CNone:
+	case ColorBlack, ColorRed, ColorGreen, ColorYellow,
+		ColorBlue, ColorMagenta, ColorCyan, ColorWhite,
+		ColorBrightBlack, ColorBrightRed, ColorBrightGreen, ColorBrightYellow,
+		ColorBrightBlue, ColorBrightMagenta, ColorBrightCyan, ColorBrightWhite,
+		ColorNone:
 		return true
 	default:
 		return false
