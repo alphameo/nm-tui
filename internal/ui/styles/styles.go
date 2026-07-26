@@ -23,7 +23,7 @@ var (
 	AccentStyle  lipgloss.Style
 	BoldStyle    lipgloss.Style
 
-	Border               lipgloss.Border
+	Border               lipgloss.Border = lipgloss.RoundedBorder()
 	BorderedStyle        lipgloss.Style
 	BorderedFocusedStyle lipgloss.Style
 
@@ -49,7 +49,6 @@ func Init(colors config.ColorConfig) error {
 	AccentStyle = lipgloss.NewStyle().Foreground(AccentColor)
 	BoldStyle = DefaultStyle.Bold(true)
 
-	Border = lipgloss.RoundedBorder()
 	BorderedStyle = DefaultStyle.Border(Border)
 	BorderedFocusedStyle = lipgloss.NewStyle().Inherit(BorderedStyle).BorderForeground(AccentColor)
 	BorderOffset = lipgloss.Width(Border.Left) * 2
