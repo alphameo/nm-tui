@@ -43,7 +43,7 @@ var (
 )
 
 func Init(colors config.ColorConfig) error {
-	err := convertColorConfig(colors)
+	err := initColors(colors)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func dataTableStyle() table.Styles {
 	return style
 }
 
-func convertColorConfig(colors config.ColorConfig) error {
+func initColors(colors config.ColorConfig) error {
 	color, err := resolveCfgColor(*colors.Text)
 	if err != nil {
 		return err
@@ -182,5 +182,5 @@ func resolveCfgColor(cfgColor string) (string, error) {
 		return c, nil
 	}
 
-	return "", fmt.Errorf("color not resolved: %s", cfgColor)
+	return "", fmt.Errorf("color not resolved: %q", cfgColor)
 }
