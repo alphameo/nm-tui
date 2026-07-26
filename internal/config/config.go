@@ -50,7 +50,8 @@ func (c *Config) merge(src *Config) []error {
 	}
 
 	if src.Icons != nil {
-		if *src.Icons.NerdPreset {
+		nerd := src.Icons.NerdPreset
+		if nerd != nil && *nerd {
 			c.Icons = DefaultNerdIconConfig()
 		}
 		errs = append(errs, c.Icons.merge(src.Icons)...)
