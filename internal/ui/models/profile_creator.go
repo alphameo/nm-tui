@@ -12,7 +12,16 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
+
+type profileCreatorConfig struct {
+	title string
+}
+
+var profileCreatorCfg = profileCreatorConfig{
+	title: "Create Network profile",
+}
 
 type profileCreatorKeyMap struct {
 	togglePWVisibility key.Binding
@@ -206,7 +215,7 @@ func (m *ProfileCreatorModel) View() string {
 	style := styles.OverlayStyle
 	view = style.Render(view)
 	view = compositor.Compose(
-		styles.ProfileCreatorTitle,
+		renderer.RenderTitle(profileCreatorCfg.title),
 		view,
 		compositor.Center,
 		compositor.Begin,
