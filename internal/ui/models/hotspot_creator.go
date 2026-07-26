@@ -11,7 +11,16 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
+
+type hotspotCreatorConfig struct {
+	title string
+}
+
+var hotspotCreatorCfg = hotspotCreatorConfig{
+	title: "Create Hotspot",
+}
 
 type hotspotCreatorKeyMap struct {
 	togglePWVisibility key.Binding
@@ -187,7 +196,7 @@ func (m *HotspotCreatorModel) View() string {
 	style := styles.OverlayStyle
 	view = style.Render(view)
 	view = compositor.Compose(
-		styles.HotspotCreatorTitle,
+		renderer.RenderTitle(hotspotCreatorCfg.title),
 		view,
 		compositor.Center,
 		compositor.Begin,

@@ -13,7 +13,16 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
+
+type profileEditorConfig struct {
+	title string
+}
+
+var profileEditorCfg = profileEditorConfig{
+	title: "Saved network info",
+}
 
 type profileEditorKeyMap struct {
 	togglePWVisibility key.Binding
@@ -243,7 +252,7 @@ func (m *ProfileEditorModel) View() string {
 	style := styles.OverlayStyle
 	view = style.Render(view)
 	view = compositor.Compose(
-		styles.SavedNetworkInfoTitle,
+		renderer.RenderTitle(profileEditorCfg.title),
 		view,
 		compositor.Center,
 		compositor.Begin,

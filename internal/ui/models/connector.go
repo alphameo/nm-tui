@@ -11,7 +11,16 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
+
+type connectorConfig struct {
+	title string
+}
+
+var connectorCfg = connectorConfig{
+	title: "Connect to Network",
+}
 
 type connectorKeyMap struct {
 	togglePWVisibility key.Binding
@@ -175,7 +184,7 @@ func (m *ConnectorModel) View() string {
 	style := styles.OverlayStyle
 	view = style.Render(view)
 	view = compositor.Compose(
-		styles.NetworkConnectorTitle,
+		renderer.RenderTitle(connectorCfg.title),
 		view,
 		compositor.Center,
 		compositor.Begin,

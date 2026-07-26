@@ -84,7 +84,7 @@ var wifiSavedCfg = wifiSavedConfig{
 
 func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
 	cols := make([]table.Column, 4)
-	cols[wifiSavedCfg.connColIdx] = table.Column{Title: "󱘖", Width: 1}
+	cols[wifiSavedCfg.connColIdx] = table.Column{Title: styles.ConnectionSymbol, Width: 1}
 	cols[wifiSavedCfg.modeColIdx] = table.Column{Title: "Mode", Width: 4}
 	cols[wifiSavedCfg.ssidColIdx] = table.Column{Title: "SSID"}
 	cols[wifiSavedCfg.nameColIdx] = table.Column{Title: "Name"}
@@ -292,7 +292,7 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 				}
 				rows = append(rows, table.Row{
 					connectionFlag,
-					renderer.RenderNetworkModeIcon(wifiSaved.Mode),
+					ViewNetworkMode(wifiSaved.Mode),
 					wifiSaved.SSID,
 					wifiSaved.Name,
 				})
@@ -303,6 +303,21 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 			return m.setStateCmd(SavedDone)
 		},
 	)
+}
+
+func ViewNetworkMode(mode infra.NetworkMode) string {
+	switch mode {
+	case infra.NetworkAccessPoint:
+		return styles.AccessPointSymbol
+	case infra.NetworkInfra:
+		return styles.InfraSymbol
+	case infra.NetworkMesh:
+		return styles.MeshSymbol
+	case infra.NetworkAdHoc:
+		return styles.AdHocSymbol
+	default:
+		return "?"
+	}
 }
 
 type WifiSavedStateMsg wifiSavedState
