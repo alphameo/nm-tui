@@ -11,6 +11,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
+	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 )
 
 var (
@@ -42,8 +43,12 @@ var (
 	Spinner spinner.Spinner = spinner.Line
 )
 
-func Init(colors config.ColorConfig) error {
-	err := initColors(colors)
+func Init(cfg config.Config) error {
+	err := initIcons(*cfg.Icons)
+	if err != nil {
+		return err
+	}
+	err = initColors(*cfg.Colors)
 	if err != nil {
 		return err
 	}
@@ -103,6 +108,33 @@ func dataTableStyle() table.Styles {
 		Foreground(TextColor).
 		Bold(false)
 	return style
+}
+
+func initIcons(icons config.IconConfig) error {
+	border, err := resolveBorderStyle(*icons.BorderStyle)
+	if err != nil {
+		return err
+	}
+	Border = border
+
+	spinner, err := resolveSpinnerStyle(*icons.SpinnerStyle)
+	if err != nil {
+		return err
+	}
+	Spinner = spinner
+
+	SymbolsToggle = toggle.Symbols{Activated: *icons.ToggleOn, Deactivated: *icons.ToggleOff}
+	SymbolPwHiddenChar = []rune(*icons.PwHiddenChar)[0]
+	SymbolError = *icons.Error
+	SymbolCheck = *icons.Check
+	SymbolConnection = *icons.Connection
+	SymbolSignal = *icons.Signal
+	SymbolAccessPoint = *icons.AccessPoint
+	SymbolInfra = *icons.Infra
+	SymbolMesh = *icons.Mesh
+	SymbolAdHoc = *icons.AdHoc
+
+	return nil
 }
 
 func initColors(colors config.ColorConfig) error {
@@ -183,4 +215,56 @@ func resolveCfgColor(cfgColor string) (string, error) {
 	}
 
 	return "", fmt.Errorf("color not resolved: %q", cfgColor)
+}
+
+func resolveBorderStyle(borderStyle string) (lipgloss.Border, error) {
+	switch borderStyle {
+	case config.BorderASCII:
+		return lipgloss.ASCIIBorder(), nil
+	case config.BorderMarkdown:
+		return lipgloss.MarkdownBorder(), nil
+
+	case config.BorderRounded:
+		return lipgloss.RoundedBorder(), nil
+	case config.BorderSquare:
+		return lipgloss.NormalBorder(), nil
+	case config.BorderThickSquare:
+		return lipgloss.ThickBorder(), nil
+	case config.BorderDoubleSquare:
+		return lipgloss.DoubleBorder(), nil
+	case config.BorderBlock:
+		return lipgloss.BlockBorder(), nil
+	case config.BorderOuterHalfBlock:
+		return lipgloss.OuterHalfBlockBorder(), nil
+	case config.BorderInnerHalfBlock:
+		return lipgloss.InnerHalfBlockBorder(), nil
+	default:
+		return lipgloss.Border{}, fmt.Errorf("border style not resolved: %q", borderStyle)
+	}
+}
+
+func resolveSpinnerStyle(spinnerStyle string) (spinner.Spinner, error) {
+	switch spinnerStyle {
+	case config.SpinnerLine:
+		return spinner.Line, nil
+	case config.SpinnerEllipsis:
+		return spinner.Ellipsis, nil
+
+	case config.SpinnerDot:
+		return spinner.Dot, nil
+	case config.SpinnerMiniDot:
+		return spinner.MiniDot, nil
+	case config.SpinnerJump:
+		return spinner.Jump, nil
+	case config.SpinnerPulse:
+		return spinner.Pulse, nil
+	case config.SpinnerPoints:
+		return spinner.Points, nil
+	case config.SpinnerMeter:
+		return spinner.Meter, nil
+	case config.SpinnerHamburger:
+		return spinner.Hamburger, nil
+	default:
+		return spinner.Spinner{}, fmt.Errorf("spinner style not resolved: %q", spinnerStyle)
+	}
 }
