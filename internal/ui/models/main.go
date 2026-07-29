@@ -15,7 +15,13 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
 
-const notificationCloseTime time.Duration = 50 * time.Second
+type mainConfig struct {
+	notificationCloseTime time.Duration
+}
+
+var mainCfg = mainConfig{
+	notificationCloseTime: 50 * time.Second,
+}
 
 type mainKeyMap struct {
 	quit       key.Binding
@@ -48,7 +54,7 @@ type MainModel struct {
 }
 
 func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager, cfg config.Config) (*MainModel, error) {
-	err := styles.Init(*cfg.Colors)
+	err := styles.Init(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("style initialization: %w", err)
 	}
@@ -76,7 +82,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	}
 
 	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
-	n := &Notification{style: &notifStyle, closeTime: notificationCloseTime}
+	n := &Notification{style: &notifStyle, closeTime: mainCfg.notificationCloseTime}
 
 	help := help.New()
 	help.ShowAll = true
