@@ -44,7 +44,7 @@ type IconConfig struct {
 	AccessPoint  *string `kdl:"access_point"`
 	Infra        *string `kdl:"infra"`
 	Mesh         *string `kdl:"mesh"`
-	AdHoc        *string `kdl:"mesh"`
+	AdHoc        *string `kdl:"ad_hoc"`
 }
 
 func DefaultNerdIconConfig() *IconConfig {
