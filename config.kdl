@@ -4,58 +4,58 @@ colors {
     // muted "#595959"
     // error "#ff0000"
     // notif "#e4bf7a"
-    text none
-    accent blue
-    muted bright_black
-    error default
-    notif default
+    text "none"
+    accent "red"
+    muted "bright_black"
+    error "default"
+    notif "default"
 }
 logging {
-    level warn
+    level "warn"
     file_path "~/.local/state/nm-tui/nm-tui.log"
 }
 keys {
-    toggle space
-    rescan r
-    rescan_focused ctrl+r
-    focus_1 1
-    focus_2 2
-    focus_3 3
-    focus_4 4
-    focus_5 5
-    focus_6 6
-    focus_7 7
-    focus_8 8
-    focus_9 9
-    focus_10 10
+    toggle "space"
+    rescan "r"
+    rescan_focused "ctrl+r"
+    focus_1 "1"
+    focus_2 "2"
+    focus_3 "3"
+    focus_4 "4"
+    focus_5 "5"
+    focus_6 "6"
+    focus_7 "7"
+    focus_8 "8"
+    focus_9 "9"
+    focus_10 "10"
     main {
         next_tab "]"
         prev_tab "["
-        focus_next tab
-        focus_prev shift+tab
-        quit esc ctrl+c q ctrl+q
+        focus_next "tab"
+        focus_prev "shift+tab"
+        quit "esc" "ctrl+c" "q" "ctrl+q"
     }
     dialog {
-        focus_down ctrl+j
-        focus_up ctrl+k
-        toggle_pw_visibility ctrl+p
-        accept ctrl+enter
-        close ctrl+q
+        focus_down "ctrl+j"
+        focus_up "ctrl+k"
+        toggle_pw_visibility "ctrl+p"
+        accept "ctrl+enter"
+        close "ctrl+q"
     }
     wifi {
-        create_profile a c
-        open_network_login l
-        enable_hotspot ctrl+h
-        create_hotspot h
+        create_profile "a"
+        open_network_login "l"
+        enable_hotspot "ctrl+h"
+        create_hotspot "h"
     }
     wifi_available {
-        connect enter
+        connect "enter"
     }
     wifi_saved {
-        edit enter
-        connect space
-        disconnect ctrl+space
-        delete d delete
+        edit "enter"
+        connect "space"
+        disconnect "ctrl+space"
+        delete "d" "delete"
     }
 }
 
