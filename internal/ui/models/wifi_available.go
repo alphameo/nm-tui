@@ -22,6 +22,7 @@ type wifiAvailableConfig struct {
 	securityColIdx          int
 	signalColIdx            int
 	securityWidthProportion float32
+	minSignalColWidth       int
 }
 
 var wifiAvailableCfg = wifiAvailableConfig{
@@ -31,6 +32,7 @@ var wifiAvailableCfg = wifiAvailableConfig{
 	signalColIdx:   3,
 
 	securityWidthProportion: 0.3,
+	minSignalColWidth:       3,
 }
 
 type wifiAvailableState int
@@ -82,10 +84,16 @@ type WifiAvailableModel struct {
 
 func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiManager) *WifiAvailableModel {
 	cols := make([]table.Column, 4)
-	cols[wifiAvailableCfg.connColIdx] = table.Column{Title: styles.SymbolConnection, Width: 1}
+	cols[wifiAvailableCfg.connColIdx] = table.Column{
+		Title: styles.SymbolConnection,
+		Width: len(styles.SymbolConnection),
+	}
 	cols[wifiAvailableCfg.ssidColIdx] = table.Column{Title: "SSID"}
 	cols[wifiAvailableCfg.securityColIdx] = table.Column{Title: "Security"}
-	cols[wifiAvailableCfg.signalColIdx] = table.Column{Title: styles.SymbolSignal, Width: 3}
+	cols[wifiAvailableCfg.signalColIdx] = table.Column{
+		Title: styles.SymbolSignal,
+		Width: max(wifiAvailableCfg.minSignalColWidth, len(styles.SymbolSignal)),
+	}
 
 	initTableStyle := styles.DataTableStyle
 	t := table.New(

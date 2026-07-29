@@ -84,7 +84,7 @@ var wifiSavedCfg = wifiSavedConfig{
 
 func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
 	cols := make([]table.Column, 4)
-	cols[wifiSavedCfg.connColIdx] = table.Column{Title: styles.SymbolConnection, Width: 1}
+	cols[wifiSavedCfg.connColIdx] = table.Column{Title: styles.SymbolConnection, Width: len(styles.SymbolConnection)}
 	cols[wifiSavedCfg.modeColIdx] = table.Column{Title: "Mode", Width: 4}
 	cols[wifiSavedCfg.ssidColIdx] = table.Column{Title: "SSID"}
 	cols[wifiSavedCfg.nameColIdx] = table.Column{Title: "Name"}
