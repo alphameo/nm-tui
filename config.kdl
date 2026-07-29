@@ -10,6 +10,22 @@ colors {
     error "default"
     notif "default"
 }
+icons {
+    nerd_preset true
+    border_style "rounded"
+    spinner_style "line"
+    toggle_off " "
+    toggle_on " "
+    password_hidden_character "•"
+    error "✗"
+    check ""
+    connection ""
+    signal "󱘖"
+    access_point "󰀃"
+    infra "🖳"
+    mesh ""
+    ad_hoc ""
+}
 logging {
     level "warn"
     file_path "~/.local/state/nm-tui/nm-tui.log"
