@@ -36,7 +36,7 @@ type IconConfig struct {
 	SpinnerStyle *string `kdl:"spinner_style"`
 	ToggleOff    *string `kdl:"toggle_off"`
 	ToggleOn     *string `kdl:"toggle_on"`
-	PwSymbol     *string `kdl:"password_symbol"`
+	PwHiddenChar *string `kdl:"password_hidden_character"`
 	Error        *string `kdl:"error"`
 	Check        *string `kdl:"check"`
 	Connection   *string `kdl:"connection"`
@@ -53,7 +53,7 @@ func DefaultNerdIconConfig() *IconConfig {
 	spinner := SpinnerMeter
 	toggleOff := " "
 	toggleOn := " "
-	pwSymbol := "•"
+	pwHiddenChar := "•"
 	err := "✗"
 	check := ""
 	signal := ""
@@ -68,7 +68,7 @@ func DefaultNerdIconConfig() *IconConfig {
 		SpinnerStyle: &spinner,
 		ToggleOff:    &toggleOff,
 		ToggleOn:     &toggleOn,
-		PwSymbol:     &pwSymbol,
+		PwHiddenChar: &pwHiddenChar,
 		Error:        &err,
 		Check:        &check,
 		Connection:   &connection,
@@ -86,7 +86,7 @@ func DefaultNonNerdIconConfig() *IconConfig {
 	spinner := SpinnerLine
 	toggleOff := "[ ]"
 	toggleOn := "[x]"
-	pwSymbol := "*"
+	pwHiddenChar := "*"
 	err := "!"
 	check := "v"
 	signal := "sig"
@@ -101,7 +101,7 @@ func DefaultNonNerdIconConfig() *IconConfig {
 		SpinnerStyle: &spinner,
 		ToggleOff:    &toggleOff,
 		ToggleOn:     &toggleOn,
-		PwSymbol:     &pwSymbol,
+		PwHiddenChar: &pwHiddenChar,
 		Error:        &err,
 		Check:        &check,
 		Connection:   &connection,
@@ -127,7 +127,7 @@ func (c *IconConfig) merge(src *IconConfig) []error {
 
 	collect(mergeBorderStyle(c.BorderStyle, src.BorderStyle))
 	collect(mergeSpinnerStyle(c.SpinnerStyle, src.SpinnerStyle))
-	collect(mergeSymbol(c.PwSymbol, src.PwSymbol, "password_symbol"))
+	collect(mergeSymbol(c.PwHiddenChar, src.PwHiddenChar, "password_symbol"))
 	collect(mergeIcon(c.ToggleOff, src.ToggleOff, "toggle_off"))
 	collect(mergeIcon(c.ToggleOn, src.ToggleOn, "toggle_on"))
 	collect(mergeIcon(c.Error, src.Error, "error"))

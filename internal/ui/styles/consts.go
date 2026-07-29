@@ -7,13 +7,13 @@ import (
 const (
 	SymbolError       = "✗"
 	SymbolCheck       = ""
-	CharacterPassword = '•'
 	SymbolConnection  = "󱘖"
 	SymbolSignal      = ""
 	SymbolAccessPoint = "󰀃"
 	SymbolInfra       = "🖳"
 	SymbolMesh        = ""
 	SymbolAdHoc       = ""
+	SymbolPwHiddenChar = '•'
 )
 
 var (

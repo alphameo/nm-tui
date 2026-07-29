@@ -53,7 +53,7 @@ func NewConnectorModel(keys *connectorKeyMap, networkManager infra.WifiManager) 
 	pw.SetWidth(20)
 	pw.Prompt = ""
 	pw.EchoMode = textinput.EchoPassword
-	pw.EchoCharacter = styles.CharacterPassword
+	pw.EchoCharacter = styles.SymbolPwHiddenChar
 	pw.Placeholder = "Password"
 	pw.Validate = passwordValidator
 	pw.Err = passwordValidator(pw.Value())
