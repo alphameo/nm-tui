@@ -40,21 +40,21 @@ func ViewToggle(toggle *toggle.Model) string {
 func ViewInputWithValidation(password *textinput.Model) string {
 	view := password.View()
 	var style lipgloss.Style
-	errIndicator := " "
-	if password.Err != nil {
-		errIndicator = SymbolColoredError
-	}
 	if password.Focused() {
 		style = BorderedFocusedStyle
 	} else {
 		style = BorderedStyle
 	}
 	view = style.Render(view)
-	view = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		view,
-		errIndicator,
-	)
+	if password.Err != nil {
+		view = lipgloss.JoinHorizontal(
+			lipgloss.Center,
+			view,
+			SymbolColoredError,
+		)
+	} else {
+		view = DefaultStyle.PaddingRight(1).Render(view)
+	}
 
 	return view
 }
