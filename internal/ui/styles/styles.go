@@ -26,6 +26,7 @@ var (
 
 	DefaultStyle lipgloss.Style
 	AccentStyle  lipgloss.Style
+	MutedStyle   lipgloss.Style
 	BoldStyle    lipgloss.Style
 
 	Border               lipgloss.Border = lipgloss.RoundedBorder()
@@ -62,6 +63,7 @@ func Init(cfg config.Config) error {
 
 	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor).Background(BgColor)
 	AccentStyle = DefaultStyle.Foreground(AccentColor).Bold(true)
+	MutedStyle = DefaultStyle.Foreground(MutedColor)
 	BoldStyle = DefaultStyle.Bold(true)
 
 	BorderedStyle = DefaultStyle.Border(Border).BorderForeground(TextColor).BorderBackground(BgColor)
@@ -128,13 +130,13 @@ func dataTableStyle() table.Styles {
 func inputStyle() textinput.Styles {
 	return textinput.Styles{
 		Focused: textinput.StyleState{
-			Placeholder: DefaultStyle,
+			Placeholder: MutedStyle,
 			Suggestion:  DefaultStyle,
 			Prompt:      DefaultStyle,
 			Text:        DefaultStyle,
 		},
 		Blurred: textinput.StyleState{
-			Placeholder: DefaultStyle,
+			Placeholder: MutedStyle,
 			Suggestion:  DefaultStyle,
 			Prompt:      DefaultStyle,
 			Text:        DefaultStyle,
