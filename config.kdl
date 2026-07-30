@@ -9,7 +9,7 @@ colors {
     accent "red"
     muted "bright_black"
     error "default"
-    notif "default"
+    notification "default"
 }
 icons {
     nerd_preset true
