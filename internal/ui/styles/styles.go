@@ -8,6 +8,8 @@ import (
 
 	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/table"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
@@ -16,6 +18,7 @@ import (
 
 var (
 	TextColor   color.Color
+	BgColor     color.Color
 	AccentColor color.Color
 	MutedColor  color.Color
 	ErrorColor  color.Color
@@ -31,6 +34,10 @@ var (
 
 	TableStyle     table.Styles
 	DataTableStyle table.Styles
+
+	InputCursor      tea.CursorShape
+	InputCursorBlink bool
+	InputStyle       textinput.Styles
 
 	TabViewStyles tabview.Styles
 
@@ -53,17 +60,21 @@ func Init(cfg config.Config) error {
 		return err
 	}
 
-	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor)
-	AccentStyle = lipgloss.NewStyle().Foreground(AccentColor)
+	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor).Background(BgColor)
+	AccentStyle = DefaultStyle.Foreground(AccentColor).Bold(true)
 	BoldStyle = DefaultStyle.Bold(true)
 
-	BorderedStyle = DefaultStyle.Border(Border)
-	BorderedFocusedStyle = lipgloss.NewStyle().Inherit(BorderedStyle).BorderForeground(AccentColor)
+	BorderedStyle = DefaultStyle.Border(Border).BorderForeground(TextColor).BorderBackground(BgColor)
+	BorderedFocusedStyle = BorderedStyle.BorderForeground(AccentColor)
 	BorderOffset = lipgloss.Width(Border.Left) * 2
 	TabBarHeight = BorderOffset + 1
 
 	TableStyle = tableStyle()
 	DataTableStyle = dataTableStyle()
+
+	InputCursor = tea.CursorBar
+	InputCursorBlink = true
+	InputStyle = inputStyle()
 
 	TabViewStyles = *tabview.GenerateStyles(&BorderedStyle)
 
@@ -71,7 +82,8 @@ func Init(cfg config.Config) error {
 		Border(Border).
 		Align(lipgloss.Center, lipgloss.Center).
 		Padding(2, 4).
-		BorderForeground(AccentColor)
+		BorderForeground(AccentColor).
+		BorderBackground(BgColor)
 
 	NotifBorderedStyle = OverlayStyle.BorderForeground(NotifColor)
 
@@ -86,8 +98,9 @@ func Init(cfg config.Config) error {
 func tableStyle() table.Styles {
 	style := table.DefaultStyles()
 	style.Header = style.Header.
-		BorderStyle(lipgloss.NormalBorder()).
+		BorderStyle(Border).
 		BorderForeground(MutedColor).
+		BorderBackground(BgColor).
 		BorderBottom(true).
 		Bold(false)
 	style.Selected = style.Selected.
@@ -100,14 +113,38 @@ func tableStyle() table.Styles {
 func dataTableStyle() table.Styles {
 	style := table.DefaultStyles()
 	style.Header = style.Header.
-		BorderStyle(lipgloss.NormalBorder()).
+		BorderStyle(Border).
 		BorderForeground(MutedColor).
+		BorderBackground(BgColor).
 		BorderBottom(true).
 		Bold(false)
 	style.Selected = style.Selected.
 		Foreground(TextColor).
+		Background(BgColor).
 		Bold(false)
 	return style
+}
+
+func inputStyle() textinput.Styles {
+	return textinput.Styles{
+		Focused: textinput.StyleState{
+			Placeholder: DefaultStyle,
+			Suggestion:  DefaultStyle,
+			Prompt:      DefaultStyle,
+			Text:        DefaultStyle,
+		},
+		Blurred: textinput.StyleState{
+			Placeholder: DefaultStyle,
+			Suggestion:  DefaultStyle,
+			Prompt:      DefaultStyle,
+			Text:        DefaultStyle,
+		},
+		Cursor: textinput.CursorStyle{
+			Color: TextColor,
+			Shape: InputCursor,
+			Blink: InputCursorBlink,
+		},
+	}
 }
 
 func initIcons(icons config.IconConfig) error {
@@ -143,6 +180,12 @@ func initColors(colors config.ColorConfig) error {
 		return err
 	}
 	TextColor = lipgloss.Color(color)
+
+	color, err = resolveCfgColor(*colors.Background)
+	if err != nil {
+		return err
+	}
+	BgColor = lipgloss.Color(color)
 
 	color, err = resolveCfgColor(*colors.Accent)
 	if err != nil {
