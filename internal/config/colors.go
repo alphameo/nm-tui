@@ -7,26 +7,29 @@ import (
 )
 
 type ColorConfig struct {
-	Text   *string `kdl:"text"`
-	Accent *string `kdl:"accent"`
-	Muted  *string `kdl:"muted"`
-	Error  *string `kdl:"error"`
+	Text       *string `kdl:"text"`
+	Background *string `kdl:"background"`
+	Accent     *string `kdl:"accent"`
+	Muted      *string `kdl:"muted"`
+	Error      *string `kdl:"error"`
 	Notif      *string `kdl:"notification"`
 }
 
 func DefaultColorConfig() *ColorConfig {
 	text := ColorNone
+	bg := ColorNone
 	accent := ColorBlue
 	muted := ColorBrightBlack
 	error := ColorRed
 	notif := ColorYellow
 
 	return &ColorConfig{
-		Text:   &text,
-		Accent: &accent,
-		Muted:  &muted,
-		Error:  &error,
-		Notif:  &notif,
+		Text:       &text,
+		Background: &bg,
+		Accent:     &accent,
+		Muted:      &muted,
+		Error:      &error,
+		Notif:      &notif,
 	}
 }
 
@@ -39,6 +42,7 @@ func (c *ColorConfig) merge(src *ColorConfig) []error {
 	}
 
 	collect(mergeColor(c.Text, src.Text, "text"))
+	collect(mergeColor(c.Background, src.Background, "background"))
 	collect(mergeColor(c.Accent, src.Accent, "accent"))
 	collect(mergeColor(c.Error, src.Error, "error"))
 	collect(mergeColor(c.Muted, src.Muted, "muted"))
