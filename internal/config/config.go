@@ -19,11 +19,13 @@ const (
 )
 
 type Config struct {
-	Colors         *ColorConfig `kdl:"colors"`
-	Keys           *KeyConfig   `kdl:"keys"`
-	Logging        *LogConfig   `kdl:"logging"`
-	Icons          *IconConfig  `kdl:"icons"`
-	NotifCloseTime *int         `kdl:"notification_close_time"`
+	Colors           *ColorConfig `kdl:"colors"`
+	Keys             *KeyConfig   `kdl:"keys"`
+	Logging          *LogConfig   `kdl:"logging"`
+	Icons            *IconConfig  `kdl:"icons"`
+	NotifCloseTime   *int         `kdl:"notification_close_time"`
+	InputCursor      *string      `kdl:"input_cursor"`
+	InputCursorBlink *bool        `kdl:"input_cursor_blink"`
 }
 
 func DefaultConfig() Config {
