@@ -62,8 +62,9 @@ func (c *Config) merge(src *Config) []error {
 
 	if src.NotifCloseTime != nil {
 		time := *src.NotifCloseTime
-		err := validateTime(time, "notification_close_time")
+		err := validateTime(time)
 		if err != nil {
+			err = fmt.Errorf("notification_close_time value: %w", err)
 			errs = append(errs, err)
 		} else {
 			c.NotifCloseTime = src.NotifCloseTime
@@ -111,9 +112,9 @@ func LoadOrDefaults() (Config, error) {
 	return cfg, err
 }
 
-func validateTime(time int, tag string) error {
+func validateTime(time int) error {
 	if time <= 0 {
-		return fmt.Errorf("%s time <= 0: %q", tag, time)
+		return fmt.Errorf("time <= 0: %d", time)
 	}
 	return nil
 }
