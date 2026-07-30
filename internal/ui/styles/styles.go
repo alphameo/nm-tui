@@ -76,7 +76,10 @@ func Init(cfg config.Config) error {
 	TableStyle = tableStyle()
 	DataTableStyle = dataTableStyle()
 
-	InputCursor = tea.CursorBar
+	InputCursor, err = resolveCursorShape(*cfg.InputCursorShape)
+	if err != nil {
+		return err
+	}
 	InputStyle = inputStyle()
 
 	HelpStyle = helpStyle()
@@ -313,5 +316,18 @@ func resolveSpinnerStyle(spinnerStyle string) (spinner.Spinner, error) {
 		return spinner.Hamburger, nil
 	default:
 		return spinner.Spinner{}, fmt.Errorf("spinner style not resolved: %q", spinnerStyle)
+	}
+}
+
+func resolveCursorShape(cursor string) (tea.CursorShape, error) {
+	switch cursor {
+	case config.CursorBar:
+		return tea.CursorBar, nil
+	case config.CursorUnderline:
+		return tea.CursorUnderline, nil
+	case config.CursorBlock:
+		return tea.CursorBlock, nil
+	default:
+		return 0, fmt.Errorf("input cursor shape not resolved: %q", cursor)
 	}
 }
