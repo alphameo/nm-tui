@@ -20,10 +20,6 @@ func ViewBorderedFocusable(component focusable) string {
 		style = BorderedStyle
 	}
 	view = style.Render(view)
-	view = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		view,
-	)
 
 	return view
 }
@@ -37,10 +33,6 @@ func ViewToggle(toggle *toggle.Model) string {
 		style = ToggleStyle
 	}
 	view = style.Render(view)
-	view = lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		view,
-	)
 
 	return view
 }
