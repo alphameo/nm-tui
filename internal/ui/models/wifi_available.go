@@ -243,7 +243,6 @@ func (m *WifiAvailableModel) View() string {
 		"Available networks",
 		"1",
 		style,
-		style.GetBorderTopForeground(),
 	)
 	return view
 }
