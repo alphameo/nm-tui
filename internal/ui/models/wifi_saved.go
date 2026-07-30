@@ -245,7 +245,6 @@ func (m *WifiSavedModel) View() string {
 		"Saved networks",
 		"2",
 		style,
-		style.GetBorderTopForeground(),
 	)
 	return view
 }
