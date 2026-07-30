@@ -243,6 +243,7 @@ func (m *WifiAvailableModel) View() string {
 		"Available networks",
 		"1",
 		style,
+		styles.AccentColor,
 	)
 	return view
 }

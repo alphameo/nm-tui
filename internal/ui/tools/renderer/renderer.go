@@ -3,16 +3,23 @@ package renderer
 
 import (
 	"fmt"
+	"image/color"
 
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 )
 
-func RenderWithTitleAndKeybind(view, title, keybind string, style lipgloss.Style) string {
+func RenderWithTitleAndKeybind(view, title, keybind string, style lipgloss.Style, titleColor color.Color) string {
 	view = style.Render(view)
 	keybind = fmt.Sprintf("[%s]", keybind)
-	keybindStyle := lipgloss.NewStyle().Foreground(style.GetBorderTopForeground()).Background(style.GetBorderBottomBackground())
-	titleStyle := lipgloss.NewStyle().Foreground(style.GetBorderTopForeground()).Background(style.GetBorderTopBackground())
+	keybindStyle := lipgloss.NewStyle().
+		Foreground(style.GetBorderTopForeground()).
+		Background(style.GetBorderBottomBackground()).
+		Bold(true)
+	titleStyle := lipgloss.NewStyle().
+		Foreground(titleColor).
+		Background(style.GetBorderTopBackground()).
+		Bold(true)
 
 	title = titleStyle.Render(title)
 	divider := keybindStyle.Render(style.GetBorderStyle().Top)

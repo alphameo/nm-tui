@@ -245,6 +245,7 @@ func (m *WifiSavedModel) View() string {
 		"Saved networks",
 		"2",
 		style,
+		styles.AccentColor,
 	)
 	return view
 }
