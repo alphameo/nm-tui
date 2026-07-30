@@ -37,9 +37,8 @@ var (
 	TableStyle     table.Styles
 	DataTableStyle table.Styles
 
-	InputCursor      tea.CursorShape
-	InputCursorBlink bool
-	InputStyle       textinput.Styles
+	InputCursor tea.CursorShape
+	InputStyle  textinput.Styles
 
 	HelpStyle help.Styles
 
@@ -78,7 +77,6 @@ func Init(cfg config.Config) error {
 	DataTableStyle = dataTableStyle()
 
 	InputCursor = tea.CursorBar
-	InputCursorBlink = true
 	InputStyle = inputStyle()
 
 	HelpStyle = helpStyle()
@@ -140,7 +138,7 @@ func inputStyle() textinput.Styles {
 		Cursor: textinput.CursorStyle{
 			Color: TextColor,
 			Shape: InputCursor,
-			Blink: InputCursorBlink,
+			Blink: true,
 		},
 	}
 }
