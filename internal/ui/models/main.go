@@ -61,6 +61,8 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 
 	keys := initKeys(*cfg.Keys)
 
+	mainCfg.notificationCloseTime = time.Duration(*cfg.NotifCloseTime) * time.Second
+
 	connector := NewConnectorModel(&keys.connector, wifiManager)
 	profileCreator := NewProfileCreatorModel(&keys.profileCreator, wifiManager)
 	hotspotCreator := NewHotspotCreatorModel(&keys.hotspotCreator, wifiManager)
