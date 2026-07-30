@@ -19,18 +19,21 @@ const (
 )
 
 type Config struct {
-	Colors  *ColorConfig `kdl:"colors"`
-	Keys    *KeyConfig   `kdl:"keys"`
-	Logging *LogConfig   `kdl:"logging"`
-	Icons   *IconConfig  `kdl:"icons"`
+	Colors         *ColorConfig `kdl:"colors"`
+	Keys           *KeyConfig   `kdl:"keys"`
+	Logging        *LogConfig   `kdl:"logging"`
+	Icons          *IconConfig  `kdl:"icons"`
+	NotifCloseTime *int         `kdl:"notification_close_time"`
 }
 
 func DefaultConfig() Config {
+	notifCloseTime := 50
 	return Config{
-		Colors:  DefaultColorConfig(),
-		Keys:    DefaultKeys(),
-		Logging: DefaultLogConfig(),
-		Icons:   DefaultIconConfig(),
+		Colors:         DefaultColorConfig(),
+		Keys:           DefaultKeys(),
+		Logging:        DefaultLogConfig(),
+		Icons:          DefaultIconConfig(),
+		NotifCloseTime: &notifCloseTime,
 	}
 }
 
@@ -55,6 +58,16 @@ func (c *Config) merge(src *Config) []error {
 			c.Icons = DefaultNerdIconConfig()
 		}
 		errs = append(errs, c.Icons.merge(src.Icons)...)
+	}
+
+	if src.NotifCloseTime != nil {
+		time := *src.NotifCloseTime
+		err := validateTime(time, "notification_close_time")
+		if err != nil {
+			errs = append(errs, err)
+		} else {
+			c.NotifCloseTime = src.NotifCloseTime
+		}
 	}
 
 	return errs
@@ -96,4 +109,11 @@ func LoadOrDefaults() (Config, error) {
 		err = nil
 	}
 	return cfg, err
+}
+
+func validateTime(time int, tag string) error {
+	if time <= 0 {
+		return fmt.Errorf("%s time <= 0: %q", tag, time)
+	}
+	return nil
 }

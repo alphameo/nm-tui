@@ -1,3 +1,4 @@
+notification_close_time 50
 colors {
     // text "#cbcbcb"
     // accent "#865fff"
