@@ -11,7 +11,7 @@ type ColorConfig struct {
 	Accent *string `kdl:"accent"`
 	Muted  *string `kdl:"muted"`
 	Error  *string `kdl:"error"`
-	Notif  *string `kdl:"notif"`
+	Notif      *string `kdl:"notification"`
 }
 
 func DefaultColorConfig() *ColorConfig {
@@ -42,7 +42,7 @@ func (c *ColorConfig) merge(src *ColorConfig) []error {
 	collect(mergeColor(c.Accent, src.Accent, "accent"))
 	collect(mergeColor(c.Error, src.Error, "error"))
 	collect(mergeColor(c.Muted, src.Muted, "muted"))
-	collect(mergeColor(c.Notif, src.Notif, "notif"))
+	collect(mergeColor(c.Notif, src.Notif, "notification"))
 
 	return errs
 }
