@@ -6,6 +6,7 @@ colors {
     // error "#ff0000"
     // notif "#e4bf7a"
     text "none"
+    background "none"
     accent "red"
     muted "bright_black"
     error "default"
