@@ -45,21 +45,13 @@ type ProfileCreatorModel struct {
 }
 
 func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.WifiManager) *ProfileCreatorModel {
-	ssid := textinput.New()
-	ssid.SetWidth(20)
-	ssid.Prompt = ""
+	ssid := newDefaultInput()
 	ssid.Placeholder = "SSID"
 
-	name := textinput.New()
-	name.SetWidth(20)
-	name.Prompt = ""
+	name := newDefaultInput()
 	name.Placeholder = "Name"
 
-	pw := textinput.New()
-	pw.SetWidth(20)
-	pw.Prompt = ""
-	pw.EchoMode = textinput.EchoPassword
-	pw.EchoCharacter = styles.SymbolPwHiddenChar
+	pw := newDefaultPassword()
 	pw.Placeholder = "Password"
 	pw.Validate = passwordValidator
 	pw.Err = passwordValidator(pw.Value())
