@@ -191,12 +191,6 @@ func initColors(colors config.ColorConfig) error {
 	}
 	TextColor = lipgloss.Color(color)
 
-	color, err = resolveCfgColor(*colors.Background)
-	if err != nil {
-		return err
-	}
-	BgColor = lipgloss.Color(color)
-
 	color, err = resolveCfgColor(*colors.Accent)
 	if err != nil {
 		return err
@@ -220,6 +214,8 @@ func initColors(colors config.ColorConfig) error {
 		return err
 	}
 	NotifColor = lipgloss.Color(color)
+
+	BgColor = lipgloss.Color("")
 
 	return nil
 }
