@@ -98,32 +98,23 @@ func Init(cfg config.Config) error {
 }
 
 func tableStyle() table.Styles {
-	style := table.DefaultStyles()
-	style.Header = style.Header.
-		BorderStyle(Border).
-		BorderForeground(MutedColor).
-		BorderBackground(BgColor).
-		BorderBottom(true).
-		Bold(false)
-	style.Selected = style.Selected.
-		Foreground(TextColor).
-		Background(AccentColor).
-		Bold(false)
-	return style
+	return table.Styles{
+		Selected: lipgloss.NewStyle().
+			Foreground(TextColor).
+			Background(AccentColor),
+		Header: lipgloss.NewStyle().
+			BorderStyle(Border).
+			BorderForeground(MutedColor).
+			BorderBackground(BgColor).
+			BorderBottom(true).
+			Padding(0, 1),
+		Cell: lipgloss.NewStyle().Padding(0, 1),
+	}
 }
 
 func dataTableStyle() table.Styles {
-	style := table.DefaultStyles()
-	style.Header = style.Header.
-		BorderStyle(Border).
-		BorderForeground(MutedColor).
-		BorderBackground(BgColor).
-		BorderBottom(true).
-		Bold(false)
-	style.Selected = style.Selected.
-		Foreground(TextColor).
-		Background(BgColor).
-		Bold(false)
+	style := tableStyle()
+	style.Selected = style.Selected.Background(BgColor)
 	return style
 }
 
