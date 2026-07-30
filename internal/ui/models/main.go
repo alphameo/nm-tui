@@ -87,6 +87,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	n := &Notification{style: &notifStyle, closeTime: mainCfg.notificationCloseTime}
 
 	help := help.New()
+	help.Styles = styles.HelpStyle
 	help.ShowAll = true
 
 	return &MainModel{

@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"strings"
 
+	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/table"
 	"charm.land/bubbles/v2/textinput"
@@ -39,6 +40,8 @@ var (
 	InputCursor      tea.CursorShape
 	InputCursorBlink bool
 	InputStyle       textinput.Styles
+
+	HelpStyle help.Styles
 
 	TabViewStyles tabview.Styles
 
@@ -77,6 +80,8 @@ func Init(cfg config.Config) error {
 	InputCursor = tea.CursorBar
 	InputCursorBlink = true
 	InputStyle = inputStyle()
+
+	HelpStyle = helpStyle()
 
 	TabViewStyles = *tabview.GenerateStyles(&BorderedStyle)
 
@@ -138,6 +143,18 @@ func inputStyle() textinput.Styles {
 			Blink: InputCursorBlink,
 		},
 	}
+}
+
+func helpStyle() help.Styles {
+	style := help.DefaultDarkStyles()
+	style.ShortKey = style.ShortKey.Background(BgColor)
+	style.ShortDesc = style.ShortDesc.Background(BgColor)
+	style.ShortSeparator = style.ShortSeparator.Background(BgColor)
+	style.Ellipsis = style.Ellipsis.Background(BgColor)
+	style.FullKey = style.FullKey.Background(BgColor)
+	style.FullDesc = style.FullDesc.Background(BgColor)
+	style.FullSeparator = style.FullSeparator.Background(BgColor)
+	return style
 }
 
 func initIcons(icons config.IconConfig) error {
