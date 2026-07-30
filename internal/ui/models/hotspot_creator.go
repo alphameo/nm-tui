@@ -193,10 +193,10 @@ func (m *HotspotCreatorModel) View() string {
 		fields...,
 	)
 
-	style := styles.OverlayStyle
-	view = style.Render(view)
+	view = styles.OverlayStyle.Render(view)
+	title := styles.DefaultStyle.Render(renderer.RenderTitle(hotspotCreatorCfg.title))
 	view = compositor.Compose(
-		renderer.RenderTitle(hotspotCreatorCfg.title),
+		title,
 		view,
 		compositor.Center,
 		compositor.Begin,

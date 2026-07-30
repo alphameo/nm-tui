@@ -249,10 +249,10 @@ func (m *ProfileEditorModel) View() string {
 		autoconnPrior,
 	)
 
-	style := styles.OverlayStyle
-	view = style.Render(view)
+	view = styles.OverlayStyle.Render(view)
+	title := styles.DefaultStyle.Render(renderer.RenderTitle(profileEditorCfg.title))
 	view = compositor.Compose(
-		renderer.RenderTitle(profileEditorCfg.title),
+		title,
 		view,
 		compositor.Center,
 		compositor.Begin,

@@ -45,11 +45,13 @@ type ConnectorModel struct {
 
 func NewConnectorModel(keys *connectorKeyMap, networkManager infra.WifiManager) *ConnectorModel {
 	name := textinput.New()
+	name.SetStyles(styles.InputStyle)
 	name.SetWidth(20)
 	name.Prompt = ""
 	name.Placeholder = "Name"
 
 	pw := textinput.New()
+	pw.SetStyles(styles.InputStyle)
 	pw.SetWidth(20)
 	pw.Prompt = ""
 	pw.EchoMode = textinput.EchoPassword
@@ -181,10 +183,10 @@ func (m *ConnectorModel) View() string {
 		fields...,
 	)
 
-	style := styles.OverlayStyle
-	view = style.Render(view)
+	view = styles.OverlayStyle.Render(view)
+	title := styles.DefaultStyle.Render(renderer.RenderTitle(connectorCfg.title))
 	view = compositor.Compose(
-		renderer.RenderTitle(connectorCfg.title),
+		title,
 		view,
 		compositor.Center,
 		compositor.Begin,
