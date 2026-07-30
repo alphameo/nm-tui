@@ -44,18 +44,10 @@ type ConnectorModel struct {
 }
 
 func NewConnectorModel(keys *connectorKeyMap, networkManager infra.WifiManager) *ConnectorModel {
-	name := textinput.New()
-	name.SetStyles(styles.InputStyle)
-	name.SetWidth(20)
-	name.Prompt = ""
+	name := newDefaultInput()
 	name.Placeholder = "Name"
 
-	pw := textinput.New()
-	pw.SetStyles(styles.InputStyle)
-	pw.SetWidth(20)
-	pw.Prompt = ""
-	pw.EchoMode = textinput.EchoPassword
-	pw.EchoCharacter = styles.SymbolPwHiddenChar
+	pw := newDefaultPassword()
 	pw.Placeholder = "Password"
 	pw.Validate = passwordValidator
 	pw.Err = passwordValidator(pw.Value())

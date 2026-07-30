@@ -52,16 +52,10 @@ type ProfileEditorModel struct {
 }
 
 func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiManager) *ProfileEditorModel {
-	name := textinput.New()
-	name.SetWidth(20)
-	name.Prompt = ""
+	name := newDefaultInput()
 	name.Placeholder = "Name"
 
-	pw := textinput.New()
-	pw.SetWidth(20)
-	pw.Prompt = ""
-	pw.EchoMode = textinput.EchoPassword
-	pw.EchoCharacter = styles.SymbolPwHiddenChar
+	pw := newDefaultPassword()
 	pw.Placeholder = "Password"
 	pw.Validate = passwordValidator
 	pw.Err = passwordValidator(pw.Value())
@@ -69,9 +63,8 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 	autoconn := toggle.New()
 	autoconn.Symbols = styles.SymbolsToggle
 
-	autoconnPrior := textinput.New()
+	autoconnPrior := newDefaultInput()
 	autoconnPrior.SetWidth(4)
-	autoconnPrior.Prompt = ""
 	autoconnPrior.Validate = autoconnectPriorityValidator
 
 	model := &ProfileEditorModel{
