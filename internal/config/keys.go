@@ -109,7 +109,7 @@ func DefaultKeys() *KeyConfig {
 			FocusUp:            keyBinding("ctrl+k"),
 			TogglePWVisibility: keyBinding("ctrl+p"),
 			Accept:             keyBinding("ctrl+enter"),
-			Close:              keyBinding("ctrl+q"),
+			Close:              keyBinding("esc", "ctrl+q", "ctrl+c"),
 		},
 		Wifi: &WifiKeys{
 			CreateProfile:     keyBinding("a", "c"),
