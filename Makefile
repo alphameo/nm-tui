@@ -14,4 +14,11 @@ clean-build:
 	make build
 
 logs:
-	cat ~/.cache/nm-tui/log | tail -n 50  
+	cat ~/.cache/nm-tui/log | tail -n 50
+
+test:
+	make test-config
+
+test-config:
+	go test ./internal/config/ -v
+	go test ./internal/config/ -cover
