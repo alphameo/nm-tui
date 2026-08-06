@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"unicode/utf8"
 )
 
 const (
@@ -214,7 +215,7 @@ func mergeSymbol(dst *string, src *string, tag string) error {
 	if len(symbol) == 0 {
 		return fmt.Errorf("empty %s symbol", tag)
 	}
-	if len(symbol) > 1 {
+	if utf8.RuneCountInString(symbol) > 1 {
 		return fmt.Errorf("length of symbol %s > 1: %q", tag, symbol)
 	}
 
