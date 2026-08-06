@@ -135,7 +135,7 @@ func (k *KeyConfig) merge(src *KeyConfig) []error {
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(k.Toggle, src.Toggle, "toggle")...)
+	errs = append(errs, mergeKeyList(&k.Toggle, src.Toggle, "toggle")...)
 	errs = append(errs, k.Main.merge(src.Main)...)
 	errs = append(errs, k.Dialog.merge(src.Dialog)...)
 	errs = append(errs, k.Wifi.merge(src.Wifi)...)
@@ -150,11 +150,11 @@ func (m *MainKeys) merge(src *MainKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(m.NextTab, src.NextTab, "main.next_tab")...)
-	errs = append(errs, mergeKeyList(m.PrevTab, src.PrevTab, "main.prev_tab")...)
-	errs = append(errs, mergeKeyList(m.FocusNext, src.FocusNext, "main.focus_next")...)
-	errs = append(errs, mergeKeyList(m.FocusPrev, src.FocusPrev, "main.focus_prev")...)
-	errs = append(errs, mergeKeyList(m.Quit, src.Quit, "main.quit")...)
+	errs = append(errs, mergeKeyList(&m.NextTab, src.NextTab, "main.next_tab")...)
+	errs = append(errs, mergeKeyList(&m.PrevTab, src.PrevTab, "main.prev_tab")...)
+	errs = append(errs, mergeKeyList(&m.FocusNext, src.FocusNext, "main.focus_next")...)
+	errs = append(errs, mergeKeyList(&m.FocusPrev, src.FocusPrev, "main.focus_prev")...)
+	errs = append(errs, mergeKeyList(&m.Quit, src.Quit, "main.quit")...)
 	return errs
 }
 
@@ -164,11 +164,11 @@ func (d *DialogKeys) merge(src *DialogKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(d.FocusDown, src.FocusDown, "dialog.focus_down")...)
-	errs = append(errs, mergeKeyList(d.FocusUp, src.FocusUp, "dialog.focus_up")...)
-	errs = append(errs, mergeKeyList(d.TogglePWVisibility, src.TogglePWVisibility, "dialog.toggle_pw_visibility")...)
-	errs = append(errs, mergeKeyList(d.Accept, src.Accept, "dialog.accept")...)
-	errs = append(errs, mergeKeyList(d.Close, src.Close, "dialog.close")...)
+	errs = append(errs, mergeKeyList(&d.FocusDown, src.FocusDown, "dialog.focus_down")...)
+	errs = append(errs, mergeKeyList(&d.FocusUp, src.FocusUp, "dialog.focus_up")...)
+	errs = append(errs, mergeKeyList(&d.TogglePWVisibility, src.TogglePWVisibility, "dialog.toggle_pw_visibility")...)
+	errs = append(errs, mergeKeyList(&d.Accept, src.Accept, "dialog.accept")...)
+	errs = append(errs, mergeKeyList(&d.Close, src.Close, "dialog.close")...)
 	return errs
 }
 
@@ -178,10 +178,10 @@ func (w *WifiKeys) merge(src *WifiKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(w.CreateProfile, src.CreateProfile, "wifi.create_profile")...)
-	errs = append(errs, mergeKeyList(w.OpenCaptivePortal, src.OpenCaptivePortal, "wifi.open_network_login")...)
-	errs = append(errs, mergeKeyList(w.EnableHotspot, src.EnableHotspot, "wifi.enable_hotspot")...)
-	errs = append(errs, mergeKeyList(w.CreateHotspot, src.CreateHotspot, "wifi.create_hotspot")...)
+	errs = append(errs, mergeKeyList(&w.CreateProfile, src.CreateProfile, "wifi.create_profile")...)
+	errs = append(errs, mergeKeyList(&w.OpenCaptivePortal, src.OpenCaptivePortal, "wifi.open_network_login")...)
+	errs = append(errs, mergeKeyList(&w.EnableHotspot, src.EnableHotspot, "wifi.enable_hotspot")...)
+	errs = append(errs, mergeKeyList(&w.CreateHotspot, src.CreateHotspot, "wifi.create_hotspot")...)
 	return errs
 }
 
@@ -191,7 +191,7 @@ func (a *WifiAvailableKeys) merge(src *WifiAvailableKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(a.Connect, src.Connect, "wifi_available.connect")...)
+	errs = append(errs, mergeKeyList(&a.Connect, src.Connect, "wifi_available.connect")...)
 	return errs
 }
 
@@ -201,14 +201,14 @@ func (s *WifiSavedKeys) merge(src *WifiSavedKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(s.Edit, src.Edit, "wifi_saved.edit")...)
-	errs = append(errs, mergeKeyList(s.Connect, src.Connect, "wifi_saved.connect")...)
-	errs = append(errs, mergeKeyList(s.Disconnect, src.Disconnect, "wifi_saved.disconnect")...)
-	errs = append(errs, mergeKeyList(s.Delete, src.Delete, "wifi_saved.delete")...)
+	errs = append(errs, mergeKeyList(&s.Edit, src.Edit, "wifi_saved.edit")...)
+	errs = append(errs, mergeKeyList(&s.Connect, src.Connect, "wifi_saved.connect")...)
+	errs = append(errs, mergeKeyList(&s.Disconnect, src.Disconnect, "wifi_saved.disconnect")...)
+	errs = append(errs, mergeKeyList(&s.Delete, src.Delete, "wifi_saved.delete")...)
 	return errs
 }
 
-func mergeKeyList(dst *KeyBinding, src *KeyBinding, tag string) []error {
+func mergeKeyList(dst **KeyBinding, src *KeyBinding, tag string) []error {
 	if src == nil {
 		return nil
 	}
@@ -223,7 +223,7 @@ func mergeKeyList(dst *KeyBinding, src *KeyBinding, tag string) []error {
 		return errs
 	}
 
-	*dst = *src
+	*dst = src
 	return nil
 }
 
