@@ -6,7 +6,7 @@
 
 Lightweight TUI wrapper for [NetworkManager](https://gitlab.freedesktop.org/NetworkManager/NetworkManager)
 
-Why `nm-tui`: builtin `nmtui` doesn't look great and there aren't many TUI alternatives
+Why `nm-tui`: built-in `nmtui` doesn't look great and there aren't many TUI alternatives
 
 ## 📌 Table of Contents
 
@@ -15,6 +15,7 @@ Why `nm-tui`: builtin `nmtui` doesn't look great and there aren't many TUI alter
 - [🖼️ Screenshots](#%EF%B8%8F-screenshots)
 - [🗃️ Requirements](#%EF%B8%8F-requirements)
 - [📥 Installation](#-installation)
+- [⚙️ Configuration](#-configuration)
 - [⚙️ Tech Stack](#%EF%B8%8F-tech-stack)
 - [🖲️ Contributing](#%EF%B8%8F-contributing)
 - [⚖️ License](#%EF%B8%8F-license)
@@ -23,8 +24,8 @@ Why `nm-tui`: builtin `nmtui` doesn't look great and there aren't many TUI alter
 ## 💫 Features
 
 - 😎 TUI style looks cool
-- 📡 Scan and list available WiFi networks
-- 🔑 Connect to WiFi networks with password input
+- 📡 Scan and list available WiFi-networks
+- 🔑 Connect to WiFi-networks with password input
 - 📜 View detailed network information (signal strength, security, etc.)
 - 🌐 Control device networking
 - 📡 Create hotspot
@@ -45,7 +46,7 @@ Why `nm-tui`: builtin `nmtui` doesn't look great and there aren't many TUI alter
     <img src="../assets/networking-tab.png" alt="wifi info" width="400"/>
 </div>
 
-### Wifi connection and Network info
+### WiFi connection and Network info
 
 <div style="display: flex; gap: 10px;">
     <img src="../assets/connect-to-wifi.png" alt="wifi connector" width="400"/>
@@ -62,8 +63,8 @@ Why `nm-tui`: builtin `nmtui` doesn't look great and there aren't many TUI alter
 ## 🗃️ Requirements
 
 - [`NetworkManager`](https://gitlab.freedesktop.org/NetworkManager/NetworkManager) as the main network manager
-- [`Go`](https://github.com/golang/go) v1.24.4
-- (optional) `xdg-open` + `ip` on linux -- opens captive portal for connecting to the public wifi networks
+- [`Go`](https://github.com/golang/go) v1.24.3
+- (optional) `xdg-open` + `ip` on Linux -- opens captive portal for connecting to the public WiFi-networks
 - [Nerd Font](https://www.nerdfonts.com/font-downloads)
 
 ## 📥 Installation
@@ -100,6 +101,119 @@ make clean-build
 ```bash
 ./bin/nm-tui
 ```
+
+## ⚙️ Configuration
+
+Config is placed at `$XDG_CONFIG_HOME/nm-tui/config.kdl` (e.g. `~/.config/nm-tui/config.kdl`).
+
+All settings have default values, with which the user configuration is subsequently merged.
+
+You don't need to copy default config.
+
+<details>
+    <summary>Default <code>config.kdl</code> for reference (no need to copy)</summary>
+
+```kdl
+notification_close_time 50
+
+// Colors support:
+// 1. rgb-format: e.g. "#000000"
+// 2. default value: "default"
+// 3. colors, defined in your terminal:
+//    - "none" - bg color for background, text color for foreground
+//    - "black", "red", "green", "yellow",
+//      "blue", "magenta", "cyan", "white",
+//      "bright_black", "bright_red", "bright_green", "bright_yellow",
+//      "bright_blue", "bright_magenta", "bright_cyan", "bright_white",
+colors {
+    text "none"
+    accent "blue"
+    muted "bright_black"
+    error "red"
+    notification "yellow"
+}
+
+icons {
+    nerd_preset false // set icons to nerd variant
+
+    border_style "ascii" // default for nerd: "rounded"
+                         // non-nerd variants: "ascii", "markdown",
+                         // nerd variants: "rounded", "square", "thick_square",
+                         //                "double_square", "block",
+                         //                "outer_half_block", "inner_half_block"
+
+    spinner_style "line" // default for nerd: "meter"
+                         // non-nerd variants: "line", "ellipsis"
+                         // nerd variants: "dot", "mini_dot", "jump", "pulse",
+                         //                "points", "meter", "hamburger"
+
+    toggle_off "[ ]"              // default for nerd: " "
+    toggle_on "[x]"               // default for nerd: " "
+    password_hidden_character "*" // default for nerd: "•", limited to 1 character
+    error "!"                     // default for nerd: "✗"
+    check "v"                     // default for nerd: ""
+    connection "sig"              // default for nerd: ""
+    signal "con"                  // default for nerd: "󱘖"
+    access_point "ap"             // default for nerd: "󰀃"
+    infra "infr"                  // default for nerd: "🖳"
+    mesh "#"                      // default for nerd: ""
+    ad_hoc "ah"                   // default for nerd: ""
+}
+
+logging {
+    level "error" // variants: "debug", "info", "warn", "error"
+    file_path "~/.local/state/nm-tui/nm-tui.log"
+}
+
+// Every mapping can be present in several variants
+// Overlapping: dialog -> main -> no-section -> other...
+keys {
+    toggle "space"
+    rescan "r"
+    rescan_focused "ctrl+r"
+    focus_1 "1"
+    focus_2 "2"
+    focus_3 "3"
+    focus_4 "4"
+    focus_5 "5"
+    focus_6 "6"
+    focus_7 "7"
+    focus_8 "8"
+    focus_9 "9"
+    focus_10 "10"
+    main {
+        next_tab "]"
+        prev_tab "["
+        focus_next "tab"
+        focus_prev "shift+tab"
+        quit "esc" "ctrl+c" "q" "ctrl+q"
+    }
+    dialog {
+        focus_down "ctrl+j"
+        focus_up "ctrl+k"
+        toggle_pw_visibility "ctrl+p"
+        accept "ctrl+enter"
+        close "ctrl+q"
+    }
+    wifi {
+        create_profile "a"
+        open_network_login "l"
+        enable_hotspot "ctrl+h"
+        create_hotspot "h"
+    }
+    wifi_available {
+        connect "enter"
+    }
+    wifi_saved {
+        edit "enter"
+        connect "space"
+        disconnect "ctrl+space"
+        delete "d" "delete"
+    }
+}
+```
+
+</details>
 
 ## ⚙️ Tech Stack
 
