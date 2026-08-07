@@ -45,7 +45,7 @@ func New(tabs []Tab, styles *Styles, keys *KeyMap) *Model {
 
 func (m *Model) SetStyles(styles *Styles) {
 	if styles == nil {
-		styles = DefaulStyles()
+		styles = DefaultStyles()
 	}
 	borderOffset := lipgloss.Width(styles.ContentStyle.GetBorderStyle().Left) * 2
 	tabBarHeight := borderOffset + 1

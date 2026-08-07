@@ -49,7 +49,7 @@ func GenerateStyles(style *lipgloss.Style) *Styles {
 	}
 }
 
-func DefaulStyles() *Styles {
+func DefaultStyles() *Styles {
 	style := lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
 	return GenerateStyles(&style)
 }
