@@ -73,38 +73,69 @@ Why `nm-tui`: built-in `nmtui` doesn't look great and there aren't many TUI alte
 
 ## Installation
 
-### Manual
+### Go install
 
-#### Clone repo
+Requires [Go](https://github.com/golang/go) installed.
+
+```bash
+go install github.com/alphameo/nm-tui/cmd/nm-tui@latest
+```
+
+The binary is placed in `$(go env GOPATH)/bin`.
+
+```bash
+# Run directly
+$(go env GOPATH)/bin/nm-tui
+
+# If you have the `$(go env GOPATH)/bin` directory in your `PATH` just run
+nm-tui
+```
+
+To use just `nm-tui` add the `$(go env GOPATH)/bin` directory to your `PATH`
+
+### Nix
+
+With [Nix](https://nixos.org) and flakes enabled:
+
+```bash
+nix profile install github:alphameo/nm-tui
+```
+
+Or install into your profile:
+
+```bash
+nix run github:alphameo/nm-tui
+```
+
+### Binary
+
+Move binary `nm-tui` into `/usr/bin` or add location to `PATH` if you want system-wide access.
+
+### Prebuilt binary
+
+Load the latest archive for your architecture from the
+[releases page](https://github.com/alphameo/nm-tui/releases).
+
+#### Manual
+
+Clone repo
 
 ```bash
 git clone https://github.com/alphameo/nm-tui.git
-```
-
-or
-
-```bash
+# or
 git clone git@github.com:alphameo/nm-tui.git
 ```
 
-#### Generate binary
+Generate binary:
 
 ```bash
 make deps
 make build
-```
-
-or
-
-```bash
+# or
 make clean-build
 ```
 
-#### Use binary
-
-```bash
-./bin/nm-tui
-```
+Binary generated at `./bin/nm-tui`
 
 ## Configuration
 
