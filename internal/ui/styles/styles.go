@@ -76,10 +76,6 @@ func Init(cfg config.Config) error {
 	TableStyle = tableStyle()
 	DataTableStyle = dataTableStyle()
 
-	InputCursor, err = resolveCursorShape(*cfg.InputCursorShape)
-	if err != nil {
-		return err
-	}
 	InputStyle = inputStyle()
 
 	HelpStyle = helpStyle()
@@ -170,6 +166,12 @@ func initIcons(icons config.IconConfig) error {
 		return err
 	}
 	Spinner = spinner
+
+	cursor, err := resolveCursorShape(*icons.InputCursorShape)
+	if err != nil {
+		return err
+	}
+	InputCursor = cursor
 
 	SymbolsToggle = toggle.Symbols{Activated: *icons.ToggleOn, Deactivated: *icons.ToggleOff}
 	SymbolPwHiddenChar = []rune(*icons.PwHiddenChar)[0]

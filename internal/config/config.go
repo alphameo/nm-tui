@@ -24,7 +24,6 @@ type Config struct {
 	Logging          *LogConfig   `kdl:"logging"`
 	Icons            *IconConfig  `kdl:"icons"`
 	NotifCloseTime   *int         `kdl:"notification_close_time"`
-	InputCursorShape *string      `kdl:"input_cursor_shape"`
 }
 
 func DefaultConfig() Config {
@@ -34,7 +33,6 @@ func DefaultConfig() Config {
 		Logging:          DefaultLogConfig(),
 		Icons:            DefaultIconConfig(),
 		NotifCloseTime:   new(50),
-		InputCursorShape: new(CursorBar),
 	}
 }
 
@@ -69,16 +67,6 @@ func (c *Config) merge(src *Config) []error {
 			errs = append(errs, err)
 		} else {
 			c.NotifCloseTime = src.NotifCloseTime
-		}
-	}
-
-	if src.InputCursorShape != nil {
-		cursor := *src.InputCursorShape
-		if validCursorShape(cursor) {
-			c.InputCursorShape = src.InputCursorShape
-		} else {
-			err := fmt.Errorf("invalid cursor_shape: %q", cursor)
-			errs = append(errs, err)
 		}
 	}
 
@@ -128,19 +116,4 @@ func validateTime(time int) error {
 		return fmt.Errorf("time <= 0: %d", time)
 	}
 	return nil
-}
-
-const (
-	CursorBar       = "bar"
-	CursorUnderline = "underline"
-	CursorBlock     = "block"
-)
-
-func validCursorShape(cursor string) bool {
-	switch cursor {
-	case CursorBar, CursorUnderline, CursorBlock:
-		return true
-	default:
-		return false
-	}
 }

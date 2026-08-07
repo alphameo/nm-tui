@@ -31,39 +31,47 @@ const (
 	SpinnerHamburger = "hamburger"
 )
 
+const (
+	CursorBar       = "bar"
+	CursorUnderline = "underline"
+	CursorBlock     = "block"
+)
+
 type IconConfig struct {
-	NerdPreset   *bool   `kdl:"nerd_preset"`
-	BorderStyle  *string `kdl:"border_style"`
-	SpinnerStyle *string `kdl:"spinner_style"`
-	ToggleOff    *string `kdl:"toggle_off"`
-	ToggleOn     *string `kdl:"toggle_on"`
-	PwHiddenChar *string `kdl:"password_hidden_character"`
-	Error        *string `kdl:"error"`
-	Check        *string `kdl:"check"`
-	Connection   *string `kdl:"connection"`
-	Signal       *string `kdl:"signal"`
-	AccessPoint  *string `kdl:"access_point"`
-	Infra        *string `kdl:"infra"`
-	Mesh         *string `kdl:"mesh"`
-	AdHoc        *string `kdl:"ad_hoc"`
+	NerdPreset       *bool   `kdl:"nerd_preset"`
+	BorderStyle      *string `kdl:"border_style"`
+	SpinnerStyle     *string `kdl:"spinner_style"`
+	InputCursorShape *string `kdl:"input_cursor_shape"`
+	ToggleOff        *string `kdl:"toggle_off"`
+	ToggleOn         *string `kdl:"toggle_on"`
+	PwHiddenChar     *string `kdl:"password_hidden_character"`
+	Error            *string `kdl:"error"`
+	Check            *string `kdl:"check"`
+	Connection       *string `kdl:"connection"`
+	Signal           *string `kdl:"signal"`
+	AccessPoint      *string `kdl:"access_point"`
+	Infra            *string `kdl:"infra"`
+	Mesh             *string `kdl:"mesh"`
+	AdHoc            *string `kdl:"ad_hoc"`
 }
 
 func DefaultNerdIconConfig() *IconConfig {
 	return &IconConfig{
-		NerdPreset:   new(true),
-		BorderStyle:  new(BorderRounded),
-		SpinnerStyle: new(SpinnerMeter),
-		ToggleOff:    new(" "),
-		ToggleOn:     new(" "),
-		PwHiddenChar: new("•"),
-		Error:        new("✗"),
-		Check:        new(" "),
-		Connection:   new(" "),
-		Signal:       new("󱘖 "),
-		AccessPoint:  new("󰀃 "),
-		Infra:        new("🖳 "),
-		Mesh:         new(" "),
-		AdHoc:        new(""),
+		NerdPreset:       new(true),
+		BorderStyle:      new(BorderRounded),
+		SpinnerStyle:     new(SpinnerMeter),
+		InputCursorShape: new(CursorBar),
+		ToggleOff:        new(" "),
+		ToggleOn:         new(" "),
+		PwHiddenChar:     new("•"),
+		Error:            new("✗"),
+		Check:            new(" "),
+		Connection:       new(" "),
+		Signal:           new("󱘖 "),
+		AccessPoint:      new("󰀃 "),
+		Infra:            new("🖳 "),
+		Mesh:             new(" "),
+		AdHoc:            new(""),
 	}
 }
 
@@ -126,9 +134,8 @@ func mergeBorderStyle(dst *string, src *string) error {
 		return nil
 	}
 
-	err := validateBorderStyle(border)
-	if err != nil {
-		return fmt.Errorf("border style: %w", err)
+	if err := validateBorderStyle(border); err != nil {
+		return fmt.Errorf("border_style: %w", err)
 	}
 
 	*dst = *src
@@ -146,9 +153,27 @@ func mergeSpinnerStyle(dst *string, src *string) error {
 		return nil
 	}
 
-	err := validateSpinnerStyle(spinner)
-	if err != nil {
-		return fmt.Errorf("spinner style: %w", err)
+	if err := validateSpinnerStyle(spinner); err != nil {
+		return fmt.Errorf("spinner_style: %w", err)
+	}
+
+	*dst = *src
+	return nil
+}
+
+func mergeCursorShape(dst *string, src *string) error {
+	if src == nil {
+		return nil
+	}
+
+	cursor := *src
+
+	if cursor == defaultKeyword {
+		return nil
+	}
+
+	if err := validateCursorShape(cursor); err != nil {
+		return fmt.Errorf("cursor_shape: %w", err)
 	}
 
 	*dst = *src
@@ -216,5 +241,14 @@ func validateSpinnerStyle(spinner string) error {
 		return nil
 	default:
 		return fmt.Errorf("unknown spinner style: %q", spinner)
+	}
+}
+
+func validateCursorShape(cursor string) error {
+	switch cursor {
+	case CursorBar, CursorUnderline, CursorBlock:
+		return nil
+	default:
+		return fmt.Errorf("unknown cursor shape style: %q", cursor)
 	}
 }
