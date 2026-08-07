@@ -63,7 +63,6 @@ func TestDefaultKeys(t *testing.T) {
 
 func TestValidKeyName(t *testing.T) {
 	for name := range validKey {
-		name := name
 		t.Run("named_"+name, func(t *testing.T) {
 			if !validKeyName(name) {
 				t.Errorf("validKeyName(%q) = false, want true", name)
@@ -72,7 +71,6 @@ func TestValidKeyName(t *testing.T) {
 	}
 
 	for name := range validModifier {
-		name := name
 		t.Run("modifier_"+name, func(t *testing.T) {
 			combo := name + "+enter"
 			if !validKeyName(combo) {
