@@ -147,6 +147,8 @@ icons {
                          // nerd variants: "dot", "mini_dot", "jump", "pulse",
                          //                "points", "meter", "hamburger"
 
+    input_cursor_shape "bar" // variants: "bar", "underline", "block"
+
     toggle_off "[ ]"              // default for nerd: " "
     toggle_on "[x]"               // default for nerd: " "
     password_hidden_character "*" // default for nerd: "•", limited to 1 character
