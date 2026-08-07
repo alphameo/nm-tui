@@ -52,8 +52,7 @@ func mergeColor(dst *string, src *string, tag string) error {
 		return nil
 	}
 
-	err := validateColor(color)
-	if err != nil {
+	if err := validateColor(color); err != nil {
 		return fmt.Errorf("%s color: %w", tag, err)
 	}
 
