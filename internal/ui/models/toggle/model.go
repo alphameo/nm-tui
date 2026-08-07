@@ -30,7 +30,7 @@ func New() *Model {
 	return &Model{
 		value:   false,
 		Symbols: DefaultSymbols(),
-		Keys:    *DefaultKeys(),
+		Keys:    DefaultKeys(),
 	}
 }
 
@@ -56,9 +56,8 @@ func (t *Model) View() string {
 	symbols := t.Symbols
 	if t.value {
 		return symbols.Activated
-	} else {
-		return symbols.Deactivated
 	}
+	return symbols.Deactivated
 }
 
 func (t *Model) Focus() tea.Cmd {

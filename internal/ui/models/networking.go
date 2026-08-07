@@ -366,9 +366,8 @@ func (m *NetworkingModel) setStateCmd(state networkState) tea.Cmd {
 
 	if state == NetworkDone {
 		return updCmd
-	} else {
-		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 	}
+	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 }
 
 func (m *NetworkingModel) toggleWWAN() tea.Cmd {

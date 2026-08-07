@@ -331,9 +331,8 @@ func (m *WifiSavedModel) setStateCmd(state wifiSavedState) tea.Cmd {
 
 	if state == SavedDone {
 		return updCmd
-	} else {
-		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 	}
+	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 }
 
 func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {

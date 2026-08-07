@@ -206,7 +206,7 @@ func (n *NMCLI) CreateWifiConnection(ctx context.Context, id, ssid, password str
 	return nil
 }
 
-func (n *NMCLI) ConnectWifi(ctx context.Context, id, ssid, password string) error {
+func (n *NMCLI) ConnectWifi(ctx context.Context, ssid, password string) error {
 	args := []string{
 		"device", "wifi", "connect", ssid,
 		"password", password,

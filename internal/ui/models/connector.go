@@ -212,7 +212,6 @@ func (m *ConnectorModel) connectToWifiCmd() tea.Cmd {
 		func() tea.Msg {
 			err := m.nm.ConnectWifi(
 				context.Background(),
-				m.name.Value(),
 				m.ssid,
 				m.password.Value(),
 			)

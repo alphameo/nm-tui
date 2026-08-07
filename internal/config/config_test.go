@@ -254,11 +254,11 @@ func writeConfigFile(t *testing.T, src string) {
 	dir := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", dir)
 	cfgDir := filepath.Join(dir, appName)
-	if err := os.MkdirAll(cfgDir, 0o755); err != nil {
+	if err := os.MkdirAll(cfgDir, 0o750); err != nil {
 		t.Fatal(err)
 	}
 	path := filepath.Join(cfgDir, configFileName)
-	if err := os.WriteFile(path, []byte(src), 0o644); err != nil {
+	if err := os.WriteFile(path, []byte(src), 0o600); err != nil {
 		t.Fatal(err)
 	}
 }

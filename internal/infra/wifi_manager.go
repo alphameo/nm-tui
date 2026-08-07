@@ -74,7 +74,7 @@ type WifiManager interface {
 	GetSavedWifis(ctx context.Context) ([]SavedWifi, error)
 
 	// ConnectWifi creates connection with wifi-network.
-	ConnectWifi(ctx context.Context, id, ssid, password string) error
+	ConnectWifi(ctx context.Context, ssid, password string) error
 
 	// CreateWifiConnection creates specified connection profile
 	CreateWifiConnection(ctx context.Context, id, ssid, password string, hidden bool) error

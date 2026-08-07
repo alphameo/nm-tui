@@ -259,9 +259,8 @@ func (m *ProfileEditorModel) View() string {
 func (m *ProfileEditorModel) connectionView() string {
 	if m.active {
 		return styles.AccentStyle.Render(" (connected)")
-	} else {
-		return ""
 	}
+	return ""
 }
 
 func (m *ProfileEditorModel) focusNextCmd() tea.Cmd {

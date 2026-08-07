@@ -314,9 +314,8 @@ func (m *WifiAvailableModel) setStateCmd(state wifiAvailableState) tea.Cmd {
 	}
 	if state == AvailableDone {
 		return updCmd
-	} else {
-		return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 	}
+	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 }
 
 func SetWifiAvailableStateCmd(state wifiAvailableState) tea.Cmd {
