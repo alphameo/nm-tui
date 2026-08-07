@@ -187,8 +187,8 @@ func TestValidateSpinnerStyle(t *testing.T) {
 
 func TestMergeBorderStyle(t *testing.T) {
 	t.Run("valid override", func(t *testing.T) {
-		dst := strPtr(BorderASCII)
-		if err := mergeBorderStyle(dst, strPtr(BorderSquare)); err != nil {
+		dst := new(BorderASCII)
+		if err := mergeBorderStyle(dst, new(BorderSquare)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if *dst != BorderSquare {
@@ -197,7 +197,7 @@ func TestMergeBorderStyle(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
-		dst := strPtr(BorderASCII)
+		dst := new(BorderASCII)
 		if err := mergeBorderStyle(dst, nil); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -207,8 +207,8 @@ func TestMergeBorderStyle(t *testing.T) {
 	})
 
 	t.Run("default keyword no-op", func(t *testing.T) {
-		dst := strPtr(BorderASCII)
-		if err := mergeBorderStyle(dst, strPtr(defaultKeyword)); err != nil {
+		dst := new(BorderASCII)
+		if err := mergeBorderStyle(dst, new(defaultKeyword)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if *dst != BorderASCII {
@@ -217,8 +217,8 @@ func TestMergeBorderStyle(t *testing.T) {
 	})
 
 	t.Run("invalid errors and does not override", func(t *testing.T) {
-		dst := strPtr(BorderASCII)
-		err := mergeBorderStyle(dst, strPtr("dashed"))
+		dst := new(BorderASCII)
+		err := mergeBorderStyle(dst, new("dashed"))
 		if err == nil {
 			t.Fatal("expected error")
 		}
@@ -233,8 +233,8 @@ func TestMergeBorderStyle(t *testing.T) {
 
 func TestMergeSpinnerStyle(t *testing.T) {
 	t.Run("valid override", func(t *testing.T) {
-		dst := strPtr(SpinnerLine)
-		if err := mergeSpinnerStyle(dst, strPtr(SpinnerDot)); err != nil {
+		dst := new(SpinnerLine)
+		if err := mergeSpinnerStyle(dst, new(SpinnerDot)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if *dst != SpinnerDot {
@@ -243,15 +243,15 @@ func TestMergeSpinnerStyle(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
-		dst := strPtr(SpinnerLine)
+		dst := new(SpinnerLine)
 		if err := mergeSpinnerStyle(dst, nil); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 	})
 
 	t.Run("default keyword no-op", func(t *testing.T) {
-		dst := strPtr(SpinnerLine)
-		if err := mergeSpinnerStyle(dst, strPtr(defaultKeyword)); err != nil {
+		dst := new(SpinnerLine)
+		if err := mergeSpinnerStyle(dst, new(defaultKeyword)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if *dst != SpinnerLine {
@@ -260,8 +260,8 @@ func TestMergeSpinnerStyle(t *testing.T) {
 	})
 
 	t.Run("invalid errors and does not override", func(t *testing.T) {
-		dst := strPtr(SpinnerLine)
-		err := mergeSpinnerStyle(dst, strPtr("bounce"))
+		dst := new(SpinnerLine)
+		err := mergeSpinnerStyle(dst, new("bounce"))
 		if err == nil {
 			t.Fatal("expected error")
 		}
@@ -276,8 +276,8 @@ func TestMergeSpinnerStyle(t *testing.T) {
 
 func TestMergeIcon(t *testing.T) {
 	t.Run("valid icon", func(t *testing.T) {
-		dst := strPtr("old")
-		if err := mergeIcon(dst, strPtr("new"), "check"); err != nil {
+		dst := new("old")
+		if err := mergeIcon(dst, new("new"), "check"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if *dst != "new" {
@@ -286,15 +286,15 @@ func TestMergeIcon(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
-		dst := strPtr("old")
+		dst := new("old")
 		if err := mergeIcon(dst, nil, "check"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 	})
 
 	t.Run("default keyword no-op", func(t *testing.T) {
-		dst := strPtr("old")
-		if err := mergeIcon(dst, strPtr(defaultKeyword), "check"); err != nil {
+		dst := new("old")
+		if err := mergeIcon(dst, new(defaultKeyword), "check"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if *dst != "old" {
@@ -303,7 +303,7 @@ func TestMergeIcon(t *testing.T) {
 	})
 
 	t.Run("empty icon errors", func(t *testing.T) {
-		err := mergeIcon(strPtr("old"), strPtr(""), "toggle_off")
+		err := mergeIcon(new("old"), new(""), "toggle_off")
 		if err == nil {
 			t.Fatal("expected error")
 		}
@@ -315,8 +315,8 @@ func TestMergeIcon(t *testing.T) {
 
 func TestMergeSymbol(t *testing.T) {
 	t.Run("single rune symbol", func(t *testing.T) {
-		dst := strPtr("x")
-		if err := mergeSymbol(dst, strPtr("•"), "password_symbol"); err != nil {
+		dst := new("x")
+		if err := mergeSymbol(dst, new("•"), "password_symbol"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if *dst != "•" {
@@ -325,15 +325,15 @@ func TestMergeSymbol(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
-		dst := strPtr("x")
+		dst := new("x")
 		if err := mergeSymbol(dst, nil, "password_symbol"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 	})
 
 	t.Run("default keyword no-op", func(t *testing.T) {
-		dst := strPtr("x")
-		if err := mergeSymbol(dst, strPtr(defaultKeyword), "password_symbol"); err != nil {
+		dst := new("x")
+		if err := mergeSymbol(dst, new(defaultKeyword), "password_symbol"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if *dst != "x" {
@@ -342,7 +342,7 @@ func TestMergeSymbol(t *testing.T) {
 	})
 
 	t.Run("empty symbol errors", func(t *testing.T) {
-		err := mergeSymbol(strPtr("x"), strPtr(""), "password_symbol")
+		err := mergeSymbol(new("x"), new(""), "password_symbol")
 		if err == nil {
 			t.Fatal("expected error")
 		}
@@ -352,7 +352,7 @@ func TestMergeSymbol(t *testing.T) {
 	})
 
 	t.Run("multi rune symbol errors", func(t *testing.T) {
-		err := mergeSymbol(strPtr("x"), strPtr("ab"), "password_symbol")
+		err := mergeSymbol(new("x"), new("ab"), "password_symbol")
 		if err == nil {
 			t.Fatal("expected error")
 		}
@@ -366,9 +366,9 @@ func TestIconConfigMerge(t *testing.T) {
 	t.Run("valid overrides applied", func(t *testing.T) {
 		dst := DefaultIconConfig()
 		src := &IconConfig{
-			BorderStyle:  strPtr(BorderRounded),
-			SpinnerStyle: strPtr(SpinnerHamburger),
-			Check:        strPtr("✓"),
+			BorderStyle:  new(BorderRounded),
+			SpinnerStyle: new(SpinnerHamburger),
+			Check:        new("✓"),
 		}
 		errs := dst.merge(src)
 		if len(errs) != 0 {
@@ -391,9 +391,9 @@ func TestIconConfigMerge(t *testing.T) {
 	t.Run("invalid fields collected", func(t *testing.T) {
 		dst := DefaultIconConfig()
 		src := &IconConfig{
-			BorderStyle:  strPtr("dashed"),
-			ToggleOff:    strPtr(""),
-			PwHiddenChar: strPtr("ab"),
+			BorderStyle:  new("dashed"),
+			ToggleOff:    new(""),
+			PwHiddenChar: new("ab"),
 		}
 		errs := dst.merge(src)
 		if len(errs) != 3 {
@@ -416,9 +416,9 @@ func TestIconConfigMerge(t *testing.T) {
 	t.Run("default keyword skips all fields", func(t *testing.T) {
 		dst := DefaultIconConfig()
 		src := &IconConfig{
-			BorderStyle:  strPtr(defaultKeyword),
-			ToggleOff:    strPtr(defaultKeyword),
-			PwHiddenChar: strPtr(defaultKeyword),
+			BorderStyle:  new(defaultKeyword),
+			ToggleOff:    new(defaultKeyword),
+			PwHiddenChar: new(defaultKeyword),
 		}
 		if errs := dst.merge(src); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)

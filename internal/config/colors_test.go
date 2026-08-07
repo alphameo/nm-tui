@@ -117,7 +117,7 @@ func TestValidateColor(t *testing.T) {
 
 func TestMergeColor(t *testing.T) {
 	t.Run("nil source is a no-op", func(t *testing.T) {
-		dst := strPtr(ColorBlue)
+		dst := new(ColorBlue)
 		if err := mergeColor(dst, nil, "accent"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -127,8 +127,8 @@ func TestMergeColor(t *testing.T) {
 	})
 
 	t.Run("valid color overrides", func(t *testing.T) {
-		dst := strPtr(ColorBlue)
-		src := strPtr(ColorGreen)
+		dst := new(ColorBlue)
+		src := new(ColorGreen)
 		if err := mergeColor(dst, src, "accent"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -138,8 +138,8 @@ func TestMergeColor(t *testing.T) {
 	})
 
 	t.Run("default keyword keeps destination", func(t *testing.T) {
-		dst := strPtr(ColorBlue)
-		src := strPtr(defaultKeyword)
+		dst := new(ColorBlue)
+		src := new(defaultKeyword)
 		if err := mergeColor(dst, src, "accent"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -149,8 +149,8 @@ func TestMergeColor(t *testing.T) {
 	})
 
 	t.Run("invalid color errors and does not override", func(t *testing.T) {
-		dst := strPtr(ColorBlue)
-		src := strPtr("notacolor")
+		dst := new(ColorBlue)
+		src := new("notacolor")
 		err := mergeColor(dst, src, "accent")
 		if err == nil {
 			t.Fatal("expected error")
@@ -168,8 +168,8 @@ func TestColorConfigMerge(t *testing.T) {
 	t.Run("valid overrides applied", func(t *testing.T) {
 		dst := DefaultColorConfig()
 		src := &ColorConfig{
-			Text:  strPtr("#111111"),
-			Error: strPtr(ColorBrightRed),
+			Text:  new("#111111"),
+			Error: new(ColorBrightRed),
 		}
 		errs := dst.merge(src)
 		if len(errs) != 0 {
@@ -189,9 +189,9 @@ func TestColorConfigMerge(t *testing.T) {
 	t.Run("multiple invalid fields collected", func(t *testing.T) {
 		dst := DefaultColorConfig()
 		src := &ColorConfig{
-			Text:  strPtr("bogus"),
-			Error: strPtr("also-bogus"),
-			Muted: strPtr(""),
+			Text:  new("bogus"),
+			Error: new("also-bogus"),
+			Muted: new(""),
 		}
 		errs := dst.merge(src)
 		if len(errs) != 3 {

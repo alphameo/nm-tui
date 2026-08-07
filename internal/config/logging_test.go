@@ -55,7 +55,7 @@ func TestValidLogLevel(t *testing.T) {
 func TestLogConfigMerge(t *testing.T) {
 	t.Run("valid level and path applied", func(t *testing.T) {
 		dst := DefaultLogConfig()
-		src := &LogConfig{Level: strPtr("debug"), FilePath: strPtr("/tmp/x.log")}
+		src := &LogConfig{Level: new("debug"), FilePath: new("/tmp/x.log")}
 		if errs := dst.merge(src); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
 		}
@@ -83,7 +83,7 @@ func TestLogConfigMerge(t *testing.T) {
 
 	t.Run("invalid level errors and keeps default", func(t *testing.T) {
 		dst := DefaultLogConfig()
-		src := &LogConfig{Level: strPtr("verbose")}
+		src := &LogConfig{Level: new("verbose")}
 		errs := dst.merge(src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
@@ -98,7 +98,7 @@ func TestLogConfigMerge(t *testing.T) {
 
 	t.Run("empty file path errors and keeps default", func(t *testing.T) {
 		dst := DefaultLogConfig()
-		src := &LogConfig{FilePath: strPtr("")}
+		src := &LogConfig{FilePath: new("")}
 		errs := dst.merge(src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
@@ -110,7 +110,7 @@ func TestLogConfigMerge(t *testing.T) {
 
 	t.Run("default keyword skips both", func(t *testing.T) {
 		dst := DefaultLogConfig()
-		src := &LogConfig{Level: strPtr(defaultKeyword), FilePath: strPtr(defaultKeyword)}
+		src := &LogConfig{Level: new(defaultKeyword), FilePath: new(defaultKeyword)}
 		if errs := dst.merge(src); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
 		}
@@ -121,7 +121,7 @@ func TestLogConfigMerge(t *testing.T) {
 
 	t.Run("multiple errors collected", func(t *testing.T) {
 		dst := DefaultLogConfig()
-		src := &LogConfig{Level: strPtr("verbose"), FilePath: strPtr("")}
+		src := &LogConfig{Level: new("verbose"), FilePath: new("")}
 		errs := dst.merge(src)
 		if len(errs) != 2 {
 			t.Fatalf("want 2 errors, got %v", errs)

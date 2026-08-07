@@ -94,7 +94,7 @@ func TestConfigMerge(t *testing.T) {
 
 	t.Run("notification close time valid", func(t *testing.T) {
 		cfg := DefaultConfig()
-		src := Config{NotifCloseTime: intPtr(250)}
+		src := Config{NotifCloseTime: new(250)}
 		if errs := cfg.merge(&src); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
 		}
@@ -105,7 +105,7 @@ func TestConfigMerge(t *testing.T) {
 
 	t.Run("notification close time invalid", func(t *testing.T) {
 		cfg := DefaultConfig()
-		src := Config{NotifCloseTime: intPtr(-1)}
+		src := Config{NotifCloseTime: new(-1)}
 		errs := cfg.merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
@@ -121,7 +121,7 @@ func TestConfigMerge(t *testing.T) {
 	t.Run("cursor valid", func(t *testing.T) {
 		for _, c := range []string{CursorBar, CursorUnderline, CursorBlock} {
 			cfg := DefaultConfig()
-			src := Config{InputCursorShape: strPtr(c)}
+			src := Config{InputCursorShape: new(c)}
 			if errs := cfg.merge(&src); len(errs) != 0 {
 				t.Fatalf("cursor %q: unexpected errors: %v", c, errs)
 			}
@@ -133,7 +133,7 @@ func TestConfigMerge(t *testing.T) {
 
 	t.Run("cursor invalid", func(t *testing.T) {
 		cfg := DefaultConfig()
-		src := Config{InputCursorShape: strPtr("beam")}
+		src := Config{InputCursorShape: new("beam")}
 		errs := cfg.merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
@@ -149,8 +149,8 @@ func TestConfigMerge(t *testing.T) {
 	t.Run("nerd preset swaps icons to nerd defaults", func(t *testing.T) {
 		cfg := DefaultConfig()
 		src := Config{Icons: &IconConfig{
-			NerdPreset:  boolPtr(true),
-			BorderStyle: strPtr(BorderSquare),
+			NerdPreset:  new(true),
+			BorderStyle: new(BorderSquare),
 		}}
 		if errs := cfg.merge(&src); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
@@ -168,7 +168,7 @@ func TestConfigMerge(t *testing.T) {
 
 	t.Run("icon merge errors are propagated", func(t *testing.T) {
 		cfg := DefaultConfig()
-		src := Config{Icons: &IconConfig{BorderStyle: strPtr("bogus")}}
+		src := Config{Icons: &IconConfig{BorderStyle: new("bogus")}}
 		errs := cfg.merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
@@ -180,7 +180,7 @@ func TestConfigMerge(t *testing.T) {
 
 	t.Run("logging merge errors are propagated", func(t *testing.T) {
 		cfg := DefaultConfig()
-		src := Config{Logging: &LogConfig{Level: strPtr("verbose")}}
+		src := Config{Logging: &LogConfig{Level: new("verbose")}}
 		errs := cfg.merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
@@ -192,7 +192,7 @@ func TestConfigMerge(t *testing.T) {
 
 	t.Run("colors merge errors are propagated", func(t *testing.T) {
 		cfg := DefaultConfig()
-		src := Config{Colors: &ColorConfig{Text: strPtr("notacolor")}}
+		src := Config{Colors: &ColorConfig{Text: new("notacolor")}}
 		errs := cfg.merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)

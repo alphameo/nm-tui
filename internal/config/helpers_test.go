@@ -5,12 +5,6 @@ import (
 	"testing"
 )
 
-func strPtr(s string) *string { return &s }
-
-func intPtr(i int) *int { return &i }
-
-func boolPtr(b bool) *bool { return &b }
-
 func assertKeyBinding(t *testing.T, name string, b *KeyBinding, want ...string) {
 	t.Helper()
 	if b == nil {
