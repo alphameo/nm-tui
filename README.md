@@ -153,12 +153,12 @@ icons {
     toggle_on "[x]"               // default for nerd: " "
     password_hidden_character "*" // default for nerd: "•", limited to 1 character
     error "!"                     // default for nerd: "✗"
-    check "v"                     // default for nerd: ""
-    connection "sig"              // default for nerd: ""
-    signal "con"                  // default for nerd: "󱘖"
-    access_point "ap"             // default for nerd: "󰀃"
-    infra "infr"                  // default for nerd: "🖳"
-    mesh "#"                      // default for nerd: ""
+    check "v"                     // default for nerd: " "
+    connection "sig"              // default for nerd: " "
+    signal "con"                  // default for nerd: "󱘖 "
+    access_point "ap"             // default for nerd: "󰀃 "
+    infra "infr"                  // default for nerd: "🖳 "
+    mesh "#"                      // default for nerd: " "
     ad_hoc "ah"                   // default for nerd: ""
 }
 
