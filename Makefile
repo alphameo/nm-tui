@@ -22,10 +22,8 @@ logs:
 	cat ~/.cache/nm-tui/log | tail -n 50
 
 test:
-	make test-config
-	make test-infra
-	make test-compositor
-	make test-tabview
+	go test -v ./...
+	go test -cover ./...
 
 test-config:
 	go test ./internal/config/ -v
