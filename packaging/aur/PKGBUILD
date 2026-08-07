@@ -1,0 +1,40 @@
+# Maintainer: alphameo <you@example.com>
+# Contributor: alphameo <you@example.com>
+
+pkgname=nm-tui
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Lightweight TUI wrapper for NetworkManager"
+arch=('x86_64' 'aarch64')
+url="https://github.com/alphameo/nm-tui"
+license=('MIT')
+depends=('networkmanager')
+makedepends=('go')
+options=('!lto')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('0000000000000000000000000000000000000000000000000000000000000000')
+
+pkgver() {
+  git describe --tags --abbrev=0 | sed 's/^v//'
+}
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  go mod download
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  CGO_ENABLED=0 go build \
+    -trimpath \
+    -ldflags "-s -w -X main.version=$pkgver" \
+    -o nm-tui ./cmd/nm-tui/main.go
+}
+
+package() {
+  install -Dm755 "$pkgname-$pkgver/nm-tui" "$pkgdir/usr/bin/nm-tui"
+  install -Dm644 "$pkgname-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 "$pkgname-$pkgver/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+}
+
+# vim:set ts=2 sw=2 et:

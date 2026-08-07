@@ -1,0 +1,15 @@
+pkgbase = nm-tui
+	pkgdesc = Lightweight TUI wrapper for NetworkManager
+	pkgver = 0.2.0
+	pkgrel = 1
+	url = https://github.com/alphameo/nm-tui
+	arch = x86_64
+	arch = aarch64
+	license = MIT
+	makedepends = go
+	depends = networkmanager
+	options = !lto
+	source = nm-tui/0.2.0.tar.gz::https://github.com/alphameo/nm-tui/archive/refs/tags/v0.2.0.tar.gz
+	sha256sums = 0000000000000000000000000000000000000000000000000000000000000000
+
+pkgname = nm-tui
