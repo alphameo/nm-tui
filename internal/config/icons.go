@@ -77,20 +77,21 @@ func DefaultNerdIconConfig() *IconConfig {
 
 func DefaultNonNerdIconConfig() *IconConfig {
 	return &IconConfig{
-		NerdPreset:   new(false),
-		BorderStyle:  new(BorderASCII),
-		SpinnerStyle: new(SpinnerLine),
-		ToggleOff:    new("[ ]"),
-		ToggleOn:     new("[x]"),
-		PwHiddenChar: new("*"),
-		Error:        new("!"),
-		Check:        new("v"),
-		Connection:   new("con"),
-		Signal:       new("sig"),
-		AccessPoint:  new("ap"),
-		Infra:        new("infr"),
-		Mesh:         new("#"),
-		AdHoc:        new("ah"),
+		NerdPreset:       new(false),
+		BorderStyle:      new(BorderASCII),
+		SpinnerStyle:     new(SpinnerLine),
+		InputCursorShape: new(CursorBar),
+		ToggleOff:        new("[ ]"),
+		ToggleOn:         new("[x]"),
+		PwHiddenChar:     new("*"),
+		Error:            new("!"),
+		Check:            new("v"),
+		Connection:       new("con"),
+		Signal:           new("sig"),
+		AccessPoint:      new("ap"),
+		Infra:            new("infr"),
+		Mesh:             new("#"),
+		AdHoc:            new("ah"),
 	}
 }
 
@@ -108,6 +109,7 @@ func (c *IconConfig) merge(src *IconConfig) []error {
 
 	collect(mergeBorderStyle(c.BorderStyle, src.BorderStyle))
 	collect(mergeSpinnerStyle(c.SpinnerStyle, src.SpinnerStyle))
+	collect(mergeCursorShape(c.InputCursorShape, src.InputCursorShape))
 	collect(mergeSymbol(c.PwHiddenChar, src.PwHiddenChar, "password_symbol"))
 	collect(mergeIcon(c.ToggleOff, src.ToggleOff, "toggle_off"))
 	collect(mergeIcon(c.ToggleOn, src.ToggleOn, "toggle_on"))

@@ -19,20 +19,20 @@ const (
 )
 
 type Config struct {
-	Colors           *ColorConfig `kdl:"colors"`
-	Keys             *KeyConfig   `kdl:"keys"`
-	Logging          *LogConfig   `kdl:"logging"`
-	Icons            *IconConfig  `kdl:"icons"`
-	NotifCloseTime   *int         `kdl:"notification_close_time"`
+	Colors         *ColorConfig `kdl:"colors"`
+	Keys           *KeyConfig   `kdl:"keys"`
+	Logging        *LogConfig   `kdl:"logging"`
+	Icons          *IconConfig  `kdl:"icons"`
+	NotifCloseTime *int         `kdl:"notification_close_time"`
 }
 
 func DefaultConfig() Config {
 	return Config{
-		Colors:           DefaultColorConfig(),
-		Keys:             DefaultKeys(),
-		Logging:          DefaultLogConfig(),
-		Icons:            DefaultIconConfig(),
-		NotifCloseTime:   new(50),
+		Colors:         DefaultColorConfig(),
+		Keys:           DefaultKeys(),
+		Logging:        DefaultLogConfig(),
+		Icons:          DefaultIconConfig(),
+		NotifCloseTime: new(50),
 	}
 }
 
