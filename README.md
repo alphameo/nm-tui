@@ -10,20 +10,20 @@ Why `nm-tui`: built-in `nmtui` doesn't look great and there aren't many TUI alte
 
 ## 📌 Table of Contents
 
-- [💫 Features](#-features)
-- [📹 Demo](#-demo)
-- [🖼️ Screenshots](#%EF%B8%8F-screenshots)
-- [🗃️ Requirements](#%EF%B8%8F-requirements)
-- [📥 Installation](#-installation)
-- [⚙️ Configuration](#-configuration)
-- [⚙️ Tech Stack](#%EF%B8%8F-tech-stack)
-- [🖲️ Contributing](#%EF%B8%8F-contributing)
-- [⚖️ License](#%EF%B8%8F-license)
-- [⭐ Inspirations](#-inspirations)
+- [💫 Features](#features)
+- [📹 Demo](#demo)
+- [🖼️ Screenshots](#screenshots)
+- [🗃️ Requirements](#requirements)
+- [📥 Installation](#installation)
+- [⚙️ Configuration](#configuration)
+- [👨‍💻 Tech Stack](#tech-stack)
+- [🖲️ Contributing](#contributing)
+- [⚖️ License](#license)
+- [⭐ Inspirations](#inspirations)
 
-## 💫 Features
+## Features
 
-- 😎 TUI style looks cool
+- 😎 TUI style (looks cool)
 - 📡 Scan and list available WiFi-networks
 - 🔑 Connect to WiFi-networks with password input
 - 📜 View detailed network information (signal strength, security, etc.)
@@ -32,12 +32,14 @@ Why `nm-tui`: built-in `nmtui` doesn't look great and there aren't many TUI alte
 - 🖥️ Clean, modern TUI built with Bubbletea
 - ⚡ Fast and lightweight — single static binary
 - 🐧 Linux only — designed specifically for NetworkManager
+- 🌈 Customize look & feel
 
-## 📹 Demo
+## Demo
 
 ![Demo](../assets/demo-conn.gif)
 
-## 🖼️ Screenshots
+<details>
+    <summary><h2>Screenshots</h2></summary>
 
 ### Main tabs
 
@@ -60,14 +62,16 @@ Why `nm-tui`: built-in `nmtui` doesn't look great and there aren't many TUI alte
     <img src="../assets/create-wifi-hotspot.png" alt="wifi connector" width="400"/>
 </div>
 
-## 🗃️ Requirements
+</details>
+
+## Requirements
 
 - [`NetworkManager`](https://gitlab.freedesktop.org/NetworkManager/NetworkManager) as the main network manager
-- [`Go`](https://github.com/golang/go) v1.24.3
+- [`Go`](https://github.com/golang/go) ![Go Version](https://img.shields.io/github/go-mod/go-version/alphameo/nm-tui?label=)
 - (optional) `xdg-open` + `ip` on Linux -- opens captive portal for connecting to the public WiFi-networks
 - [Nerd Font](https://www.nerdfonts.com/font-downloads)
 
-## 📥 Installation
+## Installation
 
 ### Manual
 
@@ -102,7 +106,7 @@ make clean-build
 ./bin/nm-tui
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 Config is placed at `$XDG_CONFIG_HOME/nm-tui/config.kdl` (e.g. `~/.config/nm-tui/config.kdl`).
 
@@ -217,20 +221,20 @@ keys {
 
 </details>
 
-## ⚙️ Tech Stack
+## Tech Stack
 
-- Programming language [Go](https://github.com/golang/go) v1.26.3
+- Programming language [Go](https://github.com/golang/go) ![Go Version](https://img.shields.io/github/go-mod/go-version/alphameo/nm-tui?label=)
 - TUI framework [Bubbletea](https://github.com/charmbracelet/bubbletea) with [Bubbles](https://github.com/charmbracelet/bubbles) and [Lipgloss](https://github.com/charmbracelet/lipgloss)
 
-## 🖲️ Contributing
+## Contributing
 
 Pull requests are welcome! Please open an issue first to discuss what you would like to change.
 
-## ⚖️ License
+## License
 
-This project is licensed under the [MIT License](LICENSE).
+[MIT](LICENSE)
 
-## ⭐ Inspirations
+## Inspirations
 
 - [`Lazygit`](https://github.com/jesseduffield/lazygit)
 - [`Lazydocker`](https://github.com/jesseduffield/lazydocker)
