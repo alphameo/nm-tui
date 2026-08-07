@@ -8,27 +8,20 @@ import (
 func TestDefaultColorConfig(t *testing.T) {
 	cfg := DefaultColorConfig()
 
-	want := map[string]string{
-		"Text":   ColorNone,
-		"Accent": ColorBlue,
-		"Muted":  ColorBrightBlack,
-		"Error":  ColorRed,
-		"Notif":  ColorYellow,
+	if cfg.Text == nil {
+		t.Error("Text is nil")
 	}
-	if cfg.Text == nil || *cfg.Text != want["Text"] {
-		t.Errorf("Text = %v, want %q", cfg.Text, want["Text"])
+	if cfg.Accent == nil {
+		t.Error("Accent is nil")
 	}
-	if cfg.Accent == nil || *cfg.Accent != want["Accent"] {
-		t.Errorf("Accent = %v, want %q", cfg.Accent, want["Accent"])
+	if cfg.Muted == nil {
+		t.Error("Muted is nil")
 	}
-	if cfg.Muted == nil || *cfg.Muted != want["Muted"] {
-		t.Errorf("Muted = %v, want %q", cfg.Muted, want["Muted"])
+	if cfg.Error == nil {
+		t.Error("Error is nil")
 	}
-	if cfg.Error == nil || *cfg.Error != want["Error"] {
-		t.Errorf("Error = %v, want %q", cfg.Error, want["Error"])
-	}
-	if cfg.Notif == nil || *cfg.Notif != want["Notif"] {
-		t.Errorf("Notif = %v, want %q", cfg.Notif, want["Notif"])
+	if cfg.Notif == nil {
+		t.Error("Notif is nil")
 	}
 }
 

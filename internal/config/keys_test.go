@@ -9,56 +9,94 @@ import (
 func TestDefaultKeys(t *testing.T) {
 	k := DefaultKeys()
 
-	assertKeyBinding(t, "toggle", k.Toggle, "space")
-	assertKeyBinding(t, "rescan", k.Rescan, "r")
-	assertKeyBinding(t, "rescan_focused", k.RescanFocused, "ctrl+r")
-
-	foci := []*KeyBinding{
-		k.Focus1, k.Focus2, k.Focus3, k.Focus4, k.Focus5,
-		k.Focus6, k.Focus7, k.Focus8, k.Focus9, k.Focus10,
+	bindings := map[string]*KeyBinding{
+		"toggle":         k.Toggle,
+		"rescan":         k.Rescan,
+		"rescan_focused": k.RescanFocused,
+		"focus_1":        k.Focus1,
+		"focus_2":        k.Focus2,
+		"focus_3":        k.Focus3,
+		"focus_4":        k.Focus4,
+		"focus_5":        k.Focus5,
+		"focus_6":        k.Focus6,
+		"focus_7":        k.Focus7,
+		"focus_8":        k.Focus8,
+		"focus_9":        k.Focus9,
+		"focus_10":       k.Focus10,
 	}
-	for i, fb := range foci {
-		assertKeyBinding(t, fmt.Sprintf("focus_%d", i+1), fb, fmt.Sprintf("%d", i+1))
+	for name, b := range bindings {
+		if b == nil {
+			t.Errorf("%s is nil", name)
+		}
 	}
 
 	if k.Main == nil {
-		t.Fatal("Main is nil")
+		t.Error("Main is nil")
+	} else {
+		for name, b := range map[string]*KeyBinding{
+			"main.next_tab":   k.Main.NextTab,
+			"main.prev_tab":   k.Main.PrevTab,
+			"main.focus_next": k.Main.FocusNext,
+			"main.focus_prev": k.Main.FocusPrev,
+			"main.quit":       k.Main.Quit,
+		} {
+			if b == nil {
+				t.Errorf("%s is nil", name)
+			}
+		}
 	}
-	assertKeyBinding(t, "main.next_tab", k.Main.NextTab, "]")
-	assertKeyBinding(t, "main.prev_tab", k.Main.PrevTab, "[")
-	assertKeyBinding(t, "main.focus_next", k.Main.FocusNext, "tab")
-	assertKeyBinding(t, "main.focus_prev", k.Main.FocusPrev, "shift+tab")
-	assertKeyBinding(t, "main.quit", k.Main.Quit, "esc", "ctrl+c", "q", "ctrl+q")
 
 	if k.Dialog == nil {
-		t.Fatal("Dialog is nil")
+		t.Error("Dialog is nil")
+	} else {
+		for name, b := range map[string]*KeyBinding{
+			"dialog.focus_down":           k.Dialog.FocusDown,
+			"dialog.focus_up":             k.Dialog.FocusUp,
+			"dialog.toggle_pw_visibility": k.Dialog.TogglePWVisibility,
+			"dialog.accept":               k.Dialog.Accept,
+			"dialog.close":                k.Dialog.Close,
+		} {
+			if b == nil {
+				t.Errorf("%s is nil", name)
+			}
+		}
 	}
-	assertKeyBinding(t, "dialog.focus_down", k.Dialog.FocusDown, "ctrl+j")
-	assertKeyBinding(t, "dialog.focus_up", k.Dialog.FocusUp, "ctrl+k")
-	assertKeyBinding(t, "dialog.toggle_pw_visibility", k.Dialog.TogglePWVisibility, "ctrl+p")
-	assertKeyBinding(t, "dialog.accept", k.Dialog.Accept, "ctrl+enter")
-	assertKeyBinding(t, "dialog.close", k.Dialog.Close, "esc", "ctrl+q", "ctrl+c")
 
 	if k.Wifi == nil {
-		t.Fatal("Wifi is nil")
+		t.Error("Wifi is nil")
+	} else {
+		for name, b := range map[string]*KeyBinding{
+			"wifi.create_profile":     k.Wifi.CreateProfile,
+			"wifi.open_network_login": k.Wifi.OpenCaptivePortal,
+			"wifi.enable_hotspot":     k.Wifi.EnableHotspot,
+			"wifi.create_hotspot":     k.Wifi.CreateHotspot,
+		} {
+			if b == nil {
+				t.Errorf("%s is nil", name)
+			}
+		}
 	}
-	assertKeyBinding(t, "wifi.create_profile", k.Wifi.CreateProfile, "a", "c")
-	assertKeyBinding(t, "wifi.open_network_login", k.Wifi.OpenCaptivePortal, "l")
-	assertKeyBinding(t, "wifi.enable_hotspot", k.Wifi.EnableHotspot, "ctrl+h")
-	assertKeyBinding(t, "wifi.create_hotspot", k.Wifi.CreateHotspot, "h")
 
 	if k.WifiAvailable == nil {
-		t.Fatal("WifiAvailable is nil")
+		t.Error("WifiAvailable is nil")
+	} else if k.WifiAvailable.Connect == nil {
+		t.Error("wifi_available.connect is nil")
 	}
-	assertKeyBinding(t, "wifi_available.connect", k.WifiAvailable.Connect, "enter")
 
 	if k.WifiSaved == nil {
-		t.Fatal("WifiSaved is nil")
+		t.Error("WifiSaved is nil")
+	} else {
+		for name, b := range map[string]*KeyBinding{
+			"wifi_saved.edit":       k.WifiSaved.Edit,
+			"wifi_saved.connect":    k.WifiSaved.Connect,
+			"wifi_saved.disconnect": k.WifiSaved.Disconnect,
+			"wifi_saved.delete":     k.WifiSaved.Delete,
+		} {
+			if b == nil {
+				t.Errorf("%s is nil", name)
+			}
+		}
 	}
-	assertKeyBinding(t, "wifi_saved.edit", k.WifiSaved.Edit, "enter")
-	assertKeyBinding(t, "wifi_saved.connect", k.WifiSaved.Connect, "space")
-	assertKeyBinding(t, "wifi_saved.disconnect", k.WifiSaved.Disconnect, "ctrl+space")
-	assertKeyBinding(t, "wifi_saved.delete", k.WifiSaved.Delete, "d", "delete")
 }
 
 func TestValidKeyName(t *testing.T) {

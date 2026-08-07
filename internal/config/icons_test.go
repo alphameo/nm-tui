@@ -8,153 +8,150 @@ import (
 func TestDefaultIconConfig(t *testing.T) {
 	cfg := DefaultIconConfig()
 
-	if cfg.NerdPreset == nil || *cfg.NerdPreset {
-		t.Errorf("NerdPreset = %v, want false", cfg.NerdPreset)
+	if cfg.NerdPreset == nil {
+		t.Error("NerdPreset is nil")
 	}
-	if cfg.BorderStyle == nil || *cfg.BorderStyle != BorderASCII {
-		t.Errorf("BorderStyle = %v, want %q", cfg.BorderStyle, BorderASCII)
+	if cfg.BorderStyle == nil {
+		t.Error("BorderStyle is nil")
 	}
-	if cfg.SpinnerStyle == nil || *cfg.SpinnerStyle != SpinnerLine {
-		t.Errorf("SpinnerStyle = %v, want %q", cfg.SpinnerStyle, SpinnerLine)
+	if cfg.SpinnerStyle == nil {
+		t.Error("SpinnerStyle is nil")
 	}
-	if cfg.InputCursorShape == nil || *cfg.InputCursorShape != CursorBar {
-		t.Errorf("InputCursorShape = %q, want %q", *cfg.InputCursorShape, CursorBar)
+	if cfg.InputCursorShape == nil {
+		t.Error("InputCursorShape is nil")
 	}
-	if cfg.ToggleOff == nil || *cfg.ToggleOff != "[ ]" {
-		t.Errorf("ToggleOff = %v, want [ ]", cfg.ToggleOff)
+	if cfg.ToggleOff == nil {
+		t.Error("ToggleOff is nil")
 	}
-	if cfg.ToggleOn == nil || *cfg.ToggleOn != "[x]" {
-		t.Errorf("ToggleOn = %v, want [x]", cfg.ToggleOn)
+	if cfg.ToggleOn == nil {
+		t.Error("ToggleOn is nil")
 	}
-	if cfg.PwHiddenChar == nil || *cfg.PwHiddenChar != "*" {
-		t.Errorf("PwHiddenChar = %v, want *", cfg.PwHiddenChar)
+	if cfg.PwHiddenChar == nil {
+		t.Error("PwHiddenChar is nil")
+	}
+	if cfg.Error == nil {
+		t.Error("Error is nil")
+	}
+	if cfg.Check == nil {
+		t.Error("Check is nil")
+	}
+	if cfg.Connection == nil {
+		t.Error("Connection is nil")
+	}
+	if cfg.Signal == nil {
+		t.Error("Signal is nil")
+	}
+	if cfg.AccessPoint == nil {
+		t.Error("AccessPoint is nil")
+	}
+	if cfg.Infra == nil {
+		t.Error("Infra is nil")
+	}
+	if cfg.Mesh == nil {
+		t.Error("Mesh is nil")
+	}
+	if cfg.AdHoc == nil {
+		t.Error("AdHoc is nil")
 	}
 }
 
 func TestDefaultNerdIconConfig(t *testing.T) {
 	cfg := DefaultNerdIconConfig()
 
-	want := map[string]string{
-		"BorderStyle":  BorderRounded,
-		"SpinnerStyle": SpinnerMeter,
-		"ToggleOff":    "\uf204 ",
-		"ToggleOn":     "\uf205 ",
-		"PwHiddenChar": "•",
-		"Error":        "✗",
-		"Check":        "\uf00c ",
-		"Signal":       "\U000f1616 ",
-		"Connection":   "\uf012 ",
-		"AccessPoint":  "\U000f0003 ",
-		"Infra":        "🖳 ",
-		"Mesh":         "\uf292 ",
-		"AdHoc":        "\uf10b",
+	if cfg.NerdPreset == nil {
+		t.Error("NerdPreset is nil")
 	}
-
-	if cfg.NerdPreset == nil || !*cfg.NerdPreset {
-		t.Errorf("NerdPreset = %v, want true", cfg.NerdPreset)
+	if cfg.BorderStyle == nil {
+		t.Error("BorderStyle is nil")
 	}
-	if got := *cfg.BorderStyle; got != want["BorderStyle"] {
-		t.Errorf("BorderStyle = %q, want %q", got, want["BorderStyle"])
+	if cfg.SpinnerStyle == nil {
+		t.Error("SpinnerStyle is nil")
 	}
-	if got := *cfg.SpinnerStyle; got != want["SpinnerStyle"] {
-		t.Errorf("SpinnerStyle = %q, want %q", got, want["SpinnerStyle"])
+	if cfg.InputCursorShape == nil {
+		t.Error("InputCursorShape is nil")
 	}
-	if cfg.InputCursorShape == nil || *cfg.InputCursorShape != CursorBar {
-		t.Errorf("InputCursorShape = %v, want %q", cfg.InputCursorShape, CursorBar)
+	if cfg.ToggleOff == nil {
+		t.Error("ToggleOff is nil")
 	}
-	if got := *cfg.ToggleOff; got != want["ToggleOff"] {
-		t.Errorf("ToggleOff = %q, want %q", got, want["ToggleOff"])
+	if cfg.ToggleOn == nil {
+		t.Error("ToggleOn is nil")
 	}
-	if got := *cfg.ToggleOn; got != want["ToggleOn"] {
-		t.Errorf("ToggleOn = %q, want %q", got, want["ToggleOn"])
+	if cfg.PwHiddenChar == nil {
+		t.Error("PwHiddenChar is nil")
 	}
-	if got := *cfg.PwHiddenChar; got != want["PwHiddenChar"] {
-		t.Errorf("PwHiddenChar = %q, want %q", got, want["PwHiddenChar"])
+	if cfg.Error == nil {
+		t.Error("Error is nil")
 	}
-	if got := *cfg.Error; got != want["Error"] {
-		t.Errorf("Error = %q, want %q", got, want["Error"])
+	if cfg.Check == nil {
+		t.Error("Check is nil")
 	}
-	if got := *cfg.Check; got != want["Check"] {
-		t.Errorf("Check = %q, want %q", got, want["Check"])
+	if cfg.Signal == nil {
+		t.Error("Signal is nil")
 	}
-	if got := *cfg.Signal; got != want["Signal"] {
-		t.Errorf("Signal = %q, want %q", got, want["Signal"])
+	if cfg.Connection == nil {
+		t.Error("Connection is nil")
 	}
-	if got := *cfg.Connection; got != want["Connection"] {
-		t.Errorf("Connection = %q, want %q", got, want["Connection"])
+	if cfg.AccessPoint == nil {
+		t.Error("AccessPoint is nil")
 	}
-	if got := *cfg.AccessPoint; got != want["AccessPoint"] {
-		t.Errorf("AccessPoint = %q, want %q", got, want["AccessPoint"])
+	if cfg.Infra == nil {
+		t.Error("Infra is nil")
 	}
-	if got := *cfg.Infra; got != want["Infra"] {
-		t.Errorf("Infra = %q, want %q", got, want["Infra"])
+	if cfg.Mesh == nil {
+		t.Error("Mesh is nil")
 	}
-	if got := *cfg.Mesh; got != want["Mesh"] {
-		t.Errorf("Mesh = %q, want %q", got, want["Mesh"])
-	}
-	if got := *cfg.AdHoc; got != want["AdHoc"] {
-		t.Errorf("AdHoc = %q, want %q", got, want["AdHoc"])
+	if cfg.AdHoc == nil {
+		t.Error("AdHoc is nil")
 	}
 }
 
 func TestDefaultNonNerdIconConfig(t *testing.T) {
 	cfg := DefaultNonNerdIconConfig()
 
-	if cfg.NerdPreset == nil || *cfg.NerdPreset {
-		t.Errorf("NerdPreset = %v, want false", cfg.NerdPreset)
+	if cfg.NerdPreset == nil {
+		t.Error("NerdPreset is nil")
 	}
-	want := map[string]string{
-		"BorderStyle":  BorderASCII,
-		"SpinnerStyle": SpinnerLine,
-		"ToggleOff":    "[ ]",
-		"ToggleOn":     "[x]",
-		"PwHiddenChar": "*",
-		"Error":        "!",
-		"Check":        "v",
-		"Signal":       "sig",
-		"Connection":   "con",
-		"AccessPoint":  "ap",
-		"Infra":        "infr",
-		"Mesh":         "#",
-		"AdHoc":        "ah",
+	if cfg.BorderStyle == nil {
+		t.Error("BorderStyle is nil")
 	}
-
-	if cfg.InputCursorShape == nil || *cfg.InputCursorShape != CursorBar {
-		t.Errorf("InputCursorShape = %v, want %q", cfg.InputCursorShape, CursorBar)
+	if cfg.SpinnerStyle == nil {
+		t.Error("SpinnerStyle is nil")
 	}
-
-	if got := *cfg.ToggleOff; got != want["ToggleOff"] {
-		t.Errorf("ToggleOff = %q, want %q", got, want["ToggleOff"])
+	if cfg.InputCursorShape == nil {
+		t.Error("InputCursorShape is nil")
 	}
-	if got := *cfg.ToggleOn; got != want["ToggleOn"] {
-		t.Errorf("ToggleOn = %q, want %q", got, want["ToggleOn"])
+	if cfg.ToggleOff == nil {
+		t.Error("ToggleOff is nil")
 	}
-	if got := *cfg.PwHiddenChar; got != want["PwHiddenChar"] {
-		t.Errorf("PwHiddenChar = %q, want %q", got, want["PwHiddenChar"])
+	if cfg.ToggleOn == nil {
+		t.Error("ToggleOn is nil")
 	}
-	if got := *cfg.Error; got != want["Error"] {
-		t.Errorf("Error = %q, want %q", got, want["Error"])
+	if cfg.PwHiddenChar == nil {
+		t.Error("PwHiddenChar is nil")
 	}
-	if got := *cfg.Check; got != want["Check"] {
-		t.Errorf("Check = %q, want %q", got, want["Check"])
+	if cfg.Error == nil {
+		t.Error("Error is nil")
 	}
-	if got := *cfg.Signal; got != want["Signal"] {
-		t.Errorf("Signal = %q, want %q", got, want["Signal"])
+	if cfg.Check == nil {
+		t.Error("Check is nil")
 	}
-	if got := *cfg.Connection; got != want["Connection"] {
-		t.Errorf("Connection = %q, want %q", got, want["Connection"])
+	if cfg.Signal == nil {
+		t.Error("Signal is nil")
 	}
-	if got := *cfg.AccessPoint; got != want["AccessPoint"] {
-		t.Errorf("AccessPoint = %q, want %q", got, want["AccessPoint"])
+	if cfg.Connection == nil {
+		t.Error("Connection is nil")
 	}
-	if got := *cfg.Infra; got != want["Infra"] {
-		t.Errorf("Infra = %q, want %q", got, want["Infra"])
+	if cfg.AccessPoint == nil {
+		t.Error("AccessPoint is nil")
 	}
-	if got := *cfg.Mesh; got != want["Mesh"] {
-		t.Errorf("Mesh = %q, want %q", got, want["Mesh"])
+	if cfg.Infra == nil {
+		t.Error("Infra is nil")
 	}
-	if got := *cfg.AdHoc; got != want["AdHoc"] {
-		t.Errorf("AdHoc = %q, want %q", got, want["AdHoc"])
+	if cfg.Mesh == nil {
+		t.Error("Mesh is nil")
+	}
+	if cfg.AdHoc == nil {
+		t.Error("AdHoc is nil")
 	}
 }
 

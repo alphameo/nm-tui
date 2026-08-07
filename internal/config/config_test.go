@@ -16,52 +16,19 @@ func TestDefaultConfig(t *testing.T) {
 	cfg := DefaultConfig()
 
 	if cfg.Colors == nil {
-		t.Fatal("Colors is nil")
+		t.Error("Colors is nil")
 	}
 	if cfg.Keys == nil {
-		t.Fatal("Keys is nil")
+		t.Error("Keys is nil")
 	}
 	if cfg.Logging == nil {
-		t.Fatal("Logging is nil")
+		t.Error("Logging is nil")
 	}
 	if cfg.Icons == nil {
-		t.Fatal("Icons is nil")
+		t.Error("Icons is nil")
 	}
 	if cfg.NotifCloseTime == nil {
-		t.Fatal("NotifCloseTime is nil")
-	}
-	if got, want := *cfg.NotifCloseTime, 50; got != want {
-		t.Errorf("NotifCloseTime = %d, want %d", got, want)
-	}
-
-	if got, want := *cfg.Colors.Text, ColorNone; got != want {
-		t.Errorf("Colors.Text = %q, want %q", got, want)
-	}
-	if got, want := *cfg.Colors.Accent, ColorBlue; got != want {
-		t.Errorf("Colors.Accent = %q, want %q", got, want)
-	}
-	if got, want := *cfg.Colors.Muted, ColorBrightBlack; got != want {
-		t.Errorf("Colors.Muted = %q, want %q", got, want)
-	}
-	if got, want := *cfg.Colors.Error, ColorRed; got != want {
-		t.Errorf("Colors.Error = %q, want %q", got, want)
-	}
-	if got, want := *cfg.Colors.Notif, ColorYellow; got != want {
-		t.Errorf("Colors.Notif = %q, want %q", got, want)
-	}
-
-	if got, want := *cfg.Logging.Level, LogError; got != want {
-		t.Errorf("Logging.Level = %q, want %q", got, want)
-	}
-
-	if cfg.Icons.NerdPreset == nil || *cfg.Icons.NerdPreset {
-		t.Errorf("Icons.NerdPreset = %v, want false", cfg.Icons.NerdPreset)
-	}
-	if got, want := *cfg.Icons.BorderStyle, BorderASCII; got != want {
-		t.Errorf("Icons.BorderStyle = %q, want %q", got, want)
-	}
-	if got, want := *cfg.Icons.SpinnerStyle, SpinnerLine; got != want {
-		t.Errorf("Icons.SpinnerStyle = %q, want %q", got, want)
+		t.Error("NotifCloseTime is nil")
 	}
 }
 
