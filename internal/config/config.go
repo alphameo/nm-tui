@@ -28,15 +28,13 @@ type Config struct {
 }
 
 func DefaultConfig() Config {
-	notifCloseTime := 50
-	cursor := CursorBar
 	return Config{
 		Colors:           DefaultColorConfig(),
 		Keys:             DefaultKeys(),
 		Logging:          DefaultLogConfig(),
 		Icons:            DefaultIconConfig(),
-		NotifCloseTime:   &notifCloseTime,
-		InputCursorShape: &cursor,
+		NotifCloseTime:   new(50),
+		InputCursorShape: new(CursorBar),
 	}
 }
 

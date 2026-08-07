@@ -49,68 +49,40 @@ type IconConfig struct {
 }
 
 func DefaultNerdIconConfig() *IconConfig {
-	nerd := true
-	border := BorderRounded
-	spinner := SpinnerMeter
-	toggleOff := " "
-	toggleOn := " "
-	pwHiddenChar := "•"
-	err := "✗"
-	check := ""
-	signal := ""
-	connection := "󱘖"
-	accessPoint := "󰀃"
-	infra := "🖳"
-	mesh := ""
-	adHoc := ""
 	return &IconConfig{
-		NerdPreset:   &nerd,
-		BorderStyle:  &border,
-		SpinnerStyle: &spinner,
-		ToggleOff:    &toggleOff,
-		ToggleOn:     &toggleOn,
-		PwHiddenChar: &pwHiddenChar,
-		Error:        &err,
-		Check:        &check,
-		Connection:   &connection,
-		Signal:       &signal,
-		AccessPoint:  &accessPoint,
-		Infra:        &infra,
-		Mesh:         &mesh,
-		AdHoc:        &adHoc,
+		NerdPreset:   new(true),
+		BorderStyle:  new(BorderRounded),
+		SpinnerStyle: new(SpinnerMeter),
+		ToggleOff:    new(" "),
+		ToggleOn:     new(" "),
+		PwHiddenChar: new("•"),
+		Error:        new("✗"),
+		Check:        new(" "),
+		Connection:   new(" "),
+		Signal:       new("󱘖 "),
+		AccessPoint:  new("󰀃 "),
+		Infra:        new("🖳 "),
+		Mesh:         new(" "),
+		AdHoc:        new(""),
 	}
 }
 
 func DefaultNonNerdIconConfig() *IconConfig {
-	nerd := false
-	border := BorderASCII
-	spinner := SpinnerLine
-	toggleOff := "[ ]"
-	toggleOn := "[x]"
-	pwHiddenChar := "*"
-	err := "!"
-	check := "v"
-	signal := "sig"
-	connection := "con"
-	accessPoint := "ap"
-	infra := "infr"
-	mesh := "#"
-	adHoc := "ah"
 	return &IconConfig{
-		NerdPreset:   &nerd,
-		BorderStyle:  &border,
-		SpinnerStyle: &spinner,
-		ToggleOff:    &toggleOff,
-		ToggleOn:     &toggleOn,
-		PwHiddenChar: &pwHiddenChar,
-		Error:        &err,
-		Check:        &check,
-		Connection:   &connection,
-		Signal:       &signal,
-		AccessPoint:  &accessPoint,
-		Infra:        &infra,
-		Mesh:         &mesh,
-		AdHoc:        &adHoc,
+		NerdPreset:   new(false),
+		BorderStyle:  new(BorderASCII),
+		SpinnerStyle: new(SpinnerLine),
+		ToggleOff:    new("[ ]"),
+		ToggleOn:     new("[x]"),
+		PwHiddenChar: new("*"),
+		Error:        new("!"),
+		Check:        new("v"),
+		Connection:   new("con"),
+		Signal:       new("sig"),
+		AccessPoint:  new("ap"),
+		Infra:        new("infr"),
+		Mesh:         new("#"),
+		AdHoc:        new("ah"),
 	}
 }
 

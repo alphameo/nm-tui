@@ -15,18 +15,12 @@ type ColorConfig struct {
 }
 
 func DefaultColorConfig() *ColorConfig {
-	text := ColorNone
-	accent := ColorBlue
-	muted := ColorBrightBlack
-	error := ColorRed
-	notif := ColorYellow
-
 	return &ColorConfig{
-		Text:   &text,
-		Accent: &accent,
-		Muted:  &muted,
-		Error:  &error,
-		Notif:  &notif,
+		Text:   new(ColorNone),
+		Accent: new(ColorBlue),
+		Muted:  new(ColorBrightBlack),
+		Error:  new(ColorRed),
+		Notif:  new(ColorYellow),
 	}
 }
 
