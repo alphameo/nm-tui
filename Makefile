@@ -1,4 +1,4 @@
-.PHONY: build build-dev run deps clean-build logs test test-config test-infra test-compositor test-tabview
+.PHONY: build build-dev run deps clean-build logs lint lint-fix test test-config test-infra test-compositor test-tabview
 
 VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo dev)
 
@@ -20,6 +20,12 @@ clean-build:
 
 logs:
 	cat ~/.cache/nm-tui/log | tail -n 50
+
+lint:
+	golangci-lint run ./...
+
+lint-fix:
+	golangci-lint --fix run ./...
 
 test:
 	go test -v ./...

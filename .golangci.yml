@@ -1,0 +1,19 @@
+version: "2"
+run:
+  timeout: 5m
+linters:
+  default: standard # errcheck, govet, ineffassign, staticcheck, unused, etc.
+  enable:
+    - revive # style/lint conventions
+    - gosec # security: exec.Command, etc.
+  exclusions:
+    presets:
+      - comments
+      - common-false-positives
+formatters:
+  enable:
+    - gofumpt # stricter formatting
+    - gci # import-group ordering
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
