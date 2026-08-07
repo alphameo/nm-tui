@@ -33,12 +33,6 @@ func TestDefaultConfig(t *testing.T) {
 	if got, want := *cfg.NotifCloseTime, 50; got != want {
 		t.Errorf("NotifCloseTime = %d, want %d", got, want)
 	}
-	if cfg.InputCursorShape == nil {
-		t.Fatal("InputCursorShape is nil")
-	}
-	if got, want := *cfg.InputCursorShape, CursorBar; got != want {
-		t.Errorf("InputCursorShape = %q, want %q", got, want)
-	}
 
 	if got, want := *cfg.Colors.Text, ColorNone; got != want {
 		t.Errorf("Colors.Text = %q, want %q", got, want)
@@ -118,34 +112,6 @@ func TestConfigMerge(t *testing.T) {
 		}
 	})
 
-	t.Run("cursor valid", func(t *testing.T) {
-		for _, c := range []string{CursorBar, CursorUnderline, CursorBlock} {
-			cfg := DefaultConfig()
-			src := Config{InputCursorShape: new(c)}
-			if errs := cfg.merge(&src); len(errs) != 0 {
-				t.Fatalf("cursor %q: unexpected errors: %v", c, errs)
-			}
-			if got := *cfg.InputCursorShape; got != c {
-				t.Errorf("InputCursorShape = %q, want %q", got, c)
-			}
-		}
-	})
-
-	t.Run("cursor invalid", func(t *testing.T) {
-		cfg := DefaultConfig()
-		src := Config{InputCursorShape: new("beam")}
-		errs := cfg.merge(&src)
-		if len(errs) != 1 {
-			t.Fatalf("want 1 error, got %v", errs)
-		}
-		if !strings.Contains(errs[0].Error(), "invalid cursor_shape") {
-			t.Errorf("unexpected error: %v", errs[0])
-		}
-		if got, want := *cfg.InputCursorShape, CursorBar; got != want {
-			t.Errorf("InputCursorShape should stay default, got %q want %q", got, want)
-		}
-	})
-
 	t.Run("nerd preset swaps icons to nerd defaults", func(t *testing.T) {
 		cfg := DefaultConfig()
 		src := Config{Icons: &IconConfig{
@@ -173,7 +139,7 @@ func TestConfigMerge(t *testing.T) {
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
 		}
-		if !strings.Contains(errs[0].Error(), "border style") {
+		if !strings.Contains(errs[0].Error(), "border_style") {
 			t.Errorf("unexpected error: %v", errs[0])
 		}
 	})
@@ -236,22 +202,8 @@ func TestValidateTime(t *testing.T) {
 	}
 }
 
-func TestValidCursorShape(t *testing.T) {
-	for _, c := range []string{CursorBar, CursorUnderline, CursorBlock} {
-		if !validCursorShape(c) {
-			t.Errorf("validCursorShape(%q) = false, want true", c)
-		}
-	}
-	for _, c := range []string{"beam", "block_bar", "", "BAR"} {
-		if validCursorShape(c) {
-			t.Errorf("validCursorShape(%q) = true, want false", c)
-		}
-	}
-}
-
 const fullConfigKDL = `
 notification_close_time 250
-input_cursor_shape "underline"
 
 colors {
     text "red"
@@ -265,6 +217,7 @@ icons {
     nerd_preset false
     border_style "thick_square"
     spinner_style "jump"
+    input_cursor_shape "underline"
     toggle_off "[ ]"
     toggle_on "[x]"
     password_hidden_character "*"
@@ -354,8 +307,8 @@ func TestLoad(t *testing.T) {
 	if cfg.NotifCloseTime == nil || *cfg.NotifCloseTime != 250 {
 		t.Errorf("NotifCloseTime = %v, want 250", cfg.NotifCloseTime)
 	}
-	if cfg.InputCursorShape == nil || *cfg.InputCursorShape != "underline" {
-		t.Errorf("InputCursorShape = %v, want underline", cfg.InputCursorShape)
+	if cfg.Icons.InputCursorShape == nil || *cfg.Icons.InputCursorShape != "underline" {
+		t.Errorf("Icons.InputCursorShape = %v, want underline", cfg.Icons.InputCursorShape)
 	}
 
 	if cfg.Colors == nil || cfg.Colors.Text == nil || *cfg.Colors.Text != "red" {
@@ -444,8 +397,8 @@ func TestLoadOrDefaultsValid(t *testing.T) {
 	if *cfg.NotifCloseTime != 250 {
 		t.Errorf("NotifCloseTime = %d, want 250", *cfg.NotifCloseTime)
 	}
-	if *cfg.InputCursorShape != "underline" {
-		t.Errorf("InputCursorShape = %q, want underline", *cfg.InputCursorShape)
+	if *cfg.Icons.InputCursorShape != "underline" {
+		t.Errorf("Icons.InputCursorShape = %q, want underline", *cfg.Icons.InputCursorShape)
 	}
 
 	if *cfg.Colors.Text != "red" {
@@ -486,7 +439,6 @@ func TestLoadOrDefaultsValid(t *testing.T) {
 
 const invalidConfigKDL = `
 notification_close_time -5
-input_cursor_shape "squiggle"
 colors {
     accent "notacolor"
 }
@@ -495,6 +447,7 @@ logging {
 }
 icons {
     border_style "dashed"
+    input_cursor_shape "squiggle"
 }
 keys {
     toggle "notakey"
@@ -512,10 +465,10 @@ func TestLoadOrDefaultsInvalid(t *testing.T) {
 
 	wantFragments := []string{
 		"notification_close_time",
-		"invalid cursor_shape",
+		"cursor_shape",
 		"accent color",
 		"invalid log level",
-		"border style",
+		"border_style",
 		"invalid key toggle",
 	}
 	for _, frag := range wantFragments {
@@ -527,8 +480,8 @@ func TestLoadOrDefaultsInvalid(t *testing.T) {
 	if *cfg.NotifCloseTime != 50 {
 		t.Errorf("NotifCloseTime = %d, want default 50", *cfg.NotifCloseTime)
 	}
-	if *cfg.InputCursorShape != CursorBar {
-		t.Errorf("InputCursorShape = %q, want default %q", *cfg.InputCursorShape, CursorBar)
+	if *cfg.Icons.InputCursorShape != CursorBar {
+		t.Errorf("Icons.InputCursorShape = %q, want default %q", *cfg.Icons.InputCursorShape, CursorBar)
 	}
 	if *cfg.Colors.Accent != ColorBlue {
 		t.Errorf("Colors.Accent = %q, want default %q", *cfg.Colors.Accent, ColorBlue)
@@ -558,8 +511,8 @@ func TestLoadOrDefaultsNoConfigFile(t *testing.T) {
 	if *cfg.NotifCloseTime != 50 {
 		t.Errorf("NotifCloseTime = %d, want default 50", *cfg.NotifCloseTime)
 	}
-	if *cfg.InputCursorShape != CursorBar {
-		t.Errorf("InputCursorShape = %q, want default %q", *cfg.InputCursorShape, CursorBar)
+	if *cfg.Icons.InputCursorShape != CursorBar {
+		t.Errorf("Icons.InputCursorShape = %q, want default %q", *cfg.Icons.InputCursorShape, CursorBar)
 	}
 	if *cfg.Colors.Text != ColorNone {
 		t.Errorf("Colors.Text = %q, want default %q", *cfg.Colors.Text, ColorNone)

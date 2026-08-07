@@ -17,6 +17,9 @@ func TestDefaultIconConfig(t *testing.T) {
 	if cfg.SpinnerStyle == nil || *cfg.SpinnerStyle != SpinnerLine {
 		t.Errorf("SpinnerStyle = %v, want %q", cfg.SpinnerStyle, SpinnerLine)
 	}
+	if cfg.InputCursorShape == nil || *cfg.InputCursorShape != CursorBar {
+		t.Errorf("InputCursorShape = %q, want %q", *cfg.InputCursorShape, CursorBar)
+	}
 	if cfg.ToggleOff == nil || *cfg.ToggleOff != "[ ]" {
 		t.Errorf("ToggleOff = %v, want [ ]", cfg.ToggleOff)
 	}
@@ -38,12 +41,12 @@ func TestDefaultNerdIconConfig(t *testing.T) {
 		"ToggleOn":     "\uf205 ",
 		"PwHiddenChar": "•",
 		"Error":        "✗",
-		"Check":        "\uf00c",
-		"Signal":       "\uf012",
-		"Connection":   "\U000f1616",
-		"AccessPoint":  "\U000f0003",
-		"Infra":        "🖳",
-		"Mesh":         "\uf292",
+		"Check":        "\uf00c ",
+		"Signal":       "\U000f1616 ",
+		"Connection":   "\uf012 ",
+		"AccessPoint":  "\U000f0003 ",
+		"Infra":        "🖳 ",
+		"Mesh":         "\uf292 ",
 		"AdHoc":        "\uf10b",
 	}
 
@@ -55,6 +58,9 @@ func TestDefaultNerdIconConfig(t *testing.T) {
 	}
 	if got := *cfg.SpinnerStyle; got != want["SpinnerStyle"] {
 		t.Errorf("SpinnerStyle = %q, want %q", got, want["SpinnerStyle"])
+	}
+	if cfg.InputCursorShape == nil || *cfg.InputCursorShape != CursorBar {
+		t.Errorf("InputCursorShape = %v, want %q", cfg.InputCursorShape, CursorBar)
 	}
 	if got := *cfg.ToggleOff; got != want["ToggleOff"] {
 		t.Errorf("ToggleOff = %q, want %q", got, want["ToggleOff"])
@@ -111,6 +117,10 @@ func TestDefaultNonNerdIconConfig(t *testing.T) {
 		"Infra":        "infr",
 		"Mesh":         "#",
 		"AdHoc":        "ah",
+	}
+
+	if cfg.InputCursorShape == nil || *cfg.InputCursorShape != CursorBar {
+		t.Errorf("InputCursorShape = %v, want %q", cfg.InputCursorShape, CursorBar)
 	}
 
 	if got := *cfg.ToggleOff; got != want["ToggleOff"] {
@@ -222,7 +232,7 @@ func TestMergeBorderStyle(t *testing.T) {
 		if err == nil {
 			t.Fatal("expected error")
 		}
-		if !strings.Contains(err.Error(), "border style") {
+		if !strings.Contains(err.Error(), "border_style") {
 			t.Errorf("unexpected error: %v", err)
 		}
 		if *dst != BorderASCII {
@@ -265,10 +275,69 @@ func TestMergeSpinnerStyle(t *testing.T) {
 		if err == nil {
 			t.Fatal("expected error")
 		}
-		if !strings.Contains(err.Error(), "spinner style") {
+		if !strings.Contains(err.Error(), "spinner_style") {
 			t.Errorf("unexpected error: %v", err)
 		}
 		if *dst != SpinnerLine {
+			t.Errorf("dst = %q, want unchanged", *dst)
+		}
+	})
+}
+
+func TestValidateCursorShape(t *testing.T) {
+	for _, c := range []string{CursorBar, CursorUnderline, CursorBlock} {
+		if err := validateCursorShape(c); err != nil {
+			t.Errorf("validateCursorShape(%q) error: %v", c, err)
+		}
+	}
+	for _, c := range []string{"", "beam", "block_bar", "BAR"} {
+		if err := validateCursorShape(c); err == nil {
+			t.Errorf("validateCursorShape(%q) = nil, want error", c)
+		}
+	}
+}
+
+func TestMergeCursorShape(t *testing.T) {
+	t.Run("valid override", func(t *testing.T) {
+		dst := new(CursorBar)
+		if err := mergeCursorShape(dst, new(CursorUnderline)); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if *dst != CursorUnderline {
+			t.Errorf("dst = %q, want %q", *dst, CursorUnderline)
+		}
+	})
+
+	t.Run("nil source no-op", func(t *testing.T) {
+		dst := new(CursorBar)
+		if err := mergeCursorShape(dst, nil); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if *dst != CursorBar {
+			t.Errorf("dst = %q, want unchanged", *dst)
+		}
+	})
+
+	t.Run("default keyword no-op", func(t *testing.T) {
+		dst := new(CursorBar)
+		if err := mergeCursorShape(dst, new(defaultKeyword)); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if *dst != CursorBar {
+			t.Errorf("dst = %q, want unchanged", *dst)
+		}
+	})
+
+	t.Run("invalid errors and does not override", func(t *testing.T) {
+		dst := new(CursorBar)
+		err := mergeCursorShape(dst, new("beam"))
+		if err == nil {
+			t.Fatal("expected error")
+		}
+		if !strings.Contains(err.Error(), "cursor_shape") {
+			t.Errorf("unexpected error: %v", err)
+		}
+		if *dst != CursorBar {
 			t.Errorf("dst = %q, want unchanged", *dst)
 		}
 	})
@@ -366,9 +435,10 @@ func TestIconConfigMerge(t *testing.T) {
 	t.Run("valid overrides applied", func(t *testing.T) {
 		dst := DefaultIconConfig()
 		src := &IconConfig{
-			BorderStyle:  new(BorderRounded),
-			SpinnerStyle: new(SpinnerHamburger),
-			Check:        new("✓"),
+			BorderStyle:      new(BorderRounded),
+			SpinnerStyle:     new(SpinnerHamburger),
+			InputCursorShape: new(CursorBlock),
+			Check:            new("✓"),
 		}
 		errs := dst.merge(src)
 		if len(errs) != 0 {
@@ -379,6 +449,9 @@ func TestIconConfigMerge(t *testing.T) {
 		}
 		if *dst.SpinnerStyle != SpinnerHamburger {
 			t.Errorf("SpinnerStyle = %q, want %q", *dst.SpinnerStyle, SpinnerHamburger)
+		}
+		if *dst.InputCursorShape != CursorBlock {
+			t.Errorf("InputCursorShape = %q, want %q", *dst.InputCursorShape, CursorBlock)
 		}
 		if *dst.Check != "✓" {
 			t.Errorf("Check = %q, want ✓", *dst.Check)
@@ -391,15 +464,16 @@ func TestIconConfigMerge(t *testing.T) {
 	t.Run("invalid fields collected", func(t *testing.T) {
 		dst := DefaultIconConfig()
 		src := &IconConfig{
-			BorderStyle:  new("dashed"),
-			ToggleOff:    new(""),
-			PwHiddenChar: new("ab"),
+			BorderStyle:      new("dashed"),
+			InputCursorShape: new("beam"),
+			ToggleOff:        new(""),
+			PwHiddenChar:     new("ab"),
 		}
 		errs := dst.merge(src)
-		if len(errs) != 3 {
-			t.Fatalf("want 3 errors, got %v", errs)
+		if len(errs) != 4 {
+			t.Fatalf("want 4 errors, got %v", errs)
 		}
-		for _, frag := range []string{"border style", "empty toggle_off icon", "length of symbol password_symbol"} {
+		for _, frag := range []string{"border_style", "cursor_shape", "empty toggle_off icon", "length of symbol password_symbol"} {
 			found := false
 			for _, err := range errs {
 				if strings.Contains(err.Error(), frag) {
@@ -410,6 +484,21 @@ func TestIconConfigMerge(t *testing.T) {
 			if !found {
 				t.Errorf("no error contains %q in %v", frag, errs)
 			}
+		}
+	})
+
+	t.Run("invalid cursor shape collected", func(t *testing.T) {
+		dst := DefaultIconConfig()
+		src := &IconConfig{InputCursorShape: new("beam")}
+		errs := dst.merge(src)
+		if len(errs) != 1 {
+			t.Fatalf("want 1 error, got %v", errs)
+		}
+		if !strings.Contains(errs[0].Error(), "cursor_shape") {
+			t.Errorf("unexpected error: %v", errs[0])
+		}
+		if *dst.InputCursorShape != CursorBar {
+			t.Errorf("InputCursorShape = %q, want unchanged %q", *dst.InputCursorShape, CursorBar)
 		}
 	})
 
