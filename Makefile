@@ -1,4 +1,4 @@
-.PHONY: build test clean all logs
+.PHONY: build build-dev run deps clean-build logs test test-config test-infra test-compositor test-tabview
 
 VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo dev)
 
@@ -23,7 +23,22 @@ logs:
 
 test:
 	make test-config
+	make test-infra
+	make test-compositor
+	make test-tabview
 
 test-config:
 	go test ./internal/config/ -v
 	go test ./internal/config/ -cover
+
+test-infra:
+	go test ./internal/infra/ -v
+	go test ./internal/infra/ -cover
+
+test-compositor:
+	go test ./internal/ui/tools/compositor/ -v
+	go test ./internal/ui/tools/compositor/ -cover
+
+test-tabview:
+	go test ./internal/ui/models/tabview/ -v
+	go test ./internal/ui/models/tabview/ -cover
