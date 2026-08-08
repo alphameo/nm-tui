@@ -37,7 +37,7 @@ func (k *mainKeyMap) FullHelp() [][]key.Binding {
 }
 
 type MainModel struct {
-	tabs         *tabview.Model
+	tabs         tabview.Model
 	popup        *Popup
 	notification *Notification
 
@@ -93,7 +93,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	help.ShowAll = true
 
 	return &MainModel{
-		tabs:         &wifiTable,
+		tabs:         wifiTable,
 		popup:        p,
 		notification: n,
 
@@ -156,8 +156,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.handleKey(msg)
 	}
 
-	tabs, cmd := m.tabs.Update(msg)
-	m.tabs = &tabs
+	var cmd tea.Cmd
+	m.tabs, cmd = m.tabs.Update(msg)
 	if cmd != nil {
 		return m, cmd
 	}
@@ -183,8 +183,8 @@ func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 	if key.Matches(keyMsg, m.keyMngr.main.quit) {
 		return tea.Quit
 	}
-	tabs, cmd := m.tabs.Update(keyMsg)
-	m.tabs = &tabs
+	var cmd tea.Cmd
+	m.tabs, cmd = m.tabs.Update(keyMsg)
 	return cmd
 }
 
