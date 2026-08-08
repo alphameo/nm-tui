@@ -633,7 +633,9 @@ func (n *NMCLI) updateWifiID(ctx context.Context, id, newID string) error {
 
 func (n *NMCLI) updateWifiPassword(ctx context.Context, id, password string) error {
 	mgmgtErrCh := make(chan error, 1)
+	defer close(mgmgtErrCh)
 	pwErrCh := make(chan error, 1)
+	defer close(pwErrCh)
 
 	if len(password) == 0 {
 		go func() {
