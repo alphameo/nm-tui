@@ -32,13 +32,16 @@ func New(tabs []Tab) Model {
 	tabTitles := []string{}
 	tabContents := []TabModel{}
 	for _, t := range tabs {
+		t.Content.Blur()
 		tabTitles = append(tabTitles, t.Title)
 		tabContents = append(tabContents, t.Content)
 	}
+	activeTab := 0
+	tabContents[activeTab].Focus()
 	return Model{
 		tabTitles:   tabTitles,
 		tabContents: tabContents,
-		activeTab:   0,
+		activeTab:   activeTab,
 		Keys:        DefaultKeys(),
 		styles:      DefaultStyles(),
 	}
@@ -80,17 +83,18 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.Keys.TabNext):
+			m.tabContents[m.activeTab].Blur()
 			m.activeTab = min(m.activeTab+1, len(m.tabContents)-1)
+			m.tabContents[m.activeTab].Focus()
 			m.renderTabBar()
-			cmd = m.tabContents[m.activeTab].Init()
+			return m, m.tabContents[m.activeTab].Init()
 		case key.Matches(msg, m.Keys.TabPrev):
+			m.tabContents[m.activeTab].Blur()
 			m.activeTab = max(m.activeTab-1, 0)
+			m.tabContents[m.activeTab].Focus()
 			m.renderTabBar()
-			cmd = m.tabContents[m.activeTab].Init()
-		default:
-			m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].UpdateAsTab(msg)
+			return m, m.tabContents[m.activeTab].Init()
 		}
-		return m, cmd
 	}
 
 	var cmds []tea.Cmd
