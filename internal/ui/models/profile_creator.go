@@ -34,7 +34,7 @@ type ProfileCreatorModel struct {
 	ssid     textinput.Model
 	name     textinput.Model
 	password textinput.Model
-	hidden   *toggle.Model
+	hidden   toggle.Model
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
@@ -74,7 +74,7 @@ func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.Wif
 		&model.ssid,
 		&model.name,
 		&model.password,
-		model.hidden,
+		&model.hidden,
 	}
 	model.focuses = inp
 	model.focusIdx = 0

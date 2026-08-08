@@ -40,7 +40,7 @@ type ProfileEditorModel struct {
 	nameBak string
 
 	password         textinput.Model
-	autoconnect      *toggle.Model
+	autoconnect      toggle.Model
 	autoconnPriority textinput.Model
 
 	focuses  []Focusable // used for batch operations on input focusable elements
@@ -82,7 +82,7 @@ func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiM
 	inp := []Focusable{
 		&model.name,
 		&model.password,
-		model.autoconnect,
+		&model.autoconnect,
 		&model.autoconnPriority,
 	}
 	model.focuses = inp

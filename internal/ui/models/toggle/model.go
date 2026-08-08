@@ -26,8 +26,8 @@ type Model struct {
 	Keys KeyMap
 }
 
-func New() *Model {
-	return &Model{
+func New() Model {
+	return Model{
 		value:   false,
 		Symbols: DefaultSymbols(),
 		Keys:    DefaultKeys(),
@@ -42,7 +42,7 @@ func (t *Model) Value() bool {
 	return t.value
 }
 
-func (t *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
+func (t Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		if key.Matches(msg, t.Keys.Toggle) {
@@ -52,7 +52,7 @@ func (t *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	return t, nil
 }
 
-func (t *Model) View() string {
+func (t Model) View() string {
 	symbols := t.Symbols
 	if t.value {
 		return symbols.Activated

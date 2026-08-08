@@ -76,9 +76,9 @@ type networkingKeyMap struct {
 type NetworkingModel struct {
 	devicesTable *table.Model
 
-	wwan       *toggle.Model
-	wifi       *toggle.Model
-	networking *toggle.Model
+	wwan       toggle.Model
+	wifi       toggle.Model
+	networking toggle.Model
 
 	connectivity string
 
@@ -136,9 +136,9 @@ func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkMana
 	}
 
 	focuses := []Focusable{
-		model.wwan,
-		model.wifi,
-		model.networking,
+		&model.wwan,
+		&model.wifi,
+		&model.networking,
 	}
 	model.focuses = focuses
 
