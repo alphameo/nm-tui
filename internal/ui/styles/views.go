@@ -24,7 +24,7 @@ func ViewBorderedFocusable(component focusable) string {
 	return view
 }
 
-func ViewToggle(toggle *toggle.Model) string {
+func ViewToggle(toggle toggle.Model) string {
 	view := toggle.View()
 	var style lipgloss.Style
 	if toggle.Focused() {
