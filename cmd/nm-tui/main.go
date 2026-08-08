@@ -9,6 +9,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/alphameo/nm-tui/internal/config"
+	"github.com/alphameo/nm-tui/internal/infra/logging"
 	"github.com/alphameo/nm-tui/internal/infra/nmcli"
 	"github.com/alphameo/nm-tui/internal/ui/models"
 )
@@ -22,11 +23,10 @@ func main() {
 		os.Exit(0)
 	}
 
-	loggerOpts := &slog.HandlerOptions{
-		Level:     slog.LevelWarn,
-		AddSource: true,
-	}
-	stdLogger := slog.New(slog.NewJSONHandler(os.Stderr, loggerOpts))
+	stdLogger := slog.New(slog.NewJSONHandler(
+		os.Stderr,
+		&slog.HandlerOptions{Level: slog.LevelWarn},
+	))
 	slog.SetDefault(stdLogger)
 
 	cfg, cfgErr := config.LoadOrDefaults()
@@ -41,7 +41,7 @@ func main() {
 		slog.Error(err.Error())
 		panic(err)
 	}
-	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o600)
+	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
 	if err != nil {
 		err := fmt.Errorf("open log file: %w", err)
 		slog.Error(err.Error())
@@ -57,9 +57,10 @@ func main() {
 		slog.Error(err.Error())
 		panic(err)
 	}
-	loggerOpts.Level = logLevel
-	fileLogger := slog.New(slog.NewJSONHandler(f, loggerOpts))
-
+	fileLogger := slog.New(slog.NewJSONHandler(f, &slog.HandlerOptions{
+		Level:     logLevel,
+		AddSource: logLevel <= slog.LevelDebug,
+	}))
 	slog.SetDefault(fileLogger)
 	if cfgErr != nil {
 		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
@@ -69,7 +70,8 @@ func main() {
 	defer slog.Info("Program is closed")
 
 	nm := nmcli.New()
-	model, err := models.NewMainModel(nm, nm, cfg)
+	logMw := logging.New(fileLogger, nm, nm)
+	model, err := models.NewMainModel(logMw, logMw, cfg)
 	if err != nil {
 		slog.Error("error during model initialization", "errors", err.Error())
 	}

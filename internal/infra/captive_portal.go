@@ -3,7 +3,6 @@ package infra
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net"
 	"os/exec"
 	"runtime"
@@ -14,8 +13,6 @@ import (
 func OpenCaptivePortal(ctx context.Context) error {
 	ip, err := getGatewayIP(ctx)
 	if err != nil {
-		slog.Error(err.Error(),
-			"err", err)
 		return err
 	}
 
@@ -23,10 +20,6 @@ func OpenCaptivePortal(ctx context.Context) error {
 
 	err = openURL(url)
 	if err != nil {
-		stderr := ExtractStderr(err)
-		slog.Error(ErrOpenCaptivePortal.Error(),
-			"err", err,
-			"stderr", stderr)
 		return err
 	}
 	return nil
