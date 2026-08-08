@@ -11,5 +11,5 @@ type Notification struct {
 	active    bool
 	title     string
 	closeTime time.Duration
-	style     *lipgloss.Style
+	style     lipgloss.Style
 }
