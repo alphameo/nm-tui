@@ -93,8 +93,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m, cmd
 	}
 
-	m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].UpdateAsTab(msg)
-	return m, cmd
+	var cmds []tea.Cmd
+	for i := range m.tabContents {
+		m.tabContents[i], cmd = m.tabContents[i].UpdateAsTab(msg)
+		cmds = append(cmds, cmd)
+	}
+	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
