@@ -160,11 +160,13 @@ func (m *WifiAvailableModel) Height() int {
 func (m *WifiAvailableModel) Focus() tea.Cmd {
 	m.focus = true
 	m.dataTable.SetStyles(styles.TableStyle)
+	m.dataTable.Focus()
 	return nil
 }
 
 func (m *WifiAvailableModel) Blur() {
 	m.focus = false
+	m.dataTable.Blur()
 	m.dataTable.SetStyles(styles.DataTableStyle)
 }
 
@@ -179,7 +181,22 @@ func (m *WifiAvailableModel) Init() tea.Cmd {
 func (m *WifiAvailableModel) Update(msg tea.Msg) (*WifiAvailableModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		return m.handleKey(msg)
+		if !m.focus {
+			return m, nil
+		}
+		switch {
+		case key.Matches(msg, m.keys.rescan):
+			if m.indicatorState != AvailableDone {
+				return m, nil
+			}
+			return m, m.RescanCmd()
+		case key.Matches(msg, m.keys.connect):
+			row := m.dataTable.SelectedRow()
+			if row != nil {
+				return m, OpenConnectorCmd(row[wifiAvailableCfg.ssidColIdx])
+			}
+			return m, nil
+		}
 	case WifiAvialableStateMsg:
 		return m, m.setStateCmd(wifiAvailableState(msg))
 	case RescanWifiAvailableMsg:
@@ -188,39 +205,17 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (*WifiAvailableModel, tea.Cmd) 
 	}
 
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
 	if m.indicatorState != AvailableDone {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
-		if cmd != nil {
-			return m, cmd
-		}
+		cmds = append(cmds, cmd)
 	}
-	m.dataTable, cmd = m.dataTable.Update(msg)
-	if cmd != nil {
-		return m, cmd
-	}
-	return m, nil
-}
 
-func (m *WifiAvailableModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiAvailableModel, tea.Cmd) {
-	switch {
-	case key.Matches(keyMsg, m.keys.rescan):
-		if m.indicatorState != AvailableDone {
-			return m, nil
-		}
-		return m, m.RescanCmd()
-	case key.Matches(keyMsg, m.keys.connect):
-		row := m.dataTable.SelectedRow()
-		if row != nil {
-			return m, OpenConnectorCmd(row[wifiAvailableCfg.ssidColIdx])
-		}
-		return m, nil
-	}
-	var cmd tea.Cmd
-	m.dataTable, cmd = m.dataTable.Update(keyMsg)
-	if cmd != nil {
-		return m, cmd
-	}
-	return m, nil
+	m.dataTable, cmd = m.dataTable.Update(msg)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m *WifiAvailableModel) View() string {
