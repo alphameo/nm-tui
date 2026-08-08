@@ -115,18 +115,6 @@ func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd
 				m.createHotspotCmd(),
 			)
 		}
-
-		var cmd tea.Cmd
-		switch {
-		case m.ssid.Focused():
-			m.ssid, cmd = m.ssid.Update(msg)
-		case m.name.Focused():
-			m.name, cmd = m.name.Update(msg)
-			return m, cmd
-		case m.password.Focused():
-			m.password, cmd = m.password.Update(msg)
-		}
-		return m, cmd
 	}
 
 	var cmd tea.Cmd
