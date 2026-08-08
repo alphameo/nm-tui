@@ -205,19 +205,6 @@ func (m *NetworkingModel) Update(msg tea.Msg) (*NetworkingModel, tea.Cmd) {
 				return m, m.toggleNetworking()
 			}
 		}
-
-		var cmd tea.Cmd
-		switch {
-		case m.wwan.Focused():
-			m.wwan, cmd = m.wwan.Update(msg)
-		case m.wifi.Focused():
-			m.wifi, cmd = m.wifi.Update(msg)
-		case m.networking.Focused():
-			m.networking, cmd = m.networking.Update(msg)
-		case m.devicesTable.Focused():
-			m.devicesTable, cmd = m.devicesTable.Update(msg)
-		}
-		return m, cmd
 	}
 
 	var cmd tea.Cmd
@@ -227,6 +214,15 @@ func (m *NetworkingModel) Update(msg tea.Msg) (*NetworkingModel, tea.Cmd) {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		cmds = append(cmds, cmd)
 	}
+
+	m.wwan, cmd = m.wwan.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.wifi, cmd = m.wifi.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.networking, cmd = m.networking.Update(msg)
+	cmds = append(cmds, cmd)
 
 	m.devicesTable, cmd = m.devicesTable.Update(msg)
 	cmds = append(cmds, cmd)

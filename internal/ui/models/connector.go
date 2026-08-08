@@ -113,15 +113,6 @@ func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
 				m.connectToWifiCmd(),
 			)
 		}
-
-		var cmd tea.Cmd
-		switch {
-		case m.name.Focused():
-			m.name, cmd = m.name.Update(msg)
-		case m.password.Focused():
-			m.password, cmd = m.password.Update(msg)
-		}
-		return m, cmd
 	}
 
 	var cmd tea.Cmd
