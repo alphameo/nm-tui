@@ -106,7 +106,8 @@ func DeferedCloseNotificationCmd(t time.Duration) tea.Cmd {
 var ErrPasswordFmt error = errors.New("wrong password format")
 
 func passwordValidator(input string) error {
-	if len(input) < 8 {
+	l := len(input)
+	if l > 0 && l < 8 {
 		return fmt.Errorf("%w: length < 8", ErrPasswordFmt)
 	}
 	return nil
