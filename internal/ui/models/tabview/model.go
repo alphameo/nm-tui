@@ -10,15 +10,17 @@ import (
 type Model struct {
 	activeTab int
 
-	tabTitles        []string
-	tabContents      []TabModel
+	tabTitles   []string
+	tabContents []TabModel
+
 	cachedTabBarView string
 
-	styles       *Styles
+	styles Styles
+
 	borderOffset int
 	tabBarHeight int
 
-	keys *KeyMap
+	Keys KeyMap
 }
 
 type Tab struct {
@@ -26,27 +28,23 @@ type Tab struct {
 	Content TabModel
 }
 
-func New(tabs []Tab, styles *Styles, keys *KeyMap) *Model {
+func New(tabs []Tab) Model {
 	tabTitles := []string{}
 	tabContents := []TabModel{}
 	for _, t := range tabs {
 		tabTitles = append(tabTitles, t.Title)
 		tabContents = append(tabContents, t.Content)
 	}
-	m := &Model{
+	return Model{
 		tabTitles:   tabTitles,
 		tabContents: tabContents,
 		activeTab:   0,
-		keys:        keys,
+		Keys:        DefaultKeys(),
+		styles:      DefaultStyles(),
 	}
-	m.SetStyles(styles)
-	return m
 }
 
-func (m *Model) SetStyles(styles *Styles) {
-	if styles == nil {
-		styles = DefaultStyles()
-	}
+func (m *Model) SetStyles(styles Styles) {
 	borderOffset := lipgloss.Width(styles.ContentStyle.GetBorderStyle().Left) * 2
 	tabBarHeight := borderOffset + 1
 	m.styles = styles
@@ -76,35 +74,30 @@ func (m *Model) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		return m.handleKey(msg)
+		switch {
+		case key.Matches(msg, m.Keys.TabNext):
+			m.activeTab = min(m.activeTab+1, len(m.tabContents)-1)
+			m.renderTabBar()
+			cmd = m.tabContents[m.activeTab].Init()
+		case key.Matches(msg, m.Keys.TabPrev):
+			m.activeTab = max(m.activeTab-1, 0)
+			m.renderTabBar()
+			cmd = m.tabContents[m.activeTab].Init()
+		default:
+			m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].UpdateAsTab(msg)
+		}
+		return m, cmd
 	}
 
-	var cmd tea.Cmd
 	m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].UpdateAsTab(msg)
 	return m, cmd
 }
 
-func (m *Model) handleKey(keyMsg tea.KeyPressMsg) (*Model, tea.Cmd) {
-	switch {
-	case key.Matches(keyMsg, m.keys.TabNext):
-		m.activeTab = min(m.activeTab+1, len(m.tabContents)-1)
-		m.renderTabBar()
-		return m, m.tabContents[m.activeTab].Init()
-	case key.Matches(keyMsg, m.keys.TabPrev):
-		m.activeTab = max(m.activeTab-1, 0)
-		m.renderTabBar()
-		return m, m.tabContents[m.activeTab].Init()
-	}
-
-	var cmd tea.Cmd
-	m.tabContents[m.activeTab], cmd = m.tabContents[m.activeTab].UpdateAsTab(keyMsg)
-	return m, cmd
-}
-
-func (m *Model) View() string {
+func (m Model) View() string {
 	tabView := m.tabContents[m.activeTab].View()
 	tabView = m.styles.ContentStyle.Render(tabView)
 
