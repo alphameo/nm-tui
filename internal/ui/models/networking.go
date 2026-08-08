@@ -74,7 +74,7 @@ type networkingKeyMap struct {
 }
 
 type NetworkingModel struct {
-	devicesTable *table.Model
+	devicesTable table.Model
 
 	wwan       toggle.Model
 	wifi       toggle.Model
@@ -121,7 +121,7 @@ func NewNetworkingModel(keys networkingKeyMap, networkManager infra.NetworkManag
 	s.Spinner = styles.Spinner
 
 	model := &NetworkingModel{
-		devicesTable:     &t,
+		devicesTable:     t,
 		indicatorSpinner: s,
 		indicatorState:   NetworkDone,
 
@@ -187,62 +187,55 @@ func (m *NetworkingModel) Init() tea.Cmd {
 func (m *NetworkingModel) Update(msg tea.Msg) (*NetworkingModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		return m.handleKey(msg)
+		switch {
+		case key.Matches(msg, m.keys.down):
+			return m, m.focusNextCmd()
+		case key.Matches(msg, m.keys.up):
+			return m, m.focusPrevCmd()
+		case key.Matches(msg, m.keys.rescan):
+			return m, m.RescanCmd()
+		case key.Matches(msg, m.keys.toggle):
+			if m.wwan.Focused() {
+				return m, m.toggleWWAN()
+			}
+			if m.wifi.Focused() {
+				return m, m.toggleWIFI()
+			}
+			if m.networking.Focused() {
+				return m, m.toggleNetworking()
+			}
+		}
+
+		var cmd tea.Cmd
+		switch {
+		case m.wwan.Focused():
+			m.wwan, cmd = m.wwan.Update(msg)
+		case m.wifi.Focused():
+			m.wifi, cmd = m.wifi.Update(msg)
+		case m.networking.Focused():
+			m.networking, cmd = m.networking.Update(msg)
+		case m.devicesTable.Focused():
+			m.devicesTable, cmd = m.devicesTable.Update(msg)
+		}
+		return m, cmd
 	}
+
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
 	if m.indicatorState != NetworkDone {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
-		if cmd != nil {
-			return m, cmd
-		}
+		cmds = append(cmds, cmd)
 	}
-	upd, cmd := m.devicesTable.Update(msg)
-	m.devicesTable = &upd
-	return m, cmd
+
+	m.devicesTable, cmd = m.devicesTable.Update(msg)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m *NetworkingModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 	return m.Update(msg)
-}
-
-func (m *NetworkingModel) handleKey(keyMsg tea.KeyPressMsg) (*NetworkingModel, tea.Cmd) {
-	switch {
-	case key.Matches(keyMsg, m.keys.down):
-		return m, m.focusNextCmd()
-	case key.Matches(keyMsg, m.keys.up):
-		return m, m.focusPrevCmd()
-	case key.Matches(keyMsg, m.keys.rescan):
-		return m, m.RescanCmd()
-	case key.Matches(keyMsg, m.keys.toggle):
-		if m.wwan.Focused() {
-			return m, m.toggleWWAN()
-		}
-		if m.wifi.Focused() {
-			return m, m.toggleWIFI()
-		}
-		if m.networking.Focused() {
-			return m, m.toggleNetworking()
-		}
-	}
-	switch {
-	case m.wwan.Focused():
-		upd, cmd := m.wwan.Update(keyMsg)
-		m.wwan = upd
-		return m, cmd
-	case m.wifi.Focused():
-		upd, cmd := m.wifi.Update(keyMsg)
-		m.wifi = upd
-		return m, cmd
-	case m.networking.Focused():
-		upd, cmd := m.networking.Update(keyMsg)
-		m.wifi = upd
-		return m, cmd
-	case m.devicesTable.Focused():
-		upd, cmd := m.devicesTable.Update(keyMsg)
-		m.devicesTable = &upd
-		return m, cmd
-	}
-	return m, nil
 }
 
 func (m *NetworkingModel) View() string {
