@@ -38,16 +38,16 @@ func (k *mainKeyMap) FullHelp() [][]key.Binding {
 
 type MainModel struct {
 	tabs         tabview.Model
-	popup        *Popup
-	notification *Notification
+	popup        Popup
+	notification Notification
 
 	connector      *ConnectorModel
 	profileCreator *ProfileCreatorModel
 	hotspotCreator *HotspotCreatorModel
 	profileEditor  *ProfileEditorModel
 
-	keyMngr *keyMaps
-	help    help.Model
+	keys *keyMaps
+	help help.Model
 
 	width  int
 	height int
@@ -81,12 +81,12 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	wifiTable.SetStyles(styles.TabViewStyles)
 	wifiTable.Keys = keys.tabs
 
-	p := &Popup{
+	p := Popup{
 		active: false,
 	}
 
 	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
-	n := &Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
+	n := Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
 
 	help := help.New()
 	help.Styles = styles.HelpStyle
@@ -102,8 +102,8 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 		hotspotCreator: hotspotCreator,
 		profileEditor:  profileEditor,
 
-		keyMngr: &keys,
-		help:    help,
+		keys: &keys,
+		help: help,
 	}, nil
 }
 
@@ -153,46 +153,40 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.Cmd:
 		return m, msg
 	case tea.KeyPressMsg:
-		return m, m.handleKey(msg)
-	}
-
-	var cmd tea.Cmd
-	m.tabs, cmd = m.tabs.Update(msg)
-	if cmd != nil {
-		return m, cmd
-	}
-	if m.popup.active {
-		upd, cmd := m.popup.content.UpdateAsPopup(msg)
-		m.popup.content = upd
-		if cmd != nil {
+		var cmd tea.Cmd
+		if m.popup.active {
+			switch {
+			case key.Matches(msg, m.keys.main.closePopup):
+				return m, ClosePopupCmd()
+			}
+			m.popup, cmd = m.popup.Update(msg)
 			return m, cmd
 		}
-	}
-	return m, nil
-}
-
-func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
-	if m.popup.active {
-		if key.Matches(keyMsg, m.keyMngr.main.closePopup) {
-			return ClosePopupCmd()
+		switch {
+		case key.Matches(msg, m.keys.main.quit):
+			return m, tea.Quit
 		}
-		upd, cmd := m.popup.content.UpdateAsPopup(keyMsg)
-		m.popup.content = upd
-		return cmd
+		m.tabs, cmd = m.tabs.Update(msg)
+		return m, cmd
 	}
-	if key.Matches(keyMsg, m.keyMngr.main.quit) {
-		return tea.Quit
-	}
+
 	var cmd tea.Cmd
-	m.tabs, cmd = m.tabs.Update(keyMsg)
-	return cmd
+	var cmds []tea.Cmd
+
+	m.tabs, cmd = m.tabs.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.popup, cmd = m.popup.Update(msg)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m MainModel) View() tea.View {
 	view := m.tabs.View()
 
 	if m.popup.active {
-		popupView := m.popup.content.View()
+		popupView := m.popup.View()
 		view = compositor.Compose(
 			popupView,
 			view,
@@ -223,7 +217,7 @@ func (m MainModel) View() tea.View {
 		)
 	}
 
-	help := m.help.View(m.keyMngr)
+	help := m.help.View(m.keys)
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	v := tea.NewView(view)
 	v.AltScreen = true
@@ -241,7 +235,7 @@ func (m *MainModel) Height() int {
 func (m *MainModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
-	helpHeight := lipgloss.Height(m.help.View(m.keyMngr))
+	helpHeight := lipgloss.Height(m.help.View(m.keys))
 
 	m.tabs.Resize(width, m.height-helpHeight)
 
