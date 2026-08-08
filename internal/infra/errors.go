@@ -29,7 +29,6 @@ var (
 	ErrParseNetMode               error = errors.New("failed to parse network mode")
 
 	ErrUpdateWifiInfo      error = errors.New("failed modifying wifi network information")
-	ErrUpdateWifiInfoField error = errors.New("failed modifying wifi network information field")
 
 	ErrDeleteWifi error = errors.New("failed deleting wifi connection")
 

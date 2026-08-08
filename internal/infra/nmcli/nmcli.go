@@ -3,7 +3,6 @@ package nmcli
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os/exec"
@@ -524,130 +523,43 @@ func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.NetworkInfo, 
 	return info, nil
 }
 
-// UpdateWifiInfo is not atomic
 func (n *NMCLI) UpdateWifiInfo(ctx context.Context, id string, info infra.UpdateWifiInfo) error {
-	err := n.updateWifiID(
-		ctx,
-		id,
-		info.Name,
-	)
-
-	errCh := make(chan error, 3)
-	defer close(errCh)
-
-	go func() {
-		err := n.updateWifiPassword(
-			ctx,
-			info.Name,
-			info.Password,
-		)
-		if err != nil {
-			errCh <- err
-		}
-	}()
-
-	go func() {
-		err := n.updateWifiAutoconnect(
-			ctx,
-			info.Name,
-			info.Autoconnect,
-		)
-		if err != nil {
-			errCh <- err
-		}
-	}()
-
-	go func() {
-		err := n.updateWifiAutoconnectPriority(
-			ctx,
-			info.Name,
-			info.AutoconnectPriority,
-		)
-		if err != nil {
-			errCh <- err
-		}
-	}()
-
-	bigErr := errors.Join(err, <-errCh, <-errCh, <-errCh)
-
-	if bigErr != nil {
-		slog.Error(
-			infra.ErrGetWifiInfo.Error(),
-			"id", id,
-			"failed operations", bigErr.Error(),
-		)
-		return fmt.Errorf("%w for %s: %w", infra.ErrUpdateWifiInfo, id, bigErr)
+	var keyMgmgt string
+	if len(info.Password) == 0 {
+		keyMgmgt = "none"
+	} else {
+		keyMgmgt = "wpa-psk"
 	}
-	return nil
-}
-
-func (*NMCLI) updateWifiInfoField(ctx context.Context, id, field, value string) error {
-	args := []string{"connection", "modify", id, field, value}
+	var autoconnect string
+	if info.Autoconnect {
+		autoconnect = "yes"
+	} else {
+		autoconnect = "no"
+	}
+	args := []string{
+		"connection", "modify",
+		id, "connection.id", info.Name,
+		"802-11-wireless-security.key-mgmt", keyMgmgt,
+		"802-11-wireless-security.psk", info.Password,
+		"connection.autoconnect", autoconnect,
+		"connection.autoconnect-priority", strconv.Itoa(info.AutoconnectPriority),
+	}
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
 		stderr := infra.ExtractStderr(err)
 		slog.Error(
-			infra.ErrUpdateWifiInfoField.Error(),
+			infra.ErrGetWifiInfo.Error(),
 			"id", id,
-			"field", field,
 			"stderr", stderr,
-			"error", err,
 		)
-		return fmt.Errorf("%w %s for %s: %s", infra.ErrUpdateWifiInfoField, field, id, stderr)
+		return fmt.Errorf("%w for %s: %w", infra.ErrUpdateWifiInfo, id, err)
 	}
 	slog.Info(
-		"modified wifi field",
+		"wifi field",
 		"id", id,
-		"field", field,
 		"output", string(out),
 	)
 	return nil
-}
-
-func (n *NMCLI) updateWifiID(ctx context.Context, id, newID string) error {
-	return n.updateWifiInfoField(ctx, id, "connection.id", newID)
-}
-
-func (n *NMCLI) updateWifiPassword(ctx context.Context, id, password string) error {
-	mgmgtErrCh := make(chan error, 1)
-	defer close(mgmgtErrCh)
-	pwErrCh := make(chan error, 1)
-	defer close(pwErrCh)
-
-	if len(password) == 0 {
-		go func() {
-			mgmgtErrCh <- n.updateWifiInfoField(ctx, id, "802-11-wireless-security.key-mgmt", "none")
-		}()
-	} else {
-		go func() {
-			mgmgtErrCh <- n.updateWifiInfoField(ctx, id, "802-11-wireless-security.key-mgmt", "wpa-psk")
-		}()
-	}
-	go func() {
-		pwErrCh <- n.updateWifiInfoField(ctx, id, "802-11-wireless-security.psk", password)
-	}()
-
-	return errors.Join(<-mgmgtErrCh, <-pwErrCh)
-}
-
-func (n *NMCLI) updateWifiAutoconnect(ctx context.Context, id string, autoconnect bool) error {
-	var autoconnectValue string
-	if autoconnect {
-		autoconnectValue = "yes"
-	} else {
-		autoconnectValue = "no"
-	}
-
-	return n.updateWifiInfoField(ctx, id, "connection.autoconnect", autoconnectValue)
-}
-
-func (n *NMCLI) updateWifiAutoconnectPriority(ctx context.Context, id string, priority int) error {
-	return n.updateWifiInfoField(
-		ctx,
-		id,
-		"connection.autoconnect-priority",
-		strconv.Itoa(priority),
-	)
 }
 
 func (*NMCLI) DeleteWifiConnection(ctx context.Context, id string) error {
