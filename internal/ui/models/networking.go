@@ -85,6 +85,8 @@ type NetworkingModel struct {
 	indicatorSpinner spinner.Model
 	indicatorState   networkState
 
+	focus bool
+
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
@@ -177,6 +179,18 @@ func (m *NetworkingModel) Height() int {
 	return m.height
 }
 
+func (m *NetworkingModel) Focus() {
+	m.focus = true
+}
+
+func (m *NetworkingModel) Blur() {
+	m.focus = false
+}
+
+func (m *NetworkingModel) Focused() bool {
+	return m.focus
+}
+
 func (m *NetworkingModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.RescanCmd(),
@@ -185,6 +199,10 @@ func (m *NetworkingModel) Init() tea.Cmd {
 }
 
 func (m *NetworkingModel) Update(msg tea.Msg) (*NetworkingModel, tea.Cmd) {
+	if !m.focus {
+		return m, nil
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
