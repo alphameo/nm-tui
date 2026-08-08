@@ -16,7 +16,7 @@ func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
 	)
 }
 
-type keyMapManager struct {
+type keyMaps struct {
 	main           mainKeyMap
 	tabs           tabview.KeyMap
 	toggle         toggle.KeyMap
@@ -30,11 +30,11 @@ type keyMapManager struct {
 	hotspotCreator hotspotCreatorKeyMap
 }
 
-func (k *keyMapManager) ShortHelp() []key.Binding {
+func (k *keyMaps) ShortHelp() []key.Binding {
 	return []key.Binding{k.main.quit}
 }
 
-func (k *keyMapManager) FullHelp() [][]key.Binding {
+func (k *keyMaps) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{
 			k.main.quit,
@@ -46,8 +46,8 @@ func (k *keyMapManager) FullHelp() [][]key.Binding {
 	}
 }
 
-func initKeys(keys config.KeyConfig) keyMapManager {
-	return keyMapManager{
+func initKeys(keys config.KeyConfig) keyMaps {
+	return keyMaps{
 		main: mainKeyMap{
 			quit:       NewKey(*keys.Main.Quit, "quit"),
 			closePopup: NewKey(*keys.Dialog.Close, "close dialog"),

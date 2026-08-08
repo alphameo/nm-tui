@@ -57,7 +57,7 @@ type WifiSavedModel struct {
 
 	focus bool
 
-	keys *wifiSavedKeyMap
+	keys wifiSavedKeyMap
 
 	nm infra.WifiManager
 
@@ -82,7 +82,7 @@ var wifiSavedCfg = wifiSavedConfig{
 	ssidWidthProportion: 0.5,
 }
 
-func NewWifiSavedModel(keys *wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
+func NewWifiSavedModel(keys wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
 	cols := make([]table.Column, 4)
 	cols[wifiSavedCfg.connColIdx] = table.Column{Title: styles.SymbolConnection, Width: len(styles.SymbolConnection)}
 	cols[wifiSavedCfg.modeColIdx] = table.Column{Title: "Mode", Width: 4}

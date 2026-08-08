@@ -38,12 +38,12 @@ type ConnectorModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *connectorKeyMap
+	keys connectorKeyMap
 
 	nm infra.WifiManager
 }
 
-func NewConnectorModel(keys *connectorKeyMap, networkManager infra.WifiManager) *ConnectorModel {
+func NewConnectorModel(keys connectorKeyMap, networkManager infra.WifiManager) *ConnectorModel {
 	name := newDefaultInput()
 	name.Placeholder = "Name"
 

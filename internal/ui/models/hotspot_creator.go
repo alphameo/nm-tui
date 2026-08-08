@@ -39,12 +39,12 @@ type HotspotCreatorModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *hotspotCreatorKeyMap
+	keys hotspotCreatorKeyMap
 
 	nm infra.WifiManager
 }
 
-func NewHotspotCreatorModel(keys *hotspotCreatorKeyMap, networkManager infra.WifiManager) *HotspotCreatorModel {
+func NewHotspotCreatorModel(keys hotspotCreatorKeyMap, networkManager infra.WifiManager) *HotspotCreatorModel {
 	ssid := newDefaultInput()
 	ssid.Placeholder = "SSID"
 
@@ -57,15 +57,11 @@ func NewHotspotCreatorModel(keys *hotspotCreatorKeyMap, networkManager infra.Wif
 	pw.Err = passwordValidator(pw.Value())
 
 	model := &HotspotCreatorModel{
-		ssid: ssid,
-
-		name: name,
-
+		ssid:     ssid,
+		name:     name,
 		password: pw,
-
-		keys: keys,
-
-		nm: networkManager,
+		keys:     keys,
+		nm:       networkManager,
 	}
 
 	inp := []Focusable{

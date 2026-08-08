@@ -39,12 +39,12 @@ type ProfileCreatorModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *profileCreatorKeyMap
+	keys profileCreatorKeyMap
 
 	nm infra.WifiManager
 }
 
-func NewProfileCreatorModel(keys *profileCreatorKeyMap, networkManager infra.WifiManager) *ProfileCreatorModel {
+func NewProfileCreatorModel(keys profileCreatorKeyMap, networkManager infra.WifiManager) *ProfileCreatorModel {
 	ssid := newDefaultInput()
 	ssid.Placeholder = "SSID"
 

@@ -46,12 +46,12 @@ type ProfileEditorModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *profileEditorKeyMap
+	keys profileEditorKeyMap
 
 	nm infra.WifiManager
 }
 
-func NewProfileEditorModel(keys *profileEditorKeyMap, networkManager infra.WifiManager) *ProfileEditorModel {
+func NewProfileEditorModel(keys profileEditorKeyMap, networkManager infra.WifiManager) *ProfileEditorModel {
 	name := newDefaultInput()
 	name.Placeholder = "Name"
 
