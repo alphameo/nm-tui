@@ -43,6 +43,10 @@ func (t *Model) Value() bool {
 }
 
 func (t Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	if !t.focus {
+		return t, nil
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		if key.Matches(msg, t.Keys.Toggle) {
