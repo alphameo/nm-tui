@@ -234,7 +234,7 @@ func (m *NetworkingModel) handleKey(keyMsg tea.KeyPressMsg) (*NetworkingModel, t
 		m.wifi = upd
 		return m, cmd
 	case m.networking.Focused():
-		upd, cmd := m.wifi.Update(keyMsg)
+		upd, cmd := m.networking.Update(keyMsg)
 		m.wifi = upd
 		return m, cmd
 	case m.devicesTable.Focused():
