@@ -526,80 +526,57 @@ func (n *NMCLI) GetWifiInfo(ctx context.Context, id string) (infra.NetworkInfo, 
 
 // UpdateWifiInfo is not atomic
 func (n *NMCLI) UpdateWifiInfo(ctx context.Context, id string, info infra.UpdateWifiInfo) error {
-	var errs []error
-
 	err := n.updateWifiID(
 		ctx,
 		id,
 		info.Name,
 	)
-	if err != nil {
-		errs = append(errs, err)
-	}
 
-	var wg sync.WaitGroup
-	wg.Add(3)
-	var mu sync.Mutex
+	errCh := make(chan error, 3)
+	defer close(errCh)
 
 	go func() {
-		defer wg.Done()
 		err := n.updateWifiPassword(
 			ctx,
 			info.Name,
 			info.Password,
 		)
 		if err != nil {
-			mu.Lock()
-			errs = append(errs, err)
-			mu.Unlock()
+			errCh <- err
 		}
 	}()
 
 	go func() {
-		defer wg.Done()
 		err := n.updateWifiAutoconnect(
 			ctx,
 			info.Name,
 			info.Autoconnect,
 		)
 		if err != nil {
-			mu.Lock()
-			errs = append(errs, err)
-			mu.Unlock()
+			errCh <- err
 		}
 	}()
 
 	go func() {
-		defer wg.Done()
 		err := n.updateWifiAutoconnectPriority(
 			ctx,
 			info.Name,
 			info.AutoconnectPriority,
 		)
 		if err != nil {
-			mu.Lock()
-			errs = append(errs, err)
-			mu.Unlock()
+			errCh <- err
 		}
 	}()
 
-	wg.Wait()
+	bigErr := errors.Join(err, <-errCh, <-errCh, <-errCh)
 
-	if len(errs) != 0 {
-		sb := strings.Builder{}
-		for i, err := range errs {
-			sb.WriteString(err.Error())
-			if i != 0 {
-				sb.WriteString("\n")
-			}
-		}
-		bigErrStr := sb.String()
+	if bigErr != nil {
 		slog.Error(
 			infra.ErrGetWifiInfo.Error(),
 			"id", id,
-			"failed operations", bigErrStr,
+			"failed operations", bigErr.Error(),
 		)
-		return fmt.Errorf("%w for %s: %s", infra.ErrUpdateWifiInfo, id, bigErrStr)
+		return fmt.Errorf("%w for %s: %w", infra.ErrUpdateWifiInfo, id, bigErr)
 	}
 	return nil
 }
