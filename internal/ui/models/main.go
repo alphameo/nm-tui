@@ -53,7 +53,7 @@ type MainModel struct {
 	height int
 }
 
-func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager, cfg config.Config) (*MainModel, error) {
+func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager, portalOpener infra.CaptivePortalOpener, cfg config.Config) (*MainModel, error) {
 	err := styles.Init(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("style initialization: %w", err)
@@ -71,7 +71,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	a := NewWifiAvailableModel(keys.wifiAvailable, wifiManager)
 	s := NewWifiSavedModel(keys.wifiSaved, wifiManager)
 
-	wifi := NewWifiModel(a, s, keys.wifi, wifiManager)
+	wifi := NewWifiModel(a, s, keys.wifi, wifiManager, portalOpener)
 	network := NewNetworkingModel(keys.networking, networkManager)
 
 	wifiTable := tabview.New([]tabview.Tab{

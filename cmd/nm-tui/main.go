@@ -11,6 +11,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/alphameo/nm-tui/internal/infra/logging"
 	"github.com/alphameo/nm-tui/internal/infra/nmcli"
+	"github.com/alphameo/nm-tui/internal/infra/portal"
 	"github.com/alphameo/nm-tui/internal/ui/models"
 )
 
@@ -70,8 +71,9 @@ func main() {
 	defer slog.Info("Program is closed")
 
 	nm := nmcli.New()
-	logMw := logging.New(fileLogger, nm, nm)
-	model, err := models.NewMainModel(logMw, logMw, cfg)
+	portalOpener := portal.New()
+	logMw := logging.New(fileLogger, nm, nm, portalOpener)
+	model, err := models.NewMainModel(logMw, logMw, logMw, cfg)
 	if err != nil {
 		slog.Error("error during model initialization", "errors", err.Error())
 	}

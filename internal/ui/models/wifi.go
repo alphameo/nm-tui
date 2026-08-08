@@ -32,7 +32,8 @@ type WifiModel struct {
 	focuses        []Focusable // used for batch operations for wifi models
 	focusWindowIdx int
 
-	wm infra.WifiManager
+	wm     infra.WifiManager
+	portal infra.CaptivePortalOpener
 
 	keys wifiKeyMap
 
@@ -45,11 +46,13 @@ func NewWifiModel(
 	wifiSaved *WifiSavedModel,
 	keys wifiKeyMap,
 	wifiManager infra.WifiManager,
+	portalOpener infra.CaptivePortalOpener,
 ) *WifiModel {
 	w := &WifiModel{
 		wifiAvailable: wifiAvailable,
 		wifiSaved:     wifiSaved,
 		wm:            wifiManager,
+		portal:        portalOpener,
 		keys:          keys,
 	}
 
@@ -132,7 +135,7 @@ func (m *WifiModel) Update(msg tea.Msg) (*WifiModel, tea.Cmd) {
 			return m, OpenHotspotCreatorCmd()
 		case key.Matches(msg, m.keys.openCaptivePortal):
 			return m, func() tea.Msg {
-				err := infra.OpenCaptivePortal(context.Background())
+				err := m.portal.OpenCaptivePortal(context.Background())
 				if err != nil {
 					return NotifyCmd("Failed open captive portal")
 				}

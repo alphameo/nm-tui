@@ -12,7 +12,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 )
 
-// Middleware implements both manager interfaces by delegating to the
+// Middleware implements all three manager interfaces by delegating to the
 // wrapped implementations. Successes are logged at Debug level, failures at
 // Error level along with the exit code of the failed command when the error
 // is an [*exec.ExitError].
@@ -20,11 +20,12 @@ type Middleware struct {
 	logger  *slog.Logger
 	wifi    infra.WifiManager
 	network infra.NetworkManager
+	portal  infra.CaptivePortalOpener
 }
 
 // New returns a *Middleware wrapping the given managers.
-func New(logger *slog.Logger, wifi infra.WifiManager, network infra.NetworkManager) *Middleware {
-	return &Middleware{logger: logger, wifi: wifi, network: network}
+func New(logger *slog.Logger, wifi infra.WifiManager, network infra.NetworkManager, portal infra.CaptivePortalOpener) *Middleware {
+	return &Middleware{logger: logger, wifi: wifi, network: network, portal: portal}
 }
 
 func (m *Middleware) call(operation string, fn func() error) error {
@@ -139,6 +140,12 @@ func (m *Middleware) GetWifiInfo(ctx context.Context, name string) (infra.Networ
 func (m *Middleware) UpdateWifiInfo(ctx context.Context, name string, info infra.UpdateWifiInfo) error {
 	return m.call("wifi.update_info", func() error {
 		return m.wifi.UpdateWifiInfo(ctx, name, info)
+	})
+}
+
+func (m *Middleware) OpenCaptivePortal(ctx context.Context) error {
+	return m.call("portal.open", func() error {
+		return m.portal.OpenCaptivePortal(ctx)
 	})
 }
 
