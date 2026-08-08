@@ -46,12 +46,9 @@ func NewWifiModel(
 ) *WifiModel {
 	w := &WifiModel{
 		wifiAvailable: wifiAvailable,
-
-		wifiSaved: wifiSaved,
-
-		wm: wifiManager,
-
-		keys: keys,
+		wifiSaved:     wifiSaved,
+		wm:            wifiManager,
+		keys:          keys,
 	}
 
 	wins := []Focusable{w.wifiAvailable, w.wifiSaved}
@@ -93,13 +90,46 @@ func (m *WifiModel) Init() tea.Cmd {
 func (m *WifiModel) Update(msg tea.Msg) (*WifiModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		return m.handleKey(msg)
+		switch {
+		case key.Matches(msg, m.keys.nextWindow):
+			m.focuses[m.focusWindowIdx].Blur()
+			m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.focuses)
+			m.focuses[m.focusWindowIdx].Focus()
+		case key.Matches(msg, m.keys.firstWindow):
+			m.focuses[m.focusWindowIdx].Blur()
+			m.focusWindowIdx = 0
+			m.focuses[m.focusWindowIdx].Focus()
+		case key.Matches(msg, m.keys.secondWindow):
+			m.focuses[m.focusWindowIdx].Blur()
+			m.focusWindowIdx = 1
+			m.focuses[m.focusWindowIdx].Focus()
+		case key.Matches(msg, m.keys.rescan):
+			return m, tea.Batch(
+				RescanWifiSavedCmd(0),
+				RescanWifiAvailableCmd(0),
+			)
+		case key.Matches(msg, m.keys.createProfile):
+			return m, OpenProfileCreatorCmd()
+		case key.Matches(msg, m.keys.createHotspot):
+			return m, OpenHotspotCreatorCmd()
+		case key.Matches(msg, m.keys.openCaptivePortal):
+			return m, func() tea.Msg {
+				err := infra.OpenCaptivePortal(context.Background())
+				if err != nil {
+					return NotifyCmd("Failed open captive portal")
+				}
+				return NotifyCmd("Opening captive portal")
+			}
+		case key.Matches(msg, m.keys.enableHotspot):
+			return m, m.enableQuickHotspot()
+		}
 	case RescanWifiMsg:
 		return m, tea.Batch(
 			RescanWifiSavedCmd(msg.delay),
 			RescanWifiAvailableCmd(msg.delay),
 		)
 	}
+
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
@@ -114,51 +144,6 @@ func (m *WifiModel) Update(msg tea.Msg) (*WifiModel, tea.Cmd) {
 
 func (m *WifiModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 	return m.Update(msg)
-}
-
-func (m *WifiModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiModel, tea.Cmd) {
-	switch {
-	case key.Matches(keyMsg, m.keys.nextWindow):
-		m.focuses[m.focusWindowIdx].Blur()
-		m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.focuses)
-		m.focuses[m.focusWindowIdx].Focus()
-	case key.Matches(keyMsg, m.keys.firstWindow):
-		m.focusWindowIdx = 0
-		m.wifiSaved.Blur()
-		m.wifiAvailable.Focus()
-	case key.Matches(keyMsg, m.keys.secondWindow):
-		m.focusWindowIdx = 1
-		m.wifiSaved.Focus()
-		m.wifiAvailable.Blur()
-	case key.Matches(keyMsg, m.keys.rescan):
-		return m, tea.Batch(
-			RescanWifiSavedCmd(0),
-			RescanWifiAvailableCmd(0),
-		)
-	case key.Matches(keyMsg, m.keys.createProfile):
-		return m, OpenProfileCreatorCmd()
-	case key.Matches(keyMsg, m.keys.createHotspot):
-		return m, OpenHotspotCreatorCmd()
-	case key.Matches(keyMsg, m.keys.openCaptivePortal):
-		return m, func() tea.Msg {
-			err := infra.OpenCaptivePortal(context.Background())
-			if err != nil {
-				return NotifyCmd("Failed open captive portal")
-			}
-			return NotifyCmd("Opening captive portal")
-		}
-	case key.Matches(keyMsg, m.keys.enableHotspot):
-		return m, m.enableQuickHotspot()
-	}
-
-	var cmd tea.Cmd
-	switch m.focusWindowIdx {
-	case 0:
-		m.wifiAvailable, cmd = m.wifiAvailable.Update(keyMsg)
-	case 1:
-		m.wifiSaved, cmd = m.wifiSaved.Update(keyMsg)
-	}
-	return m, cmd
 }
 
 func (m *WifiModel) View() string {
