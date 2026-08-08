@@ -88,7 +88,7 @@ type NetworkingModel struct {
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys *networkingKeyMap
+	keys networkingKeyMap
 
 	nm infra.NetworkManager
 
@@ -96,7 +96,7 @@ type NetworkingModel struct {
 	width  int
 }
 
-func NewNetworkingModel(keys *networkingKeyMap, networkManager infra.NetworkManager) *NetworkingModel {
+func NewNetworkingModel(keys networkingKeyMap, networkManager infra.NetworkManager) *NetworkingModel {
 	cols := make([]table.Column, 4)
 	cols[networkingCfg.deviceColIdx] = table.Column{Title: "Device"}
 	cols[networkingCfg.typeColIdx] = table.Column{Title: "Type"}

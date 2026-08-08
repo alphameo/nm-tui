@@ -46,7 +46,7 @@ type MainModel struct {
 	hotspotCreator *HotspotCreatorModel
 	profileEditor  *ProfileEditorModel
 
-	keyMngr *keyMapManager
+	keyMngr *keyMaps
 	help    help.Model
 
 	width  int
@@ -63,16 +63,16 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 
 	mainCfg.notificationCloseTime = time.Duration(*cfg.NotifCloseTime) * time.Second
 
-	connector := NewConnectorModel(&keys.connector, wifiManager)
-	profileCreator := NewProfileCreatorModel(&keys.profileCreator, wifiManager)
-	hotspotCreator := NewHotspotCreatorModel(&keys.hotspotCreator, wifiManager)
-	profileEditor := NewProfileEditorModel(&keys.profileEditor, wifiManager)
+	connector := NewConnectorModel(keys.connector, wifiManager)
+	profileCreator := NewProfileCreatorModel(keys.profileCreator, wifiManager)
+	hotspotCreator := NewHotspotCreatorModel(keys.hotspotCreator, wifiManager)
+	profileEditor := NewProfileEditorModel(keys.profileEditor, wifiManager)
 
-	a := NewWifiAvailableModel(&keys.wifiAvailable, wifiManager)
-	s := NewWifiSavedModel(&keys.wifiSaved, wifiManager)
+	a := NewWifiAvailableModel(keys.wifiAvailable, wifiManager)
+	s := NewWifiSavedModel(keys.wifiSaved, wifiManager)
 
-	wifi := NewWifiModel(a, s, &keys.wifi, wifiManager)
-	network := NewNetworkingModel(&keys.networking, networkManager)
+	wifi := NewWifiModel(a, s, keys.wifi, wifiManager)
+	network := NewNetworkingModel(keys.networking, networkManager)
 
 	wifiTable := tabview.New([]tabview.Tab{
 		{Title: "Wi-Fi", Content: wifi},

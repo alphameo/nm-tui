@@ -74,7 +74,7 @@ type WifiAvailableModel struct {
 
 	focus bool
 
-	keys *wifiAvailableKeyMap
+	keys wifiAvailableKeyMap
 
 	wm infra.WifiManager
 
@@ -82,7 +82,7 @@ type WifiAvailableModel struct {
 	height int
 }
 
-func NewWifiAvailableModel(keys *wifiAvailableKeyMap, wifiManager infra.WifiManager) *WifiAvailableModel {
+func NewWifiAvailableModel(keys wifiAvailableKeyMap, wifiManager infra.WifiManager) *WifiAvailableModel {
 	cols := make([]table.Column, 4)
 	cols[wifiAvailableCfg.connColIdx] = table.Column{
 		Title: styles.SymbolConnection,

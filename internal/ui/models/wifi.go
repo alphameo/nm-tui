@@ -32,7 +32,7 @@ type WifiModel struct {
 
 	wm infra.WifiManager
 
-	keys *wifiKeyMap
+	keys wifiKeyMap
 
 	width  int
 	height int
@@ -41,7 +41,7 @@ type WifiModel struct {
 func NewWifiModel(
 	wifiAvailable *WifiAvailableModel,
 	wifiSaved *WifiSavedModel,
-	keys *wifiKeyMap,
+	keys wifiKeyMap,
 	wifiManager infra.WifiManager,
 ) *WifiModel {
 	w := &WifiModel{
