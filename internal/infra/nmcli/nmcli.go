@@ -632,13 +632,23 @@ func (n *NMCLI) updateWifiID(ctx context.Context, id, newID string) error {
 }
 
 func (n *NMCLI) updateWifiPassword(ctx context.Context, id, password string) error {
-	var err error
+	mgmgtErrCh := make(chan error, 1)
+	pwErrCh := make(chan error, 1)
+
 	if len(password) == 0 {
-		err = n.updateWifiInfoField(ctx, id, "802-11-wireless-security.key-mgmt", "none")
+		go func() {
+			mgmgtErrCh <- n.updateWifiInfoField(ctx, id, "802-11-wireless-security.key-mgmt", "none")
+		}()
 	} else {
-		err = n.updateWifiInfoField(ctx, id, "802-11-wireless-security.key-mgmt", "wpa-psk")
+		go func() {
+			mgmgtErrCh <- n.updateWifiInfoField(ctx, id, "802-11-wireless-security.key-mgmt", "wpa-psk")
+		}()
 	}
-	return errors.Join(err, n.updateWifiInfoField(ctx, id, "802-11-wireless-security.psk", password))
+	go func() {
+		pwErrCh <- n.updateWifiInfoField(ctx, id, "802-11-wireless-security.psk", password)
+	}()
+
+	return errors.Join(<-mgmgtErrCh, <-pwErrCh)
 }
 
 func (n *NMCLI) updateWifiAutoconnect(ctx context.Context, id string, autoconnect bool) error {
