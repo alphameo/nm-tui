@@ -94,70 +94,58 @@ func (m *HotspotCreatorModel) Init() tea.Cmd {
 func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		return m.handleKey(msg)
+		switch {
+		case key.Matches(msg, m.keys.down):
+			return m, m.focusNextCmd()
+		case key.Matches(msg, m.keys.up):
+			return m, m.focusPrevCmd()
+		case key.Matches(msg, m.keys.togglePWVisibility):
+			if m.password.EchoMode == textinput.EchoPassword {
+				m.password.EchoMode = textinput.EchoNormal
+			} else {
+				m.password.EchoMode = textinput.EchoPassword
+			}
+			return m, nil
+		case key.Matches(msg, m.keys.create):
+			if m.password.Err != nil {
+				return m, nil
+			}
+			return m, tea.Sequence(
+				ClosePopupCmd(),
+				m.createHotspotCmd(),
+			)
+		}
+
+		var cmd tea.Cmd
+		switch {
+		case m.ssid.Focused():
+			m.ssid, cmd = m.ssid.Update(msg)
+		case m.name.Focused():
+			m.name, cmd = m.name.Update(msg)
+			return m, cmd
+		case m.password.Focused():
+			m.password, cmd = m.password.Update(msg)
+		}
+		return m, cmd
 	}
 
-	switch {
-	case m.ssid.Focused():
-		upd, cmd := m.ssid.Update(msg)
-		m.ssid = upd
-		return m, cmd
-	case m.name.Focused():
-		upd, cmd := m.name.Update(msg)
-		m.name = upd
-		return m, cmd
-	case m.password.Focused():
-		upd, cmd := m.password.Update(msg)
-		m.password = upd
-		return m, cmd
-	default:
-		return m, nil
-	}
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	m.ssid, cmd = m.ssid.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.name, cmd = m.name.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.password, cmd = m.password.Update(msg)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m *HotspotCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 	return m.Update(msg)
-}
-
-func (m *HotspotCreatorModel) handleKey(keyMsg tea.KeyPressMsg) (*HotspotCreatorModel, tea.Cmd) {
-	switch {
-	case key.Matches(keyMsg, m.keys.down):
-		return m, m.focusNextCmd()
-	case key.Matches(keyMsg, m.keys.up):
-		return m, m.focusPrevCmd()
-	case key.Matches(keyMsg, m.keys.togglePWVisibility):
-		if m.password.EchoMode == textinput.EchoPassword {
-			m.password.EchoMode = textinput.EchoNormal
-		} else {
-			m.password.EchoMode = textinput.EchoPassword
-		}
-		return m, nil
-	case key.Matches(keyMsg, m.keys.create):
-		if m.password.Err != nil {
-			return m, nil
-		}
-		return m, tea.Sequence(
-			ClosePopupCmd(),
-			m.createHotspotCmd(),
-		)
-	}
-
-	switch {
-	case m.ssid.Focused():
-		upd, cmd := m.ssid.Update(keyMsg)
-		m.ssid = upd
-		return m, cmd
-	case m.name.Focused():
-		upd, cmd := m.name.Update(keyMsg)
-		m.name = upd
-		return m, cmd
-	case m.password.Focused():
-		upd, cmd := m.password.Update(keyMsg)
-		m.password = upd
-		return m, cmd
-	default:
-		return m, nil
-	}
 }
 
 func (m *HotspotCreatorModel) View() string {
