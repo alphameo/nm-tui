@@ -154,12 +154,14 @@ func (m *WifiSavedModel) Height() int {
 
 func (m *WifiSavedModel) Focus() tea.Cmd {
 	m.focus = true
+	m.dataTable.Focus()
 	m.dataTable.SetStyles(styles.TableStyle)
 	return nil
 }
 
 func (m *WifiSavedModel) Blur() {
 	m.focus = false
+	m.dataTable.Blur()
 	m.dataTable.SetStyles(styles.DataTableStyle)
 }
 
@@ -174,7 +176,29 @@ func (m *WifiSavedModel) Init() tea.Cmd {
 func (m *WifiSavedModel) Update(msg tea.Msg) (*WifiSavedModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		return m.handleKey(msg)
+		if !m.focus {
+			return m, nil
+		}
+		switch {
+		case key.Matches(msg, m.keys.edit):
+			row := m.dataTable.SelectedRow()
+			if row == nil {
+				return m, nil
+			}
+			name := row[wifiSavedCfg.nameColIdx]
+
+			return m, OpenProfileEditorCmd(name)
+
+		case key.Matches(msg, m.keys.connect):
+			return m, m.connectToSelectedCmd()
+
+		case key.Matches(msg, m.keys.disconnect):
+			return m, m.disconnectFromSelectedCmd()
+		case key.Matches(msg, m.keys.rescan):
+			return m, RescanWifiSavedCmd(0)
+		case key.Matches(msg, m.keys.delete):
+			return m, m.deleteSelectedCmd()
+		}
 	case RescanWifiSavedMsg:
 		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
@@ -183,46 +207,17 @@ func (m *WifiSavedModel) Update(msg tea.Msg) (*WifiSavedModel, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
 	if m.indicatorState != SavedDone {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
-		if cmd != nil {
-			return m, cmd
-		}
+		cmds = append(cmds, cmd)
 	}
+
 	m.dataTable, cmd = m.dataTable.Update(msg)
-	if cmd != nil {
-		return m, cmd
-	}
-	return m, nil
-}
+	cmds = append(cmds, cmd)
 
-func (m *WifiSavedModel) handleKey(keyMsg tea.KeyPressMsg) (*WifiSavedModel, tea.Cmd) {
-	switch {
-	case key.Matches(keyMsg, m.keys.edit):
-		row := m.dataTable.SelectedRow()
-		if row == nil {
-			return m, nil
-		}
-		name := row[wifiSavedCfg.nameColIdx]
-
-		return m, OpenProfileEditorCmd(name)
-
-	case key.Matches(keyMsg, m.keys.connect):
-		return m, m.connectToSelectedCmd()
-
-	case key.Matches(keyMsg, m.keys.disconnect):
-		return m, m.disconnectFromSelectedCmd()
-	case key.Matches(keyMsg, m.keys.rescan):
-		return m, RescanWifiSavedCmd(0)
-	case key.Matches(keyMsg, m.keys.delete):
-		return m, m.deleteSelectedCmd()
-	}
-	var cmd tea.Cmd
-	m.dataTable, cmd = m.dataTable.Update(keyMsg)
-	if cmd != nil {
-		return m, cmd
-	}
-	return m, nil
+	return m, tea.Batch(cmds...)
 }
 
 func (m *WifiSavedModel) View() string {
