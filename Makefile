@@ -19,7 +19,7 @@ clean-build:
 	make build
 
 logs:
-	cat ~/.cache/nm-tui/log | tail -n 50
+	cat ~/.local/state/nm-tui/nm-tui.log | tail -n 50
 
 lint:
 	golangci-lint run ./...
