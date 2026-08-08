@@ -27,6 +27,8 @@ type WifiModel struct {
 	wifiAvailable *WifiAvailableModel
 	wifiSaved     *WifiSavedModel
 
+	focus bool
+
 	focuses        []Focusable // used for batch operations for wifi models
 	focusWindowIdx int
 
@@ -80,6 +82,18 @@ func (m *WifiModel) Title() string {
 	return "Wi-Fi"
 }
 
+func (m *WifiModel) Focus() {
+	m.focus = true
+}
+
+func (m *WifiModel) Blur() {
+	m.focus = false
+}
+
+func (m *WifiModel) Focused() bool {
+	return m.focus
+}
+
 func (m *WifiModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.wifiAvailable.Init(),
@@ -88,6 +102,10 @@ func (m *WifiModel) Init() tea.Cmd {
 }
 
 func (m *WifiModel) Update(msg tea.Msg) (*WifiModel, tea.Cmd) {
+	if !m.focus {
+		return m, nil
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
