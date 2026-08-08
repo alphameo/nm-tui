@@ -133,78 +133,49 @@ func (m *ProfileEditorModel) Init() tea.Cmd {
 func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		return m.handleKey(msg)
-	default:
 		switch {
-		case m.name.Focused():
-			upd, cmd := m.name.Update(msg)
-			m.name = upd
-			return m, cmd
-		case m.password.Focused():
-			upd, cmd := m.password.Update(msg)
-			m.password = upd
-			return m, cmd
-		case m.autoconnect.Focused():
-			upd, cmd := m.autoconnect.Update(msg)
-			m.autoconnect = upd
-			return m, cmd
-		case m.autoconnPriority.Focused():
-			upd, cmd := m.autoconnPriority.Update(msg)
-			m.autoconnPriority = upd
-			return m, cmd
-		default:
+		case key.Matches(msg, m.keys.down):
+			return m, m.focusNextCmd()
+		case key.Matches(msg, m.keys.up):
+			return m, m.focusPrevCmd()
+		case key.Matches(msg, m.keys.togglePWVisibility):
+			if m.password.EchoMode == textinput.EchoPassword {
+				m.password.EchoMode = textinput.EchoNormal
+			} else {
+				m.password.EchoMode = textinput.EchoPassword
+			}
 			return m, nil
+		case key.Matches(msg, m.keys.save):
+			if m.password.Err != nil {
+				return m, nil
+			}
+			return m, tea.Sequence(
+				ClosePopupCmd(),
+				m.saveProfileInfoCmd(),
+			)
 		}
 	}
+
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	m.name, cmd = m.name.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.password, cmd = m.password.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.autoconnect, cmd = m.autoconnect.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.autoconnPriority, cmd = m.autoconnPriority.Update(msg)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m *ProfileEditorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 	return m.Update(msg)
-}
-
-func (m *ProfileEditorModel) handleKey(keyMsg tea.KeyPressMsg) (*ProfileEditorModel, tea.Cmd) {
-	switch {
-	case key.Matches(keyMsg, m.keys.down):
-		return m, m.focusNextCmd()
-	case key.Matches(keyMsg, m.keys.up):
-		return m, m.focusPrevCmd()
-	case key.Matches(keyMsg, m.keys.togglePWVisibility):
-		if m.password.EchoMode == textinput.EchoPassword {
-			m.password.EchoMode = textinput.EchoNormal
-		} else {
-			m.password.EchoMode = textinput.EchoPassword
-		}
-		return m, nil
-	case key.Matches(keyMsg, m.keys.save):
-		if m.password.Err != nil {
-			return m, nil
-		}
-		return m, tea.Sequence(
-			ClosePopupCmd(),
-			m.saveProfileInfoCmd(),
-		)
-	}
-
-	switch {
-	case m.name.Focused():
-		upd, cmd := m.name.Update(keyMsg)
-		m.name = upd
-		return m, cmd
-	case m.password.Focused():
-		upd, cmd := m.password.Update(keyMsg)
-		m.password = upd
-		return m, cmd
-	case m.autoconnect.Focused():
-		upd, cmd := m.autoconnect.Update(keyMsg)
-		m.autoconnect = upd
-		return m, cmd
-	case m.autoconnPriority.Focused():
-		upd, cmd := m.autoconnPriority.Update(keyMsg)
-		m.autoconnPriority = upd
-		return m, cmd
-	default:
-		return m, nil
-	}
 }
 
 func (m *ProfileEditorModel) View() string {
