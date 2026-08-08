@@ -126,6 +126,7 @@ func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
 
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
+
 	m.name, cmd = m.name.Update(msg)
 	cmds = append(cmds, cmd)
 
