@@ -86,7 +86,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	}
 
 	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
-	n := &Notification{style: &notifStyle, closeTime: mainCfg.notificationCloseTime}
+	n := &Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
 
 	help := help.New()
 	help.Styles = styles.HelpStyle
@@ -246,5 +246,5 @@ func (m *MainModel) Resize(width, height int) {
 	m.tabs.Resize(width, m.height-helpHeight)
 
 	notifStyle := m.notification.style.Width(width / 2)
-	m.notification.style = &notifStyle
+	m.notification.style = notifStyle
 }
