@@ -80,7 +80,7 @@ func Init(cfg config.Config) error {
 
 	HelpStyle = helpStyle()
 
-	TabViewStyles = *tabview.GenerateStyles(&BorderedStyle)
+	TabViewStyles = tabview.GenerateStyles(BorderedStyle)
 
 	OverlayStyle = DefaultStyle.
 		Border(Border).

@@ -77,7 +77,9 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	wifiTable := tabview.New([]tabview.Tab{
 		{Title: "Wi-Fi", Content: wifi},
 		{Title: "Networking", Content: network},
-	}, &styles.TabViewStyles, &keys.tabs)
+	})
+	wifiTable.SetStyles(styles.TabViewStyles)
+	wifiTable.Keys = keys.tabs
 
 	p := &Popup{
 		active: false,
@@ -91,7 +93,7 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	help.ShowAll = true
 
 	return &MainModel{
-		tabs:         wifiTable,
+		tabs:         &wifiTable,
 		popup:        p,
 		notification: n,
 
@@ -154,8 +156,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.handleKey(msg)
 	}
 
-	var cmd tea.Cmd
-	m.tabs, cmd = m.tabs.Update(msg)
+	tabs, cmd := m.tabs.Update(msg)
+	m.tabs = &tabs
 	if cmd != nil {
 		return m, cmd
 	}
@@ -181,8 +183,8 @@ func (m *MainModel) handleKey(keyMsg tea.KeyPressMsg) tea.Cmd {
 	if key.Matches(keyMsg, m.keyMngr.main.quit) {
 		return tea.Quit
 	}
-	var cmd tea.Cmd
-	m.tabs, cmd = m.tabs.Update(keyMsg)
+	tabs, cmd := m.tabs.Update(keyMsg)
+	m.tabs = &tabs
 	return cmd
 }
 

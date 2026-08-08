@@ -31,25 +31,21 @@ func NewContentBorder(border lipgloss.Border) lipgloss.Border {
 	return border
 }
 
-func GenerateStyles(style *lipgloss.Style) *Styles {
-	if style == nil {
-		return nil
-	}
-
+func GenerateStyles(style lipgloss.Style) Styles {
 	border := style.GetBorderStyle()
 
 	inactive := NewInactiveTabBarBorder(border)
 	active := NewActiveTabBarBorder(border)
 	content := NewContentBorder(border)
 
-	return &Styles{
+	return Styles{
 		ContentStyle:        style.Border(content),
 		ActiveTabBarStyle:   style.Border(active).Padding(0, 1),
 		InactiveTabBarStyle: style.Border(inactive).Padding(0, 1),
 	}
 }
 
-func DefaultStyles() *Styles {
+func DefaultStyles() Styles {
 	style := lipgloss.NewStyle().Border(lipgloss.RoundedBorder())
-	return GenerateStyles(&style)
+	return GenerateStyles(style)
 }
