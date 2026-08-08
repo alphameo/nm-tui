@@ -19,4 +19,8 @@ type TabModel interface {
 	Resize(width, height int)
 	Width() int
 	Height() int
+
+	Focused() bool
+	Focus()
+	Blur()
 }
