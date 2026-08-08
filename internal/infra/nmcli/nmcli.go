@@ -3,6 +3,7 @@ package nmcli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os/exec"
@@ -631,7 +632,13 @@ func (n *NMCLI) updateWifiID(ctx context.Context, id, newID string) error {
 }
 
 func (n *NMCLI) updateWifiPassword(ctx context.Context, id, password string) error {
-	return n.updateWifiInfoField(ctx, id, "802-11-wireless-security.psk", password)
+	var err error
+	if len(password) == 0 {
+		err = n.updateWifiInfoField(ctx, id, "802-11-wireless-security.key-mgmt", "none")
+	} else {
+		err = n.updateWifiInfoField(ctx, id, "802-11-wireless-security.key-mgmt", "wpa-psk")
+	}
+	return errors.Join(err, n.updateWifiInfoField(ctx, id, "802-11-wireless-security.psk", password))
 }
 
 func (n *NMCLI) updateWifiAutoconnect(ctx context.Context, id string, autoconnect bool) error {
