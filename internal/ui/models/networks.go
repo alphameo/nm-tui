@@ -19,7 +19,7 @@ type networksKeyMap struct {
 	rescan            key.Binding
 	createProfile     key.Binding
 	openCaptivePortal key.Binding
-	quickHotspot     key.Binding
+	quickHotspot      key.Binding
 	createHotspot     key.Binding
 }
 
