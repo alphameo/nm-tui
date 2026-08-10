@@ -310,9 +310,9 @@ func TestLoad(t *testing.T) {
 	assertKeyBinding(t, "keys.main.next_tab", cfg.Keys.Main.NextTab, "]")
 	assertKeyBinding(t, "keys.main.quit", cfg.Keys.Main.Quit, "esc", "ctrl+c", "q", "ctrl+q")
 	assertKeyBinding(t, "keys.dialog.close", cfg.Keys.Dialog.Close, "esc", "ctrl+q", "ctrl+c")
-	assertKeyBinding(t, "keys.wifi.create_profile", cfg.Keys.Wifi.CreateProfile, "a", "c")
-	assertKeyBinding(t, "keys.wifi_available.connect", cfg.Keys.WifiAvailable.Connect, "enter")
-	assertKeyBinding(t, "keys.wifi_saved.delete", cfg.Keys.WifiSaved.Delete, "d", "delete")
+	assertKeyBinding(t, "keys.wifi.create_profile", cfg.Keys.Networks.CreateProfile, "a", "c")
+	assertKeyBinding(t, "keys.wifi_available.connect", cfg.Keys.AvailableNetworks.Connect, "enter")
+	assertKeyBinding(t, "keys.wifi_saved.delete", cfg.Keys.NetworkProfiles.Delete, "d", "delete")
 }
 
 func TestLoadMissingFile(t *testing.T) {

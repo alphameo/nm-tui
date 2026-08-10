@@ -43,9 +43,9 @@ type KeyConfig struct {
 	Main   *MainKeys   `kdl:"main"`
 	Dialog *DialogKeys `kdl:"dialog"`
 
-	Wifi          *WifiKeys          `kdl:"wifi"`
-	WifiAvailable *WifiAvailableKeys `kdl:"wifi_available"`
-	WifiSaved     *WifiSavedKeys     `kdl:"wifi_saved"`
+	Networks          *NetworksKeys          `kdl:"networks"`
+	AvailableNetworks *AvailableNetworksKeys `kdl:"available_networks"`
+	NetworkProfiles   *NetworkProfilesKeys   `kdl:"network_profiles"`
 }
 
 type MainKeys struct {
@@ -64,18 +64,18 @@ type DialogKeys struct {
 	Close              *KeyBinding `kdl:"close"`
 }
 
-type WifiKeys struct {
+type NetworksKeys struct {
 	CreateProfile     *KeyBinding `kdl:"create_profile"`
 	OpenCaptivePortal *KeyBinding `kdl:"open_network_login"`
-	EnableHotspot     *KeyBinding `kdl:"enable_hotspot"`
+	QuickHotspot      *KeyBinding `kdl:"quick_hotspot"`
 	CreateHotspot     *KeyBinding `kdl:"create_hotspot"`
 }
 
-type WifiAvailableKeys struct {
+type AvailableNetworksKeys struct {
 	Connect *KeyBinding `kdl:"connect"`
 }
 
-type WifiSavedKeys struct {
+type NetworkProfilesKeys struct {
 	Edit       *KeyBinding `kdl:"edit"`
 	Connect    *KeyBinding `kdl:"connect"`
 	Disconnect *KeyBinding `kdl:"disconnect"`
@@ -111,16 +111,16 @@ func DefaultKeys() *KeyConfig {
 			Accept:             keyBinding("enter"),
 			Close:              keyBinding("esc", "ctrl+q", "ctrl+c"),
 		},
-		Wifi: &WifiKeys{
+		Networks: &NetworksKeys{
 			CreateProfile:     keyBinding("a", "c"),
 			OpenCaptivePortal: keyBinding("l"),
-			EnableHotspot:     keyBinding("ctrl+h"),
+			QuickHotspot:      keyBinding("ctrl+h"),
 			CreateHotspot:     keyBinding("h"),
 		},
-		WifiAvailable: &WifiAvailableKeys{
+		AvailableNetworks: &AvailableNetworksKeys{
 			Connect: keyBinding("enter"),
 		},
-		WifiSaved: &WifiSavedKeys{
+		NetworkProfiles: &NetworkProfilesKeys{
 			Edit:       keyBinding("enter"),
 			Connect:    keyBinding("space"),
 			Disconnect: keyBinding("ctrl+space"),
@@ -138,9 +138,9 @@ func (k *KeyConfig) merge(src *KeyConfig) []error {
 	errs = append(errs, mergeKeyList(&k.Toggle, src.Toggle, "toggle")...)
 	errs = append(errs, k.Main.merge(src.Main)...)
 	errs = append(errs, k.Dialog.merge(src.Dialog)...)
-	errs = append(errs, k.Wifi.merge(src.Wifi)...)
-	errs = append(errs, k.WifiAvailable.merge(src.WifiAvailable)...)
-	errs = append(errs, k.WifiSaved.merge(src.WifiSaved)...)
+	errs = append(errs, k.Networks.merge(src.Networks)...)
+	errs = append(errs, k.AvailableNetworks.merge(src.AvailableNetworks)...)
+	errs = append(errs, k.NetworkProfiles.merge(src.NetworkProfiles)...)
 	return errs
 }
 
@@ -172,39 +172,39 @@ func (d *DialogKeys) merge(src *DialogKeys) []error {
 	return errs
 }
 
-func (w *WifiKeys) merge(src *WifiKeys) []error {
+func (w *NetworksKeys) merge(src *NetworksKeys) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&w.CreateProfile, src.CreateProfile, "wifi.create_profile")...)
-	errs = append(errs, mergeKeyList(&w.OpenCaptivePortal, src.OpenCaptivePortal, "wifi.open_network_login")...)
-	errs = append(errs, mergeKeyList(&w.EnableHotspot, src.EnableHotspot, "wifi.enable_hotspot")...)
-	errs = append(errs, mergeKeyList(&w.CreateHotspot, src.CreateHotspot, "wifi.create_hotspot")...)
+	errs = append(errs, mergeKeyList(&w.CreateProfile, src.CreateProfile, "networks.create_profile")...)
+	errs = append(errs, mergeKeyList(&w.OpenCaptivePortal, src.OpenCaptivePortal, "networks.open_network_login")...)
+	errs = append(errs, mergeKeyList(&w.QuickHotspot, src.QuickHotspot, "networks.quick_hotspot")...)
+	errs = append(errs, mergeKeyList(&w.CreateHotspot, src.CreateHotspot, "networks.create_hotspot")...)
 	return errs
 }
 
-func (a *WifiAvailableKeys) merge(src *WifiAvailableKeys) []error {
+func (a *AvailableNetworksKeys) merge(src *AvailableNetworksKeys) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&a.Connect, src.Connect, "wifi_available.connect")...)
+	errs = append(errs, mergeKeyList(&a.Connect, src.Connect, "available_networks.connect")...)
 	return errs
 }
 
-func (s *WifiSavedKeys) merge(src *WifiSavedKeys) []error {
+func (s *NetworkProfilesKeys) merge(src *NetworkProfilesKeys) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&s.Edit, src.Edit, "wifi_saved.edit")...)
-	errs = append(errs, mergeKeyList(&s.Connect, src.Connect, "wifi_saved.connect")...)
-	errs = append(errs, mergeKeyList(&s.Disconnect, src.Disconnect, "wifi_saved.disconnect")...)
-	errs = append(errs, mergeKeyList(&s.Delete, src.Delete, "wifi_saved.delete")...)
+	errs = append(errs, mergeKeyList(&s.Edit, src.Edit, "network_profiles.edit")...)
+	errs = append(errs, mergeKeyList(&s.Connect, src.Connect, "network_profiles.connect")...)
+	errs = append(errs, mergeKeyList(&s.Disconnect, src.Disconnect, "network_profiles.disconnect")...)
+	errs = append(errs, mergeKeyList(&s.Delete, src.Delete, "network_profiles.delete")...)
 	return errs
 }
 

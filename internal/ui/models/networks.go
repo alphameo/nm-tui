@@ -19,7 +19,7 @@ type networksKeyMap struct {
 	rescan            key.Binding
 	createProfile     key.Binding
 	openCaptivePortal key.Binding
-	enableHotspot     key.Binding
+	quickHotspot     key.Binding
 	createHotspot     key.Binding
 }
 
@@ -141,7 +141,7 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 				}
 				return NotifyCmd("Opening captive portal")
 			}
-		case key.Matches(msg, m.keys.enableHotspot):
+		case key.Matches(msg, m.keys.quickHotspot):
 			return m, m.quickHotspot()
 		}
 	case RescanNetworksMsg:

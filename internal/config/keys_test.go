@@ -62,14 +62,14 @@ func TestDefaultKeys(t *testing.T) {
 		}
 	}
 
-	if k.Wifi == nil {
+	if k.Networks == nil {
 		t.Error("Wifi is nil")
 	} else {
 		for name, b := range map[string]*KeyBinding{
-			"wifi.create_profile":     k.Wifi.CreateProfile,
-			"wifi.open_network_login": k.Wifi.OpenCaptivePortal,
-			"wifi.enable_hotspot":     k.Wifi.EnableHotspot,
-			"wifi.create_hotspot":     k.Wifi.CreateHotspot,
+			"wifi.create_profile":     k.Networks.CreateProfile,
+			"wifi.open_network_login": k.Networks.OpenCaptivePortal,
+			"wifi.enable_hotspot":     k.Networks.QuickHotspot,
+			"wifi.create_hotspot":     k.Networks.CreateHotspot,
 		} {
 			if b == nil {
 				t.Errorf("%s is nil", name)
@@ -77,20 +77,20 @@ func TestDefaultKeys(t *testing.T) {
 		}
 	}
 
-	if k.WifiAvailable == nil {
+	if k.AvailableNetworks == nil {
 		t.Error("WifiAvailable is nil")
-	} else if k.WifiAvailable.Connect == nil {
+	} else if k.AvailableNetworks.Connect == nil {
 		t.Error("wifi_available.connect is nil")
 	}
 
-	if k.WifiSaved == nil {
+	if k.NetworkProfiles == nil {
 		t.Error("WifiSaved is nil")
 	} else {
 		for name, b := range map[string]*KeyBinding{
-			"wifi_saved.edit":       k.WifiSaved.Edit,
-			"wifi_saved.connect":    k.WifiSaved.Connect,
-			"wifi_saved.disconnect": k.WifiSaved.Disconnect,
-			"wifi_saved.delete":     k.WifiSaved.Delete,
+			"wifi_saved.edit":       k.NetworkProfiles.Edit,
+			"wifi_saved.connect":    k.NetworkProfiles.Connect,
+			"wifi_saved.disconnect": k.NetworkProfiles.Disconnect,
+			"wifi_saved.delete":     k.NetworkProfiles.Delete,
 		} {
 			if b == nil {
 				t.Errorf("%s is nil", name)
@@ -292,12 +292,12 @@ func TestDialogKeysMerge(t *testing.T) {
 }
 
 func TestWifiKeysMerge(t *testing.T) {
-	dst := &WifiKeys{CreateProfile: keyBinding("a", "c")}
+	dst := &NetworksKeys{CreateProfile: keyBinding("a", "c")}
 	if errs := dst.merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
 	}
 
-	src := &WifiKeys{CreateProfile: keyBinding("p")}
+	src := &NetworksKeys{CreateProfile: keyBinding("p")}
 	if errs := dst.merge(src); len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
@@ -306,12 +306,12 @@ func TestWifiKeysMerge(t *testing.T) {
 }
 
 func TestWifiAvailableKeysMerge(t *testing.T) {
-	dst := &WifiAvailableKeys{Connect: keyBinding("enter")}
+	dst := &AvailableNetworksKeys{Connect: keyBinding("enter")}
 	if errs := dst.merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
 	}
 
-	src := &WifiAvailableKeys{Connect: keyBinding("space")}
+	src := &AvailableNetworksKeys{Connect: keyBinding("space")}
 	if errs := dst.merge(src); len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
@@ -319,12 +319,12 @@ func TestWifiAvailableKeysMerge(t *testing.T) {
 }
 
 func TestWifiSavedKeysMerge(t *testing.T) {
-	dst := &WifiSavedKeys{Delete: keyBinding("d", "delete")}
+	dst := &NetworkProfilesKeys{Delete: keyBinding("d", "delete")}
 	if errs := dst.merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
 	}
 
-	src := &WifiSavedKeys{Delete: keyBinding("x"), Disconnect: keyBinding("ctrl+space")}
+	src := &NetworkProfilesKeys{Delete: keyBinding("x"), Disconnect: keyBinding("ctrl+space")}
 	if errs := dst.merge(src); len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
