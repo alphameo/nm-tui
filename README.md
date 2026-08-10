@@ -232,16 +232,16 @@ keys {
         accept "ctrl+enter"
         close "ctrl+q"
     }
-    wifi {
+    networks {
         create_profile "a"
         open_network_login "l"
-        enable_hotspot "ctrl+h"
+        quick_hotspot "ctrl+h"
         create_hotspot "h"
     }
-    wifi_available {
+    available_networks {
         connect "enter"
     }
-    wifi_saved {
+    network_profiles {
         edit "enter"
         connect "space"
         disconnect "ctrl+space"
