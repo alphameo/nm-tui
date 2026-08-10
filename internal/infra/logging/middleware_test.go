@@ -73,6 +73,7 @@ type portalStub struct {
 
 func exitErr(t *testing.T, code int) error {
 	t.Helper()
+	// #nosec G204 -- test helper; code is a fixed integer from the test
 	err := exec.Command("sh", "-c",
 		fmt.Sprintf("exit %d", code)).
 		Run()
