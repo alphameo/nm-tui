@@ -32,8 +32,8 @@ type NetworksModel struct {
 	focuses        []Focusable // used for batch operations for wifi models
 	focusWindowIdx int
 
-	wm     infra.WifiManager
-	portal infra.CaptivePortalOpener
+	netMngr infra.NetworksManager
+	portal  infra.CaptivePortalOpener
 
 	keys networksKeyMap
 
@@ -45,13 +45,13 @@ func NewNetworksModel(
 	wifiAvailable *AvailableNetworksModel,
 	wifiSaved *NetworkProfilesModel,
 	keys networksKeyMap,
-	wifiManager infra.WifiManager,
+	networksManager infra.NetworksManager,
 	portalOpener infra.CaptivePortalOpener,
 ) *NetworksModel {
 	w := &NetworksModel{
 		available: wifiAvailable,
 		profiles:  wifiSaved,
-		wm:        wifiManager,
+		netMngr:   networksManager,
 		portal:    portalOpener,
 		keys:      keys,
 	}
@@ -190,7 +190,7 @@ func RescanNetworksCmd(delay time.Duration) tea.Cmd {
 
 func (m *NetworksModel) quickHotspot() tea.Cmd {
 	return func() tea.Msg {
-		err := m.wm.QuickHotspot(context.Background())
+		err := m.netMngr.QuickHotspot(context.Background())
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Failed enabling quick wifi hotspot:\n%v", err))
 		}

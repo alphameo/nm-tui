@@ -61,7 +61,7 @@ var (
 	ErrDisableWWAN   error = errors.New("failed to disable wwan radio")
 )
 
-type NetworkManager interface {
+type ConnectivityManager interface {
 	// ListDevices returns info about network devices
 	ListDevices(ctx context.Context) ([]NetworkDevice, error)
 

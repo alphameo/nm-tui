@@ -53,7 +53,7 @@ type MainModel struct {
 	height int
 }
 
-func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkManager, portalOpener infra.CaptivePortalOpener, cfg config.Config) (*MainModel, error) {
+func NewMainModel(networksManager infra.NetworksManager, connectivityManager infra.ConnectivityManager, portalOpener infra.CaptivePortalOpener, cfg config.Config) (*MainModel, error) {
 	err := styles.Init(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("style initialization: %w", err)
@@ -63,16 +63,16 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 
 	mainCfg.notificationCloseTime = time.Duration(*cfg.NotifCloseTime) * time.Second
 
-	connector := NewConnectorModel(keys.connector, wifiManager)
-	profileCreator := NewProfileCreatorModel(keys.profileCreator, wifiManager)
-	hotspotCreator := NewHotspotCreatorModel(keys.hotspotCreator, wifiManager)
-	profileEditor := NewProfileEditorModel(keys.profileEditor, wifiManager)
+	connector := NewConnectorModel(keys.connector, networksManager)
+	profileCreator := NewProfileCreatorModel(keys.profileCreator, networksManager)
+	hotspotCreator := NewHotspotCreatorModel(keys.hotspotCreator, networksManager)
+	profileEditor := NewProfileEditorModel(keys.profileEditor, networksManager)
 
-	available := NewAvailableNetworksModel(keys.availableNetworks, wifiManager)
-	profiles := NewNetworkProfilesModel(keys.networkProfiles, wifiManager)
+	available := NewAvailableNetworksModel(keys.availableNetworks, networksManager)
+	profiles := NewNetworkProfilesModel(keys.networkProfiles, networksManager)
 
-	wifi := NewNetworksModel(available, profiles, keys.networks, wifiManager, portalOpener)
-	connectivity := NewConnectivityModel(keys.connectivity, networkManager)
+	wifi := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
+	connectivity := NewConnectivityModel(keys.connectivity, connectivityManager)
 
 	wifiTable := tabview.New([]tabview.Tab{
 		{Title: wifi.Title(), Content: wifi},

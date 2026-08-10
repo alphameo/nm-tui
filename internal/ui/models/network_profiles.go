@@ -59,7 +59,7 @@ type NetworkProfilesModel struct {
 
 	keys networkProfilesKeyMap
 
-	nm infra.WifiManager
+	netMngr infra.NetworksManager
 
 	width  int
 	height int
@@ -82,7 +82,7 @@ var networkProfilesCfg = networkProfilesConfig{
 	ssidWidthProportion: 0.5,
 }
 
-func NewNetworkProfilesModel(keys networkProfilesKeyMap, networkManager infra.WifiManager) *NetworkProfilesModel {
+func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.NetworksManager) *NetworkProfilesModel {
 	cols := make([]table.Column, 4)
 	cols[networkProfilesCfg.connColIdx] = table.Column{Title: styles.SymbolConnection, Width: len(styles.SymbolConnection)}
 	cols[networkProfilesCfg.modeColIdx] = table.Column{Title: "Mode", Width: 4}
@@ -105,8 +105,8 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networkManager infra.Wi
 		indicatorSpinner: s,
 		indicatorState:   NetProfilesDone,
 
-		keys: keys,
-		nm:   networkManager,
+		keys:    keys,
+		netMngr: networksManager,
 	}
 	model.bakeSizes()
 
@@ -273,7 +273,7 @@ func (m *NetworkProfilesModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(NetProfilesScanning),
 		func() tea.Msg {
-			list, err := m.nm.ListProfiles(context.Background())
+			list, err := m.netMngr.ListProfiles(context.Background())
 			if err != nil {
 				return tea.Batch(
 					NotifyCmd("Cannot get network profiles"),
@@ -335,7 +335,7 @@ func (m *NetworkProfilesModel) connectToSelectedCmd() tea.Cmd {
 		m.setStateCmd(NetProfilesConnecting),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
-			err := m.nm.ActivateProfile(context.Background(), name)
+			err := m.netMngr.ActivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
 					m.setStateCmd(NetProfilesDone),
@@ -362,7 +362,7 @@ func (m *NetworkProfilesModel) disconnectFromSelectedCmd() tea.Cmd {
 	return tea.Sequence(m.setStateCmd(NetProfilesDisconnecting),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
-			err := m.nm.DeactivateProfile(context.Background(), name)
+			err := m.netMngr.DeactivateProfile(context.Background(), name)
 			if err != nil {
 				return NotifyCmd(
 					fmt.Sprintf("Error while disconnecting from %s", name),
@@ -379,7 +379,7 @@ func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 	row := m.dataTable.SelectedRow()
 	return func() tea.Msg {
 		name := row[networkProfilesCfg.nameColIdx]
-		err := m.nm.DeleteProfile(context.Background(), name)
+		err := m.netMngr.DeleteProfile(context.Background(), name)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Error while deleting %s", name))
 		}

@@ -41,10 +41,10 @@ type ProfileCreatorModel struct {
 
 	keys profileCreatorKeyMap
 
-	nm infra.WifiManager
+	netMngr infra.NetworksManager
 }
 
-func NewProfileCreatorModel(keys profileCreatorKeyMap, networkManager infra.WifiManager) *ProfileCreatorModel {
+func NewProfileCreatorModel(keys profileCreatorKeyMap, networksManager infra.NetworksManager) *ProfileCreatorModel {
 	ssid := newDefaultInput()
 	ssid.Placeholder = "SSID"
 
@@ -67,7 +67,7 @@ func NewProfileCreatorModel(keys profileCreatorKeyMap, networkManager infra.Wifi
 
 		keys: keys,
 
-		nm: networkManager,
+		netMngr: networksManager,
 	}
 
 	inp := []Focusable{
@@ -210,7 +210,7 @@ func (m *ProfileCreatorModel) createWifiConnCmd() tea.Cmd {
 	return tea.Sequence(
 		SetAvailableNetworksStateCmd(AvailableNetsCreating),
 		func() tea.Msg {
-			err := m.nm.CreateConnectionProfile(
+			err := m.netMngr.CreateConnectionProfile(
 				context.Background(),
 				m.name.Value(),
 				m.ssid.Value(),

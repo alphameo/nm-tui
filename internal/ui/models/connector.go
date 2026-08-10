@@ -40,10 +40,10 @@ type ConnectorModel struct {
 
 	keys connectorKeyMap
 
-	nm infra.WifiManager
+	netMngr infra.NetworksManager
 }
 
-func NewConnectorModel(keys connectorKeyMap, networkManager infra.WifiManager) *ConnectorModel {
+func NewConnectorModel(keys connectorKeyMap, networksManager infra.NetworksManager) *ConnectorModel {
 	name := newDefaultInput()
 	name.Placeholder = "Name"
 
@@ -57,7 +57,7 @@ func NewConnectorModel(keys connectorKeyMap, networkManager infra.WifiManager) *
 		name:     name,
 		password: pw,
 		keys:     keys,
-		nm:       networkManager,
+		netMngr:  networksManager,
 	}
 
 	inp := []Focusable{
@@ -76,7 +76,7 @@ func (m *ConnectorModel) setNew(ssid string) tea.Cmd {
 	m.focusIdx = 0
 
 	m.password.Reset()
-	pw, err := m.nm.GetProfilePassword(context.Background(), ssid)
+	pw, err := m.netMngr.GetProfilePassword(context.Background(), ssid)
 	if err == nil {
 		m.password.SetValue(pw)
 	}
@@ -187,7 +187,7 @@ func (m *ConnectorModel) connectToWifiCmd() tea.Cmd {
 	return tea.Sequence(
 		SetAvailableNetworksStateCmd(AvailableNetsConnecting),
 		func() tea.Msg {
-			err := m.nm.ConnectToNetwork(
+			err := m.netMngr.ConnectToNetwork(
 				context.Background(),
 				m.ssid,
 				m.password.Value(),

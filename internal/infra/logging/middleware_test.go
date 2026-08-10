@@ -44,7 +44,7 @@ func newCapture(level slog.Level) *captureHandler {
 }
 
 type wifiStub struct {
-	infra.WifiManager
+	infra.NetworksManager
 
 	scanErr    error
 	connectErr error
@@ -64,7 +64,7 @@ func (s *wifiStub) GetProfilePassword(context.Context, string) (string, error) {
 }
 
 type networkStub struct {
-	infra.NetworkManager
+	infra.ConnectivityManager
 }
 
 type portalStub struct {

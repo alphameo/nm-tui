@@ -17,15 +17,15 @@ import (
 // Error level along with the exit code of the failed command when the error
 // is an [*exec.ExitError].
 type Middleware struct {
-	logger  *slog.Logger
-	wifi    infra.WifiManager
-	network infra.NetworkManager
-	portal  infra.CaptivePortalOpener
+	logger       *slog.Logger
+	networks     infra.NetworksManager
+	connectivity infra.ConnectivityManager
+	portal       infra.CaptivePortalOpener
 }
 
 // New returns a *Middleware wrapping the given managers.
-func New(logger *slog.Logger, wifi infra.WifiManager, network infra.NetworkManager, portal infra.CaptivePortalOpener) *Middleware {
-	return &Middleware{logger: logger, wifi: wifi, network: network, portal: portal}
+func New(logger *slog.Logger, networks infra.NetworksManager, connectivity infra.ConnectivityManager, portal infra.CaptivePortalOpener) *Middleware {
+	return &Middleware{logger: logger, networks: networks, connectivity: connectivity, portal: portal}
 }
 
 func (m *Middleware) call(operation string, fn func() error) error {
@@ -67,79 +67,79 @@ func exitCode(err error) int {
 
 func (m *Middleware) ScanNetworks(ctx context.Context) ([]infra.AvailableNetwork, error) {
 	return callResult(m, "wifi.scan_networks", func() ([]infra.AvailableNetwork, error) {
-		return m.wifi.ScanNetworks(ctx)
+		return m.networks.ScanNetworks(ctx)
 	})
 }
 
 func (m *Middleware) ListProfileNames(ctx context.Context) ([]string, error) {
 	return callResult(m, "wifi.list_profile_names", func() ([]string, error) {
-		return m.wifi.ListProfileNames(ctx)
+		return m.networks.ListProfileNames(ctx)
 	})
 }
 
 func (m *Middleware) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, error) {
 	return callResult(m, "wifi.list_profiles", func() ([]infra.NetworkProfileShort, error) {
-		return m.wifi.ListProfiles(ctx)
+		return m.networks.ListProfiles(ctx)
 	})
 }
 
 func (m *Middleware) ConnectToNetwork(ctx context.Context, ssid, password string) error {
 	return m.call("wifi.connect_to_network", func() error {
-		return m.wifi.ConnectToNetwork(ctx, ssid, password)
+		return m.networks.ConnectToNetwork(ctx, ssid, password)
 	})
 }
 
 func (m *Middleware) CreateConnectionProfile(ctx context.Context, id, ssid, password string, hidden bool) error {
 	return m.call("wifi.create_connection_profile", func() error {
-		return m.wifi.CreateConnectionProfile(ctx, id, ssid, password, hidden)
+		return m.networks.CreateConnectionProfile(ctx, id, ssid, password, hidden)
 	})
 }
 
 func (m *Middleware) CreateHotspotProfile(ctx context.Context, id string, ssid string, password string) error {
 	return m.call("wifi.create_hotspot_profile", func() error {
-		return m.wifi.CreateHotspotProfile(ctx, id, ssid, password)
+		return m.networks.CreateHotspotProfile(ctx, id, ssid, password)
 	})
 }
 
 func (m *Middleware) QuickHotspot(ctx context.Context) error {
 	return m.call("wifi.quick_hotspot", func() error {
-		return m.wifi.QuickHotspot(ctx)
+		return m.networks.QuickHotspot(ctx)
 	})
 }
 
 func (m *Middleware) DeleteProfile(ctx context.Context, name string) error {
 	return m.call("wifi.delete_profile", func() error {
-		return m.wifi.DeleteProfile(ctx, name)
+		return m.networks.DeleteProfile(ctx, name)
 	})
 }
 
 func (m *Middleware) ActivateProfile(ctx context.Context, name string) error {
 	return m.call("wifi.activate_profile", func() error {
-		return m.wifi.ActivateProfile(ctx, name)
+		return m.networks.ActivateProfile(ctx, name)
 	})
 }
 
 func (m *Middleware) DeactivateProfile(ctx context.Context, name string) error {
 	return m.call("wifi.deactivate_profile", func() error {
-		return m.wifi.DeactivateProfile(ctx, name)
+		return m.networks.DeactivateProfile(ctx, name)
 	})
 }
 
 func (m *Middleware) GetProfilePassword(ctx context.Context, name string) (string, error) {
 	return callResult(m, "wifi.get_wifi_password", func() (string, error) {
-		return m.wifi.GetProfilePassword(ctx, name)
+		return m.networks.GetProfilePassword(ctx, name)
 	})
 }
 
 func (m *Middleware) GetProfile(ctx context.Context, name string) (infra.NetworkProfile, error) {
 	return callResult(m, "wifi.get_profile", func() (infra.NetworkProfile, error) {
-		return m.wifi.GetProfile(ctx, name)
+		return m.networks.GetProfile(ctx, name)
 	})
 }
 
-func (m *Middleware) UpdateProfile(ctx context.Context, name string, info infra.UpdateWifiInfo) error {
+func (m *Middleware) UpdateProfile(ctx context.Context, name string, info infra.UpdateProfile) error {
 	return m.call("wifi.update_profile", func() error {
-		return m.wifi.UpdateProfile(ctx, name, info)
+		return m.networks.UpdateProfile(ctx, name, info)
 	})
 }
 
@@ -151,60 +151,60 @@ func (m *Middleware) OpenCaptivePortal(ctx context.Context) error {
 
 func (m *Middleware) ListDevices(ctx context.Context) ([]infra.NetworkDevice, error) {
 	return callResult(m, "network.list_devices", func() ([]infra.NetworkDevice, error) {
-		return m.network.ListDevices(ctx)
+		return m.connectivity.ListDevices(ctx)
 	})
 }
 
 func (m *Middleware) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStatus, error) {
 	return callResult(m, "network.get_connectivity_status", func() (infra.ConnectivityStatus, error) {
-		return m.network.GetConnectivityStatus(ctx)
+		return m.connectivity.GetConnectivityStatus(ctx)
 	})
 }
 
 func (m *Middleware) IsNetworkingEnabled(ctx context.Context) (bool, error) {
 	return callResult(m, "network.is_networking_enabled", func() (bool, error) {
-		return m.network.IsNetworkingEnabled(ctx)
+		return m.connectivity.IsNetworkingEnabled(ctx)
 	})
 }
 
 func (m *Middleware) EnableNetworking(ctx context.Context) error {
 	return m.call("network.enable_networking", func() error {
-		return m.network.EnableNetworking(ctx)
+		return m.connectivity.EnableNetworking(ctx)
 	})
 }
 
 func (m *Middleware) DisableNetworking(ctx context.Context) error {
 	return m.call("network.disable_networking", func() error {
-		return m.network.DisableNetworking(ctx)
+		return m.connectivity.DisableNetworking(ctx)
 	})
 }
 
 func (m *Middleware) GetRadioStatus(ctx context.Context) (infra.RadioStatus, error) {
 	return callResult(m, "network.get_radio_status", func() (infra.RadioStatus, error) {
-		return m.network.GetRadioStatus(ctx)
+		return m.connectivity.GetRadioStatus(ctx)
 	})
 }
 
 func (m *Middleware) EnableWWAN(ctx context.Context) error {
 	return m.call("network.enable_wwan", func() error {
-		return m.network.EnableWWAN(ctx)
+		return m.connectivity.EnableWWAN(ctx)
 	})
 }
 
 func (m *Middleware) DisableWWAN(ctx context.Context) error {
 	return m.call("network.disable_wwan", func() error {
-		return m.network.DisableWWAN(ctx)
+		return m.connectivity.DisableWWAN(ctx)
 	})
 }
 
 func (m *Middleware) EnableWifi(ctx context.Context) error {
 	return m.call("network.enable_wifi", func() error {
-		return m.network.EnableWifi(ctx)
+		return m.connectivity.EnableWifi(ctx)
 	})
 }
 
 func (m *Middleware) DisableWifi(ctx context.Context) error {
 	return m.call("network.disable_wifi", func() error {
-		return m.network.DisableWifi(ctx)
+		return m.connectivity.DisableWifi(ctx)
 	})
 }

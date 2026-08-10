@@ -41,10 +41,10 @@ type HotspotCreatorModel struct {
 
 	keys hotspotCreatorKeyMap
 
-	nm infra.WifiManager
+	netMngr infra.NetworksManager
 }
 
-func NewHotspotCreatorModel(keys hotspotCreatorKeyMap, networkManager infra.WifiManager) *HotspotCreatorModel {
+func NewHotspotCreatorModel(keys hotspotCreatorKeyMap, networksManager infra.NetworksManager) *HotspotCreatorModel {
 	ssid := newDefaultInput()
 	ssid.Placeholder = "SSID"
 
@@ -61,7 +61,7 @@ func NewHotspotCreatorModel(keys hotspotCreatorKeyMap, networkManager infra.Wifi
 		name:     name,
 		password: pw,
 		keys:     keys,
-		nm:       networkManager,
+		netMngr:  networksManager,
 	}
 
 	inp := []Focusable{
@@ -192,7 +192,7 @@ func (m *HotspotCreatorModel) createHotspotProfileCmd() tea.Cmd {
 	return tea.Sequence(
 		SetAvailableNetworksStateCmd(AvailableNetsCreating),
 		func() tea.Msg {
-			err := m.nm.CreateHotspotProfile(
+			err := m.netMngr.CreateHotspotProfile(
 				context.Background(),
 				m.name.Value(),
 				m.ssid.Value(),

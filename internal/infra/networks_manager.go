@@ -54,7 +54,7 @@ type NetworkProfile struct {
 	Mode                NetworkMode
 }
 
-type UpdateWifiInfo struct {
+type UpdateProfile struct {
 	Name                string
 	Password            string
 	Autoconnect         bool
@@ -95,7 +95,7 @@ var (
 	ErrQuickHotspot         error = errors.New("failed enabling quick hotspot")
 )
 
-type WifiManager interface {
+type NetworksManager interface {
 	// ScanNetworks shows list of wifi-networks able to be connected.
 	ScanNetworks(ctx context.Context) ([]AvailableNetwork, error)
 
@@ -133,5 +133,5 @@ type WifiManager interface {
 	GetProfile(ctx context.Context, name string) (NetworkProfile, error)
 
 	// UpdateProfile updates information about wifi-network with given name.
-	UpdateProfile(ctx context.Context, name string, info UpdateWifiInfo) error
+	UpdateProfile(ctx context.Context, name string, info UpdateProfile) error
 }

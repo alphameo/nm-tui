@@ -92,13 +92,13 @@ type ConnectivityModel struct {
 
 	keys connectivityKeyMap
 
-	nm infra.NetworkManager
+	connMngr infra.ConnectivityManager
 
 	height int
 	width  int
 }
 
-func NewConnectivityModel(keys connectivityKeyMap, networkManager infra.NetworkManager) *ConnectivityModel {
+func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.ConnectivityManager) *ConnectivityModel {
 	cols := make([]table.Column, 4)
 	cols[connectivityCfg.deviceColIdx] = table.Column{Title: "Device"}
 	cols[connectivityCfg.typeColIdx] = table.Column{Title: "Type"}
@@ -133,8 +133,8 @@ func NewConnectivityModel(keys connectivityKeyMap, networkManager infra.NetworkM
 
 		connectivity: "",
 
-		nm:   networkManager,
-		keys: keys,
+		connMngr: connectivityManager,
+		keys:     keys,
 	}
 
 	focuses := []Focusable{
@@ -309,7 +309,7 @@ func (m *ConnectivityModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(ConnectivityScanning),
 		func() tea.Msg {
-			list, err := m.nm.ListDevices(context.Background())
+			list, err := m.connMngr.ListDevices(context.Background())
 			if err != nil {
 				return NotifyCmd("Cannot get network devices")
 			}
@@ -327,20 +327,20 @@ func (m *ConnectivityModel) RescanCmd() tea.Cmd {
 			m.devicesTable.GotoTop()
 			m.devicesTable.UpdateViewport()
 
-			radioStatus, err := m.nm.GetRadioStatus(context.Background())
+			radioStatus, err := m.connMngr.GetRadioStatus(context.Background())
 			if err != nil {
 				return NotifyCmd("Cannot get radio status")
 			}
 			m.wwan.SetValue(radioStatus.EnabledWWAN)
 			m.wifi.SetValue(radioStatus.EnabledWifi)
 
-			networkingStatus, err := m.nm.IsNetworkingEnabled(context.Background())
+			networkingStatus, err := m.connMngr.IsNetworkingEnabled(context.Background())
 			if err != nil {
 				return NotifyCmd("Cannot get networking status")
 			}
 			m.networking.SetValue(networkingStatus)
 
-			conStatus, err := m.nm.GetConnectivityStatus(context.Background())
+			conStatus, err := m.connMngr.GetConnectivityStatus(context.Background())
 			if err != nil {
 				return NotifyCmd("Cannot get connection status")
 			}
@@ -390,9 +390,9 @@ func (m *ConnectivityModel) toggleWWAN() tea.Cmd {
 		func() tea.Msg {
 			var err error
 			if m.wwan.Value() {
-				err = m.nm.DisableWWAN(context.Background())
+				err = m.connMngr.DisableWWAN(context.Background())
 			} else {
-				err = m.nm.EnableWWAN(context.Background())
+				err = m.connMngr.EnableWWAN(context.Background())
 			}
 			if err != nil {
 				return NotifyCmd("Failed toggling WWAN")
@@ -412,9 +412,9 @@ func (m *ConnectivityModel) toggleWIFI() tea.Cmd {
 		func() tea.Msg {
 			var err error
 			if m.wifi.Value() {
-				err = m.nm.DisableWifi(context.Background())
+				err = m.connMngr.DisableWifi(context.Background())
 			} else {
-				err = m.nm.EnableWifi(context.Background())
+				err = m.connMngr.EnableWifi(context.Background())
 			}
 			if err != nil {
 				return NotifyCmd("Failed toggling Wi-Fi")
@@ -434,9 +434,9 @@ func (m *ConnectivityModel) toggleNetworking() tea.Cmd {
 		func() tea.Msg {
 			var err error
 			if m.networking.Value() {
-				err = m.nm.DisableNetworking(context.Background())
+				err = m.connMngr.DisableNetworking(context.Background())
 			} else {
-				err = m.nm.EnableNetworking(context.Background())
+				err = m.connMngr.EnableNetworking(context.Background())
 			}
 			if err != nil {
 				return NotifyCmd("Failed toggling networking")

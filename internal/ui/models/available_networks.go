@@ -76,13 +76,13 @@ type AvailableNetworksModel struct {
 
 	keys availableNetworksKeyMap
 
-	wm infra.WifiManager
+	netMngr infra.NetworksManager
 
 	width  int
 	height int
 }
 
-func NewAvailableNetworksModel(keys availableNetworksKeyMap, wifiManager infra.WifiManager) *AvailableNetworksModel {
+func NewAvailableNetworksModel(keys availableNetworksKeyMap, networksManager infra.NetworksManager) *AvailableNetworksModel {
 	cols := make([]table.Column, 4)
 	cols[availableNetworksCfg.connColIdx] = table.Column{
 		Title: styles.SymbolConnection,
@@ -111,8 +111,8 @@ func NewAvailableNetworksModel(keys availableNetworksKeyMap, wifiManager infra.W
 		indicatorSpinner: s,
 		indicatorState:   AvailableNetsDone,
 
-		keys: keys,
-		wm:   wifiManager,
+		keys:    keys,
+		netMngr: networksManager,
 	}
 
 	model.bakeSizes()
@@ -261,7 +261,7 @@ func (m *AvailableNetworksModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(AvailableNetsScanning),
 		func() tea.Msg {
-			list, err := m.wm.ScanNetworks(context.Background())
+			list, err := m.netMngr.ScanNetworks(context.Background())
 			if err != nil {
 				return tea.Batch(
 					m.setStateCmd(AvailableNetsDone),

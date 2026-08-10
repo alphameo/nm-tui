@@ -48,10 +48,10 @@ type ProfileEditorModel struct {
 
 	keys profileEditorKeyMap
 
-	nm infra.WifiManager
+	netMngr infra.NetworksManager
 }
 
-func NewProfileEditorModel(keys profileEditorKeyMap, networkManager infra.WifiManager) *ProfileEditorModel {
+func NewProfileEditorModel(keys profileEditorKeyMap, networksManager infra.NetworksManager) *ProfileEditorModel {
 	name := newDefaultInput()
 	name.Placeholder = "Name"
 
@@ -76,8 +76,8 @@ func NewProfileEditorModel(keys profileEditorKeyMap, networkManager infra.WifiMa
 		autoconnect:      autoconn,
 		autoconnPriority: autoconnPrior,
 
-		keys: keys,
-		nm:   networkManager,
+		keys:    keys,
+		netMngr: networksManager,
 	}
 	inp := []Focusable{
 		&model.name,
@@ -91,7 +91,7 @@ func NewProfileEditorModel(keys profileEditorKeyMap, networkManager infra.WifiMa
 }
 
 func (m *ProfileEditorModel) setNew(name string) tea.Cmd {
-	info, err := m.nm.GetProfile(context.Background(), name)
+	info, err := m.netMngr.GetProfile(context.Background(), name)
 	if err != nil {
 		return NotifyCmd(
 			fmt.Sprintf("Cannot get information about %s", name),
@@ -264,13 +264,13 @@ func (m *ProfileEditorModel) saveProfileInfoCmd() tea.Cmd {
 				),
 			)
 		}
-		info := infra.UpdateWifiInfo{
+		info := infra.UpdateProfile{
 			Name:                m.name.Value(),
 			Password:            m.password.Value(),
 			Autoconnect:         m.autoconnect.Value(),
 			AutoconnectPriority: ap,
 		}
-		err = m.nm.UpdateProfile(context.Background(), m.nameBak, info)
+		err = m.netMngr.UpdateProfile(context.Background(), m.nameBak, info)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf(
 				"Cannot update information about %s",
