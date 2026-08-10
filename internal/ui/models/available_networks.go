@@ -16,7 +16,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
-type wifiAvailableConfig struct {
+type availableNetworksConfig struct {
 	connColIdx              int
 	ssidColIdx              int
 	securityColIdx          int
@@ -25,7 +25,7 @@ type wifiAvailableConfig struct {
 	minSignalColWidth       int
 }
 
-var wifiAvailableCfg = wifiAvailableConfig{
+var availableNetworksCfg = availableNetworksConfig{
 	connColIdx:     0,
 	ssidColIdx:     1,
 	securityColIdx: 2,
@@ -35,46 +35,46 @@ var wifiAvailableCfg = wifiAvailableConfig{
 	minSignalColWidth:       3,
 }
 
-type wifiAvailableState int
+type availableNetworksState int
 
 const (
-	AvailableNil wifiAvailableState = iota
-	AvailableScanning
-	AvailableConnecting
-	AvailableCreating
-	AvailableDone
+	AvailableNetsNil availableNetworksState = iota
+	AvailableNetsScanning
+	AvailableNetsConnecting
+	AvailableNetsCreating
+	AvailableNetsDone
 )
 
-func (s *wifiAvailableState) String() string {
+func (s *availableNetworksState) String() string {
 	switch *s {
-	case AvailableScanning:
+	case AvailableNetsScanning:
 		return "Scanning"
-	case AvailableConnecting:
+	case AvailableNetsConnecting:
 		return "Connecting"
-	case AvailableCreating:
-		return "Creating Connection"
-	case AvailableDone:
+	case AvailableNetsCreating:
+		return "Creating Connection Profile"
+	case AvailableNetsDone:
 		return styles.SymbolCheck
 	default:
 		return "Undefined"
 	}
 }
 
-type wifiAvailableKeyMap struct {
+type availableNetworksKeyMap struct {
 	rescan  key.Binding
 	connect key.Binding
 }
 
-type WifiAvailableModel struct {
+type AvailableNetworksModel struct {
 	dataTable table.Model
 
 	indicatorSpinner     spinner.Model
-	indicatorState       wifiAvailableState
+	indicatorState       availableNetworksState
 	indicatorStateHeight int
 
 	focus bool
 
-	keys wifiAvailableKeyMap
+	keys availableNetworksKeyMap
 
 	wm infra.WifiManager
 
@@ -82,17 +82,17 @@ type WifiAvailableModel struct {
 	height int
 }
 
-func NewWifiAvailableModel(keys wifiAvailableKeyMap, wifiManager infra.WifiManager) *WifiAvailableModel {
+func NewAvailableNetworksModel(keys availableNetworksKeyMap, wifiManager infra.WifiManager) *AvailableNetworksModel {
 	cols := make([]table.Column, 4)
-	cols[wifiAvailableCfg.connColIdx] = table.Column{
+	cols[availableNetworksCfg.connColIdx] = table.Column{
 		Title: styles.SymbolConnection,
 		Width: len(styles.SymbolConnection),
 	}
-	cols[wifiAvailableCfg.ssidColIdx] = table.Column{Title: "SSID"}
-	cols[wifiAvailableCfg.securityColIdx] = table.Column{Title: "Security"}
-	cols[wifiAvailableCfg.signalColIdx] = table.Column{
+	cols[availableNetworksCfg.ssidColIdx] = table.Column{Title: "SSID"}
+	cols[availableNetworksCfg.securityColIdx] = table.Column{Title: "Security"}
+	cols[availableNetworksCfg.signalColIdx] = table.Column{
 		Title: styles.SymbolSignal,
-		Width: max(wifiAvailableCfg.minSignalColWidth, len(styles.SymbolSignal)),
+		Width: max(availableNetworksCfg.minSignalColWidth, len(styles.SymbolSignal)),
 	}
 
 	initTableStyle := styles.DataTableStyle
@@ -105,11 +105,11 @@ func NewWifiAvailableModel(keys wifiAvailableKeyMap, wifiManager infra.WifiManag
 	s := spinner.New()
 	s.Spinner = styles.Spinner
 
-	model := &WifiAvailableModel{
+	model := &AvailableNetworksModel{
 		dataTable: t,
 
 		indicatorSpinner: s,
-		indicatorState:   AvailableDone,
+		indicatorState:   AvailableNetsDone,
 
 		keys: keys,
 		wm:   wifiManager,
@@ -120,12 +120,12 @@ func NewWifiAvailableModel(keys wifiAvailableKeyMap, wifiManager infra.WifiManag
 	return model
 }
 
-func (m *WifiAvailableModel) bakeSizes() {
+func (m *AvailableNetworksModel) bakeSizes() {
 	state := m.indicatorView()
 	m.indicatorStateHeight = lipgloss.Height(state)
 }
 
-func (m *WifiAvailableModel) Resize(width, height int) {
+func (m *AvailableNetworksModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
@@ -139,46 +139,46 @@ func (m *WifiAvailableModel) Resize(width, height int) {
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
 
-	secColWidth := int(float32(width) * wifiAvailableCfg.securityWidthProportion)
-	signalColWidth := m.dataTable.Columns()[wifiAvailableCfg.signalColIdx].Width
-	conColWidth := m.dataTable.Columns()[wifiAvailableCfg.connColIdx].Width
+	secColWidth := int(float32(width) * availableNetworksCfg.securityWidthProportion)
+	signalColWidth := m.dataTable.Columns()[availableNetworksCfg.signalColIdx].Width
+	conColWidth := m.dataTable.Columns()[availableNetworksCfg.connColIdx].Width
 	ssidWidth := width - signalColWidth - tableUtilityOffset - conColWidth - secColWidth
 
-	m.dataTable.Columns()[wifiAvailableCfg.securityColIdx].Width = secColWidth
-	m.dataTable.Columns()[wifiAvailableCfg.ssidColIdx].Width = ssidWidth
+	m.dataTable.Columns()[availableNetworksCfg.securityColIdx].Width = secColWidth
+	m.dataTable.Columns()[availableNetworksCfg.ssidColIdx].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
-func (m *WifiAvailableModel) Width() int {
+func (m *AvailableNetworksModel) Width() int {
 	return m.width
 }
 
-func (m *WifiAvailableModel) Height() int {
+func (m *AvailableNetworksModel) Height() int {
 	return m.height
 }
 
-func (m *WifiAvailableModel) Focus() tea.Cmd {
+func (m *AvailableNetworksModel) Focus() tea.Cmd {
 	m.focus = true
 	m.dataTable.SetStyles(styles.TableStyle)
 	m.dataTable.Focus()
 	return nil
 }
 
-func (m *WifiAvailableModel) Blur() {
+func (m *AvailableNetworksModel) Blur() {
 	m.focus = false
 	m.dataTable.Blur()
 	m.dataTable.SetStyles(styles.DataTableStyle)
 }
 
-func (m *WifiAvailableModel) Focused() bool {
+func (m *AvailableNetworksModel) Focused() bool {
 	return m.focus
 }
 
-func (m *WifiAvailableModel) Init() tea.Cmd {
+func (m *AvailableNetworksModel) Init() tea.Cmd {
 	return m.RescanCmd()
 }
 
-func (m *WifiAvailableModel) Update(msg tea.Msg) (*WifiAvailableModel, tea.Cmd) {
+func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		if !m.focus {
@@ -186,20 +186,20 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (*WifiAvailableModel, tea.Cmd) 
 		}
 		switch {
 		case key.Matches(msg, m.keys.rescan):
-			if m.indicatorState != AvailableDone {
+			if m.indicatorState != AvailableNetsDone {
 				return m, nil
 			}
 			return m, m.RescanCmd()
 		case key.Matches(msg, m.keys.connect):
 			row := m.dataTable.SelectedRow()
 			if row != nil {
-				return m, OpenConnectorCmd(row[wifiAvailableCfg.ssidColIdx])
+				return m, OpenConnectorCmd(row[availableNetworksCfg.ssidColIdx])
 			}
 			return m, nil
 		}
-	case WifiAvialableStateMsg:
-		return m, m.setStateCmd(wifiAvailableState(msg))
-	case RescanWifiAvailableMsg:
+	case AvailableNetworksStateMsg:
+		return m, m.setStateCmd(availableNetworksState(msg))
+	case RescanAvailableNetworksMsg:
 		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
 	}
@@ -207,7 +207,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (*WifiAvailableModel, tea.Cmd) 
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	if m.indicatorState != AvailableDone {
+	if m.indicatorState != AvailableNetsDone {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		cmds = append(cmds, cmd)
 	}
@@ -218,7 +218,7 @@ func (m *WifiAvailableModel) Update(msg tea.Msg) (*WifiAvailableModel, tea.Cmd) 
 	return m, tea.Batch(cmds...)
 }
 
-func (m *WifiAvailableModel) View() string {
+func (m *AvailableNetworksModel) View() string {
 	view := m.dataTable.View()
 	statusline := m.indicatorView()
 	view = lipgloss.JoinVertical(
@@ -243,9 +243,9 @@ func (m *WifiAvailableModel) View() string {
 	return view
 }
 
-func (m *WifiAvailableModel) indicatorView() string {
+func (m *AvailableNetworksModel) indicatorView() string {
 	var view string
-	if m.indicatorState != AvailableDone {
+	if m.indicatorState != AvailableNetsDone {
 		view = fmt.Sprintf(
 			"%s %s",
 			m.indicatorState.String(),
@@ -257,14 +257,14 @@ func (m *WifiAvailableModel) indicatorView() string {
 	return view
 }
 
-func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
+func (m *AvailableNetworksModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(AvailableScanning),
+		m.setStateCmd(AvailableNetsScanning),
 		func() tea.Msg {
 			list, err := m.wm.ScanNetworks(context.Background())
 			if err != nil {
 				return tea.Batch(
-					m.setStateCmd(AvailableDone),
+					m.setStateCmd(AvailableNetsDone),
 					NotifyCmd("Cannot scan available wifi networks"),
 				)
 			}
@@ -285,36 +285,36 @@ func (m *WifiAvailableModel) RescanCmd() tea.Cmd {
 			m.dataTable.SetRows(rows)
 			m.dataTable.GotoTop()
 			m.dataTable.UpdateViewport()
-			return m.setStateCmd(AvailableDone)
+			return m.setStateCmd(AvailableNetsDone)
 		},
 	)
 }
 
-type RescanWifiAvailableMsg struct {
+type RescanAvailableNetworksMsg struct {
 	delay time.Duration
 }
 
 func RescanWifiAvailableCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
-		return RescanWifiAvailableMsg{delay: delay}
+		return RescanAvailableNetworksMsg{delay: delay}
 	}
 }
 
-type WifiAvialableStateMsg wifiAvailableState
+type AvailableNetworksStateMsg availableNetworksState
 
-func (m *WifiAvailableModel) setStateCmd(state wifiAvailableState) tea.Cmd {
+func (m *AvailableNetworksModel) setStateCmd(state availableNetworksState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return nil
 	}
-	if state == AvailableDone {
+	if state == AvailableNetsDone {
 		return updCmd
 	}
 	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 }
 
-func SetWifiAvailableStateCmd(state wifiAvailableState) tea.Cmd {
+func SetWifiAvailableStateCmd(state availableNetworksState) tea.Cmd {
 	return func() tea.Msg {
-		return WifiAvialableStateMsg(state)
+		return AvailableNetworksStateMsg(state)
 	}
 }

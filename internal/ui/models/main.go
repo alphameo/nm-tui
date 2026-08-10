@@ -68,8 +68,8 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	hotspotCreator := NewHotspotCreatorModel(keys.hotspotCreator, wifiManager)
 	profileEditor := NewProfileEditorModel(keys.profileEditor, wifiManager)
 
-	a := NewWifiAvailableModel(keys.wifiAvailable, wifiManager)
-	s := NewWifiSavedModel(keys.wifiSaved, wifiManager)
+	a := NewAvailableNetworksModel(keys.availableNetworks, wifiManager)
+	s := NewNetworkProfilesModel(keys.networkProfiles, wifiManager)
 
 	wifi := NewWifiModel(a, s, keys.wifi, wifiManager, portalOpener)
 	network := NewNetworkingModel(keys.networking, networkManager)

@@ -208,7 +208,7 @@ func (m *ProfileCreatorModel) focusPrevCmd() tea.Cmd {
 
 func (m *ProfileCreatorModel) createWifiConnCmd() tea.Cmd {
 	return tea.Sequence(
-		SetWifiAvailableStateCmd(AvailableCreating),
+		SetWifiAvailableStateCmd(AvailableNetsCreating),
 		func() tea.Msg {
 			err := m.nm.CreateConnectionProfile(
 				context.Background(),
@@ -223,7 +223,7 @@ func (m *ProfileCreatorModel) createWifiConnCmd() tea.Cmd {
 					hidden = "hidden "
 				}
 				return tea.Batch(
-					SetWifiAvailableStateCmd(AvailableDone),
+					SetWifiAvailableStateCmd(AvailableNetsDone),
 					NotifyCmd(fmt.Sprintf(
 						"Cannot create connection to %s%s:\n%v",
 						hidden, m.ssid.Value(), err,
@@ -232,7 +232,7 @@ func (m *ProfileCreatorModel) createWifiConnCmd() tea.Cmd {
 				)
 			}
 			return tea.Batch(
-				SetWifiAvailableStateCmd(AvailableDone),
+				SetWifiAvailableStateCmd(AvailableNetsDone),
 				RescanWifiCmd(0),
 			)
 		},

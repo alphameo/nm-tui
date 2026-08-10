@@ -15,32 +15,32 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
-type wifiSavedState int
+type networkProfilesState int
 
 const (
-	SavedNil wifiSavedState = iota
-	SavedScanning
-	SavedConnecting
-	SavedDisconnecting
-	SavedDone
+	NetProfilesNil networkProfilesState = iota
+	NetProfilesScanning
+	NetProfilesConnecting
+	NetProfilesDisconnecting
+	NetProfilesDone
 )
 
-func (s *wifiSavedState) String() string {
+func (s *networkProfilesState) String() string {
 	switch *s {
-	case SavedScanning:
+	case NetProfilesScanning:
 		return "Scanning"
-	case SavedConnecting:
+	case NetProfilesConnecting:
 		return "Connecting"
-	case SavedDisconnecting:
+	case NetProfilesDisconnecting:
 		return "Disconnecting"
-	case SavedDone:
+	case NetProfilesDone:
 		return "󰄬"
 	default:
 		return "Undefined"
 	}
 }
 
-type wifiSavedKeyMap struct {
+type networkProfilesKeyMap struct {
 	edit       key.Binding
 	connect    key.Binding
 	disconnect key.Binding
@@ -48,16 +48,16 @@ type wifiSavedKeyMap struct {
 	delete     key.Binding
 }
 
-type WifiSavedModel struct {
+type NetworkProfilesModel struct {
 	dataTable table.Model
 
 	indicatorSpinner     spinner.Model
-	indicatorState       wifiSavedState
+	indicatorState       networkProfilesState
 	indicatorStateHeight int
 
 	focus bool
 
-	keys wifiSavedKeyMap
+	keys networkProfilesKeyMap
 
 	nm infra.WifiManager
 
@@ -65,7 +65,7 @@ type WifiSavedModel struct {
 	height int
 }
 
-type wifiSavedConfig struct {
+type networkProfilesConfig struct {
 	connColIdx int
 	ssidColIdx int
 	nameColIdx int
@@ -74,7 +74,7 @@ type wifiSavedConfig struct {
 	ssidWidthProportion float32
 }
 
-var wifiSavedCfg = wifiSavedConfig{
+var networkProfilesCfg = networkProfilesConfig{
 	connColIdx:          0,
 	modeColIdx:          1,
 	ssidColIdx:          2,
@@ -82,12 +82,12 @@ var wifiSavedCfg = wifiSavedConfig{
 	ssidWidthProportion: 0.5,
 }
 
-func NewWifiSavedModel(keys wifiSavedKeyMap, networkManager infra.WifiManager) *WifiSavedModel {
+func NewNetworkProfilesModel(keys networkProfilesKeyMap, networkManager infra.WifiManager) *NetworkProfilesModel {
 	cols := make([]table.Column, 4)
-	cols[wifiSavedCfg.connColIdx] = table.Column{Title: styles.SymbolConnection, Width: len(styles.SymbolConnection)}
-	cols[wifiSavedCfg.modeColIdx] = table.Column{Title: "Mode", Width: 4}
-	cols[wifiSavedCfg.ssidColIdx] = table.Column{Title: "SSID"}
-	cols[wifiSavedCfg.nameColIdx] = table.Column{Title: "Name"}
+	cols[networkProfilesCfg.connColIdx] = table.Column{Title: styles.SymbolConnection, Width: len(styles.SymbolConnection)}
+	cols[networkProfilesCfg.modeColIdx] = table.Column{Title: "Mode", Width: 4}
+	cols[networkProfilesCfg.ssidColIdx] = table.Column{Title: "SSID"}
+	cols[networkProfilesCfg.nameColIdx] = table.Column{Title: "Name"}
 
 	initTableStyle := styles.DataTableStyle
 	t := table.New(
@@ -99,11 +99,11 @@ func NewWifiSavedModel(keys wifiSavedKeyMap, networkManager infra.WifiManager) *
 	s := spinner.New()
 	s.Spinner = styles.Spinner
 
-	model := &WifiSavedModel{
+	model := &NetworkProfilesModel{
 		dataTable: t,
 
 		indicatorSpinner: s,
-		indicatorState:   SavedDone,
+		indicatorState:   NetProfilesDone,
 
 		keys: keys,
 		nm:   networkManager,
@@ -113,12 +113,12 @@ func NewWifiSavedModel(keys wifiSavedKeyMap, networkManager infra.WifiManager) *
 	return model
 }
 
-func (m *WifiSavedModel) bakeSizes() {
+func (m *NetworkProfilesModel) bakeSizes() {
 	state := m.indicatorView()
 	m.indicatorStateHeight = lipgloss.Height(state)
 }
 
-func (m *WifiSavedModel) Resize(width, height int) {
+func (m *NetworkProfilesModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
@@ -131,49 +131,49 @@ func (m *WifiSavedModel) Resize(width, height int) {
 	m.dataTable.SetHeight(height)
 
 	tableUtilityOffset := len(m.dataTable.Columns()) * 2
-	connWidth := m.dataTable.Columns()[wifiSavedCfg.connColIdx].Width
-	modeWidth := m.dataTable.Columns()[wifiSavedCfg.modeColIdx].Width
+	connWidth := m.dataTable.Columns()[networkProfilesCfg.connColIdx].Width
+	modeWidth := m.dataTable.Columns()[networkProfilesCfg.modeColIdx].Width
 
 	computedWidth := width - tableUtilityOffset - connWidth - modeWidth
-	possibleNameWidth := int(float32(computedWidth) * wifiSavedCfg.ssidWidthProportion)
+	possibleNameWidth := int(float32(computedWidth) * networkProfilesCfg.ssidWidthProportion)
 	ssidWidth := computedWidth - possibleNameWidth
 	nameWidth := computedWidth - ssidWidth
 
-	m.dataTable.Columns()[wifiSavedCfg.nameColIdx].Width = nameWidth
-	m.dataTable.Columns()[wifiSavedCfg.ssidColIdx].Width = ssidWidth
+	m.dataTable.Columns()[networkProfilesCfg.nameColIdx].Width = nameWidth
+	m.dataTable.Columns()[networkProfilesCfg.ssidColIdx].Width = ssidWidth
 	m.dataTable.UpdateViewport()
 }
 
-func (m *WifiSavedModel) Width() int {
+func (m *NetworkProfilesModel) Width() int {
 	return m.width
 }
 
-func (m *WifiSavedModel) Height() int {
+func (m *NetworkProfilesModel) Height() int {
 	return m.height
 }
 
-func (m *WifiSavedModel) Focus() tea.Cmd {
+func (m *NetworkProfilesModel) Focus() tea.Cmd {
 	m.focus = true
 	m.dataTable.Focus()
 	m.dataTable.SetStyles(styles.TableStyle)
 	return nil
 }
 
-func (m *WifiSavedModel) Blur() {
+func (m *NetworkProfilesModel) Blur() {
 	m.focus = false
 	m.dataTable.Blur()
 	m.dataTable.SetStyles(styles.DataTableStyle)
 }
 
-func (m *WifiSavedModel) Focused() bool {
+func (m *NetworkProfilesModel) Focused() bool {
 	return m.focus
 }
 
-func (m *WifiSavedModel) Init() tea.Cmd {
+func (m *NetworkProfilesModel) Init() tea.Cmd {
 	return m.RescanCmd()
 }
 
-func (m *WifiSavedModel) Update(msg tea.Msg) (*WifiSavedModel, tea.Cmd) {
+func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		if !m.focus {
@@ -185,7 +185,7 @@ func (m *WifiSavedModel) Update(msg tea.Msg) (*WifiSavedModel, tea.Cmd) {
 			if row == nil {
 				return m, nil
 			}
-			name := row[wifiSavedCfg.nameColIdx]
+			name := row[networkProfilesCfg.nameColIdx]
 
 			return m, OpenProfileEditorCmd(name)
 
@@ -199,17 +199,17 @@ func (m *WifiSavedModel) Update(msg tea.Msg) (*WifiSavedModel, tea.Cmd) {
 		case key.Matches(msg, m.keys.delete):
 			return m, m.deleteSelectedCmd()
 		}
-	case RescanWifiSavedMsg:
+	case RescanNetworkProfilesMsg:
 		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
 	case WifiSavedStateMsg:
-		return m, m.setStateCmd(wifiSavedState(msg))
+		return m, m.setStateCmd(networkProfilesState(msg))
 	}
 
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	if m.indicatorState != SavedDone {
+	if m.indicatorState != NetProfilesDone {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		cmds = append(cmds, cmd)
 	}
@@ -220,7 +220,7 @@ func (m *WifiSavedModel) Update(msg tea.Msg) (*WifiSavedModel, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *WifiSavedModel) View() string {
+func (m *NetworkProfilesModel) View() string {
 	view := m.dataTable.View()
 	statusline := m.indicatorView()
 	view = lipgloss.JoinVertical(
@@ -237,7 +237,7 @@ func (m *WifiSavedModel) View() string {
 	}
 	view = renderer.RenderWithTitleAndKeybind(
 		view,
-		"Saved networks",
+		"Network profiles",
 		"2",
 		style,
 		styles.AccentColor,
@@ -245,9 +245,9 @@ func (m *WifiSavedModel) View() string {
 	return view
 }
 
-func (m *WifiSavedModel) indicatorView() string {
+func (m *NetworkProfilesModel) indicatorView() string {
 	var view string
-	if m.indicatorState != SavedDone {
+	if m.indicatorState != NetProfilesDone {
 		view = fmt.Sprintf(
 			"%s %s",
 			m.indicatorState.String(),
@@ -259,25 +259,25 @@ func (m *WifiSavedModel) indicatorView() string {
 	return view
 }
 
-type RescanWifiSavedMsg struct {
+type RescanNetworkProfilesMsg struct {
 	delay time.Duration
 }
 
 func RescanWifiSavedCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
-		return RescanWifiSavedMsg{delay: delay}
+		return RescanNetworkProfilesMsg{delay: delay}
 	}
 }
 
-func (m *WifiSavedModel) RescanCmd() tea.Cmd {
+func (m *NetworkProfilesModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(SavedScanning),
+		m.setStateCmd(NetProfilesScanning),
 		func() tea.Msg {
 			list, err := m.nm.ListProfiles(context.Background())
 			if err != nil {
 				return tea.Batch(
 					NotifyCmd("Cannot get saved wifi networks"),
-					m.setStateCmd(SavedDone),
+					m.setStateCmd(NetProfilesDone),
 				)
 			}
 			rows := []table.Row{}
@@ -296,7 +296,7 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 
 			m.dataTable.SetRows(rows)
 
-			return m.setStateCmd(SavedDone)
+			return m.setStateCmd(NetProfilesDone)
 		},
 	)
 }
@@ -316,34 +316,34 @@ func ViewNetworkMode(mode infra.NetworkMode) string {
 	}
 }
 
-type WifiSavedStateMsg wifiSavedState
+type WifiSavedStateMsg networkProfilesState
 
-func (m *WifiSavedModel) setStateCmd(state wifiSavedState) tea.Cmd {
+func (m *NetworkProfilesModel) setStateCmd(state networkProfilesState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return NilMsg{}
 	}
 
-	if state == SavedDone {
+	if state == NetProfilesDone {
 		return updCmd
 	}
 	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 }
 
-func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {
+func (m *NetworkProfilesModel) connectToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(SavedConnecting),
+		m.setStateCmd(NetProfilesConnecting),
 		func() tea.Msg {
-			name := m.dataTable.SelectedRow()[wifiSavedCfg.nameColIdx]
+			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
 			err := m.nm.ActivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
-					m.setStateCmd(SavedDone),
+					m.setStateCmd(NetProfilesDone),
 					NotifyCmd(fmt.Sprintf("Cannot connect to %s", name)),
 				)
 			}
 			return tea.Batch(
-				m.setStateCmd(SavedDone),
+				m.setStateCmd(NetProfilesDone),
 				m.gotoTop(),
 				RescanWifiCmd(0),
 			)
@@ -351,17 +351,17 @@ func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {
 	)
 }
 
-func (m *WifiSavedModel) gotoTop() tea.Cmd {
+func (m *NetworkProfilesModel) gotoTop() tea.Cmd {
 	return func() tea.Msg {
 		m.dataTable.GotoTop()
 		return NilCmd
 	}
 }
 
-func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
-	return tea.Sequence(m.setStateCmd(SavedDisconnecting),
+func (m *NetworkProfilesModel) disconnectFromSelectedCmd() tea.Cmd {
+	return tea.Sequence(m.setStateCmd(NetProfilesDisconnecting),
 		func() tea.Msg {
-			name := m.dataTable.SelectedRow()[wifiSavedCfg.nameColIdx]
+			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
 			err := m.nm.DeactivateProfile(context.Background(), name)
 			if err != nil {
 				return NotifyCmd(
@@ -375,10 +375,10 @@ func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
 		})
 }
 
-func (m *WifiSavedModel) deleteSelectedCmd() tea.Cmd {
+func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 	row := m.dataTable.SelectedRow()
 	return func() tea.Msg {
-		name := row[wifiSavedCfg.nameColIdx]
+		name := row[networkProfilesCfg.nameColIdx]
 		err := m.nm.DeleteProfile(context.Background(), name)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Error while deleting %s", name))

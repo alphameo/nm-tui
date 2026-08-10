@@ -24,8 +24,8 @@ type wifiKeyMap struct {
 }
 
 type WifiModel struct {
-	wifiAvailable *WifiAvailableModel
-	wifiSaved     *WifiSavedModel
+	wifiAvailable *AvailableNetworksModel
+	wifiSaved     *NetworkProfilesModel
 
 	focus bool
 
@@ -42,8 +42,8 @@ type WifiModel struct {
 }
 
 func NewWifiModel(
-	wifiAvailable *WifiAvailableModel,
-	wifiSaved *WifiSavedModel,
+	wifiAvailable *AvailableNetworksModel,
+	wifiSaved *NetworkProfilesModel,
 	keys wifiKeyMap,
 	wifiManager infra.WifiManager,
 	portalOpener infra.CaptivePortalOpener,

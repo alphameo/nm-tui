@@ -17,17 +17,17 @@ func NewKeyMap(keys []string, keyHelp, desc string) key.Binding {
 }
 
 type keyMaps struct {
-	main           mainKeyMap
-	tabs           tabview.KeyMap
-	toggle         toggle.KeyMap
-	networking     networkingKeyMap
-	wifi           wifiKeyMap
-	wifiSaved      wifiSavedKeyMap
-	profileEditor  profileEditorKeyMap
-	wifiAvailable  wifiAvailableKeyMap
-	connector      connectorKeyMap
-	profileCreator profileCreatorKeyMap
-	hotspotCreator hotspotCreatorKeyMap
+	main              mainKeyMap
+	tabs              tabview.KeyMap
+	toggle            toggle.KeyMap
+	networking        networkingKeyMap
+	wifi              wifiKeyMap
+	networkProfiles   networkProfilesKeyMap
+	profileEditor     profileEditorKeyMap
+	availableNetworks availableNetworksKeyMap
+	connector         connectorKeyMap
+	profileCreator    profileCreatorKeyMap
+	hotspotCreator    hotspotCreatorKeyMap
 }
 
 func (k *keyMaps) ShortHelp() []key.Binding {
@@ -75,15 +75,15 @@ func initKeys(keys config.KeyConfig) keyMaps {
 			firstWindow:       NewKey(*keys.Focus1, "focus first window"),
 			secondWindow:      NewKey(*keys.Focus2, "focus second window"),
 		},
-		wifiSaved: wifiSavedKeyMap{
+		networkProfiles: networkProfilesKeyMap{
 			rescan:     NewKey(*keys.RescanFocused, "rescan wifi saved"),
 			edit:       NewKey(*keys.WifiSaved.Edit, "edit profile"),
 			connect:    NewKey(*keys.WifiSaved.Connect, "connect"),
 			disconnect: NewKey(*keys.WifiSaved.Disconnect, "disconnect"),
 			delete:     NewKey(*keys.WifiSaved.Delete, "delete profile"),
 		},
-		wifiAvailable: wifiAvailableKeyMap{
-			rescan:  NewKey(*keys.RescanFocused, "rescan wifi saved"),
+		availableNetworks: availableNetworksKeyMap{
+			rescan:  NewKey(*keys.RescanFocused, "rescan available networks"),
 			connect: NewKey(*keys.WifiAvailable.Connect, "connect"),
 		},
 		profileEditor: profileEditorKeyMap{

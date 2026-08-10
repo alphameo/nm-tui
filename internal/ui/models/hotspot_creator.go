@@ -190,7 +190,7 @@ func (m *HotspotCreatorModel) focusPrevCmd() tea.Cmd {
 
 func (m *HotspotCreatorModel) createHotspotCmd() tea.Cmd {
 	return tea.Sequence(
-		SetWifiAvailableStateCmd(AvailableCreating),
+		SetWifiAvailableStateCmd(AvailableNetsCreating),
 		func() tea.Msg {
 			err := m.nm.CreateHotspotProfile(
 				context.Background(),
@@ -200,7 +200,7 @@ func (m *HotspotCreatorModel) createHotspotCmd() tea.Cmd {
 			)
 			if err != nil {
 				return tea.Batch(
-					SetWifiAvailableStateCmd(AvailableDone),
+					SetWifiAvailableStateCmd(AvailableNetsDone),
 					NotifyCmd(fmt.Sprintf(
 						"Cannot create hotspot %s:\n%v",
 						m.ssid.Value(), err,
@@ -209,7 +209,7 @@ func (m *HotspotCreatorModel) createHotspotCmd() tea.Cmd {
 				)
 			}
 			return tea.Batch(
-				SetWifiAvailableStateCmd(AvailableDone),
+				SetWifiAvailableStateCmd(AvailableNetsDone),
 				RescanWifiCmd(0),
 			)
 		},
