@@ -1,5 +1,5 @@
-// Package nmcli provides nmcli api
-package nmcli
+// Package nm provides NetworkManager api
+package nm
 
 import (
 	"context"
@@ -12,10 +12,10 @@ import (
 	"github.com/alphameo/nm-tui/internal/infra"
 )
 
-type NMCLI struct{}
+type CLI struct{}
 
-func New() *NMCLI {
-	return &NMCLI{}
+func NewCLI() *CLI {
+	return &CLI{}
 }
 
 const CommandName = "nmcli"
@@ -28,7 +28,7 @@ const (
 
 // run executes nmcli with the given args and returns its stdout. On failure
 // the returned error wraps opErr and the underlying *exec.ExitError
-func (n *NMCLI) run(ctx context.Context, opErr error, args ...string) ([]byte, error) {
+func (n *CLI) run(ctx context.Context, opErr error, args ...string) ([]byte, error) {
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w: %s", opErr, err, infra.ExtractStderr(err))
@@ -36,7 +36,7 @@ func (n *NMCLI) run(ctx context.Context, opErr error, args ...string) ([]byte, e
 	return out, nil
 }
 
-func (n *NMCLI) ListDevices(ctx context.Context) ([]infra.NetworkDevice, error) {
+func (n *CLI) ListDevices(ctx context.Context) ([]infra.NetworkDevice, error) {
 	args := []string{"-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device", "status"}
 	out, err := n.run(ctx, infra.ErrListDevices, args...)
 	if err != nil {
@@ -65,7 +65,7 @@ func (n *NMCLI) ListDevices(ctx context.Context) ([]infra.NetworkDevice, error) 
 	return res, nil
 }
 
-func (n *NMCLI) ScanNetworks(ctx context.Context) ([]infra.AvailableNetwork, error) {
+func (n *CLI) ScanNetworks(ctx context.Context) ([]infra.AvailableNetwork, error) {
 	args := []string{
 		"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL",
 		"device", "wifi", "list", "--rescan", "yes",
@@ -106,7 +106,7 @@ func (n *NMCLI) ScanNetworks(ctx context.Context) ([]infra.AvailableNetwork, err
 	return res, nil
 }
 
-func (n *NMCLI) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, error) {
+func (n *CLI) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, error) {
 	args := []string{"-t", "-f", "NAME,STATE", "connection", "show"}
 	out, err := n.run(ctx, infra.ErrListProfiles, args...)
 	if err != nil {
@@ -160,7 +160,7 @@ func (n *NMCLI) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, 
 	return res, nil
 }
 
-func (n *NMCLI) CreateConnectionProfile(ctx context.Context, name, ssid, password string, hidden bool) error {
+func (n *CLI) CreateConnectionProfile(ctx context.Context, name, ssid, password string, hidden bool) error {
 	hiddenStr := "no"
 	if hidden {
 		hiddenStr = "yes"
@@ -183,7 +183,7 @@ func (n *NMCLI) CreateConnectionProfile(ctx context.Context, name, ssid, passwor
 	return err
 }
 
-func (n *NMCLI) ConnectToNetwork(ctx context.Context, ssid, password string) error {
+func (n *CLI) ConnectToNetwork(ctx context.Context, ssid, password string) error {
 	args := []string{
 		"device", "wifi", "connect", ssid,
 		"password", password,
@@ -192,19 +192,19 @@ func (n *NMCLI) ConnectToNetwork(ctx context.Context, ssid, password string) err
 	return err
 }
 
-func (n *NMCLI) ActivateProfile(ctx context.Context, id string) error {
+func (n *CLI) ActivateProfile(ctx context.Context, id string) error {
 	args := []string{"connection", "up", id}
 	_, err := n.run(ctx, infra.ErrActivateProfile, args...)
 	return err
 }
 
-func (n *NMCLI) DeactivateProfile(ctx context.Context, id string) error {
+func (n *CLI) DeactivateProfile(ctx context.Context, id string) error {
 	args := []string{"connection", "down", id}
 	_, err := n.run(ctx, infra.ErrDeactivateProfile, args...)
 	return err
 }
 
-func (n *NMCLI) ListProfileNames(ctx context.Context) ([]string, error) {
+func (n *CLI) ListProfileNames(ctx context.Context) ([]string, error) {
 	args := []string{"-t", "-f", "NAME", "connection", "show"}
 	out, err := n.run(ctx, infra.ErrListProfileNames, args...)
 	if err != nil {
@@ -213,7 +213,7 @@ func (n *NMCLI) ListProfileNames(ctx context.Context) ([]string, error) {
 	return strings.Split(string(out), "\n"), nil
 }
 
-func (n *NMCLI) GetProfilePassword(ctx context.Context, id string) (string, error) {
+func (n *CLI) GetProfilePassword(ctx context.Context, id string) (string, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "802-11-wireless-security.psk",
@@ -226,7 +226,7 @@ func (n *NMCLI) GetProfilePassword(ctx context.Context, id string) (string, erro
 	return strings.TrimSpace(string(out)), nil
 }
 
-func (n *NMCLI) getWifiSSID(ctx context.Context, id string) (string, error) {
+func (n *CLI) getWifiSSID(ctx context.Context, id string) (string, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "802-11-wireless.ssid",
@@ -239,7 +239,7 @@ func (n *NMCLI) getWifiSSID(ctx context.Context, id string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-func (n *NMCLI) getWifiAutoconnect(ctx context.Context, id string) (bool, error) {
+func (n *CLI) getWifiAutoconnect(ctx context.Context, id string) (bool, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "connection.autoconnect",
@@ -252,7 +252,7 @@ func (n *NMCLI) getWifiAutoconnect(ctx context.Context, id string) (bool, error)
 	return strings.TrimSpace(string(out)) == "yes", nil
 }
 
-func (n *NMCLI) getWifiAutoconnectPriority(ctx context.Context, id string) (int, error) {
+func (n *CLI) getWifiAutoconnectPriority(ctx context.Context, id string) (int, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "connection.autoconnect-priority",
@@ -270,7 +270,7 @@ func (n *NMCLI) getWifiAutoconnectPriority(ctx context.Context, id string) (int,
 	return autoconnectPriority, nil
 }
 
-func (n *NMCLI) getWifiActive(ctx context.Context, id string) (bool, error) {
+func (n *CLI) getWifiActive(ctx context.Context, id string) (bool, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "GENERAL.STATE",
@@ -283,7 +283,7 @@ func (n *NMCLI) getWifiActive(ctx context.Context, id string) (bool, error) {
 	return strings.TrimSpace(string(out)) == "activated", nil
 }
 
-func (n *NMCLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, error) {
+func (n *CLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, error) {
 	args := []string{
 		"-s", "-m", "tabular",
 		"-t", "-f", "802-11-wireless.mode",
@@ -311,7 +311,7 @@ func (n *NMCLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, e
 	return mode, nil
 }
 
-func (n *NMCLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, error) {
+func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, error) {
 	var errs []error
 	info := infra.NetworkProfile{
 		Name: id,
@@ -404,7 +404,7 @@ func (n *NMCLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile
 	return info, nil
 }
 
-func (n *NMCLI) UpdateProfile(ctx context.Context, id string, info infra.UpdateWifiInfo) error {
+func (n *CLI) UpdateProfile(ctx context.Context, id string, info infra.UpdateWifiInfo) error {
 	var keyMgmgt string
 	if len(info.Password) == 0 {
 		keyMgmgt = KeyMgmgtNone
@@ -429,13 +429,13 @@ func (n *NMCLI) UpdateProfile(ctx context.Context, id string, info infra.UpdateW
 	return err
 }
 
-func (n *NMCLI) DeleteProfile(ctx context.Context, id string) error {
+func (n *CLI) DeleteProfile(ctx context.Context, id string) error {
 	args := []string{"connection", "delete", id}
 	_, err := n.run(ctx, infra.ErrDeleteProfile, args...)
 	return err
 }
 
-func (n *NMCLI) GetWifiStatus(ctx context.Context) (bool, error) {
+func (n *CLI) GetWifiStatus(ctx context.Context) (bool, error) {
 	args := []string{"radio", "wifi"}
 	out, err := n.run(ctx, infra.ErrGetWifiStatus, args...)
 	if err != nil {
@@ -444,7 +444,7 @@ func (n *NMCLI) GetWifiStatus(ctx context.Context) (bool, error) {
 	return strings.TrimSpace(string(out)) == "enabled", nil
 }
 
-func (n *NMCLI) GetWWANStatus(ctx context.Context) (bool, error) {
+func (n *CLI) GetWWANStatus(ctx context.Context) (bool, error) {
 	args := []string{"radio", "wwan"}
 	out, err := n.run(ctx, infra.ErrGetWWANStatus, args...)
 	if err != nil {
@@ -453,7 +453,7 @@ func (n *NMCLI) GetWWANStatus(ctx context.Context) (bool, error) {
 	return strings.TrimSpace(string(out)) == "enabled", nil
 }
 
-func (n *NMCLI) GetRadioStatus(ctx context.Context) (infra.RadioStatus, error) {
+func (n *CLI) GetRadioStatus(ctx context.Context) (infra.RadioStatus, error) {
 	var errs []error
 	wifi, err := n.GetWifiStatus(ctx)
 	if err != nil {
@@ -482,31 +482,31 @@ func (n *NMCLI) GetRadioStatus(ctx context.Context) (infra.RadioStatus, error) {
 	}, nil
 }
 
-func (n *NMCLI) EnableWifi(ctx context.Context) error {
+func (n *CLI) EnableWifi(ctx context.Context) error {
 	args := []string{"radio", "wifi", "on"}
 	_, err := n.run(ctx, infra.ErrEnableWifi, args...)
 	return err
 }
 
-func (n *NMCLI) DisableWifi(ctx context.Context) error {
+func (n *CLI) DisableWifi(ctx context.Context) error {
 	args := []string{"radio", "wifi", "off"}
 	_, err := n.run(ctx, infra.ErrDisableWifi, args...)
 	return err
 }
 
-func (n *NMCLI) EnableWWAN(ctx context.Context) error {
+func (n *CLI) EnableWWAN(ctx context.Context) error {
 	args := []string{"radio", "wwan", "on"}
 	_, err := n.run(ctx, infra.ErrEnableWWAN, args...)
 	return err
 }
 
-func (n *NMCLI) DisableWWAN(ctx context.Context) error {
+func (n *CLI) DisableWWAN(ctx context.Context) error {
 	args := []string{"radio", "wwan", "off"}
 	_, err := n.run(ctx, infra.ErrDisableWWAN, args...)
 	return err
 }
 
-func (n *NMCLI) IsNetworkingEnabled(ctx context.Context) (bool, error) {
+func (n *CLI) IsNetworkingEnabled(ctx context.Context) (bool, error) {
 	args := []string{"networking"}
 	out, err := n.run(ctx, infra.ErrIsNetworkingEnabled, args...)
 	if err != nil {
@@ -515,19 +515,19 @@ func (n *NMCLI) IsNetworkingEnabled(ctx context.Context) (bool, error) {
 	return strings.TrimSpace(string(out)) == "enabled", nil
 }
 
-func (n *NMCLI) EnableNetworking(ctx context.Context) error {
+func (n *CLI) EnableNetworking(ctx context.Context) error {
 	args := []string{"networking", "on"}
 	_, err := n.run(ctx, infra.ErrEnableNetworking, args...)
 	return err
 }
 
-func (n *NMCLI) DisableNetworking(ctx context.Context) error {
+func (n *CLI) DisableNetworking(ctx context.Context) error {
 	args := []string{"networking", "off"}
 	_, err := n.run(ctx, infra.ErrDisableNetworking, args...)
 	return err
 }
 
-func (n *NMCLI) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStatus, error) {
+func (n *CLI) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStatus, error) {
 	args := []string{"networking", "connectivity", "check"}
 	out, err := n.run(ctx, infra.ErrGetConnectivityStatus, args...)
 	if err != nil {
@@ -553,7 +553,7 @@ func (n *NMCLI) GetConnectivityStatus(ctx context.Context) (infra.ConnectivitySt
 	return mode, nil
 }
 
-func (n *NMCLI) CreateHotspotProfile(ctx context.Context, name string, ssid string, password string) error {
+func (n *CLI) CreateHotspotProfile(ctx context.Context, name string, ssid string, password string) error {
 	args := []string{
 		"device", "wifi", "hotspot",
 		"con-name", name,
@@ -564,7 +564,7 @@ func (n *NMCLI) CreateHotspotProfile(ctx context.Context, name string, ssid stri
 	return err
 }
 
-func (n *NMCLI) QuickHotspot(ctx context.Context) error {
+func (n *CLI) QuickHotspot(ctx context.Context) error {
 	args := []string{"device", "wifi", "hotspot"}
 	_, err := n.run(ctx, infra.ErrQuickHotspot, args...)
 	return err

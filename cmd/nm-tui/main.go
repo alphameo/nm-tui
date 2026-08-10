@@ -10,7 +10,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/alphameo/nm-tui/internal/infra/logging"
-	"github.com/alphameo/nm-tui/internal/infra/nmcli"
+	"github.com/alphameo/nm-tui/internal/infra/nm"
 	"github.com/alphameo/nm-tui/internal/infra/portal"
 	"github.com/alphameo/nm-tui/internal/ui/models"
 )
@@ -70,7 +70,7 @@ func main() {
 	slog.Info("The program is running")
 	defer slog.Info("Program is closed")
 
-	nm := nmcli.New()
+	nm := nm.NewCLI()
 	portalOpener := portal.New()
 	logMw := logging.New(fileLogger, nm, nm, portalOpener)
 	model, err := models.NewMainModel(logMw, logMw, logMw, cfg)
