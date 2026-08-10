@@ -12,7 +12,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 )
 
-type wifiKeyMap struct {
+type networksKeyMap struct {
 	nextWindow        key.Binding
 	firstWindow       key.Binding
 	secondWindow      key.Binding
@@ -23,9 +23,9 @@ type wifiKeyMap struct {
 	createHotspot     key.Binding
 }
 
-type WifiModel struct {
-	wifiAvailable *AvailableNetworksModel
-	wifiSaved     *NetworkProfilesModel
+type NetworksModel struct {
+	available *AvailableNetworksModel
+	profiles  *NetworkProfilesModel
 
 	focus bool
 
@@ -35,76 +35,76 @@ type WifiModel struct {
 	wm     infra.WifiManager
 	portal infra.CaptivePortalOpener
 
-	keys wifiKeyMap
+	keys networksKeyMap
 
 	width  int
 	height int
 }
 
-func NewWifiModel(
+func NewNetworksModel(
 	wifiAvailable *AvailableNetworksModel,
 	wifiSaved *NetworkProfilesModel,
-	keys wifiKeyMap,
+	keys networksKeyMap,
 	wifiManager infra.WifiManager,
 	portalOpener infra.CaptivePortalOpener,
-) *WifiModel {
-	w := &WifiModel{
-		wifiAvailable: wifiAvailable,
-		wifiSaved:     wifiSaved,
-		wm:            wifiManager,
-		portal:        portalOpener,
-		keys:          keys,
+) *NetworksModel {
+	w := &NetworksModel{
+		available: wifiAvailable,
+		profiles:  wifiSaved,
+		wm:        wifiManager,
+		portal:    portalOpener,
+		keys:      keys,
 	}
 
-	wins := []Focusable{w.wifiAvailable, w.wifiSaved}
-	w.wifiAvailable.Focus()
+	wins := []Focusable{w.available, w.profiles}
+	w.available.Focus()
 	w.focuses = wins
 	return w
 }
 
-func (m *WifiModel) Resize(width, height int) {
+func (m *NetworksModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
 
 	savedHeight := height / 2
 	availableHeight := height - savedHeight
 
-	m.wifiAvailable.Resize(width, availableHeight)
-	m.wifiSaved.Resize(width, savedHeight)
+	m.available.Resize(width, availableHeight)
+	m.profiles.Resize(width, savedHeight)
 }
 
-func (m *WifiModel) Width() int {
+func (m *NetworksModel) Width() int {
 	return m.width
 }
 
-func (m *WifiModel) Height() int {
+func (m *NetworksModel) Height() int {
 	return m.height
 }
 
-func (m *WifiModel) Title() string {
-	return "Wi-Fi"
+func (m *NetworksModel) Title() string {
+	return "Networks"
 }
 
-func (m *WifiModel) Focus() {
+func (m *NetworksModel) Focus() {
 	m.focus = true
 }
 
-func (m *WifiModel) Blur() {
+func (m *NetworksModel) Blur() {
 	m.focus = false
 }
 
-func (m *WifiModel) Focused() bool {
+func (m *NetworksModel) Focused() bool {
 	return m.focus
 }
 
-func (m *WifiModel) Init() tea.Cmd {
+func (m *NetworksModel) Init() tea.Cmd {
 	return tea.Batch(
-		m.wifiAvailable.Init(),
-		m.wifiSaved.Init(),
+		m.available.Init(),
+		m.profiles.Init(),
 	)
 }
 
-func (m *WifiModel) Update(msg tea.Msg) (*WifiModel, tea.Cmd) {
+func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 	if !m.focus {
 		return m, nil
 	}
@@ -126,8 +126,8 @@ func (m *WifiModel) Update(msg tea.Msg) (*WifiModel, tea.Cmd) {
 			m.focuses[m.focusWindowIdx].Focus()
 		case key.Matches(msg, m.keys.rescan):
 			return m, tea.Batch(
-				RescanWifiSavedCmd(0),
-				RescanWifiAvailableCmd(0),
+				RescanNetworkProfilesCmd(0),
+				RescanAvailableNetworksCmd(0),
 			)
 		case key.Matches(msg, m.keys.createProfile):
 			return m, OpenProfileCreatorCmd()
@@ -142,34 +142,34 @@ func (m *WifiModel) Update(msg tea.Msg) (*WifiModel, tea.Cmd) {
 				return NotifyCmd("Opening captive portal")
 			}
 		case key.Matches(msg, m.keys.enableHotspot):
-			return m, m.enableQuickHotspot()
+			return m, m.quickHotspot()
 		}
-	case RescanWifiMsg:
+	case RescanNetworksMsg:
 		return m, tea.Batch(
-			RescanWifiSavedCmd(msg.delay),
-			RescanWifiAvailableCmd(msg.delay),
+			RescanNetworkProfilesCmd(msg.delay),
+			RescanAvailableNetworksCmd(msg.delay),
 		)
 	}
 
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
-	m.wifiAvailable, cmd = m.wifiAvailable.Update(msg)
+	m.available, cmd = m.available.Update(msg)
 	cmds = append(cmds, cmd)
 
-	m.wifiSaved, cmd = m.wifiSaved.Update(msg)
+	m.profiles, cmd = m.profiles.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
-func (m *WifiModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
+func (m *NetworksModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *WifiModel) View() string {
-	availableView := m.wifiAvailable.View()
-	savedView := m.wifiSaved.View()
+func (m *NetworksModel) View() string {
+	availableView := m.available.View()
+	savedView := m.profiles.View()
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -178,22 +178,22 @@ func (m *WifiModel) View() string {
 	)
 }
 
-type RescanWifiMsg struct {
+type RescanNetworksMsg struct {
 	delay time.Duration
 }
 
-func RescanWifiCmd(delay time.Duration) tea.Cmd {
+func RescanNetworksCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
-		return RescanWifiMsg{delay: delay}
+		return RescanNetworksMsg{delay: delay}
 	}
 }
 
-func (m *WifiModel) enableQuickHotspot() tea.Cmd {
+func (m *NetworksModel) quickHotspot() tea.Cmd {
 	return func() tea.Msg {
 		err := m.wm.QuickHotspot(context.Background())
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Failed enabling quick wifi hotspot:\n%v", err))
 		}
-		return RescanWifiCmd(0)
+		return RescanNetworksCmd(0)
 	}
 }

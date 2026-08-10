@@ -21,7 +21,7 @@ type keyMaps struct {
 	tabs              tabview.KeyMap
 	toggle            toggle.KeyMap
 	connectivity      connectivityKeyMap
-	wifi              wifiKeyMap
+	networks          networksKeyMap
 	networkProfiles   networkProfilesKeyMap
 	profileEditor     profileEditorKeyMap
 	availableNetworks availableNetworksKeyMap
@@ -65,7 +65,7 @@ func initKeys(keys config.KeyConfig) keyMaps {
 			rescan: NewKey(*keys.Rescan, "rescan"),
 			toggle: NewKey(*keys.Toggle, "toggle"),
 		},
-		wifi: wifiKeyMap{
+		networks: networksKeyMap{
 			nextWindow:        NewKey(*keys.Main.FocusNext, "focus next"),
 			rescan:            NewKey(*keys.Rescan, "rescan"),
 			createProfile:     NewKey(*keys.Wifi.CreateProfile, "create profile"),

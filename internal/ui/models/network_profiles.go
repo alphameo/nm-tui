@@ -195,7 +195,7 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 		case key.Matches(msg, m.keys.disconnect):
 			return m, m.disconnectFromSelectedCmd()
 		case key.Matches(msg, m.keys.rescan):
-			return m, RescanWifiSavedCmd(0)
+			return m, RescanNetworkProfilesCmd(0)
 		case key.Matches(msg, m.keys.delete):
 			return m, m.deleteSelectedCmd()
 		}
@@ -263,7 +263,7 @@ type RescanNetworkProfilesMsg struct {
 	delay time.Duration
 }
 
-func RescanWifiSavedCmd(delay time.Duration) tea.Cmd {
+func RescanNetworkProfilesCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
 		return RescanNetworkProfilesMsg{delay: delay}
 	}
@@ -276,7 +276,7 @@ func (m *NetworkProfilesModel) RescanCmd() tea.Cmd {
 			list, err := m.nm.ListProfiles(context.Background())
 			if err != nil {
 				return tea.Batch(
-					NotifyCmd("Cannot get saved wifi networks"),
+					NotifyCmd("Cannot get network profiles"),
 					m.setStateCmd(NetProfilesDone),
 				)
 			}
@@ -345,7 +345,7 @@ func (m *NetworkProfilesModel) connectToSelectedCmd() tea.Cmd {
 			return tea.Batch(
 				m.setStateCmd(NetProfilesDone),
 				m.gotoTop(),
-				RescanWifiCmd(0),
+				RescanNetworksCmd(0),
 			)
 		},
 	)
@@ -370,7 +370,7 @@ func (m *NetworkProfilesModel) disconnectFromSelectedCmd() tea.Cmd {
 			}
 			return tea.Batch(
 				m.gotoTop(),
-				RescanWifiCmd(200*time.Millisecond),
+				RescanNetworksCmd(200*time.Millisecond),
 			)
 		})
 }
@@ -387,6 +387,6 @@ func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 		if cursor == len(m.dataTable.Rows())-1 {
 			m.dataTable.SetCursor(cursor - 1)
 		}
-		return RescanWifiCmd(time.Millisecond * 200)
+		return RescanNetworksCmd(time.Millisecond * 200)
 	}
 }

@@ -294,7 +294,7 @@ type RescanAvailableNetworksMsg struct {
 	delay time.Duration
 }
 
-func RescanWifiAvailableCmd(delay time.Duration) tea.Cmd {
+func RescanAvailableNetworksCmd(delay time.Duration) tea.Cmd {
 	return func() tea.Msg {
 		return RescanAvailableNetworksMsg{delay: delay}
 	}
@@ -313,7 +313,7 @@ func (m *AvailableNetworksModel) setStateCmd(state availableNetworksState) tea.C
 	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 }
 
-func SetWifiAvailableStateCmd(state availableNetworksState) tea.Cmd {
+func SetAvailableNetworksStateCmd(state availableNetworksState) tea.Cmd {
 	return func() tea.Msg {
 		return AvailableNetworksStateMsg(state)
 	}
