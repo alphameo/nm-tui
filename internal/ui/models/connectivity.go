@@ -15,7 +15,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
-type networkingConfig struct {
+type connectivityConfig struct {
 	togglersStyle lipgloss.Style
 	deviceColIdx  int
 	typeColIdx    int
@@ -27,7 +27,7 @@ type networkingConfig struct {
 	stateWidthProportion  float32
 }
 
-var networkingCfg = networkingConfig{
+var connectivityCfg = connectivityConfig{
 	togglersStyle:         lipgloss.NewStyle().Margin(1, 0),
 	deviceColIdx:          0,
 	typeColIdx:            1,
@@ -38,42 +38,42 @@ var networkingCfg = networkingConfig{
 	stateWidthProportion:  0.3,
 }
 
-type networkState int
+type connectivityState int
 
 const (
-	NetworkNil networkState = iota
-	NetworkScanning
-	NetworkTogglingWifi
-	NetworkTogglingWWAN
-	NetworkTogglingNetworking
-	NetworkDone
+	ConnectivityNil connectivityState = iota
+	ConnectivityScanning
+	ConnectivityTogglingWifi
+	ConnectivityTogglingWWAN
+	ConnectivityTogglingNetworking
+	ConnectivityDone
 )
 
-func (s *networkState) String() string {
+func (s *connectivityState) String() string {
 	switch *s {
-	case NetworkScanning:
+	case ConnectivityScanning:
 		return "Scanning"
-	case NetworkTogglingWWAN:
+	case ConnectivityTogglingWWAN:
 		return "Toggling WWAN"
-	case NetworkTogglingWifi:
+	case ConnectivityTogglingWifi:
 		return "Toggling Wi-Fi"
-	case NetworkTogglingNetworking:
+	case ConnectivityTogglingNetworking:
 		return "Toggling Wi-Fi"
-	case NetworkDone:
+	case ConnectivityDone:
 		return "󰄬"
 	default:
 		return "Undefined"
 	}
 }
 
-type networkingKeyMap struct {
+type connectivityKeyMap struct {
 	up     key.Binding
 	down   key.Binding
 	rescan key.Binding
 	toggle key.Binding
 }
 
-type NetworkingModel struct {
+type ConnectivityModel struct {
 	devicesTable table.Model
 
 	wwan       toggle.Model
@@ -83,14 +83,14 @@ type NetworkingModel struct {
 	connectivity string
 
 	indicatorSpinner spinner.Model
-	indicatorState   networkState
+	indicatorState   connectivityState
 
 	focus bool
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys networkingKeyMap
+	keys connectivityKeyMap
 
 	nm infra.NetworkManager
 
@@ -98,12 +98,12 @@ type NetworkingModel struct {
 	width  int
 }
 
-func NewNetworkingModel(keys networkingKeyMap, networkManager infra.NetworkManager) *NetworkingModel {
+func NewConnectivityModel(keys connectivityKeyMap, networkManager infra.NetworkManager) *ConnectivityModel {
 	cols := make([]table.Column, 4)
-	cols[networkingCfg.deviceColIdx] = table.Column{Title: "Device"}
-	cols[networkingCfg.typeColIdx] = table.Column{Title: "Type"}
-	cols[networkingCfg.connColIdx] = table.Column{Title: "Connection"}
-	cols[networkingCfg.stateColIdx] = table.Column{Title: "State"}
+	cols[connectivityCfg.deviceColIdx] = table.Column{Title: "Device"}
+	cols[connectivityCfg.typeColIdx] = table.Column{Title: "Type"}
+	cols[connectivityCfg.connColIdx] = table.Column{Title: "Connection"}
+	cols[connectivityCfg.stateColIdx] = table.Column{Title: "State"}
 
 	t := table.New(
 		table.WithColumns(cols),
@@ -122,10 +122,10 @@ func NewNetworkingModel(keys networkingKeyMap, networkManager infra.NetworkManag
 	s := spinner.New()
 	s.Spinner = styles.Spinner
 
-	model := &NetworkingModel{
+	model := &ConnectivityModel{
 		devicesTable:     t,
 		indicatorSpinner: s,
-		indicatorState:   NetworkDone,
+		indicatorState:   ConnectivityDone,
 
 		wwan:       wwan,
 		wifi:       wifi,
@@ -147,7 +147,7 @@ func NewNetworkingModel(keys networkingKeyMap, networkManager infra.NetworkManag
 	return model
 }
 
-func (m *NetworkingModel) Resize(width, height int) {
+func (m *ConnectivityModel) Resize(width, height int) {
 	m.height = height
 	m.width = width
 
@@ -159,46 +159,50 @@ func (m *NetworkingModel) Resize(width, height int) {
 
 	tableUtilityOffset := len(m.devicesTable.Columns()) * 2
 
-	deviceColWidth := int(float32(width) * networkingCfg.deviceWidthProportion)
-	typeColWidth := int(float32(width) * networkingCfg.typeWidthProportion)
-	stateWidth := int(float32(width) * networkingCfg.stateWidthProportion)
+	deviceColWidth := int(float32(width) * connectivityCfg.deviceWidthProportion)
+	typeColWidth := int(float32(width) * connectivityCfg.typeWidthProportion)
+	stateWidth := int(float32(width) * connectivityCfg.stateWidthProportion)
 	connWidth := width - typeColWidth - deviceColWidth - tableUtilityOffset - stateWidth
 
-	m.devicesTable.Columns()[networkingCfg.deviceColIdx].Width = deviceColWidth
-	m.devicesTable.Columns()[networkingCfg.typeColIdx].Width = typeColWidth
-	m.devicesTable.Columns()[networkingCfg.stateColIdx].Width = stateWidth
-	m.devicesTable.Columns()[networkingCfg.connColIdx].Width = connWidth
+	m.devicesTable.Columns()[connectivityCfg.deviceColIdx].Width = deviceColWidth
+	m.devicesTable.Columns()[connectivityCfg.typeColIdx].Width = typeColWidth
+	m.devicesTable.Columns()[connectivityCfg.stateColIdx].Width = stateWidth
+	m.devicesTable.Columns()[connectivityCfg.connColIdx].Width = connWidth
 	m.devicesTable.UpdateViewport()
 }
 
-func (m *NetworkingModel) Width() int {
+func (m *ConnectivityModel) Width() int {
 	return m.width
 }
 
-func (m *NetworkingModel) Height() int {
+func (m *ConnectivityModel) Height() int {
 	return m.height
 }
 
-func (m *NetworkingModel) Focus() {
+func (m *ConnectivityModel) Title() string {
+	return "Connectivity"
+}
+
+func (m *ConnectivityModel) Focus() {
 	m.focus = true
 }
 
-func (m *NetworkingModel) Blur() {
+func (m *ConnectivityModel) Blur() {
 	m.focus = false
 }
 
-func (m *NetworkingModel) Focused() bool {
+func (m *ConnectivityModel) Focused() bool {
 	return m.focus
 }
 
-func (m *NetworkingModel) Init() tea.Cmd {
+func (m *ConnectivityModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.RescanCmd(),
 		m.focuses[m.focusIdx].Focus(),
 	)
 }
 
-func (m *NetworkingModel) Update(msg tea.Msg) (*NetworkingModel, tea.Cmd) {
+func (m *ConnectivityModel) Update(msg tea.Msg) (*ConnectivityModel, tea.Cmd) {
 	if !m.focus {
 		return m, nil
 	}
@@ -228,7 +232,7 @@ func (m *NetworkingModel) Update(msg tea.Msg) (*NetworkingModel, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	if m.indicatorState != NetworkDone {
+	if m.indicatorState != ConnectivityDone {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		cmds = append(cmds, cmd)
 	}
@@ -248,11 +252,11 @@ func (m *NetworkingModel) Update(msg tea.Msg) (*NetworkingModel, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *NetworkingModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
+func (m *ConnectivityModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *NetworkingModel) View() string {
+func (m *ConnectivityModel) View() string {
 	table := styles.BorderedStyle.Render(m.devicesTable.View())
 
 	wwan := styles.ViewToggle(m.wwan)
@@ -277,7 +281,7 @@ func (m *NetworkingModel) View() string {
 		"",
 		connectivity,
 	)
-	togglers = networkingCfg.togglersStyle.Render(togglers)
+	togglers = connectivityCfg.togglersStyle.Render(togglers)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -287,9 +291,9 @@ func (m *NetworkingModel) View() string {
 	)
 }
 
-func (m *NetworkingModel) indicatorView() string {
+func (m *ConnectivityModel) indicatorView() string {
 	var view string
-	if m.indicatorState != NetworkDone {
+	if m.indicatorState != ConnectivityDone {
 		view = fmt.Sprintf(
 			"%s %s",
 			m.indicatorState.String(),
@@ -301,9 +305,9 @@ func (m *NetworkingModel) indicatorView() string {
 	return view
 }
 
-func (m *NetworkingModel) RescanCmd() tea.Cmd {
+func (m *ConnectivityModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(NetworkScanning),
+		m.setStateCmd(ConnectivityScanning),
 		func() tea.Msg {
 			list, err := m.nm.ListDevices(context.Background())
 			if err != nil {
@@ -342,12 +346,12 @@ func (m *NetworkingModel) RescanCmd() tea.Cmd {
 			}
 			m.connectivity = conStatus.String()
 
-			return m.setStateCmd(NetworkDone)
+			return m.setStateCmd(ConnectivityDone)
 		},
 	)
 }
 
-func (m *NetworkingModel) focusNextCmd() tea.Cmd {
+func (m *ConnectivityModel) focusNextCmd() tea.Cmd {
 	if int(m.focusIdx) >= len(m.focuses)-1 {
 		return nil
 	}
@@ -356,7 +360,7 @@ func (m *NetworkingModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *NetworkingModel) focusPrevCmd() tea.Cmd {
+func (m *ConnectivityModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -365,24 +369,24 @@ func (m *NetworkingModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *NetworkingModel) setStateCmd(state networkState) tea.Cmd {
+func (m *ConnectivityModel) setStateCmd(state connectivityState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return NilMsg{}
 	}
 
-	if state == NetworkDone {
+	if state == ConnectivityDone {
 		return updCmd
 	}
 	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 }
 
-func (m *NetworkingModel) toggleWWAN() tea.Cmd {
-	if m.indicatorState != NetworkDone {
+func (m *ConnectivityModel) toggleWWAN() tea.Cmd {
+	if m.indicatorState != ConnectivityDone {
 		return nil
 	}
 	return tea.Sequence(
-		m.setStateCmd(NetworkTogglingWWAN),
+		m.setStateCmd(ConnectivityTogglingWWAN),
 		func() tea.Msg {
 			var err error
 			if m.wwan.Value() {
@@ -399,12 +403,12 @@ func (m *NetworkingModel) toggleWWAN() tea.Cmd {
 	)
 }
 
-func (m *NetworkingModel) toggleWIFI() tea.Cmd {
-	if m.indicatorState != NetworkDone {
+func (m *ConnectivityModel) toggleWIFI() tea.Cmd {
+	if m.indicatorState != ConnectivityDone {
 		return nil
 	}
 	return tea.Sequence(
-		m.setStateCmd(NetworkTogglingWifi),
+		m.setStateCmd(ConnectivityTogglingWifi),
 		func() tea.Msg {
 			var err error
 			if m.wifi.Value() {
@@ -421,12 +425,12 @@ func (m *NetworkingModel) toggleWIFI() tea.Cmd {
 	)
 }
 
-func (m *NetworkingModel) toggleNetworking() tea.Cmd {
-	if m.indicatorState != NetworkDone {
+func (m *ConnectivityModel) toggleNetworking() tea.Cmd {
+	if m.indicatorState != ConnectivityDone {
 		return nil
 	}
 	return tea.Sequence(
-		m.setStateCmd(NetworkTogglingNetworking),
+		m.setStateCmd(ConnectivityTogglingNetworking),
 		func() tea.Msg {
 			var err error
 			if m.networking.Value() {

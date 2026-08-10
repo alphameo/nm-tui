@@ -68,15 +68,15 @@ func NewMainModel(wifiManager infra.WifiManager, networkManager infra.NetworkMan
 	hotspotCreator := NewHotspotCreatorModel(keys.hotspotCreator, wifiManager)
 	profileEditor := NewProfileEditorModel(keys.profileEditor, wifiManager)
 
-	a := NewAvailableNetworksModel(keys.availableNetworks, wifiManager)
-	s := NewNetworkProfilesModel(keys.networkProfiles, wifiManager)
+	available := NewAvailableNetworksModel(keys.availableNetworks, wifiManager)
+	profiles := NewNetworkProfilesModel(keys.networkProfiles, wifiManager)
 
-	wifi := NewWifiModel(a, s, keys.wifi, wifiManager, portalOpener)
-	network := NewNetworkingModel(keys.networking, networkManager)
+	wifi := NewWifiModel(available, profiles, keys.wifi, wifiManager, portalOpener)
+	connectivity := NewConnectivityModel(keys.connectivity, networkManager)
 
 	wifiTable := tabview.New([]tabview.Tab{
-		{Title: "Wi-Fi", Content: wifi},
-		{Title: "Networking", Content: network},
+		{Title: wifi.Title(), Content: wifi},
+		{Title: connectivity.Title(), Content: connectivity},
 	})
 	wifiTable.SetStyles(styles.TabViewStyles)
 	wifiTable.Keys = keys.tabs
