@@ -1,6 +1,9 @@
 package infra
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type ConnectivityStatus int
 
@@ -36,6 +39,27 @@ type NetworkDevice struct {
 	State      string
 	Connection string
 }
+
+var (
+	ErrListDevices error = errors.New("failed to list network devices")
+
+	ErrGetConnectivityStatus error = errors.New("failed to get connectivity status")
+	ErrParseConnectivity     error = errors.New("failed to parse connectivity status")
+
+	ErrIsNetworkingEnabled error = errors.New("failed to recognize is networking enabled")
+	ErrEnableNetworking    error = errors.New("failed to enable networking")
+	ErrDisableNetworking   error = errors.New("failed to disable networking")
+
+	ErrGetRadioStatus error = errors.New("failed to get radio status")
+
+	ErrGetWifiStatus error = errors.New("failed to get wifi radio status")
+	ErrEnableWifi    error = errors.New("failed to enable wifi radio")
+	ErrDisableWifi   error = errors.New("failed to disable wifi radio")
+
+	ErrGetWWANStatus error = errors.New("failed to get wwan radio status")
+	ErrEnableWWAN    error = errors.New("failed to enable wwan radio")
+	ErrDisableWWAN   error = errors.New("failed to disable wwan radio")
+)
 
 type NetworkManager interface {
 	// ListDevices returns info about network devices

@@ -1,6 +1,9 @@
 package infra
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type AvailableNetwork struct {
 	SSID     string
@@ -62,6 +65,35 @@ type RadioStatus struct {
 	EnabledWifi bool
 	EnabledWWAN bool
 }
+
+var (
+	ErrCreateWifiConnection error = errors.New("failed to create wifi connection")
+
+	ErrScanNetworks     error = errors.New("failed to scan networks")
+	ErrConnectToNetwork error = errors.New("failed to connect to network")
+
+	ErrListProfiles    error = errors.New("failed to list network profiles")
+	ErrActivateProfile error = errors.New("failed connecting to saved wifi network")
+
+	ErrDeactivateProfile error = errors.New("failed disconnecting from wifi network")
+
+	ErrListProfileNames           error = errors.New("failed retrieving saved connection names")
+	ErrGetWifiPassword            error = errors.New("failed retrieving wifi network password")
+	ErrGetWifiSSID                error = errors.New("failed retrieving wifi network ssid")
+	ErrGetWifiAutoconnect         error = errors.New("failed retrieving wifi network autoconnect state")
+	ErrGetWifiAutoconnectPriority error = errors.New("failed retrieving wifi network autoconnect priority")
+	ErrGetWifiActivity            error = errors.New("failed retrieving wifi network activity state")
+	ErrGetProfile                 error = errors.New("failed retrieving wifi network information")
+	ErrGetNetMode                 error = errors.New("failed retrieving network mode")
+	ErrParseNetMode               error = errors.New("failed to parse network mode")
+
+	ErrUpdateProfile error = errors.New("failed modifying wifi network information")
+
+	ErrDeleteProfile error = errors.New("failed deleting wifi connection")
+
+	ErrCreateHotspotProfile error = errors.New("failed to create hotspot profile")
+	ErrQuickHotspot         error = errors.New("failed enabling quick hotspot")
+)
 
 type WifiManager interface {
 	// ScanNetworks shows list of wifi-networks able to be connected.
