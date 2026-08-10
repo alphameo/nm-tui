@@ -305,7 +305,7 @@ func (m *NetworkingModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(NetworkScanning),
 		func() tea.Msg {
-			list, err := m.nm.GetNetworkDevices(context.Background())
+			list, err := m.nm.ListDevices(context.Background())
 			if err != nil {
 				return NotifyCmd("Cannot get network devices")
 			}
@@ -330,7 +330,7 @@ func (m *NetworkingModel) RescanCmd() tea.Cmd {
 			m.wwan.SetValue(radioStatus.EnabledWWAN)
 			m.wifi.SetValue(radioStatus.EnabledWifi)
 
-			networkingStatus, err := m.nm.GetNetworking(context.Background())
+			networkingStatus, err := m.nm.IsNetworkingEnabled(context.Background())
 			if err != nil {
 				return NotifyCmd("Cannot get networking status")
 			}

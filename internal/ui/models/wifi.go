@@ -190,7 +190,7 @@ func RescanWifiCmd(delay time.Duration) tea.Cmd {
 
 func (m *WifiModel) enableQuickHotspot() tea.Cmd {
 	return func() tea.Msg {
-		err := m.wm.EnableQuickWifiHotspot(context.Background())
+		err := m.wm.QuickHotspot(context.Background())
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Failed enabling quick wifi hotspot:\n%v", err))
 		}

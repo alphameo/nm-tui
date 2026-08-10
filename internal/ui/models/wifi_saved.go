@@ -273,7 +273,7 @@ func (m *WifiSavedModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(SavedScanning),
 		func() tea.Msg {
-			list, err := m.nm.GetSavedWifis(context.Background())
+			list, err := m.nm.ListProfiles(context.Background())
 			if err != nil {
 				return tea.Batch(
 					NotifyCmd("Cannot get saved wifi networks"),
@@ -335,7 +335,7 @@ func (m *WifiSavedModel) connectToSelectedCmd() tea.Cmd {
 		m.setStateCmd(SavedConnecting),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[wifiSavedCfg.nameColIdx]
-			err := m.nm.ActivateWifi(context.Background(), name)
+			err := m.nm.ActivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
 					m.setStateCmd(SavedDone),
@@ -362,7 +362,7 @@ func (m *WifiSavedModel) disconnectFromSelectedCmd() tea.Cmd {
 	return tea.Sequence(m.setStateCmd(SavedDisconnecting),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[wifiSavedCfg.nameColIdx]
-			err := m.nm.DeactivateWifi(context.Background(), name)
+			err := m.nm.DeactivateProfile(context.Background(), name)
 			if err != nil {
 				return NotifyCmd(
 					fmt.Sprintf("Error while disconnecting from %s", name),
@@ -379,7 +379,7 @@ func (m *WifiSavedModel) deleteSelectedCmd() tea.Cmd {
 	row := m.dataTable.SelectedRow()
 	return func() tea.Msg {
 		name := row[wifiSavedCfg.nameColIdx]
-		err := m.nm.DeleteWifiConnection(context.Background(), name)
+		err := m.nm.DeleteProfile(context.Background(), name)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Error while deleting %s", name))
 		}

@@ -91,7 +91,7 @@ func NewProfileEditorModel(keys profileEditorKeyMap, networkManager infra.WifiMa
 }
 
 func (m *ProfileEditorModel) setNew(name string) tea.Cmd {
-	info, err := m.nm.GetWifiInfo(context.Background(), name)
+	info, err := m.nm.GetProfile(context.Background(), name)
 	if err != nil {
 		return NotifyCmd(
 			fmt.Sprintf("Cannot get information about %s", name),
@@ -270,7 +270,7 @@ func (m *ProfileEditorModel) saveProfileInfoCmd() tea.Cmd {
 			Autoconnect:         m.autoconnect.Value(),
 			AutoconnectPriority: ap,
 		}
-		err = m.nm.UpdateWifiInfo(context.Background(), m.nameBak, info)
+		err = m.nm.UpdateProfile(context.Background(), m.nameBak, info)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf(
 				"Cannot update information about %s",

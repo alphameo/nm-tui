@@ -76,7 +76,7 @@ func (m *ConnectorModel) setNew(ssid string) tea.Cmd {
 	m.focusIdx = 0
 
 	m.password.Reset()
-	pw, err := m.nm.GetWifiPassword(context.Background(), ssid)
+	pw, err := m.nm.GetProfilePassword(context.Background(), ssid)
 	if err == nil {
 		m.password.SetValue(pw)
 	}
@@ -187,7 +187,7 @@ func (m *ConnectorModel) connectToWifiCmd() tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(AvailableConnecting),
 		func() tea.Msg {
-			err := m.nm.ConnectWifi(
+			err := m.nm.ConnectToNetwork(
 				context.Background(),
 				m.ssid,
 				m.password.Value(),

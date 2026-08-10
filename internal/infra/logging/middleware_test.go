@@ -51,15 +51,15 @@ type wifiStub struct {
 	pass       string
 }
 
-func (s *wifiStub) ScanWifis(context.Context) ([]infra.AvailableWifi, error) {
+func (s *wifiStub) ScanNetworks(context.Context) ([]infra.AvailableNetwork, error) {
 	return nil, s.scanErr
 }
 
-func (s *wifiStub) ConnectWifi(context.Context, string, string) error {
+func (s *wifiStub) ConnectToNetwork(context.Context, string, string) error {
 	return s.connectErr
 }
 
-func (s *wifiStub) GetWifiPassword(context.Context, string) (string, error) {
+func (s *wifiStub) GetProfilePassword(context.Context, string) (string, error) {
 	return s.pass, s.scanErr
 }
 
@@ -86,7 +86,7 @@ func TestScanWifisFailureLogsErrorAndExitCode(t *testing.T) {
 	h := newCapture(slog.LevelDebug)
 	m := New(slog.New(h), &wifiStub{scanErr: exitErr(t, 3)}, &networkStub{}, &portalStub{})
 
-	if _, err := m.ScanWifis(context.Background()); err == nil {
+	if _, err := m.ScanNetworks(context.Background()); err == nil {
 		t.Fatal("want error, got nil")
 	}
 	if len(h.records) != 1 {
@@ -109,7 +109,7 @@ func TestSecretsNeverLogged(t *testing.T) {
 	pass := "super-secret-pass-1"
 	m := New(slog.New(h), &wifiStub{pass: pass}, &networkStub{}, &portalStub{})
 
-	got, err := m.GetWifiPassword(context.Background(), "home")
+	got, err := m.GetProfilePassword(context.Background(), "home")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -117,7 +117,7 @@ func TestSecretsNeverLogged(t *testing.T) {
 		t.Fatalf("password passthrough broken: got %q", got)
 	}
 
-	if err := m.ConnectWifi(context.Background(), "home", pass); err != nil {
+	if err := m.ConnectToNetwork(context.Background(), "home", pass); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 

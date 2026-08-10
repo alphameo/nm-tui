@@ -210,7 +210,7 @@ func (m *ProfileCreatorModel) createWifiConnCmd() tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(AvailableCreating),
 		func() tea.Msg {
-			err := m.nm.CreateWifiConnection(
+			err := m.nm.CreateConnectionProfile(
 				context.Background(),
 				m.name.Value(),
 				m.ssid.Value(),

@@ -38,14 +38,14 @@ type NetworkDevice struct {
 }
 
 type NetworkManager interface {
-	// GetNetworkDevices returns info about network devices
-	GetNetworkDevices(ctx context.Context) ([]NetworkDevice, error)
+	// ListDevices returns info about network devices
+	ListDevices(ctx context.Context) ([]NetworkDevice, error)
 
 	// GetConnectivityStatus returns connectivity status of device
 	GetConnectivityStatus(ctx context.Context) (ConnectivityStatus, error)
 
-	// GetNetworking returns networking status
-	GetNetworking(ctx context.Context) (bool, error)
+	// IsNetworkingEnabled returns networking status
+	IsNetworkingEnabled(ctx context.Context) (bool, error)
 
 	// EnableNetworking enables all networking on device
 	EnableNetworking(ctx context.Context) error
@@ -55,6 +55,7 @@ type NetworkManager interface {
 
 	// GetRadioStatus returns status of wifi and Wireless Wide Area Network on device
 	GetRadioStatus(ctx context.Context) (RadioStatus, error)
+
 	// EnableWWAN enables Wireless Wide Area Network on device
 	EnableWWAN(ctx context.Context) error
 

@@ -192,7 +192,7 @@ func (m *HotspotCreatorModel) createHotspotCmd() tea.Cmd {
 	return tea.Sequence(
 		SetWifiAvailableStateCmd(AvailableCreating),
 		func() tea.Msg {
-			err := m.nm.CreateWifiHotspot(
+			err := m.nm.CreateHotspotProfile(
 				context.Background(),
 				m.name.Value(),
 				m.ssid.Value(),

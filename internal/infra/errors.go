@@ -6,51 +6,54 @@ import (
 )
 
 var (
-	ErrGetNetworkDevices error = errors.New("failed retrieving network device status")
+	ErrListDevices error = errors.New("failed to list network devices")
 
-	ErrCreateWifiConnection error = errors.New("failed creation of wifi connection")
+	ErrGetConnectivityStatus error = errors.New("failed to get connectivity status")
+	ErrParseConnectivity     error = errors.New("failed to parse connectivity status")
 
-	ErrScanWifis   error = errors.New("failed scanning wifi networks")
-	ErrConnectWifi error = errors.New("failed connecting to wifi network")
+	ErrIsNetworkingEnabled   error = errors.New("failed to recognize is networking enabled")
+	ErrEnableNetworking      error = errors.New("failed to enable networking")
+	ErrDisableNetworking     error = errors.New("failed to disable networking")
 
-	ErrGetSavedWifis    error = errors.New("failed retrieving saved wifi networks")
-	ErrConnectSavedWifi error = errors.New("failed connecting to saved wifi network")
+	ErrGetRadioStatus error = errors.New("failed to get radio status")
 
-	ErrDisconnectWifi error = errors.New("failed disconnecting from wifi network")
+	ErrGetWifiStatus  error = errors.New("failed to get wifi radio status")
+	ErrEnableWifi     error = errors.New("failed to enable wifi radio")
+	ErrDisableWifi    error = errors.New("failed to disable wifi radio")
 
-	ErrGetSavedWifiSSIDs          error = errors.New("failed retrieving saved wifi SSIDs")
+	ErrGetWWANStatus  error = errors.New("failed to get wwan radio status")
+	ErrEnableWWAN     error = errors.New("failed to enable wwan radio")
+	ErrDisableWWAN    error = errors.New("failed to disable wwan radio")
+
+	ErrCreateWifiConnection error = errors.New("failed to create wifi connection")
+
+	ErrScanNetworks     error = errors.New("failed to scan networks")
+	ErrConnectToNetwork error = errors.New("failed to connect to network")
+
+	ErrListProfiles    error = errors.New("failed to list network profiles")
+	ErrActivateProfile error = errors.New("failed connecting to saved wifi network")
+
+	ErrDeactivateProfile error = errors.New("failed disconnecting from wifi network")
+
+	ErrListProfileNames           error = errors.New("failed retrieving saved connection names")
 	ErrGetWifiPassword            error = errors.New("failed retrieving wifi network password")
 	ErrGetWifiSSID                error = errors.New("failed retrieving wifi network ssid")
 	ErrGetWifiAutoconnect         error = errors.New("failed retrieving wifi network autoconnect state")
 	ErrGetWifiAutoconnectPriority error = errors.New("failed retrieving wifi network autoconnect priority")
 	ErrGetWifiActivity            error = errors.New("failed retrieving wifi network activity state")
-	ErrGetWifiInfo                error = errors.New("failed retrieving wifi network information")
+	ErrGetProfile                 error = errors.New("failed retrieving wifi network information")
 	ErrGetNetMode                 error = errors.New("failed retrieving network mode")
 	ErrParseNetMode               error = errors.New("failed to parse network mode")
 
-	ErrUpdateWifiInfo error = errors.New("failed modifying wifi network information")
+	ErrUpdateProfile error = errors.New("failed modifying wifi network information")
 
-	ErrDeleteWifi error = errors.New("failed deleting wifi connection")
+	ErrDeleteProfile error = errors.New("failed deleting wifi connection")
 
-	ErrGetConnectivity   error = errors.New("failed retrieving networking status")
-	ErrParseConnectivity error = errors.New("failed to parse networking status")
-	ErrGetNetworking     error = errors.New("failed retreiving networking status")
-	ErrEnableNetworking  error = errors.New("failed enabling networking")
-	ErrDisableNetworking error = errors.New("failed disabling networking")
-
-	ErrGetRadioStatus error = errors.New("failed retrieving radio status")
-	ErrGetWifiStatus  error = errors.New("failed retrieving wifi radio status")
-	ErrEnableWifi     error = errors.New("failed enabling wifi radio")
-	ErrDisableWifi    error = errors.New("failed disabling wifi radio")
-	ErrGetWWANStatus  error = errors.New("failed retrieving wwan radio status")
-	ErrEnableWWAN     error = errors.New("failed enabling wwan radio")
-	ErrDisableWWAN    error = errors.New("failed disabling wwan radio")
-
-	ErrCreateWifiHotspot      error = errors.New("failed creating wifi hotspot")
-	ErrQuickEnableWifiHotspot error = errors.New("failed enabling quick wifi hotspot")
+	ErrCreateHotspotProfile error = errors.New("failed to create hotspot profile")
+	ErrQuickHotspot         error = errors.New("failed enabling quick hotspot")
 
 	ErrOpenCaptivePortal   error = errors.New("failed to open captive portal")
-	ErrGetGatewayIP        error = errors.New("failed getting gateway ip")
+	ErrGetGatewayIP        error = errors.New("failed to get gateway ip")
 	ErrUnsupportedPlarform error = errors.New("unsupported platform")
 )
 
