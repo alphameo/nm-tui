@@ -208,6 +208,8 @@ keys {
     toggle "space"
     rescan "r"
     rescan_focused "ctrl+r"
+    focus_next "tab"
+    focus_prev "shift+tab"
     focus_1 "1"
     focus_2 "2"
     focus_3 "3"
@@ -221,13 +223,9 @@ keys {
     main {
         next_tab "]"
         prev_tab "["
-        focus_next "tab"
-        focus_prev "shift+tab"
         quit "esc" "ctrl+c" "q" "ctrl+q"
     }
     dialog {
-        focus_down "ctrl+j"
-        focus_up "ctrl+k"
         toggle_pw_visibility "ctrl+p"
         accept "ctrl+enter"
         close "ctrl+q"

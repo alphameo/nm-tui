@@ -10,19 +10,21 @@ func TestDefaultKeys(t *testing.T) {
 	k := DefaultKeys()
 
 	bindings := map[string]*KeyBinding{
-		"toggle":         k.Toggle,
-		"rescan":         k.Rescan,
-		"rescan_focused": k.RescanFocused,
-		"focus_1":        k.Focus1,
-		"focus_2":        k.Focus2,
-		"focus_3":        k.Focus3,
-		"focus_4":        k.Focus4,
-		"focus_5":        k.Focus5,
-		"focus_6":        k.Focus6,
-		"focus_7":        k.Focus7,
-		"focus_8":        k.Focus8,
-		"focus_9":        k.Focus9,
-		"focus_10":       k.Focus10,
+		"toggle":          k.Toggle,
+		"rescan":          k.Rescan,
+		"rescan_focused":  k.RescanFocused,
+		"focus_1":         k.Focus1,
+		"focus_2":         k.Focus2,
+		"focus_3":         k.Focus3,
+		"focus_4":         k.Focus4,
+		"focus_5":         k.Focus5,
+		"focus_6":         k.Focus6,
+		"focus_7":         k.Focus7,
+		"focus_8":         k.Focus8,
+		"focus_9":         k.Focus9,
+		"focus_10":        k.Focus10,
+		"main.focus_next": k.FocusNext,
+		"main.focus_prev": k.FocusPrev,
 	}
 	for name, b := range bindings {
 		if b == nil {
@@ -34,11 +36,9 @@ func TestDefaultKeys(t *testing.T) {
 		t.Error("Main is nil")
 	} else {
 		for name, b := range map[string]*KeyBinding{
-			"main.next_tab":   k.Main.NextTab,
-			"main.prev_tab":   k.Main.PrevTab,
-			"main.focus_next": k.Main.FocusNext,
-			"main.focus_prev": k.Main.FocusPrev,
-			"main.quit":       k.Main.Quit,
+			"main.next_tab": k.Main.NextTab,
+			"main.prev_tab": k.Main.PrevTab,
+			"main.quit":     k.Main.Quit,
 		} {
 			if b == nil {
 				t.Errorf("%s is nil", name)
@@ -50,8 +50,6 @@ func TestDefaultKeys(t *testing.T) {
 		t.Error("Dialog is nil")
 	} else {
 		for name, b := range map[string]*KeyBinding{
-			"dialog.focus_down":           k.Dialog.FocusDown,
-			"dialog.focus_up":             k.Dialog.FocusUp,
 			"dialog.toggle_pw_visibility": k.Dialog.TogglePWVisibility,
 			"dialog.accept":               k.Dialog.Accept,
 			"dialog.close":                k.Dialog.Close,
@@ -277,18 +275,18 @@ func TestMainKeysMerge(t *testing.T) {
 }
 
 func TestDialogKeysMerge(t *testing.T) {
-	dst := &DialogKeys{FocusDown: keyBinding("ctrl+j")}
+	dst := &DialogKeys{TogglePWVisibility: keyBinding("ctrl+j")}
 	if errs := dst.merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
 	}
 
-	src := &DialogKeys{FocusDown: keyBinding("j"), Close: keyBinding("esc")}
+	src := &DialogKeys{TogglePWVisibility: keyBinding("j"), Close: keyBinding("esc")}
 	if errs := dst.merge(src); len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
-	assertKeyBinding(t, "focus_down", dst.FocusDown, "j")
+	assertKeyBinding(t, "focus_down", dst.TogglePWVisibility, "j")
 	assertKeyBinding(t, "close", dst.Close, "esc")
-	assertNilKeyBinding(t, "focus_up", dst.FocusUp)
+	assertNilKeyBinding(t, "focus_up", dst.Accept)
 }
 
 func TestWifiKeysMerge(t *testing.T) {

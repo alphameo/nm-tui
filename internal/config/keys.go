@@ -29,6 +29,8 @@ type KeyConfig struct {
 	Toggle        *KeyBinding `kdl:"toggle"`
 	Rescan        *KeyBinding `kdl:"rescan"`
 	RescanFocused *KeyBinding `kdl:"rescan_focused"`
+	FocusNext     *KeyBinding `kdl:"focus_next"`
+	FocusPrev     *KeyBinding `kdl:"focus_prev"`
 	Focus1        *KeyBinding `kdl:"focus_1"`
 	Focus2        *KeyBinding `kdl:"focus_2"`
 	Focus3        *KeyBinding `kdl:"focus_3"`
@@ -49,16 +51,12 @@ type KeyConfig struct {
 }
 
 type MainKeys struct {
-	NextTab   *KeyBinding `kdl:"next_tab"`
-	PrevTab   *KeyBinding `kdl:"prev_tab"`
-	FocusNext *KeyBinding `kdl:"focus_next"`
-	FocusPrev *KeyBinding `kdl:"focus_prev"`
-	Quit      *KeyBinding `kdl:"quit"`
+	NextTab *KeyBinding `kdl:"next_tab"`
+	PrevTab *KeyBinding `kdl:"prev_tab"`
+	Quit    *KeyBinding `kdl:"quit"`
 }
 
 type DialogKeys struct {
-	FocusDown          *KeyBinding `kdl:"focus_down"`
-	FocusUp            *KeyBinding `kdl:"focus_up"`
 	TogglePWVisibility *KeyBinding `kdl:"toggle_pw_visibility"`
 	Accept             *KeyBinding `kdl:"accept"`
 	Close              *KeyBinding `kdl:"close"`
@@ -87,6 +85,8 @@ func DefaultKeys() *KeyConfig {
 		Toggle:        keyBinding("space"),
 		Rescan:        keyBinding("r"),
 		RescanFocused: keyBinding("ctrl+r"),
+		FocusNext:     keyBinding("tab"),
+		FocusPrev:     keyBinding("shift+tab"),
 		Focus1:        keyBinding("1"),
 		Focus2:        keyBinding("2"),
 		Focus3:        keyBinding("3"),
@@ -98,15 +98,11 @@ func DefaultKeys() *KeyConfig {
 		Focus9:        keyBinding("9"),
 		Focus10:       keyBinding("10"),
 		Main: &MainKeys{
-			NextTab:   keyBinding("]"),
-			PrevTab:   keyBinding("["),
-			FocusNext: keyBinding("tab"),
-			FocusPrev: keyBinding("shift+tab"),
-			Quit:      keyBinding("esc", "ctrl+c", "q", "ctrl+q"),
+			NextTab: keyBinding("]"),
+			PrevTab: keyBinding("["),
+			Quit:    keyBinding("esc", "ctrl+c", "q", "ctrl+q"),
 		},
 		Dialog: &DialogKeys{
-			FocusDown:          keyBinding("ctrl+j"),
-			FocusUp:            keyBinding("ctrl+k"),
 			TogglePWVisibility: keyBinding("ctrl+p"),
 			Accept:             keyBinding("enter"),
 			Close:              keyBinding("esc", "ctrl+q", "ctrl+c"),
@@ -136,6 +132,21 @@ func (k *KeyConfig) merge(src *KeyConfig) []error {
 
 	var errs []error
 	errs = append(errs, mergeKeyList(&k.Toggle, src.Toggle, "toggle")...)
+	errs = append(errs, mergeKeyList(&k.Rescan, src.Rescan, "rescan")...)
+	errs = append(errs, mergeKeyList(&k.RescanFocused, src.RescanFocused, "rescan_focused")...)
+	errs = append(errs, mergeKeyList(&k.FocusNext, src.FocusNext, "focus_next")...)
+	errs = append(errs, mergeKeyList(&k.FocusPrev, src.FocusPrev, "focus_prev")...)
+	errs = append(errs, mergeKeyList(&k.Focus1, src.Focus1, "focus_1")...)
+	errs = append(errs, mergeKeyList(&k.Focus2, src.Focus2, "focus_2")...)
+	errs = append(errs, mergeKeyList(&k.Focus3, src.Focus3, "focus_3")...)
+	errs = append(errs, mergeKeyList(&k.Focus4, src.Focus4, "focus_4")...)
+	errs = append(errs, mergeKeyList(&k.Focus5, src.Focus5, "focus_5")...)
+	errs = append(errs, mergeKeyList(&k.Focus6, src.Focus6, "focus_6")...)
+	errs = append(errs, mergeKeyList(&k.Focus7, src.Focus7, "focus_7")...)
+	errs = append(errs, mergeKeyList(&k.Focus8, src.Focus8, "focus_8")...)
+	errs = append(errs, mergeKeyList(&k.Focus9, src.Focus9, "focus_9")...)
+	errs = append(errs, mergeKeyList(&k.Focus10, src.Focus10, "focus_10")...)
+
 	errs = append(errs, k.Main.merge(src.Main)...)
 	errs = append(errs, k.Dialog.merge(src.Dialog)...)
 	errs = append(errs, k.Networks.merge(src.Networks)...)
@@ -152,8 +163,6 @@ func (m *MainKeys) merge(src *MainKeys) []error {
 	var errs []error
 	errs = append(errs, mergeKeyList(&m.NextTab, src.NextTab, "main.next_tab")...)
 	errs = append(errs, mergeKeyList(&m.PrevTab, src.PrevTab, "main.prev_tab")...)
-	errs = append(errs, mergeKeyList(&m.FocusNext, src.FocusNext, "main.focus_next")...)
-	errs = append(errs, mergeKeyList(&m.FocusPrev, src.FocusPrev, "main.focus_prev")...)
 	errs = append(errs, mergeKeyList(&m.Quit, src.Quit, "main.quit")...)
 	return errs
 }
@@ -164,8 +173,6 @@ func (d *DialogKeys) merge(src *DialogKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&d.FocusDown, src.FocusDown, "dialog.focus_down")...)
-	errs = append(errs, mergeKeyList(&d.FocusUp, src.FocusUp, "dialog.focus_up")...)
 	errs = append(errs, mergeKeyList(&d.TogglePWVisibility, src.TogglePWVisibility, "dialog.toggle_pw_visibility")...)
 	errs = append(errs, mergeKeyList(&d.Accept, src.Accept, "dialog.accept")...)
 	errs = append(errs, mergeKeyList(&d.Close, src.Close, "dialog.close")...)
