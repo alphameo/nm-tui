@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -40,7 +39,7 @@ type MainModel struct {
 	profileEditor  *ProfileEditorModel
 
 	keys *mainKeyMap
-	help help.Model
+	help *HelpModel
 
 	width  int
 	height int
@@ -81,10 +80,6 @@ func NewMainModel(networksManager infra.NetworksManager, connectivityManager inf
 	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
 	n := Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
 
-	help := help.New()
-	help.Styles = styles.HelpStyle
-	help.ShowAll = true
-
 	return &MainModel{
 		tabs:         wifiTable,
 		popup:        p,
@@ -96,7 +91,7 @@ func NewMainModel(networksManager infra.NetworksManager, connectivityManager inf
 		profileEditor:  profileEditor,
 
 		keys: &keys.main,
-		help: help,
+		help: NewHelpModel(keys),
 	}, nil
 }
 
@@ -170,6 +165,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.keys.quit):
 			return m, tea.Quit
+		case key.Matches(msg, m.keys.help):
+			return m, OpenPopupCmd(m.help)
 		}
 		m.tabs, cmd = m.tabs.Update(msg)
 		return m, cmd
@@ -222,7 +219,7 @@ func (m MainModel) View() tea.View {
 		)
 	}
 
-	help := m.help.View(m.keys)
+	help := m.help.ShortView()
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	v := tea.NewView(view)
 	v.AltScreen = true
@@ -240,9 +237,10 @@ func (m *MainModel) Height() int {
 func (m *MainModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
-	helpHeight := lipgloss.Height(m.help.View(m.keys))
+	helpHeight := lipgloss.Height(m.help.ShortView())
 
 	m.tabs.Resize(width, m.height-helpHeight)
+	m.help.Resize(width/2, height/2)
 
 	notifStyle := m.notification.style.Width(width / 2)
 	m.notification.style = notifStyle
