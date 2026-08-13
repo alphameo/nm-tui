@@ -10,21 +10,21 @@ func TestDefaultKeys(t *testing.T) {
 	k := DefaultKeys()
 
 	bindings := map[string]*KeyBinding{
-		"toggle":          k.Toggle,
-		"rescan":          k.Rescan,
-		"rescan_focused":  k.RescanFocused,
-		"focus_1":         k.Focus1,
-		"focus_2":         k.Focus2,
-		"focus_3":         k.Focus3,
-		"focus_4":         k.Focus4,
-		"focus_5":         k.Focus5,
-		"focus_6":         k.Focus6,
-		"focus_7":         k.Focus7,
-		"focus_8":         k.Focus8,
-		"focus_9":         k.Focus9,
-		"focus_10":        k.Focus10,
-		"main.focus_next": k.FocusNext,
-		"main.focus_prev": k.FocusPrev,
+		"toggle":         k.Toggle,
+		"rescan":         k.Rescan,
+		"rescan_focused": k.RescanFocused,
+		"focus_1":        k.Focus1,
+		"focus_2":        k.Focus2,
+		"focus_3":        k.Focus3,
+		"focus_4":        k.Focus4,
+		"focus_5":        k.Focus5,
+		"focus_6":        k.Focus6,
+		"focus_7":        k.Focus7,
+		"focus_8":        k.Focus8,
+		"focus_9":        k.Focus9,
+		"focus_10":       k.Focus10,
+		"focus_next":     k.FocusNext,
+		"focus_prev":     k.FocusPrev,
 	}
 	for name, b := range bindings {
 		if b == nil {
@@ -36,6 +36,7 @@ func TestDefaultKeys(t *testing.T) {
 		t.Error("Main is nil")
 	} else {
 		for name, b := range map[string]*KeyBinding{
+			"help":          k.Main.Help,
 			"main.next_tab": k.Main.TabNext,
 			"main.prev_tab": k.Main.TabPrev,
 			"main.quit":     k.Main.Quit,
