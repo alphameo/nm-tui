@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 
 	"charm.land/bubbles/v2/help"
@@ -26,6 +27,8 @@ func NewHelpModel(keys keyMaps) *HelpModel {
 	v := viewport.New(viewport.WithHeight(1), viewport.WithWidth(1))
 	h := help.New()
 	h.Styles = styles.HelpStyle
+	h.Ellipsis = styles.SymbolEllipsis
+	h.ShortSeparator = fmt.Sprintf(" %s ", styles.SymbolSeparator)
 
 	help := HelpModel{
 		viewport: v,

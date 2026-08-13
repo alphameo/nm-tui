@@ -195,6 +195,8 @@ icons {
     infra "infr"                  // default for nerd: "🖳 "
     mesh "#"                      // default for nerd: " "
     ad_hoc "ah"                   // default for nerd: ""
+    separator "|"                 // default for nerd: "•"
+    ellipsis "_"                  // default for nerd: "…"
 }
 
 logging {
