@@ -63,6 +63,12 @@ func Init(cfg config.Config) error {
 		return err
 	}
 
+	UpdateColorscheme()
+
+	return nil
+}
+
+func UpdateColorscheme() {
 	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor).Background(BgColor)
 	AccentStyle = DefaultStyle.Foreground(AccentColor).Bold(true)
 	MutedStyle = DefaultStyle.Foreground(MutedColor)
@@ -95,8 +101,6 @@ func Init(cfg config.Config) error {
 	ToggleFocusedStyle = ToggleStyle.Foreground(AccentColor)
 
 	SymbolColoredError = DefaultStyle.Foreground(ErrorColor).Render(SymbolError)
-
-	return nil
 }
 
 func tableStyle() table.Styles {

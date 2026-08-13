@@ -108,7 +108,16 @@ func NewMainModel(networksManager infra.NetworksManager, connectivityManager inf
 }
 
 func (m MainModel) Init() tea.Cmd {
-	return m.tabs.Init()
+	var cmds []tea.Cmd
+	cmds = append(cmds, m.tabs.Init())
+
+	// Request base text color for directing it into colorscheme,
+	// preventing wide nerd icons narrowing
+	if styles.TextColor == lipgloss.Color("") {
+		cmds = append(cmds, tea.RequestForegroundColor)
+	}
+
+	return tea.Batch(cmds...)
 }
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -116,6 +125,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
+	case tea.ForegroundColorMsg:
+		styles.TextColor = msg
+		styles.UpdateColorscheme()
 	case OpenPopupMsg:
 		m.popup.content = msg.model
 		m.popup.active = true
