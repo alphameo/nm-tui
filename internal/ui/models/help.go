@@ -154,14 +154,14 @@ func (m *HelpModel) FullView() string {
 		view,
 		globalTTL, m.help.FullHelpView(global), "",
 		mainTTL, m.help.FullHelpView(main), "",
-		connectivityTTL, m.help.FullHelpView(connectivity), "",
-		availableNetworksTTL, m.help.FullHelpView(availableNetworks), "",
-		connectorTTL, m.help.FullHelpView(connector), "",
-		hotspotCreatorTTL, m.help.FullHelpView(hotspotCreator), "",
-		networkProfilesTTL, m.help.FullHelpView(networkProfiles), "",
 		networksTTL, m.help.FullHelpView(networks), "",
 		profileCreatorTTL, m.help.FullHelpView(profileCreator), "",
+		hotspotCreatorTTL, m.help.FullHelpView(hotspotCreator), "",
+		availableNetworksTTL, m.help.FullHelpView(availableNetworks), "",
+		connectorTTL, m.help.FullHelpView(connector), "",
+		networkProfilesTTL, m.help.FullHelpView(networkProfiles), "",
 		profileEditorTTL, m.help.FullHelpView(profileEditor),
+		connectivityTTL, m.help.FullHelpView(connectivity), "",
 	)
 
 	return view
