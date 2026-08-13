@@ -148,13 +148,13 @@ func inputStyle() textinput.Styles {
 
 func helpStyle() help.Styles {
 	style := help.DefaultDarkStyles()
-	style.ShortKey = style.ShortKey.Background(BgColor)
-	style.ShortDesc = style.ShortDesc.Background(BgColor)
-	style.ShortSeparator = style.ShortSeparator.Background(BgColor)
-	style.Ellipsis = style.Ellipsis.Background(BgColor)
-	style.FullKey = style.FullKey.Background(BgColor)
-	style.FullDesc = style.FullDesc.Background(BgColor)
-	style.FullSeparator = style.FullSeparator.Background(BgColor)
+	style.ShortKey = DefaultStyle
+	style.ShortDesc = MutedStyle
+	style.ShortSeparator = MutedStyle
+	style.Ellipsis = MutedStyle
+	style.FullKey = DefaultStyle
+	style.FullDesc = MutedStyle
+	style.FullSeparator = MutedStyle
 	return style
 }
 
