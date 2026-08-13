@@ -46,7 +46,7 @@ type MainModel struct {
 	hotspotCreator *HotspotCreatorModel
 	profileEditor  *ProfileEditorModel
 
-	keys *keyMaps
+	keys *mainKeyMap
 	help help.Model
 
 	width  int
@@ -102,7 +102,7 @@ func NewMainModel(networksManager infra.NetworksManager, connectivityManager inf
 		hotspotCreator: hotspotCreator,
 		profileEditor:  profileEditor,
 
-		keys: &keys,
+		keys: &keys.main,
 		help: help,
 	}, nil
 }
@@ -168,14 +168,14 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var cmd tea.Cmd
 		if m.popup.active {
 			switch {
-			case key.Matches(msg, m.keys.main.closePopup):
+			case key.Matches(msg, m.keys.closePopup):
 				return m, ClosePopupCmd()
 			}
 			m.popup, cmd = m.popup.Update(msg)
 			return m, cmd
 		}
 		switch {
-		case key.Matches(msg, m.keys.main.quit):
+		case key.Matches(msg, m.keys.quit):
 			return m, tea.Quit
 		}
 		m.tabs, cmd = m.tabs.Update(msg)
