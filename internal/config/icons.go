@@ -53,6 +53,8 @@ type IconConfig struct {
 	Infra            *string `kdl:"infra"`
 	Mesh             *string `kdl:"mesh"`
 	AdHoc            *string `kdl:"ad_hoc"`
+	Ellipsis         *string `kdl:"ellipsis"`
+	Separator        *string `kdl:"separator"`
 }
 
 func DefaultNerdIconConfig() *IconConfig {
@@ -72,6 +74,8 @@ func DefaultNerdIconConfig() *IconConfig {
 		Infra:            new("🖳 "),
 		Mesh:             new(" "),
 		AdHoc:            new(""),
+		Separator:        new("•"),
+		Ellipsis:         new("…"),
 	}
 }
 
@@ -92,6 +96,8 @@ func DefaultNonNerdIconConfig() *IconConfig {
 		Infra:            new("infr"),
 		Mesh:             new("#"),
 		AdHoc:            new("ah"),
+		Separator:        new("|"),
+		Ellipsis:         new("_"),
 	}
 }
 
@@ -121,6 +127,8 @@ func (c *IconConfig) merge(src *IconConfig) []error {
 	collect(mergeIcon(c.Infra, src.Infra, "infra"))
 	collect(mergeIcon(c.Mesh, src.Mesh, "mesh"))
 	collect(mergeIcon(c.AdHoc, src.AdHoc, "ad_hoc"))
+	collect(mergeIcon(c.Ellipsis, src.Ellipsis, "ellipsis"))
+	collect(mergeIcon(c.Separator, src.Separator, "separator"))
 
 	return errs
 }

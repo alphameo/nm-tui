@@ -53,6 +53,12 @@ func TestDefaultIconConfig(t *testing.T) {
 	if cfg.AdHoc == nil {
 		t.Error("AdHoc is nil")
 	}
+	if cfg.Ellipsis == nil {
+		t.Error("Ellipsis is nil")
+	}
+	if cfg.Separator == nil {
+		t.Error("Separator is nil")
+	}
 }
 
 func TestDefaultNerdIconConfig(t *testing.T) {
@@ -103,6 +109,12 @@ func TestDefaultNerdIconConfig(t *testing.T) {
 	if cfg.AdHoc == nil {
 		t.Error("AdHoc is nil")
 	}
+	if cfg.Ellipsis == nil {
+		t.Error("Ellipsis is nil")
+	}
+	if cfg.Separator == nil {
+		t.Error("Separator is nil")
+	}
 }
 
 func TestDefaultNonNerdIconConfig(t *testing.T) {
@@ -152,6 +164,12 @@ func TestDefaultNonNerdIconConfig(t *testing.T) {
 	}
 	if cfg.AdHoc == nil {
 		t.Error("AdHoc is nil")
+	}
+	if cfg.Ellipsis == nil {
+		t.Error("Ellipsis is nil")
+	}
+	if cfg.Separator == nil {
+		t.Error("Separator is nil")
 	}
 }
 

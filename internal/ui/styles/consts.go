@@ -22,4 +22,6 @@ var (
 
 	SymbolColoredError string
 	SymbolsToggle      toggle.Symbols
+	SymbolEllipsis     string
+	SymbolSeparator    string
 )

@@ -187,6 +187,8 @@ func initIcons(icons config.IconConfig) error {
 	SymbolInfra = *icons.Infra
 	SymbolMesh = *icons.Mesh
 	SymbolAdHoc = *icons.AdHoc
+	SymbolEllipsis = *icons.Ellipsis
+	SymbolSeparator = *icons.Separator
 
 	return nil
 }
