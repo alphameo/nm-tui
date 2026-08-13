@@ -178,6 +178,7 @@ func (m *HelpModel) mainFull() [][]key.Binding {
 		m.keyMap.main.quit,
 		m.keyMap.tabs.Next,
 		m.keyMap.tabs.Prev,
+		m.keyMap.main.help,
 	}}
 }
 
