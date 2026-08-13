@@ -70,7 +70,6 @@ type connectivityKeyMap struct {
 	prev   key.Binding
 	next   key.Binding
 	rescan key.Binding
-	toggle key.Binding
 }
 
 type ConnectivityModel struct {
@@ -216,7 +215,8 @@ func (m *ConnectivityModel) Update(msg tea.Msg) (*ConnectivityModel, tea.Cmd) {
 			return m, m.focusPrevCmd()
 		case key.Matches(msg, m.keys.rescan):
 			return m, m.RescanCmd()
-		case key.Matches(msg, m.keys.toggle):
+		// NOTE: It is supposed that all togglers has the same bindings
+		case key.Matches(msg, m.wwan.Keys.Toggle):
 			if m.wwan.Focused() {
 				return m, m.toggleWWAN()
 			}
