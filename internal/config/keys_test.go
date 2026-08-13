@@ -36,8 +36,8 @@ func TestDefaultKeys(t *testing.T) {
 		t.Error("Main is nil")
 	} else {
 		for name, b := range map[string]*KeyBinding{
-			"main.next_tab": k.Main.NextTab,
-			"main.prev_tab": k.Main.PrevTab,
+			"main.next_tab": k.Main.TabNext,
+			"main.prev_tab": k.Main.TabPrev,
 			"main.quit":     k.Main.Quit,
 		} {
 			if b == nil {
@@ -241,7 +241,7 @@ func TestKeyConfigMerge(t *testing.T) {
 		}
 		assertKeyBinding(t, "toggle", dst.Toggle, "t")
 		assertKeyBinding(t, "main.quit", dst.Main.Quit, "q")
-		assertKeyBinding(t, "main.next_tab", dst.Main.NextTab, "]")
+		assertKeyBinding(t, "main.next_tab", dst.Main.TabNext, "]")
 		assertKeyBinding(t, "rescan", dst.Rescan, "r")
 	})
 
@@ -260,18 +260,18 @@ func TestKeyConfigMerge(t *testing.T) {
 }
 
 func TestMainKeysMerge(t *testing.T) {
-	dst := &MainKeys{NextTab: keyBinding("]")}
+	dst := &MainKeys{TabNext: keyBinding("]")}
 	if errs := dst.merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
 	}
 
-	src := &MainKeys{NextTab: keyBinding("n"), Quit: keyBinding("q")}
+	src := &MainKeys{TabNext: keyBinding("n"), Quit: keyBinding("q")}
 	if errs := dst.merge(src); len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
-	assertKeyBinding(t, "next_tab", dst.NextTab, "n")
+	assertKeyBinding(t, "next_tab", dst.TabNext, "n")
 	assertKeyBinding(t, "quit", dst.Quit, "q")
-	assertNilKeyBinding(t, "prev_tab", dst.PrevTab)
+	assertNilKeyBinding(t, "prev_tab", dst.TabPrev)
 }
 
 func TestDialogKeysMerge(t *testing.T) {

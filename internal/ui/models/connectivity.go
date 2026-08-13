@@ -67,8 +67,8 @@ func (s *connectivityState) String() string {
 }
 
 type connectivityKeyMap struct {
-	up     key.Binding
-	down   key.Binding
+	prev   key.Binding
+	next   key.Binding
 	rescan key.Binding
 	toggle key.Binding
 }
@@ -210,9 +210,9 @@ func (m *ConnectivityModel) Update(msg tea.Msg) (*ConnectivityModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.keys.down):
+		case key.Matches(msg, m.keys.next):
 			return m, m.focusNextCmd()
-		case key.Matches(msg, m.keys.up):
+		case key.Matches(msg, m.keys.prev):
 			return m, m.focusPrevCmd()
 		case key.Matches(msg, m.keys.rescan):
 			return m, m.RescanCmd()
