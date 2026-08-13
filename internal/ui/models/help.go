@@ -22,9 +22,7 @@ type helpConfig struct {
 	title string
 }
 
-var helpCfg helpConfig = helpConfig{
-	title: "Help",
-}
+var helpCfg = helpConfig{title: "Help"}
 
 type HelpModel struct {
 	viewport viewport.Model
