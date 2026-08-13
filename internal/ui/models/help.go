@@ -128,7 +128,7 @@ func (m *HelpModel) FullView() string {
 	availableNetworks := m.availableNetworksFull()
 
 	connectorTTL := "Connector"
-	connectorTTL = styles.AccentStyle.Render(connectivityTTL)
+	connectorTTL = styles.AccentStyle.Render(connectorTTL)
 	connector := m.connectorFull()
 
 	hotspotCreatorTTL := "Hotspot Creator"
