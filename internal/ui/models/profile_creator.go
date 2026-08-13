@@ -134,7 +134,7 @@ func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd
 	m.ssid, cmd = m.ssid.Update(msg)
 	cmds = append(cmds, cmd)
 
-	m.ssid, cmd = m.name.Update(msg)
+	m.name, cmd = m.name.Update(msg)
 	cmds = append(cmds, cmd)
 
 	m.password, cmd = m.password.Update(msg)
