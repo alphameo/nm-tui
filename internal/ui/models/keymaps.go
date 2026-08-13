@@ -61,7 +61,6 @@ func initKeys(keys config.KeyConfig) keyMaps {
 			prev:   NewKey(*keys.FocusPrev, "prev field"),
 			next:   NewKey(*keys.FocusNext, "next field"),
 			rescan: NewKey(*keys.Rescan, "rescan"),
-			toggle: NewKey(*keys.Toggle, ""),
 		},
 		networks: networksKeyMap{
 			winNext:           NewKey(*keys.FocusNext, "next window"),
