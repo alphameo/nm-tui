@@ -221,6 +221,7 @@ keys {
     focus_9 "9"
     focus_10 "10"
     main {
+        help "?"
         next_tab "]"
         prev_tab "["
         quit "esc" "ctrl+c" "q" "ctrl+q"
