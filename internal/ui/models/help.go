@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log/slog"
 	"strings"
 
 	"charm.land/bubbles/v2/help"
@@ -89,42 +88,61 @@ func (m *HelpModel) ShortView() string {
 
 func (m *HelpModel) FullView() string {
 	var view string
+	globalTTL := "Global"
+	globalTTL = styles.AccentStyle.Render(globalTTL)
 	global := m.globalFull()
+
+	mainTTL := "Main"
+	mainTTL = styles.AccentStyle.Render(mainTTL)
 	main := m.mainFull()
+
+	connectivityTTL := "Connectivity"
+	connectivityTTL = styles.AccentStyle.Render(connectivityTTL)
 	connectivity := m.connectivityFull()
+
+	availableNetworksTTL := "Available Networks"
+	availableNetworksTTL = styles.AccentStyle.Render(availableNetworksTTL)
 	availableNetworks := m.availableNetworksFull()
+
+	connectorTTL := "Connector"
+	connectorTTL = styles.AccentStyle.Render(connectivityTTL)
 	connector := m.connectorFull()
+
+	hotspotCreatorTTL := "Hotspot Creator"
+	hotspotCreatorTTL = styles.AccentStyle.Render(hotspotCreatorTTL)
 	hotspotCreator := m.hotspotCreatorFull()
+
+	networkProfilesTTL := "Network Profiles"
+	networkProfilesTTL = styles.AccentStyle.Render(networkProfilesTTL)
 	networkProfiles := m.networkProfilesFull()
+
+	networksTTL := "Networks"
+	networksTTL = styles.AccentStyle.Render(networksTTL)
 	networks := m.networksFull()
+
+	profileCreatorTTL := "Network Creator"
+	profileCreatorTTL = styles.AccentStyle.Render(profileCreatorTTL)
 	profileCreator := m.profileCreatorFull()
+
+	profileEditorTTL := "Profile Editor"
+	profileEditorTTL = styles.AccentStyle.Render(profileEditorTTL)
 	profileEditor := m.profileEditorFull()
 
 	view = lipgloss.JoinVertical(
 		lipgloss.Left,
 		view,
-		"Global", m.help.FullHelpView(global),
-		"",
-		"Main", m.help.FullHelpView(main),
-		"",
-		"Connectivity", m.help.FullHelpView(connectivity),
-		"",
-		"Available Networks", m.help.FullHelpView(availableNetworks),
-		"",
-		"Connector", m.help.FullHelpView(connector),
-		"",
-		"Hotspot Creator", m.help.FullHelpView(hotspotCreator),
-		"",
-		"Network Profiles", m.help.FullHelpView(networkProfiles),
-		"",
-		"Networks", m.help.FullHelpView(networks),
-		"",
-		"Profile Creator", m.help.FullHelpView(profileCreator),
-		"",
-		"Profile Editor", m.help.FullHelpView(profileEditor),
+		globalTTL, m.help.FullHelpView(global), "",
+		mainTTL, m.help.FullHelpView(main), "",
+		connectivityTTL, m.help.FullHelpView(connectivity), "",
+		availableNetworksTTL, m.help.FullHelpView(availableNetworks), "",
+		connectorTTL, m.help.FullHelpView(connector), "",
+		hotspotCreatorTTL, m.help.FullHelpView(hotspotCreator), "",
+		networkProfilesTTL, m.help.FullHelpView(networkProfiles), "",
+		networksTTL, m.help.FullHelpView(networks), "",
+		profileCreatorTTL, m.help.FullHelpView(profileCreator), "",
+		profileEditorTTL, m.help.FullHelpView(profileEditor),
 	)
 
-	slog.Error(view)
 	return view
 }
 
