@@ -111,7 +111,7 @@ func (m MainModel) Init() tea.Cmd {
 	var cmds []tea.Cmd
 	cmds = append(cmds, m.tabs.Init())
 
-	// Request base text color for directing it into colorscheme,
+	// NOTE: Request base text color for directing it into colorscheme,
 	// preventing wide nerd icons narrowing
 	if styles.TextColor == lipgloss.Color("") {
 		cmds = append(cmds, tea.RequestForegroundColor)
