@@ -10,10 +10,20 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
+	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
+	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
 type helpKeyMap struct {
 	quit key.Binding
+}
+
+type helpConfig struct {
+	title string
+}
+
+var helpCfg helpConfig = helpConfig{
+	title: "Help",
 }
 
 type HelpModel struct {
@@ -46,6 +56,7 @@ func (m *HelpModel) Resize(width, height int) {
 }
 
 func (m *HelpModel) Init() tea.Cmd {
+	m.viewport.GotoTop()
 	return nil
 }
 
@@ -73,7 +84,16 @@ func (m *HelpModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 
 func (m *HelpModel) View() string {
 	view := m.viewport.View()
-	view = styles.BorderedFocusedStyle.Render(view)
+	title := styles.DefaultStyle.Render(renderer.RenderTitle(helpCfg.title))
+	view = styles.OverlayStyle.Render(view)
+	view = compositor.Compose(
+		title,
+		view,
+		compositor.Center,
+		compositor.Begin,
+		0,
+		0,
+	)
 	return view
 }
 
