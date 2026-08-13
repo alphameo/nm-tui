@@ -3,25 +3,25 @@ package tabview
 import "charm.land/bubbles/v2/key"
 
 type KeyMap struct {
-	TabNext key.Binding
-	TabPrev key.Binding
+	Next key.Binding
+	Prev key.Binding
 }
 
 func (k *KeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.TabNext, k.TabPrev}
+	return []key.Binding{k.Next, k.Prev}
 }
 
 func (k *KeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.TabNext, k.TabPrev}}
+	return [][]key.Binding{{k.Next, k.Prev}}
 }
 
 func DefaultKeys() KeyMap {
 	return KeyMap{
-		TabNext: key.NewBinding(
+		Next: key.NewBinding(
 			key.WithKeys("]"),
 			key.WithHelp("]", "next tab"),
 		),
-		TabPrev: key.NewBinding(
+		Prev: key.NewBinding(
 			key.WithKeys("["),
 			key.WithHelp("[", "previous tab"),
 		),

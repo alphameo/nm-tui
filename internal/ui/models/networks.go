@@ -13,9 +13,10 @@ import (
 )
 
 type networksKeyMap struct {
-	nextWindow        key.Binding
-	firstWindow       key.Binding
-	secondWindow      key.Binding
+	winNext           key.Binding
+	winPrev           key.Binding
+	win1              key.Binding
+	win2              key.Binding
 	rescan            key.Binding
 	createProfile     key.Binding
 	openCaptivePortal key.Binding
@@ -112,15 +113,19 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.keys.nextWindow):
+		case key.Matches(msg, m.keys.winNext):
 			m.focuses[m.focusWindowIdx].Blur()
 			m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.focuses)
 			m.focuses[m.focusWindowIdx].Focus()
-		case key.Matches(msg, m.keys.firstWindow):
+		case key.Matches(msg, m.keys.winPrev):
+			m.focuses[m.focusWindowIdx].Blur()
+			m.focusWindowIdx = (m.focusWindowIdx - 1) % len(m.focuses)
+			m.focuses[m.focusWindowIdx].Focus()
+		case key.Matches(msg, m.keys.win1):
 			m.focuses[m.focusWindowIdx].Blur()
 			m.focusWindowIdx = 0
 			m.focuses[m.focusWindowIdx].Focus()
-		case key.Matches(msg, m.keys.secondWindow):
+		case key.Matches(msg, m.keys.win2):
 			m.focuses[m.focusWindowIdx].Blur()
 			m.focusWindowIdx = 1
 			m.focuses[m.focusWindowIdx].Focus()

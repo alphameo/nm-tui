@@ -26,8 +26,8 @@ var profileEditorCfg = profileEditorConfig{
 
 type profileEditorKeyMap struct {
 	togglePWVisibility key.Binding
-	up                 key.Binding
-	down               key.Binding
+	prev               key.Binding
+	next               key.Binding
 	save               key.Binding
 }
 
@@ -134,9 +134,9 @@ func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) 
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.keys.down):
+		case key.Matches(msg, m.keys.next):
 			return m, m.focusNextCmd()
-		case key.Matches(msg, m.keys.up):
+		case key.Matches(msg, m.keys.prev):
 			return m, m.focusPrevCmd()
 		case key.Matches(msg, m.keys.togglePWVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {

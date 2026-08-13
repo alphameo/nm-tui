@@ -51,8 +51,8 @@ type KeyConfig struct {
 }
 
 type MainKeys struct {
-	NextTab *KeyBinding `kdl:"next_tab"`
-	PrevTab *KeyBinding `kdl:"prev_tab"`
+	TabNext *KeyBinding `kdl:"next_tab"`
+	TabPrev *KeyBinding `kdl:"prev_tab"`
 	Quit    *KeyBinding `kdl:"quit"`
 }
 
@@ -98,8 +98,8 @@ func DefaultKeys() *KeyConfig {
 		Focus9:        keyBinding("9"),
 		Focus10:       keyBinding("10"),
 		Main: &MainKeys{
-			NextTab: keyBinding("]"),
-			PrevTab: keyBinding("["),
+			TabNext: keyBinding("]"),
+			TabPrev: keyBinding("["),
 			Quit:    keyBinding("esc", "ctrl+c", "q", "ctrl+q"),
 		},
 		Dialog: &DialogKeys{
@@ -161,8 +161,8 @@ func (m *MainKeys) merge(src *MainKeys) []error {
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&m.NextTab, src.NextTab, "main.next_tab")...)
-	errs = append(errs, mergeKeyList(&m.PrevTab, src.PrevTab, "main.prev_tab")...)
+	errs = append(errs, mergeKeyList(&m.TabNext, src.TabNext, "main.next_tab")...)
+	errs = append(errs, mergeKeyList(&m.TabPrev, src.TabPrev, "main.prev_tab")...)
 	errs = append(errs, mergeKeyList(&m.Quit, src.Quit, "main.quit")...)
 	return errs
 }

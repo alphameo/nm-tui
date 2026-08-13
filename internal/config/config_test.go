@@ -307,7 +307,7 @@ func TestLoad(t *testing.T) {
 	}
 	assertKeyBinding(t, "keys.toggle", cfg.Keys.Toggle, "space")
 	assertKeyBinding(t, "keys.rescan_focused", cfg.Keys.RescanFocused, "ctrl+r")
-	assertKeyBinding(t, "keys.main.next_tab", cfg.Keys.Main.NextTab, "]")
+	assertKeyBinding(t, "keys.main.next_tab", cfg.Keys.Main.TabNext, "]")
 	assertKeyBinding(t, "keys.main.quit", cfg.Keys.Main.Quit, "esc", "ctrl+c", "q", "ctrl+q")
 	assertKeyBinding(t, "keys.dialog.close", cfg.Keys.Dialog.Close, "esc", "ctrl+q", "ctrl+c")
 	assertKeyBinding(t, "keys.wifi.create_profile", cfg.Keys.Networks.CreateProfile, "a", "c")

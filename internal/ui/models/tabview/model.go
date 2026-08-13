@@ -82,13 +82,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.Keys.TabNext):
+		case key.Matches(msg, m.Keys.Next):
 			m.tabContents[m.activeTab].Blur()
 			m.activeTab = min(m.activeTab+1, len(m.tabContents)-1)
 			m.tabContents[m.activeTab].Focus()
 			m.renderTabBar()
 			return m, m.tabContents[m.activeTab].Init()
-		case key.Matches(msg, m.Keys.TabPrev):
+		case key.Matches(msg, m.Keys.Prev):
 			m.tabContents[m.activeTab].Blur()
 			m.activeTab = max(m.activeTab-1, 0)
 			m.tabContents[m.activeTab].Focus()

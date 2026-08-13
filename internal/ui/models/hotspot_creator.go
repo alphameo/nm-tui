@@ -24,8 +24,8 @@ var hotspotCreatorCfg = hotspotCreatorConfig{
 
 type hotspotCreatorKeyMap struct {
 	togglePWVisibility key.Binding
-	up                 key.Binding
-	down               key.Binding
+	prev               key.Binding
+	next               key.Binding
 	create             key.Binding
 }
 
@@ -95,9 +95,9 @@ func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.keys.down):
+		case key.Matches(msg, m.keys.next):
 			return m, m.focusNextCmd()
-		case key.Matches(msg, m.keys.up):
+		case key.Matches(msg, m.keys.prev):
 			return m, m.focusPrevCmd()
 		case key.Matches(msg, m.keys.togglePWVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {

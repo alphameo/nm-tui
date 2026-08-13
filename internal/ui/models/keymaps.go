@@ -1,8 +1,6 @@
 package models
 
 import (
-	"strings"
-
 	"charm.land/bubbles/v2/key"
 	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
@@ -40,8 +38,8 @@ func (k *keyMaps) FullHelp() [][]key.Binding {
 			k.main.quit,
 		},
 		{
-			k.tabs.TabNext,
-			k.tabs.TabPrev,
+			k.tabs.Next,
+			k.tabs.Prev,
 		},
 	}
 }
@@ -49,81 +47,71 @@ func (k *keyMaps) FullHelp() [][]key.Binding {
 func initKeys(keys config.KeyConfig) keyMaps {
 	return keyMaps{
 		main: mainKeyMap{
-			quit:       NewKey(*keys.Main.Quit, "quit"),
-			closePopup: NewKey(*keys.Dialog.Close, "close dialog"),
+			quit:       NewKey(*keys.Main.Quit),
+			closePopup: NewKey(*keys.Dialog.Close),
 		},
 		tabs: tabview.KeyMap{
-			TabNext: NewKey(*keys.Main.NextTab, "next tab"),
-			TabPrev: NewKey(*keys.Main.PrevTab, "prev tab"),
+			Next: NewKey(*keys.Main.TabNext),
+			Prev: NewKey(*keys.Main.TabPrev),
 		},
 		toggle: toggle.KeyMap{
-			Toggle: NewKey(*keys.Toggle, "toggle"),
+			Toggle: NewKey(*keys.Toggle),
 		},
 		connectivity: connectivityKeyMap{
-			up:     NewKey(*keys.FocusPrev, "focus up"),
-			down:   NewKey(*keys.FocusNext, "focus down"),
-			rescan: NewKey(*keys.Rescan, "rescan"),
-			toggle: NewKey(*keys.Toggle, "toggle"),
+			prev:   NewKey(*keys.FocusPrev),
+			next:   NewKey(*keys.FocusNext),
+			rescan: NewKey(*keys.Rescan),
+			toggle: NewKey(*keys.Toggle),
 		},
 		networks: networksKeyMap{
-			nextWindow:        NewKey(*keys.FocusNext, "focus next"),
-			rescan:            NewKey(*keys.Rescan, "rescan networks"),
-			createProfile:     NewKey(*keys.Networks.CreateProfile, "create profile"),
-			createHotspot:     NewKey(*keys.Networks.CreateHotspot, "create hotspot"),
-			quickHotspot:      NewKey(*keys.Networks.QuickHotspot, "quick hotspot"),
-			openCaptivePortal: NewKey(*keys.Networks.OpenCaptivePortal, "open captive portal"),
-			firstWindow:       NewKey(*keys.Focus1, "focus first window"),
-			secondWindow:      NewKey(*keys.Focus2, "focus second window"),
+			winNext:           NewKey(*keys.FocusNext),
+			winPrev:           NewKey(*keys.FocusPrev),
+			rescan:            NewKey(*keys.Rescan),
+			createProfile:     NewKey(*keys.Networks.CreateProfile),
+			createHotspot:     NewKey(*keys.Networks.CreateHotspot),
+			quickHotspot:      NewKey(*keys.Networks.QuickHotspot),
+			openCaptivePortal: NewKey(*keys.Networks.OpenCaptivePortal),
+			win1:              NewKey(*keys.Focus1),
+			win2:              NewKey(*keys.Focus2),
 		},
 		networkProfiles: networkProfilesKeyMap{
-			rescan:     NewKey(*keys.RescanFocused, "rescan network profiles"),
-			edit:       NewKey(*keys.NetworkProfiles.Edit, "edit profile"),
-			connect:    NewKey(*keys.NetworkProfiles.Connect, "connect"),
-			disconnect: NewKey(*keys.NetworkProfiles.Disconnect, "disconnect"),
-			delete:     NewKey(*keys.NetworkProfiles.Delete, "delete profile"),
+			rescan:     NewKey(*keys.RescanFocused),
+			edit:       NewKey(*keys.NetworkProfiles.Edit),
+			connect:    NewKey(*keys.NetworkProfiles.Connect),
+			disconnect: NewKey(*keys.NetworkProfiles.Disconnect),
+			delete:     NewKey(*keys.NetworkProfiles.Delete),
 		},
 		availableNetworks: availableNetworksKeyMap{
-			rescan:  NewKey(*keys.RescanFocused, "rescan available networks"),
-			connect: NewKey(*keys.AvailableNetworks.Connect, "connect"),
+			rescan:  NewKey(*keys.RescanFocused),
+			connect: NewKey(*keys.AvailableNetworks.Connect),
 		},
 		profileEditor: profileEditorKeyMap{
-			up:                 NewKey(*keys.FocusPrev, "focus up"),
-			down:               NewKey(*keys.FocusNext, "focus down"),
-			save:               NewKey(*keys.Dialog.Accept, "save changes"),
-			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "toggle password visibility"),
+			prev:               NewKey(*keys.FocusPrev),
+			next:               NewKey(*keys.FocusNext),
+			save:               NewKey(*keys.Dialog.Accept),
+			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility),
 		},
 		connector: connectorKeyMap{
-			up:                 NewKey(*keys.FocusPrev, "focus up"),
-			down:               NewKey(*keys.FocusNext, "focus down"),
-			connect:            NewKey(*keys.Dialog.Accept, "connect"),
-			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "toggle password visibility"),
+			prev:               NewKey(*keys.FocusPrev),
+			next:               NewKey(*keys.FocusNext),
+			connect:            NewKey(*keys.Dialog.Accept),
+			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility),
 		},
 		profileCreator: profileCreatorKeyMap{
-			up:                 NewKey(*keys.FocusPrev, "focus up"),
-			down:               NewKey(*keys.FocusNext, "focus down"),
-			create:             NewKey(*keys.Dialog.Accept, "create"),
-			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "toggle password visibility"),
+			prev:               NewKey(*keys.FocusPrev),
+			next:               NewKey(*keys.FocusNext),
+			create:             NewKey(*keys.Dialog.Accept),
+			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility),
 		},
 		hotspotCreator: hotspotCreatorKeyMap{
-			up:                 NewKey(*keys.FocusPrev, "focus up"),
-			down:               NewKey(*keys.FocusNext, "focus down"),
-			create:             NewKey(*keys.Dialog.Accept, "create"),
-			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "toggle password visibility"),
+			prev:               NewKey(*keys.FocusPrev),
+			next:               NewKey(*keys.FocusNext),
+			create:             NewKey(*keys.Dialog.Accept),
+			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility),
 		},
 	}
 }
 
-func NewKey(keys []string, desc string) key.Binding {
-	return key.NewBinding(
-		key.WithKeys(keys...),
-		key.WithHelp(HelpFromKeys(keys...), desc),
-	)
-}
-
-func HelpFromKeys(keys ...string) string {
-	transformed := make([]string, len(keys))
-	for i, key := range keys {
-		transformed[i] = strings.ReplaceAll(key, "ctrl+", "^")
-	}
-	return strings.Join(transformed, "/")
+func NewKey(keys []string) key.Binding {
+	return key.NewBinding(key.WithKeys(keys...))
 }
