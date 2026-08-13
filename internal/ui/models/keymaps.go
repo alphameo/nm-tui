@@ -28,10 +28,6 @@ type keyMaps struct {
 	hotspotCreator    hotspotCreatorKeyMap
 }
 
-func (k *keyMaps) ShortHelp() []key.Binding {
-	return []key.Binding{k.main.quit}
-}
-
 func (k *keyMaps) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{
