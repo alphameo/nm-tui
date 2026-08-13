@@ -49,6 +49,7 @@ func initKeys(keys config.KeyConfig) keyMaps {
 		main: mainKeyMap{
 			quit:       NewKey(*keys.Main.Quit, "quit"),
 			closePopup: NewKey(*keys.Dialog.Close, "close popup"),
+			help:       NewKey(*keys.Main.Help, "help"),
 		},
 		tabs: tabview.KeyMap{
 			Next: NewKey(*keys.Main.TabNext, "next tab"),

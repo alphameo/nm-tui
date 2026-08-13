@@ -26,14 +26,7 @@ var mainCfg = mainConfig{
 type mainKeyMap struct {
 	quit       key.Binding
 	closePopup key.Binding
-}
-
-func (k *mainKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.quit}
-}
-
-func (k *mainKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.quit}}
+	help       key.Binding
 }
 
 type MainModel struct {
