@@ -26,18 +26,7 @@ type keyMaps struct {
 	connector         connectorKeyMap
 	profileCreator    profileCreatorKeyMap
 	hotspotCreator    hotspotCreatorKeyMap
-}
-
-func (k *keyMaps) FullHelp() [][]key.Binding {
-	return [][]key.Binding{
-		{
-			k.main.quit,
-		},
-		{
-			k.tabs.Next,
-			k.tabs.Prev,
-		},
-	}
+	help              helpKeyMap
 }
 
 func initKeys(keys config.KeyConfig) keyMaps {
@@ -104,6 +93,9 @@ func initKeys(keys config.KeyConfig) keyMaps {
 			next:               NewKey(*keys.FocusNext, "next field"),
 			create:             NewKey(*keys.Dialog.Accept, "create"),
 			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "pw visibility"),
+		},
+		help: helpKeyMap{
+			quit: NewKey(*keys.Main.Help, "quit help"),
 		},
 	}
 }

@@ -12,10 +12,15 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
+type helpKeyMap struct {
+	quit key.Binding
+}
+
 type HelpModel struct {
 	viewport viewport.Model
 	help     help.Model
-	keys     keyMaps
+	keyMap   keyMaps
+	keys     helpKeyMap
 }
 
 func NewHelpModel(keys keyMaps) *HelpModel {
@@ -25,8 +30,9 @@ func NewHelpModel(keys keyMaps) *HelpModel {
 
 	help := HelpModel{
 		viewport: v,
-		keys:     keys,
+		keyMap:   keys,
 		help:     h,
+		keys:     keys.help,
 	}
 	help.viewport.SetContent(help.FullView())
 	return &help
@@ -46,6 +52,11 @@ func (m *HelpModel) Update(msg tea.Msg) (*HelpModel, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.viewport.SetWidth(msg.Width - styles.BorderOffset)
 		m.viewport.SetHeight(msg.Height - styles.BorderOffset)
+	case tea.KeyPressMsg:
+		switch {
+		case key.Matches(msg, m.keys.quit):
+			return m, ClosePopupCmd()
+		}
 	}
 
 	var cmd tea.Cmd
@@ -66,8 +77,8 @@ func (m *HelpModel) View() string {
 
 func (m *HelpModel) Short() []key.Binding {
 	keys := []key.Binding{
-		m.keys.main.quit,
-		m.keys.main.closePopup,
+		m.keyMap.main.quit,
+		m.keyMap.main.closePopup,
 	}
 	return keys
 }
@@ -119,94 +130,94 @@ func (m *HelpModel) FullView() string {
 
 func (m *HelpModel) globalFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.toggle.Toggle,
+		m.keyMap.toggle.Toggle,
 	}}
 }
 
 func (m *HelpModel) mainFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.main.quit,
-		m.keys.tabs.Next,
-		m.keys.tabs.Prev,
+		m.keyMap.main.quit,
+		m.keyMap.tabs.Next,
+		m.keyMap.tabs.Prev,
 	}}
 }
 
 func (m *HelpModel) connectivityFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.connectivity.prev,
-		m.keys.connectivity.next,
-		m.keys.connectivity.rescan,
+		m.keyMap.connectivity.prev,
+		m.keyMap.connectivity.next,
+		m.keyMap.connectivity.rescan,
 	}}
 }
 
 func (m *HelpModel) availableNetworksFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.availableNetworks.rescan,
-		m.keys.availableNetworks.connect,
+		m.keyMap.availableNetworks.rescan,
+		m.keyMap.availableNetworks.connect,
 	}}
 }
 
 func (m *HelpModel) connectorFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.connector.prev,
-		m.keys.connector.next,
-		m.keys.connector.togglePWVisibility,
-		m.keys.connector.connect,
-		m.keys.main.closePopup,
+		m.keyMap.connector.prev,
+		m.keyMap.connector.next,
+		m.keyMap.connector.togglePWVisibility,
+		m.keyMap.connector.connect,
+		m.keyMap.main.closePopup,
 	}}
 }
 
 func (m *HelpModel) hotspotCreatorFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.hotspotCreator.prev,
-		m.keys.hotspotCreator.next,
-		m.keys.hotspotCreator.togglePWVisibility,
-		m.keys.hotspotCreator.create,
-		m.keys.main.closePopup,
+		m.keyMap.hotspotCreator.prev,
+		m.keyMap.hotspotCreator.next,
+		m.keyMap.hotspotCreator.togglePWVisibility,
+		m.keyMap.hotspotCreator.create,
+		m.keyMap.main.closePopup,
 	}}
 }
 
 func (m *HelpModel) networkProfilesFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.networkProfiles.connect,
-		m.keys.networkProfiles.disconnect,
-		m.keys.networkProfiles.edit,
-		m.keys.networkProfiles.delete,
-		m.keys.networkProfiles.rescan,
+		m.keyMap.networkProfiles.connect,
+		m.keyMap.networkProfiles.disconnect,
+		m.keyMap.networkProfiles.edit,
+		m.keyMap.networkProfiles.delete,
+		m.keyMap.networkProfiles.rescan,
 	}}
 }
 
 func (m *HelpModel) networksFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.networks.win1,
-		m.keys.networks.win2,
-		m.keys.networks.winPrev,
-		m.keys.networks.winNext,
-		m.keys.networks.createProfile,
-		m.keys.networks.createHotspot,
-		m.keys.networks.quickHotspot,
-		m.keys.networks.openCaptivePortal,
-		m.keys.networks.rescan,
+		m.keyMap.networks.win1,
+		m.keyMap.networks.win2,
+		m.keyMap.networks.winPrev,
+		m.keyMap.networks.winNext,
+		m.keyMap.networks.createProfile,
+		m.keyMap.networks.createHotspot,
+		m.keyMap.networks.quickHotspot,
+		m.keyMap.networks.openCaptivePortal,
+		m.keyMap.networks.rescan,
 	}}
 }
 
 func (m *HelpModel) profileCreatorFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.profileCreator.prev,
-		m.keys.profileCreator.next,
-		m.keys.profileCreator.togglePWVisibility,
-		m.keys.profileCreator.create,
-		m.keys.main.closePopup,
+		m.keyMap.profileCreator.prev,
+		m.keyMap.profileCreator.next,
+		m.keyMap.profileCreator.togglePWVisibility,
+		m.keyMap.profileCreator.create,
+		m.keyMap.main.closePopup,
 	}}
 }
 
 func (m *HelpModel) profileEditorFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keys.profileEditor.prev,
-		m.keys.profileEditor.next,
-		m.keys.profileEditor.togglePWVisibility,
-		m.keys.profileEditor.save,
-		m.keys.main.closePopup,
+		m.keyMap.profileEditor.prev,
+		m.keyMap.profileEditor.next,
+		m.keyMap.profileEditor.togglePWVisibility,
+		m.keyMap.profileEditor.save,
+		m.keyMap.main.closePopup,
 	}}
 }
 
