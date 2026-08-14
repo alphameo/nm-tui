@@ -208,6 +208,7 @@ func mergeIcon(dst *string, src *string, tag string) error {
 	return nil
 }
 
+//nolint:unparam // NOTE: mergeSymbol is kept parameterized for future single-rune symbol merges
 func mergeSymbol(dst *string, src *string, tag string) error {
 	if src == nil {
 		return nil
