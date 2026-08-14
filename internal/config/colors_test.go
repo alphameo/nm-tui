@@ -1,7 +1,6 @@
 package config_test
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/alphameo/nm-tui/internal/config"
@@ -109,62 +108,47 @@ func TestValidateColor(t *testing.T) {
 func TestColorConfigMerge(t *testing.T) {
 	t.Parallel()
 
-	t.Run("valid overrides applied", func(t *testing.T) {
-		t.Parallel()
-
-		dst := config.DefaultColorConfig()
-		src := &config.ColorConfig{
+	tests := []struct {
+		name      string
+		src       *config.ColorConfig
+		wantErr   int
+		fragments []string
+		check     func(t *testing.T, dst *config.ColorConfig)
+	}{
+		{name: "valid overrides applied", src: &config.ColorConfig{
 			Text:  new("#111111"),
 			Error: new(config.ColorBrightRed),
-		}
-		errs := dst.Merge(src)
-		if len(errs) != 0 {
-			t.Fatalf("unexpected errors: %v", errs)
-		}
-		if *dst.Text != "#111111" {
-			t.Errorf("Text = %q, want #111111", *dst.Text)
-		}
-		if *dst.Error != config.ColorBrightRed {
-			t.Errorf("Error = %q, want %q", *dst.Error, config.ColorBrightRed)
-		}
-		if *dst.Accent != config.ColorBlue {
-			t.Errorf("Accent = %q, want unchanged %q", *dst.Accent, config.ColorBlue)
-		}
-	})
-
-	t.Run("multiple invalid fields collected", func(t *testing.T) {
-		t.Parallel()
-
-		dst := config.DefaultColorConfig()
-		src := &config.ColorConfig{
+		}, check: func(t *testing.T, dst *config.ColorConfig) {
+			if *dst.Text != "#111111" {
+				t.Errorf("Text = %q, want #111111", *dst.Text)
+			}
+			if *dst.Error != config.ColorBrightRed {
+				t.Errorf("Error = %q, want %q", *dst.Error, config.ColorBrightRed)
+			}
+			if *dst.Accent != config.ColorBlue {
+				t.Errorf("Accent = %q, want unchanged %q", *dst.Accent, config.ColorBlue)
+			}
+		}},
+		{name: "multiple invalid fields collected", src: &config.ColorConfig{
 			Text:  new("bogus"),
 			Error: new("also-bogus"),
 			Muted: new(""),
-		}
-		errs := dst.Merge(src)
-		if len(errs) != 3 {
-			t.Fatalf("want 3 errors, got %v", errs)
-		}
-		for _, frag := range []string{"text color", "error color", "muted color"} {
-			found := false
-			for _, err := range errs {
-				if strings.Contains(err.Error(), frag) {
-					found = true
-					break
-				}
-			}
-			if !found {
-				t.Errorf("no error contains %q in %v", frag, errs)
-			}
-		}
-	})
+		}, wantErr: 3, fragments: []string{"text color", "error color", "muted color"}},
+		{name: "empty source produces no errors", src: &config.ColorConfig{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	t.Run("empty source produces no errors", func(t *testing.T) {
-		t.Parallel()
-
-		dst := config.DefaultColorConfig()
-		if errs := dst.Merge(&config.ColorConfig{}); len(errs) != 0 {
-			t.Errorf("unexpected errors: %v", errs)
-		}
-	})
+			dst := config.DefaultColorConfig()
+			errs := dst.Merge(tt.src)
+			if len(errs) != tt.wantErr {
+				t.Fatalf("want %d errors, got %v", tt.wantErr, errs)
+			}
+			assertErrsContain(t, errs, tt.fragments...)
+			if tt.check != nil {
+				tt.check(t, dst)
+			}
+		})
+	}
 }

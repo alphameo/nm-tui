@@ -2,7 +2,6 @@ package config_test
 
 import (
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/alphameo/nm-tui/internal/config"
@@ -43,6 +42,7 @@ func TestDefaultLogConfig(t *testing.T) {
 	})
 }
 
+//nolint:tparallel // uses t.Setenv, which forbids parallel execution
 func TestLogConfigMerge(t *testing.T) {
 	t.Run("valid level and path applied", func(t *testing.T) {
 		t.Parallel()
@@ -75,78 +75,54 @@ func TestLogConfigMerge(t *testing.T) {
 		}
 	})
 
-	t.Run("nil source no-op", func(t *testing.T) {
-		t.Parallel()
+	tests := []struct {
+		name      string
+		src       *config.LogConfig
+		wantErr   int
+		fragments []string
+		keepLevel bool
+	}{
+		{name: "nil source no-op", src: nil},
+		{name: "empty source no-op", src: &config.LogConfig{}},
+		{
+			name:      "default keyword skips both",
+			src:       &config.LogConfig{Level: new(config.DefaultKeyword), FilePath: new(config.DefaultKeyword)},
+			keepLevel: true,
+		},
+		{
+			name:      "invalid level errors and keeps default",
+			src:       &config.LogConfig{Level: new("verbose")},
+			wantErr:   1,
+			fragments: []string{`invalid log level: "verbose"`},
+			keepLevel: true,
+		},
+		{
+			name:      "empty file path errors and keeps default",
+			src:       &config.LogConfig{FilePath: new("")},
+			wantErr:   1,
+			fragments: []string{"empty log filepath"},
+		},
+		{
+			name:    "multiple errors collected",
+			src:     &config.LogConfig{Level: new("verbose"), FilePath: new("")},
+			wantErr: 2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-		dst := config.DefaultLogConfig()
-		if errs := dst.Merge(nil); len(errs) != 0 {
-			t.Fatalf("unexpected errors: %v", errs)
-		}
-	})
-
-	t.Run("empty source no-op", func(t *testing.T) {
-		t.Parallel()
-
-		dst := config.DefaultLogConfig()
-		if errs := dst.Merge(&config.LogConfig{}); len(errs) != 0 {
-			t.Fatalf("unexpected errors: %v", errs)
-		}
-	})
-
-	t.Run("invalid level errors and keeps default", func(t *testing.T) {
-		t.Parallel()
-
-		dst := config.DefaultLogConfig()
-		src := &config.LogConfig{Level: new("verbose")}
-		errs := dst.Merge(src)
-		if len(errs) != 1 {
-			t.Fatalf("want 1 error, got %v", errs)
-		}
-		if !strings.Contains(errs[0].Error(), `invalid log level: "verbose"`) {
-			t.Errorf("unexpected error: %v", errs[0])
-		}
-		if *dst.Level != config.LogError {
-			t.Errorf("Level = %q, want unchanged %q", *dst.Level, config.LogError)
-		}
-	})
-
-	t.Run("empty file path errors and keeps default", func(t *testing.T) {
-		t.Parallel()
-
-		dst := config.DefaultLogConfig()
-		src := &config.LogConfig{FilePath: new("")}
-		errs := dst.Merge(src)
-		if len(errs) != 1 {
-			t.Fatalf("want 1 error, got %v", errs)
-		}
-		if !strings.Contains(errs[0].Error(), "empty log filepath") {
-			t.Errorf("unexpected error: %v", errs[0])
-		}
-	})
-
-	t.Run("default keyword skips both", func(t *testing.T) {
-		t.Parallel()
-
-		dst := config.DefaultLogConfig()
-		src := &config.LogConfig{Level: new(config.DefaultKeyword), FilePath: new(config.DefaultKeyword)}
-		if errs := dst.Merge(src); len(errs) != 0 {
-			t.Fatalf("unexpected errors: %v", errs)
-		}
-		if *dst.Level != config.LogError {
-			t.Errorf("Level = %q, want unchanged %q", *dst.Level, config.LogError)
-		}
-	})
-
-	t.Run("multiple errors collected", func(t *testing.T) {
-		t.Parallel()
-
-		dst := config.DefaultLogConfig()
-		src := &config.LogConfig{Level: new("verbose"), FilePath: new("")}
-		errs := dst.Merge(src)
-		if len(errs) != 2 {
-			t.Fatalf("want 2 errors, got %v", errs)
-		}
-	})
+			dst := config.DefaultLogConfig()
+			errs := dst.Merge(tt.src)
+			if len(errs) != tt.wantErr {
+				t.Fatalf("want %d errors, got %v", tt.wantErr, errs)
+			}
+			assertErrsContain(t, errs, tt.fragments...)
+			if tt.keepLevel && *dst.Level != config.LogError {
+				t.Errorf("Level = %q, want unchanged %q", *dst.Level, config.LogError)
+			}
+		})
+	}
 }
 
 //nolint:tparallel // uses t.Setenv, which forbids parallel execution

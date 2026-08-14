@@ -2,6 +2,7 @@ package config_test
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/alphameo/nm-tui/internal/config"
@@ -55,5 +56,23 @@ func assertNilKeyBinding(t *testing.T, name string, b *config.KeyBinding) {
 	t.Helper()
 	if b != nil {
 		t.Errorf("%s = %v, want nil", name, *b)
+	}
+}
+
+// assertErrsContain verifies that errs contains at least one error matching
+// each of the given substrings. It is a no-op when fragments is empty.
+func assertErrsContain(t *testing.T, errs []error, fragments ...string) {
+	t.Helper()
+	for _, frag := range fragments {
+		found := false
+		for _, err := range errs {
+			if strings.Contains(err.Error(), frag) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("no error contains %q in %v", frag, errs)
+		}
 	}
 }
