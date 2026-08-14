@@ -64,8 +64,8 @@ logging {
     level "error" // variants: "debug", "info", "warn", "error"
 
     // Defaults to $XDG_STATE_HOME/nm-tui/log (e.g. ~/.local/state/nm-tui/log).
-    // Note: "~" is NOT expanded; use an absolute path.
-    file_path "/home/user/.local/state/nm-tui/log"
+    // "~" and environment variables ($VAR) are expanded.
+    file_path "~/.local/state/nm-tui/log"
 }
 
 // Every mapping can be present in several variants.

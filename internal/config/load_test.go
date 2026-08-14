@@ -41,6 +41,9 @@ func assertConfigEqual(t *testing.T, name string, got, want any) {
 }
 
 func TestLoadExampleConfig(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
 	src, err := os.ReadFile(filepath.Join("..", "..", "config.example.kdl"))
 	if err != nil {
 		t.Fatalf("read config.example.kdl: %v", err)
@@ -54,10 +57,10 @@ func TestLoadExampleConfig(t *testing.T) {
 	assertNoNilFields(t, cfg)
 
 	// config.example.kdl mirrors the built-in defaults; the only explicit
-	// deviation is the example log path. Update this expectation by hand
-	// when you change config.example.kdl.
+	// deviation is the example log path, whose "~" is expanded to $HOME.
+	// Update this expectation by hand when you change config.example.kdl.
 	want := DefaultConfig()
-	want.Logging.FilePath = new("/home/user/.local/state/nm-tui/log")
+	want.Logging.FilePath = new(filepath.Join(home, ".local", "state", "nm-tui", "log"))
 	assertConfigEqual(t, "config.example.kdl decodes to defaults", cfg, want)
 }
 

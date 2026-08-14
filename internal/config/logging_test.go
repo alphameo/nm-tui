@@ -74,6 +74,21 @@ func TestLogConfigMerge(t *testing.T) {
 		}
 	})
 
+	t.Run("tilde path is expanded", func(t *testing.T) {
+		home := t.TempDir()
+		t.Setenv("HOME", home)
+
+		dst := DefaultLogConfig()
+		src := &LogConfig{FilePath: new("~/nm-tui.log")}
+		if errs := dst.merge(src); len(errs) != 0 {
+			t.Fatalf("unexpected errors: %v", errs)
+		}
+		want := filepath.Join(home, "nm-tui.log")
+		if *dst.FilePath != want {
+			t.Errorf("FilePath = %q, want %q", *dst.FilePath, want)
+		}
+	})
+
 	t.Run("nil source no-op", func(t *testing.T) {
 		dst := DefaultLogConfig()
 		if errs := dst.merge(nil); len(errs) != 0 {
@@ -132,6 +147,43 @@ func TestLogConfigMerge(t *testing.T) {
 		errs := dst.merge(src)
 		if len(errs) != 2 {
 			t.Fatalf("want 2 errors, got %v", errs)
+		}
+	})
+}
+
+func TestExpandPath(t *testing.T) {
+	t.Run("tilde expands to home", func(t *testing.T) {
+		home := t.TempDir()
+		t.Setenv("HOME", home)
+
+		got := expandPath("~/nm-tui/log")
+		want := filepath.Join(home, "nm-tui", "log")
+		if got != want {
+			t.Errorf("expandPath(%q) = %q, want %q", "~/nm-tui/log", got, want)
+		}
+	})
+
+	t.Run("bare tilde unchanged", func(t *testing.T) {
+		if got := expandPath("~"); got != "~" {
+			t.Errorf("expandPath(%q) = %q, want %q", "~", got, "~")
+		}
+	})
+
+	t.Run("env vars expanded", func(t *testing.T) {
+		dir := t.TempDir()
+		t.Setenv("NM_TUI_TEST_DIR", dir)
+
+		got := expandPath("$NM_TUI_TEST_DIR/log")
+		want := filepath.Join(dir, "log")
+		if got != want {
+			t.Errorf("expandPath($NM_TUI_TEST_DIR/log) = %q, want %q", got, want)
+		}
+	})
+
+	t.Run("absolute path unchanged", func(t *testing.T) {
+		p := "/tmp/nm-tui.log"
+		if got := expandPath(p); got != p {
+			t.Errorf("expandPath(%q) = %q, want %q", p, got, p)
 		}
 	})
 }

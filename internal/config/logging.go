@@ -37,7 +37,8 @@ func (c *LogConfig) merge(src *LogConfig) []error {
 		if *src.FilePath == "" {
 			errs = append(errs, fmt.Errorf("empty log filepath"))
 		} else {
-			c.FilePath = src.FilePath
+			expanded := expandPath(*src.FilePath)
+			c.FilePath = &expanded
 		}
 	}
 
@@ -73,4 +74,14 @@ func resolveConfigPath() (string, error) {
 	}
 	path := filepath.Join(configDir, appName, configFileName)
 	return path, nil
+}
+
+// expandPath expands a leading "~/" to the user's home directory and then
+// expands any environment variables. Bare "~" (without a slash) is left as-is.
+func expandPath(path string) string {
+	if strings.HasPrefix(path, "~/") {
+		home, _ := os.UserHomeDir()
+		path = filepath.Join(home, path[2:])
+	}
+	return os.ExpandEnv(path)
 }

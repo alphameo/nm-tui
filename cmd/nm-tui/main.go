@@ -35,7 +35,7 @@ func main() {
 		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
 	}
 
-	logPath := expandPath(*cfg.Logging.FilePath)
+	logPath := *cfg.Logging.FilePath
 	logPathDir := filepath.Dir(logPath)
 	if err := os.MkdirAll(logPathDir, 0o700); err != nil {
 		err := fmt.Errorf("create log directory: %w", err)
@@ -98,12 +98,4 @@ func resolveLogLevel(level string) (slog.Level, error) {
 	}
 
 	return slog.LevelError, fmt.Errorf("log level not resolved: %s", logLevel)
-}
-
-func expandPath(path string) string {
-	if strings.HasPrefix(path, "~/") {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, path[2:])
-	}
-	return os.ExpandEnv(path)
 }
