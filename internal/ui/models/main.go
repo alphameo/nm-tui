@@ -254,23 +254,21 @@ func (m *MainModel) Resize(width, height int) {
 }
 
 func (m MainModel) activeBindingsShort() []key.Binding {
-	helpKey := []key.Binding{m.keys.help}
-
 	if m.popup.active {
 		switch m.popup.content.(type) {
-		case *HelpModel:
-			return helpKey
 		case *ConnectorModel:
-			return append(helpKey, m.help.connectorShort()...)
+			return m.help.connectorShort()
 		case *ProfileCreatorModel:
-			return append(helpKey, m.help.profileCreatorShort()...)
+			return m.help.profileCreatorShort()
 		case *HotspotCreatorModel:
-			return append(helpKey, m.help.hotspotCreatorShort()...)
+			return m.help.hotspotCreatorShort()
 		case *ProfileEditorModel:
-			return append(helpKey, m.help.profileEditorShort()...)
+			return m.help.profileEditorShort()
 		}
-		return helpKey
+		return m.help.mainShort()
 	}
+
+	helpKey := m.help.mainShort()
 
 	switch m.tabs.ActiveTabIndex() {
 	case 1: // Connectivity tab
