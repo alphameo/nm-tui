@@ -43,7 +43,6 @@ func TestDefaultLogConfig(t *testing.T) {
 	})
 }
 
-
 func TestLogConfigMerge(t *testing.T) {
 	t.Run("valid level and path applied", func(t *testing.T) {
 		dst := config.DefaultLogConfig()

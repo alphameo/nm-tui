@@ -1,4 +1,4 @@
-package logging
+package logging_test
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/infra/logging"
 )
 
 type record struct {
@@ -85,7 +86,7 @@ func exitErr(t *testing.T, code int) error {
 
 func TestScanWifisFailureLogsErrorAndExitCode(t *testing.T) {
 	h := newCapture(slog.LevelDebug)
-	m := New(slog.New(h), &wifiStub{scanErr: exitErr(t, 3)}, &networkStub{}, &portalStub{})
+	m := logging.New(slog.New(h), &wifiStub{scanErr: exitErr(t, 3)}, &networkStub{}, &portalStub{})
 
 	if _, err := m.ScanNetworks(context.Background()); err == nil {
 		t.Fatal("want error, got nil")
@@ -108,7 +109,7 @@ func TestScanWifisFailureLogsErrorAndExitCode(t *testing.T) {
 func TestSecretsNeverLogged(t *testing.T) {
 	h := newCapture(slog.LevelDebug)
 	pass := "super-secret-pass-1"
-	m := New(slog.New(h), &wifiStub{pass: pass}, &networkStub{}, &portalStub{})
+	m := logging.New(slog.New(h), &wifiStub{pass: pass}, &networkStub{}, &portalStub{})
 
 	got, err := m.GetProfilePassword(context.Background(), "home")
 	if err != nil {
