@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	ErrOpenCaptivePortal   error = errors.New("failed to open captive portal")
-	ErrGetGatewayIP        error = errors.New("failed to get gateway ip")
-	ErrUnsupportedPlarform error = errors.New("unsupported platform")
+	ErrOpenCaptivePortal   = errors.New("failed to open captive portal")
+	ErrGetGatewayIP        = errors.New("failed to get gateway ip")
+	ErrUnsupportedPlarform = errors.New("unsupported platform")
 )
 
 // CaptivePortalOpener opens the captive portal login page in the default browser.

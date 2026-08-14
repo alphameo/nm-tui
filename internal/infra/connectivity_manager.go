@@ -41,24 +41,24 @@ type NetworkDevice struct {
 }
 
 var (
-	ErrListDevices error = errors.New("failed to list network devices")
+	ErrListDevices = errors.New("failed to list network devices")
 
-	ErrGetConnectivityStatus error = errors.New("failed to get connectivity status")
-	ErrParseConnectivity     error = errors.New("failed to parse connectivity status")
+	ErrGetConnectivityStatus = errors.New("failed to get connectivity status")
+	ErrParseConnectivity     = errors.New("failed to parse connectivity status")
 
-	ErrIsNetworkingEnabled error = errors.New("failed to recognize is networking enabled")
-	ErrEnableNetworking    error = errors.New("failed to enable networking")
-	ErrDisableNetworking   error = errors.New("failed to disable networking")
+	ErrIsNetworkingEnabled = errors.New("failed to recognize is networking enabled")
+	ErrEnableNetworking    = errors.New("failed to enable networking")
+	ErrDisableNetworking   = errors.New("failed to disable networking")
 
-	ErrGetRadioStatus error = errors.New("failed to get radio status")
+	ErrGetRadioStatus = errors.New("failed to get radio status")
 
-	ErrGetWifiStatus error = errors.New("failed to get wifi radio status")
-	ErrEnableWifi    error = errors.New("failed to enable wifi radio")
-	ErrDisableWifi   error = errors.New("failed to disable wifi radio")
+	ErrGetWifiStatus = errors.New("failed to get wifi radio status")
+	ErrEnableWifi    = errors.New("failed to enable wifi radio")
+	ErrDisableWifi   = errors.New("failed to disable wifi radio")
 
-	ErrGetWWANStatus error = errors.New("failed to get wwan radio status")
-	ErrEnableWWAN    error = errors.New("failed to enable wwan radio")
-	ErrDisableWWAN   error = errors.New("failed to disable wwan radio")
+	ErrGetWWANStatus = errors.New("failed to get wwan radio status")
+	ErrEnableWWAN    = errors.New("failed to enable wwan radio")
+	ErrDisableWWAN   = errors.New("failed to disable wwan radio")
 )
 
 type ConnectivityManager interface {

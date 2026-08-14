@@ -32,12 +32,12 @@ func (p *Opener) OpenCaptivePortal(ctx context.Context) error {
 }
 
 // getGatewayIP is equivalent to
-// xdg-open "http://$(ip --oneline route get 1.1.1.1 | awk '{print $3}')"
+// xdg-open "http://$(ip --oneline route get 1.1.1.1 | awk '{print $3}')".
 func (p *Opener) getGatewayIP(ctx context.Context) (net.IP, error) {
 	ipargs := []string{"--oneline", "route", "get", "1.1.1.1"}
 	route, err := exec.CommandContext(ctx, "ip", ipargs...).Output()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", infra.ErrGetGatewayIP, err)
+		return nil, fmt.Errorf("%w: %w", infra.ErrGetGatewayIP, err)
 	}
 	out := strings.Split(string(route), " ")
 	if len(out) < 3 {
