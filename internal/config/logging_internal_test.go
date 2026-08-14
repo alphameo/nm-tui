@@ -3,6 +3,8 @@ package config
 import "testing"
 
 func TestValidLogLevel(t *testing.T) {
+	t.Parallel()
+
 	for _, lvl := range []string{LogDebug, LogInfo, LogWarn, LogError} {
 		if !validLogLevel(lvl) {
 			t.Errorf("validLogLevel(%q) = false, want true", lvl)

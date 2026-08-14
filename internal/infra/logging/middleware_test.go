@@ -85,6 +85,8 @@ func exitErr(t *testing.T, code int) error {
 }
 
 func TestScanWifisFailureLogsErrorAndExitCode(t *testing.T) {
+	t.Parallel()
+
 	h := newCapture(slog.LevelDebug)
 	m := logging.New(slog.New(h), &wifiStub{scanErr: exitErr(t, 3)}, &networkStub{}, &portalStub{})
 
@@ -107,6 +109,8 @@ func TestScanWifisFailureLogsErrorAndExitCode(t *testing.T) {
 }
 
 func TestSecretsNeverLogged(t *testing.T) {
+	t.Parallel()
+
 	h := newCapture(slog.LevelDebug)
 	pass := "super-secret-pass-1"
 	m := logging.New(slog.New(h), &wifiStub{pass: pass}, &networkStub{}, &portalStub{})
@@ -119,7 +123,7 @@ func TestSecretsNeverLogged(t *testing.T) {
 		t.Fatalf("password passthrough broken: got %q", got)
 	}
 
-	if err := m.ConnectToNetwork(context.Background(), "home", pass); err != nil {
+	if err = m.ConnectToNetwork(context.Background(), "home", pass); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 

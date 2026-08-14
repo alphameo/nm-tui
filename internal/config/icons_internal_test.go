@@ -6,6 +6,8 @@ import (
 )
 
 func TestValidateBorderStyle(t *testing.T) {
+	t.Parallel()
+
 	valid := []string{
 		BorderASCII, BorderMarkdown,
 		BorderRounded,
@@ -25,6 +27,8 @@ func TestValidateBorderStyle(t *testing.T) {
 }
 
 func TestValidateSpinnerStyle(t *testing.T) {
+	t.Parallel()
+
 	valid := []string{
 		SpinnerLine, SpinnerEllipsis,
 		SpinnerDot, SpinnerMiniDot,
@@ -43,7 +47,11 @@ func TestValidateSpinnerStyle(t *testing.T) {
 }
 
 func TestMergeBorderStyle(t *testing.T) {
+	t.Parallel()
+
 	t.Run("valid override", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(BorderASCII)
 		if err := mergeBorderStyle(dst, new(BorderSquare)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -54,6 +62,8 @@ func TestMergeBorderStyle(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(BorderASCII)
 		if err := mergeBorderStyle(dst, nil); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -64,6 +74,8 @@ func TestMergeBorderStyle(t *testing.T) {
 	})
 
 	t.Run("default keyword no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(BorderASCII)
 		if err := mergeBorderStyle(dst, new(DefaultKeyword)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -74,6 +86,8 @@ func TestMergeBorderStyle(t *testing.T) {
 	})
 
 	t.Run("invalid errors and does not override", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(BorderASCII)
 		err := mergeBorderStyle(dst, new("dashed"))
 		if err == nil {
@@ -89,7 +103,11 @@ func TestMergeBorderStyle(t *testing.T) {
 }
 
 func TestMergeSpinnerStyle(t *testing.T) {
+	t.Parallel()
+
 	t.Run("valid override", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(SpinnerLine)
 		if err := mergeSpinnerStyle(dst, new(SpinnerDot)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -100,6 +118,8 @@ func TestMergeSpinnerStyle(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(SpinnerLine)
 		if err := mergeSpinnerStyle(dst, nil); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -107,6 +127,8 @@ func TestMergeSpinnerStyle(t *testing.T) {
 	})
 
 	t.Run("default keyword no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(SpinnerLine)
 		if err := mergeSpinnerStyle(dst, new(DefaultKeyword)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -117,6 +139,8 @@ func TestMergeSpinnerStyle(t *testing.T) {
 	})
 
 	t.Run("invalid errors and does not override", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(SpinnerLine)
 		err := mergeSpinnerStyle(dst, new("bounce"))
 		if err == nil {
@@ -132,6 +156,8 @@ func TestMergeSpinnerStyle(t *testing.T) {
 }
 
 func TestValidateCursorShape(t *testing.T) {
+	t.Parallel()
+
 	for _, c := range []string{CursorBar, CursorUnderline, CursorBlock} {
 		if err := validateCursorShape(c); err != nil {
 			t.Errorf("validateCursorShape(%q) error: %v", c, err)
@@ -145,7 +171,11 @@ func TestValidateCursorShape(t *testing.T) {
 }
 
 func TestMergeCursorShape(t *testing.T) {
+	t.Parallel()
+
 	t.Run("valid override", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(CursorBar)
 		if err := mergeCursorShape(dst, new(CursorUnderline)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -156,6 +186,8 @@ func TestMergeCursorShape(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(CursorBar)
 		if err := mergeCursorShape(dst, nil); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -166,6 +198,8 @@ func TestMergeCursorShape(t *testing.T) {
 	})
 
 	t.Run("default keyword no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(CursorBar)
 		if err := mergeCursorShape(dst, new(DefaultKeyword)); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -176,6 +210,8 @@ func TestMergeCursorShape(t *testing.T) {
 	})
 
 	t.Run("invalid errors and does not override", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new(CursorBar)
 		err := mergeCursorShape(dst, new("beam"))
 		if err == nil {
@@ -191,7 +227,11 @@ func TestMergeCursorShape(t *testing.T) {
 }
 
 func TestMergeIcon(t *testing.T) {
+	t.Parallel()
+
 	t.Run("valid icon", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new("old")
 		if err := mergeIcon(dst, new("new"), "check"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -202,6 +242,8 @@ func TestMergeIcon(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new("old")
 		if err := mergeIcon(dst, nil, "check"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -209,6 +251,8 @@ func TestMergeIcon(t *testing.T) {
 	})
 
 	t.Run("default keyword no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new("old")
 		if err := mergeIcon(dst, new(DefaultKeyword), "check"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -219,6 +263,8 @@ func TestMergeIcon(t *testing.T) {
 	})
 
 	t.Run("empty icon errors", func(t *testing.T) {
+		t.Parallel()
+
 		err := mergeIcon(new("old"), new(""), "toggle_off")
 		if err == nil {
 			t.Fatal("expected error")
@@ -230,7 +276,11 @@ func TestMergeIcon(t *testing.T) {
 }
 
 func TestMergeSymbol(t *testing.T) {
+	t.Parallel()
+
 	t.Run("single rune symbol", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new("x")
 		if err := mergeSymbol(dst, new("•"), "password_symbol"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -241,6 +291,8 @@ func TestMergeSymbol(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new("x")
 		if err := mergeSymbol(dst, nil, "password_symbol"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -248,6 +300,8 @@ func TestMergeSymbol(t *testing.T) {
 	})
 
 	t.Run("default keyword no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := new("x")
 		if err := mergeSymbol(dst, new(DefaultKeyword), "password_symbol"); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -258,6 +312,8 @@ func TestMergeSymbol(t *testing.T) {
 	})
 
 	t.Run("empty symbol errors", func(t *testing.T) {
+		t.Parallel()
+
 		err := mergeSymbol(new("x"), new(""), "password_symbol")
 		if err == nil {
 			t.Fatal("expected error")
@@ -268,6 +324,8 @@ func TestMergeSymbol(t *testing.T) {
 	})
 
 	t.Run("multi rune symbol errors", func(t *testing.T) {
+		t.Parallel()
+
 		err := mergeSymbol(new("x"), new("ab"), "password_symbol")
 		if err == nil {
 			t.Fatal("expected error")

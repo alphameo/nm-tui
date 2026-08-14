@@ -8,15 +8,23 @@ import (
 )
 
 func TestDefaultNerdIconConfig(t *testing.T) {
+	t.Parallel()
+
 	assertNoNilFields(t, config.DefaultNerdIconConfig())
 }
 
 func TestDefaultNonNerdIconConfig(t *testing.T) {
+	t.Parallel()
+
 	assertNoNilFields(t, config.DefaultNonNerdIconConfig())
 }
 
 func TestIconConfigMerge(t *testing.T) {
+	t.Parallel()
+
 	t.Run("valid overrides applied", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultIconConfig()
 		src := &config.IconConfig{
 			BorderStyle:      new(config.BorderRounded),
@@ -46,6 +54,8 @@ func TestIconConfigMerge(t *testing.T) {
 	})
 
 	t.Run("invalid fields collected", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultIconConfig()
 		src := &config.IconConfig{
 			BorderStyle:      new("dashed"),
@@ -72,6 +82,8 @@ func TestIconConfigMerge(t *testing.T) {
 	})
 
 	t.Run("invalid cursor shape collected", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultIconConfig()
 		src := &config.IconConfig{InputCursorShape: new("beam")}
 		errs := dst.Merge(src)
@@ -87,6 +99,8 @@ func TestIconConfigMerge(t *testing.T) {
 	})
 
 	t.Run("default keyword skips all fields", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultIconConfig()
 		src := &config.IconConfig{
 			BorderStyle:  new(config.DefaultKeyword),

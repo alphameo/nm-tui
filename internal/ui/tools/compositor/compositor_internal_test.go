@@ -3,6 +3,8 @@ package compositor
 import "testing"
 
 func TestResolvePos(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name               string
 		fgW, fgH, bgW, bgH int
@@ -22,6 +24,8 @@ func TestResolvePos(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			x, y := resolvePos(tt.fgW, tt.fgH, tt.bgW, tt.bgH, tt.XAnch, tt.YAnch, tt.xOffset, tt.yOffset)
 			if x != tt.wantX || y != tt.wantY {
 				t.Errorf("resolvePos(%d,%d,%d,%d,%d,%d,%d,%d) = (%d,%d), want (%d,%d)",

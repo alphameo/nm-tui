@@ -8,11 +8,17 @@ import (
 )
 
 func TestDefaultConfig(t *testing.T) {
+	t.Parallel()
+
 	assertNoNilFields(t, config.DefaultConfig())
 }
 
 func TestConfigMerge(t *testing.T) {
+	t.Parallel()
+
 	t.Run("empty source produces no errors", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := config.DefaultConfig()
 		if errs := cfg.Merge(&config.Config{}); len(errs) != 0 {
 			t.Errorf("unexpected errors: %v", errs)
@@ -20,6 +26,8 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("nil child sections are handled", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := config.DefaultConfig()
 		src := config.Config{
 			Logging: &config.LogConfig{},
@@ -33,6 +41,8 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("notification close time valid", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := config.DefaultConfig()
 		src := config.Config{NotifCloseTime: new(250)}
 		if errs := cfg.Merge(&src); len(errs) != 0 {
@@ -44,6 +54,8 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("notification close time invalid", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := config.DefaultConfig()
 		src := config.Config{NotifCloseTime: new(-1)}
 		errs := cfg.Merge(&src)
@@ -59,6 +71,8 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("nerd preset swaps icons to nerd defaults", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := config.DefaultConfig()
 		src := config.Config{Icons: &config.IconConfig{
 			NerdPreset:  new(true),
@@ -79,6 +93,8 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("icon merge errors are propagated", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := config.DefaultConfig()
 		src := config.Config{Icons: &config.IconConfig{BorderStyle: new("bogus")}}
 		errs := cfg.Merge(&src)
@@ -91,6 +107,8 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("logging merge errors are propagated", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := config.DefaultConfig()
 		src := config.Config{Logging: &config.LogConfig{Level: new("verbose")}}
 		errs := cfg.Merge(&src)
@@ -103,6 +121,8 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("colors merge errors are propagated", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := config.DefaultConfig()
 		src := config.Config{Colors: &config.ColorConfig{Text: new("notacolor")}}
 		errs := cfg.Merge(&src)
@@ -115,6 +135,8 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("keys merge errors are propagated", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := config.DefaultConfig()
 		src := config.Config{Keys: &config.KeyConfig{Toggle: &config.KeyBinding{"notakey"}}}
 		errs := cfg.Merge(&src)

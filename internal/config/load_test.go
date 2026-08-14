@@ -29,7 +29,7 @@ func writeConfigFile(t *testing.T, src string) {
 		t.Fatal(err)
 	}
 	path := filepath.Join(cfgDir, config.ConfigFileName)
-	err := os.WriteFile(path, []byte(src), 0o600) //nolint:gosec // writes test config to a t.TempDir path
+	err := os.WriteFile(path, []byte(src), 0o600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,6 +66,7 @@ func TestLoadExampleConfig(t *testing.T) {
 	assertConfigEqual(t, "config.example.kdl decodes to defaults", cfg, want)
 }
 
+//nolint:paralleltest // uses t.Setenv via the writeConfigFile helper, which forbids parallel execution
 func TestLoadOrDefaultsOverrides(t *testing.T) {
 	writeConfigFile(t, `
 notification_close_time 300
@@ -145,6 +146,7 @@ func TestLoadMissingFile(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest // uses t.Setenv via the writeConfigFile helper, which forbids parallel execution
 func TestLoadDecodeError(t *testing.T) {
 	writeConfigFile(t, `notification_close_time "notanumber"`)
 
@@ -171,6 +173,8 @@ func TestLoadPathResolutionError(t *testing.T) {
 }
 
 func TestKeyBindingUnmarshalKDL(t *testing.T) {
+	t.Parallel()
+
 	decode := func(t *testing.T, src string, kb *config.KeyBinding) error {
 		t.Helper()
 		doc, err := kdl.ParseString(src)
@@ -186,6 +190,8 @@ func TestKeyBindingUnmarshalKDL(t *testing.T) {
 	}
 
 	t.Run("single argument", func(t *testing.T) {
+		t.Parallel()
+
 		var kb config.KeyBinding
 		if err := decode(t, `key "space"`, &kb); err != nil {
 			t.Fatalf("UnmarshalKDL() error: %v", err)
@@ -196,6 +202,8 @@ func TestKeyBindingUnmarshalKDL(t *testing.T) {
 	})
 
 	t.Run("multiple arguments", func(t *testing.T) {
+		t.Parallel()
+
 		var kb config.KeyBinding
 		if err := decode(t, `quit "esc" "ctrl+c" "q" "ctrl+q"`, &kb); err != nil {
 			t.Fatalf("UnmarshalKDL() error: %v", err)
@@ -207,6 +215,8 @@ func TestKeyBindingUnmarshalKDL(t *testing.T) {
 	})
 
 	t.Run("empty node", func(t *testing.T) {
+		t.Parallel()
+
 		var kb config.KeyBinding
 		if err := decode(t, `key`, &kb); err != nil {
 			t.Fatalf("UnmarshalKDL() error: %v", err)

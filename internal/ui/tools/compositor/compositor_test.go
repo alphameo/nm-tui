@@ -8,6 +8,8 @@ import (
 )
 
 func TestCompose(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name             string
 		fg, bg           string
@@ -66,6 +68,8 @@ func TestCompose(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			got := compositor.Compose(tt.fg, tt.bg, tt.xAnchor, tt.yAnchor, tt.xOffset, tt.yOffset)
 			if got != tt.want {
 				t.Errorf("Compose() =\n%q\nwant\n%q", got, tt.want)
@@ -75,6 +79,8 @@ func TestCompose(t *testing.T) {
 }
 
 func TestComposeTrimNewlines(t *testing.T) {
+	t.Parallel()
+
 	got := compositor.Compose("XY", "A", compositor.Begin, compositor.Begin, 0, 0)
 	if strings.Contains(got, "\n") {
 		t.Errorf("Compose() introduced trailing newline: %q", got)

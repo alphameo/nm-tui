@@ -8,11 +8,17 @@ import (
 )
 
 func TestDefaultKeys(t *testing.T) {
+	t.Parallel()
+
 	assertNoNilFields(t, config.DefaultKeys())
 }
 
 func TestKeyConfigMerge(t *testing.T) {
+	t.Parallel()
+
 	t.Run("nil source is a no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultKeys()
 		if errs := dst.Merge(nil); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
@@ -20,6 +26,8 @@ func TestKeyConfigMerge(t *testing.T) {
 	})
 
 	t.Run("empty source is a no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultKeys()
 		if errs := dst.Merge(&config.KeyConfig{}); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
@@ -28,6 +36,8 @@ func TestKeyConfigMerge(t *testing.T) {
 	})
 
 	t.Run("partial override merges only set fields", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultKeys()
 		src := &config.KeyConfig{
 			Toggle: &config.KeyBinding{"t"},
@@ -43,6 +53,8 @@ func TestKeyConfigMerge(t *testing.T) {
 	})
 
 	t.Run("invalid key propagates error", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultKeys()
 		src := &config.KeyConfig{Toggle: &config.KeyBinding{"notakey"}}
 		errs := dst.Merge(src)
@@ -57,6 +69,8 @@ func TestKeyConfigMerge(t *testing.T) {
 }
 
 func TestMainKeysMerge(t *testing.T) {
+	t.Parallel()
+
 	dst := &config.MainKeys{TabNext: &config.KeyBinding{"]"}}
 	if errs := dst.Merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
@@ -72,6 +86,8 @@ func TestMainKeysMerge(t *testing.T) {
 }
 
 func TestDialogKeysMerge(t *testing.T) {
+	t.Parallel()
+
 	dst := &config.DialogKeys{TogglePWVisibility: &config.KeyBinding{"ctrl+j"}}
 	if errs := dst.Merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
@@ -87,6 +103,8 @@ func TestDialogKeysMerge(t *testing.T) {
 }
 
 func TestWifiKeysMerge(t *testing.T) {
+	t.Parallel()
+
 	dst := &config.NetworksKeys{CreateProfile: &config.KeyBinding{"a", "c"}}
 	if errs := dst.Merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
@@ -101,6 +119,8 @@ func TestWifiKeysMerge(t *testing.T) {
 }
 
 func TestWifiAvailableKeysMerge(t *testing.T) {
+	t.Parallel()
+
 	dst := &config.AvailableNetworksKeys{Connect: &config.KeyBinding{"enter"}}
 	if errs := dst.Merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
@@ -114,6 +134,8 @@ func TestWifiAvailableKeysMerge(t *testing.T) {
 }
 
 func TestWifiSavedKeysMerge(t *testing.T) {
+	t.Parallel()
+
 	dst := &config.NetworkProfilesKeys{Delete: &config.KeyBinding{"d", "delete"}}
 	if errs := dst.Merge(nil); len(errs) != 0 {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
@@ -129,7 +151,11 @@ func TestWifiSavedKeysMerge(t *testing.T) {
 }
 
 func TestMergeKeyList(t *testing.T) {
+	t.Parallel()
+
 	t.Run("nil source is a no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := &config.KeyBinding{"a"}
 		if errs := config.MergeKeyList(&dst, nil, "toggle"); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
@@ -138,6 +164,8 @@ func TestMergeKeyList(t *testing.T) {
 	})
 
 	t.Run("valid source overrides destination", func(t *testing.T) {
+		t.Parallel()
+
 		dst := &config.KeyBinding{"a"}
 		src := &config.KeyBinding{"b", "c"}
 		if errs := config.MergeKeyList(&dst, src, "toggle"); len(errs) != 0 {
@@ -147,6 +175,8 @@ func TestMergeKeyList(t *testing.T) {
 	})
 
 	t.Run("invalid source errors and keeps destination", func(t *testing.T) {
+		t.Parallel()
+
 		dst := &config.KeyBinding{"a"}
 		src := &config.KeyBinding{"b", "notakey"}
 		errs := config.MergeKeyList(&dst, src, "toggle")
@@ -160,6 +190,8 @@ func TestMergeKeyList(t *testing.T) {
 	})
 
 	t.Run("multiple invalid keys produce multiple errors", func(t *testing.T) {
+		t.Parallel()
+
 		dst := &config.KeyBinding{"a"}
 		src := &config.KeyBinding{"bad1", "bad2"}
 		errs := config.MergeKeyList(&dst, src, "main.quit")
@@ -169,6 +201,8 @@ func TestMergeKeyList(t *testing.T) {
 	})
 
 	t.Run("nil destination is populated", func(t *testing.T) {
+		t.Parallel()
+
 		var dst *config.KeyBinding
 		src := &config.KeyBinding{"x"}
 		if errs := config.MergeKeyList(&dst, src, "toggle"); len(errs) != 0 {

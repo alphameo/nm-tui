@@ -3,6 +3,8 @@ package config
 import "testing"
 
 func TestValidateTime(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name string
 		in   int
@@ -15,6 +17,8 @@ func TestValidateTime(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			err := validateTime(tt.in)
 			if (err == nil) != tt.want {
 				t.Errorf("validateTime(%d) error = %v, want ok=%v", tt.in, err, tt.want)

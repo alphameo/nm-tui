@@ -6,8 +6,12 @@ import (
 )
 
 func TestValidKeyName(t *testing.T) {
+	t.Parallel()
+
 	for name := range validKey {
 		t.Run("named_"+name, func(t *testing.T) {
+			t.Parallel()
+
 			if !validKeyName(name) {
 				t.Errorf("validKeyName(%q) = false, want true", name)
 			}
@@ -16,6 +20,8 @@ func TestValidKeyName(t *testing.T) {
 
 	for name := range validModifier {
 		t.Run("modifier_"+name, func(t *testing.T) {
+			t.Parallel()
+
 			combo := name + "+enter"
 			if !validKeyName(combo) {
 				t.Errorf("validKeyName(%q) = false, want true", combo)
@@ -53,6 +59,8 @@ func TestValidKeyName(t *testing.T) {
 }
 
 func TestValidKeyNameInvalid(t *testing.T) {
+	t.Parallel()
+
 	tests := []string{
 		"",
 		"notakey",

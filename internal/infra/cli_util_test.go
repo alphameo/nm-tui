@@ -10,6 +10,8 @@ import (
 )
 
 func TestExtractStderr(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name string
 		err  error
@@ -27,6 +29,8 @@ func TestExtractStderr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			if got := infra.ExtractStderr(tt.err); got != tt.want {
 				t.Errorf("ExtractStderr(%v) = %q, want %q", tt.err, got, tt.want)
 			}

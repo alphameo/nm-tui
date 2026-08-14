@@ -21,6 +21,8 @@ func testTabStyles() (lipgloss.Style, lipgloss.Style) {
 }
 
 func TestRenderTabBar(t *testing.T) {
+	t.Parallel()
+
 	active, inactive := testTabStyles()
 
 	tests := []struct {
@@ -36,6 +38,8 @@ func TestRenderTabBar(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			got := tabview.RenderTabBar(tt.titles, active, inactive, tt.fullWidth, tt.active)
 			if got == "" {
 				t.Fatalf("RenderTabBar() returned empty string")
@@ -50,6 +54,8 @@ func TestRenderTabBar(t *testing.T) {
 }
 
 func TestRenderTabBarEdgeBorders(t *testing.T) {
+	t.Parallel()
+
 	active, inactive := testTabStyles()
 
 	gotActiveFirst := tabview.RenderTabBar([]string{"one", "two"}, active, inactive, 20, 0)
@@ -65,6 +71,8 @@ func TestRenderTabBarEdgeBorders(t *testing.T) {
 	}
 	for _, c := range checks {
 		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+
 			if !strings.Contains(c.output, c.want) {
 				t.Errorf("%s output %q missing %q", c.name, c.output, c.want)
 			}

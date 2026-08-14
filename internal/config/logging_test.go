@@ -45,6 +45,8 @@ func TestDefaultLogConfig(t *testing.T) {
 
 func TestLogConfigMerge(t *testing.T) {
 	t.Run("valid level and path applied", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultLogConfig()
 		src := &config.LogConfig{Level: new("debug"), FilePath: new("/tmp/x.log")}
 		if errs := dst.Merge(src); len(errs) != 0 {
@@ -74,6 +76,8 @@ func TestLogConfigMerge(t *testing.T) {
 	})
 
 	t.Run("nil source no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultLogConfig()
 		if errs := dst.Merge(nil); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
@@ -81,6 +85,8 @@ func TestLogConfigMerge(t *testing.T) {
 	})
 
 	t.Run("empty source no-op", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultLogConfig()
 		if errs := dst.Merge(&config.LogConfig{}); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
@@ -88,6 +94,8 @@ func TestLogConfigMerge(t *testing.T) {
 	})
 
 	t.Run("invalid level errors and keeps default", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultLogConfig()
 		src := &config.LogConfig{Level: new("verbose")}
 		errs := dst.Merge(src)
@@ -103,6 +111,8 @@ func TestLogConfigMerge(t *testing.T) {
 	})
 
 	t.Run("empty file path errors and keeps default", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultLogConfig()
 		src := &config.LogConfig{FilePath: new("")}
 		errs := dst.Merge(src)
@@ -115,6 +125,8 @@ func TestLogConfigMerge(t *testing.T) {
 	})
 
 	t.Run("default keyword skips both", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultLogConfig()
 		src := &config.LogConfig{Level: new(config.DefaultKeyword), FilePath: new(config.DefaultKeyword)}
 		if errs := dst.Merge(src); len(errs) != 0 {
@@ -126,6 +138,8 @@ func TestLogConfigMerge(t *testing.T) {
 	})
 
 	t.Run("multiple errors collected", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultLogConfig()
 		src := &config.LogConfig{Level: new("verbose"), FilePath: new("")}
 		errs := dst.Merge(src)
@@ -148,6 +162,8 @@ func TestExpandPath(t *testing.T) {
 	})
 
 	t.Run("bare tilde unchanged", func(t *testing.T) {
+		t.Parallel()
+
 		if got := config.ExpandPath("~"); got != "~" {
 			t.Errorf("expandPath(%q) = %q, want %q", "~", got, "~")
 		}
@@ -165,6 +181,8 @@ func TestExpandPath(t *testing.T) {
 	})
 
 	t.Run("absolute path unchanged", func(t *testing.T) {
+		t.Parallel()
+
 		p := "/tmp/nm-tui.log"
 		if got := config.ExpandPath(p); got != p {
 			t.Errorf("expandPath(%q) = %q, want %q", p, got, p)

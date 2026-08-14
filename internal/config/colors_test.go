@@ -8,10 +8,14 @@ import (
 )
 
 func TestDefaultColorConfig(t *testing.T) {
+	t.Parallel()
+
 	assertNoNilFields(t, config.DefaultColorConfig())
 }
 
 func TestValidHex(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		in   string
 		want bool
@@ -32,6 +36,8 @@ func TestValidHex(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
+			t.Parallel()
+
 			if got := config.ValidHex(tt.in); got != tt.want {
 				t.Errorf("ValidHex(%q) = %v, want %v", tt.in, got, tt.want)
 			}
@@ -40,6 +46,8 @@ func TestValidHex(t *testing.T) {
 }
 
 func TestValidCfgColor(t *testing.T) {
+	t.Parallel()
+
 	valid := []string{
 		config.ColorBlack, config.ColorRed, config.ColorGreen, config.ColorYellow,
 		config.ColorBlue, config.ColorMagenta, config.ColorCyan, config.ColorWhite,
@@ -65,6 +73,8 @@ func TestValidCfgColor(t *testing.T) {
 }
 
 func TestValidateColor(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		in      string
 		wantErr bool
@@ -86,6 +96,8 @@ func TestValidateColor(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
+			t.Parallel()
+
 			err := config.ValidateColor(tt.in)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateColor(%q) error = %v, wantErr %v", tt.in, err, tt.wantErr)
@@ -95,7 +107,11 @@ func TestValidateColor(t *testing.T) {
 }
 
 func TestColorConfigMerge(t *testing.T) {
+	t.Parallel()
+
 	t.Run("valid overrides applied", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultColorConfig()
 		src := &config.ColorConfig{
 			Text:  new("#111111"),
@@ -117,6 +133,8 @@ func TestColorConfigMerge(t *testing.T) {
 	})
 
 	t.Run("multiple invalid fields collected", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultColorConfig()
 		src := &config.ColorConfig{
 			Text:  new("bogus"),
@@ -142,6 +160,8 @@ func TestColorConfigMerge(t *testing.T) {
 	})
 
 	t.Run("empty source produces no errors", func(t *testing.T) {
+		t.Parallel()
+
 		dst := config.DefaultColorConfig()
 		if errs := dst.Merge(&config.ColorConfig{}); len(errs) != 0 {
 			t.Errorf("unexpected errors: %v", errs)
