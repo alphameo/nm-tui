@@ -103,8 +103,7 @@ func (m *ProfileCreatorModel) Init() tea.Cmd {
 }
 
 func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
+	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
 			return m, m.focusNextCmd()

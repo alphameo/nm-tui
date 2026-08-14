@@ -47,8 +47,7 @@ func (t Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return t, nil
 	}
 
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
+	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		if key.Matches(msg, t.Keys.Toggle) {
 			t.value = !t.value
 		}

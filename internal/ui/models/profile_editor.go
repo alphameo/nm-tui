@@ -131,8 +131,7 @@ func (m *ProfileEditorModel) Init() tea.Cmd {
 }
 
 func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
+	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
 			return m, m.focusNextCmd()

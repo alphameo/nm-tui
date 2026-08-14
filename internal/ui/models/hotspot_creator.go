@@ -92,8 +92,7 @@ func (m *HotspotCreatorModel) Init() tea.Cmd {
 }
 
 func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
+	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
 			return m, m.focusNextCmd()

@@ -65,8 +65,7 @@ func (m *HelpModel) Update(msg tea.Msg) (*HelpModel, tea.Cmd) {
 		m.viewport.SetWidth(msg.Width - styles.BorderOffset)
 		m.viewport.SetHeight(msg.Height - styles.BorderOffset)
 	case tea.KeyPressMsg:
-		switch {
-		case key.Matches(msg, m.keys.quit):
+		if key.Matches(msg, m.keys.quit) {
 			return m, ClosePopupCmd()
 		}
 	}

@@ -90,8 +90,7 @@ func (m *ConnectorModel) Init() tea.Cmd {
 }
 
 func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
+	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
 			return m, m.focusNextCmd()

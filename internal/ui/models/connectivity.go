@@ -206,8 +206,7 @@ func (m *ConnectivityModel) Update(msg tea.Msg) (*ConnectivityModel, tea.Cmd) {
 		return m, nil
 	}
 
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
+	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
 			return m, m.focusNextCmd()
