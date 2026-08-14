@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"charm.land/bubbles/v2/key"
 	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
@@ -103,6 +105,6 @@ func initKeys(keys config.KeyConfig) keyMaps {
 func NewKey(keys []string, desc string) key.Binding {
 	return key.NewBinding(
 		key.WithKeys(keys...),
-		key.WithHelp(HelpFromKeys(keys...), desc),
+		key.WithHelp(strings.Join(keys, "/"), desc),
 	)
 }

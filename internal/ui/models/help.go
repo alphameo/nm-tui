@@ -28,11 +28,12 @@ type HelpModel struct {
 	viewport viewport.Model
 	help     help.Model
 	keyMap   keyMaps
-	keys     helpKeyMap
+
+	keys helpKeyMap
 }
 
 func NewHelpModel(keys keyMaps) *HelpModel {
-	v := viewport.New(viewport.WithHeight(1), viewport.WithWidth(1))
+	v := viewport.New()
 	h := help.New()
 	h.Styles = styles.HelpStyle
 	h.Ellipsis = styles.SymbolEllipsis
@@ -44,7 +45,7 @@ func NewHelpModel(keys keyMaps) *HelpModel {
 		help:     h,
 		keys:     keys.help,
 	}
-	help.viewport.SetContent(help.FullView())
+	help.viewport.SetContent(help.fullView())
 	return &help
 }
 
@@ -99,7 +100,7 @@ func (m *HelpModel) ShortViewFor(bindings []key.Binding) string {
 	return m.help.ShortHelpView(bindings)
 }
 
-func (m *HelpModel) FullView() string {
+func (m *HelpModel) fullView() string {
 	var view string
 	globalTTL := "Global"
 	globalTTL = styles.AccentStyle.Render(globalTTL)
@@ -152,7 +153,7 @@ func (m *HelpModel) FullView() string {
 		availableNetworksTTL, m.help.FullHelpView(availableNetworks), "",
 		connectorTTL, m.help.FullHelpView(connector), "",
 		networkProfilesTTL, m.help.FullHelpView(networkProfiles), "",
-		profileEditorTTL, m.help.FullHelpView(profileEditor),
+		profileEditorTTL, m.help.FullHelpView(profileEditor), "",
 		connectivityTTL, m.help.FullHelpView(connectivity), "",
 	)
 
@@ -161,172 +162,197 @@ func (m *HelpModel) FullView() string {
 
 func (m *HelpModel) globalFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.toggle.Toggle,
+		m.fullKB(m.keyMap.toggle.Toggle, "Enable/Disable toggle button"),
 	}}
 }
 
 func (m *HelpModel) mainFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.main.quit,
-		m.keyMap.tabs.Next,
-		m.keyMap.tabs.Prev,
-		m.keyMap.main.help,
+		m.fullKB(m.keyMap.main.quit, "Exit the application"),
+		m.fullKB(m.keyMap.tabs.Next, "Move to next tab"),
+		m.fullKB(m.keyMap.tabs.Prev, "Move to previous tab"),
+		m.fullKB(m.keyMap.main.help, "Open/Close Help menu"),
 	}}
 }
 
 func (m *HelpModel) connectivityFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.connectivity.prev,
-		m.keyMap.connectivity.next,
-		m.keyMap.connectivity.rescan,
+		m.fullKB(m.keyMap.connectivity.prev, "Move to previous control"),
+		m.fullKB(m.keyMap.connectivity.next, "Move to next control"),
+		m.fullKB(m.keyMap.connectivity.rescan, "Rescan device state"),
 	}}
 }
 
 func (m *HelpModel) connectivityShort() []key.Binding {
-	return []key.Binding{
+	k := []key.Binding{
 		m.keyMap.connectivity.rescan,
 	}
+	return m.shortKBs(k)
 }
 
 func (m *HelpModel) availableNetworksFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.availableNetworks.rescan,
-		m.keyMap.availableNetworks.connect,
+		m.fullKB(m.keyMap.availableNetworks.rescan, "Rescan available networks"),
+		m.fullKB(m.keyMap.availableNetworks.connect, "Open Connector for selected network"),
 	}}
 }
 
 func (m *HelpModel) availableNetworksShort() []key.Binding {
-	return []key.Binding{
+	k := []key.Binding{
 		m.keyMap.availableNetworks.rescan,
 		m.keyMap.availableNetworks.connect,
 	}
+	return m.shortKBs(k)
 }
 
 func (m *HelpModel) connectorFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.connector.prev,
-		m.keyMap.connector.next,
-		m.keyMap.connector.togglePWVisibility,
-		m.keyMap.connector.connect,
-		m.keyMap.main.closePopup,
+		m.fullKB(m.keyMap.connector.prev, "Move to previous field"),
+		m.fullKB(m.keyMap.connector.next, "Move to next field"),
+		m.fullKB(m.keyMap.connector.togglePWVisibility, "Toggle password visibility"),
+		m.fullKB(m.keyMap.connector.connect, "Connect with entered settings"),
+		m.fullKB(m.keyMap.main.closePopup, "Close Connector"),
 	}}
 }
 
 func (m *HelpModel) connectorShort() []key.Binding {
-	return []key.Binding{
+	k := []key.Binding{
 		m.keyMap.connector.togglePWVisibility,
 		m.keyMap.connector.connect,
 	}
+	return m.shortKBs(k)
 }
 
 func (m *HelpModel) hotspotCreatorFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.hotspotCreator.prev,
-		m.keyMap.hotspotCreator.next,
-		m.keyMap.hotspotCreator.togglePWVisibility,
-		m.keyMap.hotspotCreator.create,
-		m.keyMap.main.closePopup,
+		m.fullKB(m.keyMap.hotspotCreator.prev, "Move to previous field"),
+		m.fullKB(m.keyMap.hotspotCreator.next, "Move to next field"),
+		m.fullKB(m.keyMap.hotspotCreator.togglePWVisibility, "Toggle password visibility"),
+		m.fullKB(m.keyMap.hotspotCreator.create, "Create hotspot profile with entered settings"),
+		m.fullKB(m.keyMap.main.closePopup, "Close Hotspot Creator"),
 	}}
 }
 
 func (m *HelpModel) hotspotCreatorShort() []key.Binding {
-	return []key.Binding{
+	k := []key.Binding{
 		m.keyMap.hotspotCreator.togglePWVisibility,
 		m.keyMap.hotspotCreator.create,
 	}
+	return m.shortKBs(k)
 }
 
 func (m *HelpModel) networkProfilesFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.networkProfiles.connect,
-		m.keyMap.networkProfiles.disconnect,
-		m.keyMap.networkProfiles.edit,
-		m.keyMap.networkProfiles.delete,
-		m.keyMap.networkProfiles.rescan,
+		m.fullKB(m.keyMap.networkProfiles.connect, "Connect to network associated with selected profile"),
+		m.fullKB(m.keyMap.networkProfiles.disconnect, "Disconnect from network associated with selected profile"),
+		m.fullKB(m.keyMap.networkProfiles.edit, "Open Profile Editor for selected profile"),
+		m.fullKB(m.keyMap.networkProfiles.delete, "Delete network profile"),
+		m.fullKB(m.keyMap.networkProfiles.rescan, "Rescan saved network profiles"),
 	}}
 }
 
 func (m *HelpModel) networkProfilesShort() []key.Binding {
-	return []key.Binding{
+	k := []key.Binding{
 		m.keyMap.networkProfiles.connect,
 		m.keyMap.networkProfiles.disconnect,
 		m.keyMap.networkProfiles.edit,
 		m.keyMap.networkProfiles.delete,
 		m.keyMap.networkProfiles.rescan,
 	}
+	return m.shortKBs(k)
 }
 
 func (m *HelpModel) networksFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.networks.win1,
-		m.keyMap.networks.win2,
-		m.keyMap.networks.winPrev,
-		m.keyMap.networks.winNext,
-		m.keyMap.networks.createProfile,
-		m.keyMap.networks.createHotspot,
-		m.keyMap.networks.quickHotspot,
-		m.keyMap.networks.openCaptivePortal,
-		m.keyMap.networks.rescan,
+		m.fullKB(m.keyMap.networks.win1, "Focus on 1st window"),
+		m.fullKB(m.keyMap.networks.win2, "Focus on 2nd window"),
+		m.fullKB(m.keyMap.networks.winPrev, "Focus on previous window"),
+		m.fullKB(m.keyMap.networks.winNext, "Focus on next window"),
+		m.fullKB(m.keyMap.networks.createProfile, "Open network Profile Creator"),
+		m.fullKB(m.keyMap.networks.createHotspot, "Open Hotspot Creator"),
+		m.fullKB(m.keyMap.networks.quickHotspot, "Enable hotspot, silently create its profile if not present"),
+		m.fullKB(m.keyMap.networks.openCaptivePortal, "Open login (captive) portal in external browser"),
+		m.fullKB(m.keyMap.networks.rescan, "Rescan all networks"),
 	}}
 }
 
 func (m *HelpModel) networksShort() []key.Binding {
-	return []key.Binding{
+	k := []key.Binding{
 		m.keyMap.networks.createProfile,
 		m.keyMap.networks.createHotspot,
 		m.keyMap.networks.quickHotspot,
 		m.keyMap.networks.openCaptivePortal,
 		m.keyMap.networks.rescan,
 	}
+	return m.shortKBs(k)
 }
 
 func (m *HelpModel) profileCreatorFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.profileCreator.prev,
-		m.keyMap.profileCreator.next,
-		m.keyMap.profileCreator.togglePWVisibility,
-		m.keyMap.profileCreator.create,
-		m.keyMap.main.closePopup,
+		m.fullKB(m.keyMap.profileCreator.prev, "Move to previous field"),
+		m.fullKB(m.keyMap.profileCreator.next, "Move to next field"),
+		m.fullKB(m.keyMap.profileCreator.togglePWVisibility, "Toggle password visibility"),
+		m.fullKB(m.keyMap.profileCreator.create, "Create network profile with entered settings"),
+		m.fullKB(m.keyMap.main.closePopup, "Close Profile Creator"),
 	}}
 }
 
 func (m *HelpModel) profileCreatorShort() []key.Binding {
-	return []key.Binding{
+	k := []key.Binding{
 		m.keyMap.profileCreator.togglePWVisibility,
 		m.keyMap.profileCreator.create,
 	}
+	return m.shortKBs(k)
 }
 
 func (m *HelpModel) profileEditorFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.keyMap.profileEditor.prev,
-		m.keyMap.profileEditor.next,
-		m.keyMap.profileEditor.togglePWVisibility,
-		m.keyMap.profileEditor.save,
-		m.keyMap.main.closePopup,
+		m.fullKB(m.keyMap.profileEditor.prev, "Move to previous field"),
+		m.fullKB(m.keyMap.profileEditor.next, "Move to next field"),
+		m.fullKB(m.keyMap.profileEditor.togglePWVisibility, "Toggle password visibility"),
+		m.fullKB(m.keyMap.profileEditor.save, "Save network profile settings"),
+		m.fullKB(m.keyMap.main.closePopup, "Close Profile Editor"),
 	}}
 }
 
 func (m *HelpModel) profileEditorShort() []key.Binding {
-	return []key.Binding{
+	k := []key.Binding{
 		m.keyMap.profileEditor.togglePWVisibility,
 		m.keyMap.profileEditor.save,
 	}
+	return m.shortKBs(k)
 }
 
-func HelpFromKeys(keys ...string) string {
+func (m *HelpModel) shortKB(kb key.Binding) key.Binding {
+	keys := kb.Keys()
+	desc := kb.Help().Desc
+	helpKeys := m.compressKBKeys(keys...)
+	kb.SetHelp(m.collectKeys(helpKeys...), desc)
+	return kb
+}
+
+func (*HelpModel) compressKBKeys(keys ...string) []string {
 	transformed := make([]string, len(keys))
 	for i, key := range keys {
 		transformed[i] = strings.ReplaceAll(key, "ctrl+", "^")
 	}
-	return strings.Join(transformed, "/")
+	return transformed
 }
 
-func NewKeyBinding(b key.Binding, help string) key.Binding {
-	keys := b.Keys()
-	helpKeys := HelpFromKeys()
-	return key.NewBinding(
-		key.WithKeys(keys...),
-		key.WithHelp(helpKeys, help),
-	)
+func (*HelpModel) collectKeys(keys ...string) string {
+	return strings.Join(keys, "/")
+}
+
+func (m *HelpModel) shortKBs(kbs []key.Binding) []key.Binding {
+	shortKBs := make([]key.Binding, len(kbs))
+	for i, v := range kbs {
+		shortKBs[i] = m.shortKB(v)
+	}
+	return shortKBs
+}
+
+func (m *HelpModel) fullKB(kb key.Binding, desc string) key.Binding {
+	helpKey := kb.Help().Key
+	kb.SetHelp(helpKey, desc)
+	return kb
 }
