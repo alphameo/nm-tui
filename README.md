@@ -143,115 +143,18 @@ Config is placed at `$XDG_CONFIG_HOME/nm-tui/config.kdl` (e.g. `~/.config/nm-tui
 
 All settings have default values, with which the user configuration is subsequently merged.
 
-You don't need to copy default config.
-
-<details>
-    <summary>Default <code>config.kdl</code> for reference (no need to copy)</summary>
+You don't need to copy the defaults — a fully-commented example covering every option is available in [`config.example.kdl`](./config.example.kdl). Only include the sections you want to override, e.g.:
 
 ```kdl
-notification_close_time 50
-
-// Colors support:
-// 1. rgb-format: e.g. "#000000"
-// 2. default value: "default"
-// 3. colors, defined in your terminal:
-//    - "none" - bg color for background, text color for foreground
-//    - "black", "red", "green", "yellow",
-//      "blue", "magenta", "cyan", "white",
-//      "bright_black", "bright_red", "bright_green", "bright_yellow",
-//      "bright_blue", "bright_magenta", "bright_cyan", "bright_white",
 colors {
-    text "none"
-    accent "blue"
-    muted "bright_black"
-    error "red"
-    notification "yellow"
+    accent "#865fff"
 }
-
-icons {
-    nerd_preset false // set icons to nerd variant
-
-    border_style "ascii" // default for nerd: "rounded"
-                         // non-nerd variants: "ascii", "markdown",
-                         // nerd variants: "rounded", "square", "thick_square",
-                         //                "double_square", "block",
-                         //                "outer_half_block", "inner_half_block"
-
-    spinner_style "line" // default for nerd: "meter"
-                         // non-nerd variants: "line", "ellipsis"
-                         // nerd variants: "dot", "mini_dot", "jump", "pulse",
-                         //                "points", "meter", "hamburger"
-
-    input_cursor_shape "bar" // variants: "bar", "underline", "block"
-
-    toggle_off "[ ]"              // default for nerd: " "
-    toggle_on "[x]"               // default for nerd: " "
-    password_hidden_character "*" // default for nerd: "•", limited to 1 character
-    error "!"                     // default for nerd: "✗"
-    check "v"                     // default for nerd: " "
-    connection "sig"              // default for nerd: " "
-    signal "con"                  // default for nerd: "󱘖 "
-    access_point "ap"             // default for nerd: "󰀃 "
-    infra "infr"                  // default for nerd: "🖳 "
-    mesh "#"                      // default for nerd: " "
-    ad_hoc "ah"                   // default for nerd: ""
-    separator "|"                 // default for nerd: "•"
-    ellipsis "_"                  // default for nerd: "…"
-}
-
-logging {
-    level "error" // variants: "debug", "info", "warn", "error"
-    file_path "~/.local/state/nm-tui/nm-tui.log"
-}
-
-// Every mapping can be present in several variants
-// Overlapping: dialog -> main -> no-section -> other...
 keys {
-    toggle "space"
-    rescan "r"
-    rescan_focused "ctrl+r"
-    focus_next "tab"
-    focus_prev "shift+tab"
-    focus_1 "1"
-    focus_2 "2"
-    focus_3 "3"
-    focus_4 "4"
-    focus_5 "5"
-    focus_6 "6"
-    focus_7 "7"
-    focus_8 "8"
-    focus_9 "9"
-    focus_10 "10"
     main {
-        help "?"
-        next_tab "]"
-        prev_tab "["
         quit "esc" "ctrl+c" "q" "ctrl+q"
-    }
-    dialog {
-        toggle_pw_visibility "ctrl+p"
-        accept "ctrl+enter"
-        close "ctrl+q"
-    }
-    networks {
-        create_profile "a"
-        open_network_login "l"
-        quick_hotspot "ctrl+h"
-        create_hotspot "h"
-    }
-    available_networks {
-        connect "enter"
-    }
-    network_profiles {
-        edit "enter"
-        connect "space"
-        disconnect "ctrl+space"
-        delete "d" "delete"
     }
 }
 ```
-
-</details>
 
 ## Tech Stack
 
