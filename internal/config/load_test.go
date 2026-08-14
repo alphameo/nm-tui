@@ -1,4 +1,4 @@
-package config
+package config_test
 
 import (
 	"os"
@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alphameo/nm-tui/internal/config"
 	"github.com/calico32/kdl-go"
 )
 
@@ -23,11 +24,11 @@ func writeConfigFile(t *testing.T, src string) {
 	t.Helper()
 	dir := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", dir)
-	cfgDir := filepath.Join(dir, appName)
+	cfgDir := filepath.Join(dir, config.AppName)
 	if err := os.MkdirAll(cfgDir, 0o750); err != nil {
 		t.Fatal(err)
 	}
-	path := filepath.Join(cfgDir, configFileName)
+	path := filepath.Join(cfgDir, config.ConfigFileName)
 	if err := os.WriteFile(path, []byte(src), 0o600); err != nil { //nolint:gosec // writes test config to a t.TempDir path
 		t.Fatal(err)
 	}
@@ -50,7 +51,7 @@ func TestLoadExampleConfig(t *testing.T) {
 	}
 	writeConfigFile(t, string(src))
 
-	cfg, err := LoadOrDefaults()
+	cfg, err := config.LoadOrDefaults()
 	if err != nil {
 		t.Fatalf("LoadOrDefaults() error: %v", err)
 	}
@@ -59,7 +60,7 @@ func TestLoadExampleConfig(t *testing.T) {
 	// config.example.kdl mirrors the built-in defaults; the only explicit
 	// deviation is the example log path, whose "~" is expanded to $HOME.
 	// Update this expectation by hand when you change config.example.kdl.
-	want := DefaultConfig()
+	want := config.DefaultConfig()
 	want.Logging.FilePath = new(filepath.Join(home, ".local", "state", "nm-tui", "log"))
 	assertConfigEqual(t, "config.example.kdl decodes to defaults", cfg, want)
 }
@@ -76,15 +77,15 @@ keys {
 }
 `)
 
-	cfg, err := LoadOrDefaults()
+	cfg, err := config.LoadOrDefaults()
 	if err != nil {
 		t.Fatalf("LoadOrDefaults() error: %v", err)
 	}
 
-	want := DefaultConfig()
+	want := config.DefaultConfig()
 	want.NotifCloseTime = new(300)
 	want.Colors.Text = new("#111111")
-	want.Keys.Toggle = keyBinding("t")
+	want.Keys.Toggle = &config.KeyBinding{"t"}
 	assertConfigEqual(t, "overrides applied on top of defaults", cfg, want)
 }
 
@@ -92,7 +93,7 @@ func TestLoadOrDefaultsInvalid(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
 	writeConfigFile(t, readTestdata(t, "invalid.config.kdl"))
 
-	cfg, err := LoadOrDefaults()
+	cfg, err := config.LoadOrDefaults()
 	if err == nil {
 		t.Fatal("LoadOrDefaults() expected error for invalid config")
 	}
@@ -111,7 +112,7 @@ func TestLoadOrDefaultsInvalid(t *testing.T) {
 		}
 	}
 
-	assertConfigEqual(t, "invalid values leave defaults intact", cfg, DefaultConfig())
+	assertConfigEqual(t, "invalid values leave defaults intact", cfg, config.DefaultConfig())
 }
 
 func TestLoadOrDefaultsNoConfigFile(t *testing.T) {
@@ -119,7 +120,7 @@ func TestLoadOrDefaultsNoConfigFile(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", dir)
 
-	cfg, err := LoadOrDefaults()
+	cfg, err := config.LoadOrDefaults()
 	if err == nil {
 		t.Fatal("LoadOrDefaults() expected error when no config file exists")
 	}
@@ -127,14 +128,14 @@ func TestLoadOrDefaultsNoConfigFile(t *testing.T) {
 		t.Errorf("error does not mention user config loading failed: %v", err)
 	}
 
-	assertConfigEqual(t, "missing config keeps defaults", cfg, DefaultConfig())
+	assertConfigEqual(t, "missing config keeps defaults", cfg, config.DefaultConfig())
 }
 
 func TestLoadMissingFile(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", dir)
 
-	_, err := Load()
+	_, err := config.Load()
 	if err == nil {
 		t.Fatal("Load() expected error for missing config file")
 	}
@@ -146,7 +147,7 @@ func TestLoadMissingFile(t *testing.T) {
 func TestLoadDecodeError(t *testing.T) {
 	writeConfigFile(t, `notification_close_time "notanumber"`)
 
-	_, err := Load()
+	_, err := config.Load()
 	if err == nil {
 		t.Fatal("Load() expected error for undecodable config")
 	}
@@ -159,7 +160,7 @@ func TestLoadPathResolutionError(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", "")
 	t.Setenv("HOME", "")
 
-	_, err := Load()
+	_, err := config.Load()
 	if err == nil {
 		t.Fatal("Load() expected error when config dir cannot be resolved")
 	}
@@ -169,7 +170,7 @@ func TestLoadPathResolutionError(t *testing.T) {
 }
 
 func TestKeyBindingUnmarshalKDL(t *testing.T) {
-	decode := func(t *testing.T, src string, kb *KeyBinding) error {
+	decode := func(t *testing.T, src string, kb *config.KeyBinding) error {
 		t.Helper()
 		doc, err := kdl.ParseString(src)
 		if err != nil {
@@ -184,28 +185,28 @@ func TestKeyBindingUnmarshalKDL(t *testing.T) {
 	}
 
 	t.Run("single argument", func(t *testing.T) {
-		var kb KeyBinding
+		var kb config.KeyBinding
 		if err := decode(t, `key "space"`, &kb); err != nil {
 			t.Fatalf("UnmarshalKDL() error: %v", err)
 		}
-		if want := (KeyBinding{"space"}); !reflect.DeepEqual(kb, want) {
+		if want := (config.KeyBinding{"space"}); !reflect.DeepEqual(kb, want) {
 			t.Errorf("got %v, want %v", kb, want)
 		}
 	})
 
 	t.Run("multiple arguments", func(t *testing.T) {
-		var kb KeyBinding
+		var kb config.KeyBinding
 		if err := decode(t, `quit "esc" "ctrl+c" "q" "ctrl+q"`, &kb); err != nil {
 			t.Fatalf("UnmarshalKDL() error: %v", err)
 		}
-		want := KeyBinding{"esc", "ctrl+c", "q", "ctrl+q"}
+		want := config.KeyBinding{"esc", "ctrl+c", "q", "ctrl+q"}
 		if !reflect.DeepEqual(kb, want) {
 			t.Errorf("got %v, want %v", kb, want)
 		}
 	})
 
 	t.Run("empty node", func(t *testing.T) {
-		var kb KeyBinding
+		var kb config.KeyBinding
 		if err := decode(t, `key`, &kb); err != nil {
 			t.Fatalf("UnmarshalKDL() error: %v", err)
 		}

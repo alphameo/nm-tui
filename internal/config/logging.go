@@ -18,7 +18,7 @@ func DefaultLogConfig() *LogConfig {
 		home, _ := os.UserHomeDir()
 		stateDir = filepath.Join(home, ".local", "state")
 	}
-	logPath := filepath.Join(stateDir, appName, "log")
+	logPath := filepath.Join(stateDir, AppName, "log")
 	level := LogError
 	return &LogConfig{
 		Level:    &level,
@@ -26,23 +26,23 @@ func DefaultLogConfig() *LogConfig {
 	}
 }
 
-func (c *LogConfig) merge(src *LogConfig) []error {
+func (c *LogConfig) Merge(src *LogConfig) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
 
-	if src.FilePath != nil && *src.FilePath != defaultKeyword {
+	if src.FilePath != nil && *src.FilePath != DefaultKeyword {
 		if *src.FilePath == "" {
 			errs = append(errs, fmt.Errorf("empty log filepath"))
 		} else {
-			expanded := expandPath(*src.FilePath)
+			expanded := ExpandPath(*src.FilePath)
 			c.FilePath = &expanded
 		}
 	}
 
-	if src.Level != nil && *src.Level != defaultKeyword {
+	if src.Level != nil && *src.Level != DefaultKeyword {
 		if !validLogLevel(*src.Level) {
 			errs = append(errs, fmt.Errorf("invalid log level: %q", *src.Level))
 		} else {
@@ -67,18 +67,18 @@ func validLogLevel(level string) bool {
 	return false
 }
 
-func resolveConfigPath() (string, error) {
+func ResolveConfigPath() (string, error) {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
-	path := filepath.Join(configDir, appName, configFileName)
+	path := filepath.Join(configDir, AppName, ConfigFileName)
 	return path, nil
 }
 
-// expandPath expands a leading "~/" to the user's home directory and then
+// ExpandPath expands a leading "~/" to the user's home directory and then
 // expands any environment variables. Bare "~" (without a slash) is left as-is.
-func expandPath(path string) string {
+func ExpandPath(path string) string {
 	if strings.HasPrefix(path, "~/") {
 		home, _ := os.UserHomeDir()
 		path = filepath.Join(home, path[2:])

@@ -105,7 +105,7 @@ func DefaultIconConfig() *IconConfig {
 	return DefaultNonNerdIconConfig()
 }
 
-func (c *IconConfig) merge(src *IconConfig) []error {
+func (c *IconConfig) Merge(src *IconConfig) []error {
 	var errs []error
 	collect := func(err error) {
 		if err != nil {
@@ -140,7 +140,7 @@ func mergeBorderStyle(dst *string, src *string) error {
 
 	border := *src
 
-	if border == defaultKeyword {
+	if border == DefaultKeyword {
 		return nil
 	}
 
@@ -159,7 +159,7 @@ func mergeSpinnerStyle(dst *string, src *string) error {
 
 	spinner := *src
 
-	if spinner == defaultKeyword {
+	if spinner == DefaultKeyword {
 		return nil
 	}
 
@@ -178,7 +178,7 @@ func mergeCursorShape(dst *string, src *string) error {
 
 	cursor := *src
 
-	if cursor == defaultKeyword {
+	if cursor == DefaultKeyword {
 		return nil
 	}
 
@@ -197,7 +197,7 @@ func mergeIcon(dst *string, src *string, tag string) error {
 
 	icon := *src
 
-	if icon == defaultKeyword {
+	if icon == DefaultKeyword {
 		return nil
 	}
 
@@ -215,7 +215,7 @@ func mergeSymbol(dst *string, src *string, tag string) error {
 
 	symbol := *src
 
-	if symbol == defaultKeyword {
+	if symbol == DefaultKeyword {
 		return nil
 	}
 

@@ -13,9 +13,9 @@ func init() {
 }
 
 const (
-	appName        = "nm-tui"
-	configFileName = "config.kdl"
-	defaultKeyword = "default"
+	AppName        = "nm-tui"
+	ConfigFileName = "config.kdl"
+	DefaultKeyword = "default"
 )
 
 type Config struct {
@@ -36,19 +36,19 @@ func DefaultConfig() Config {
 	}
 }
 
-func (c *Config) merge(src *Config) []error {
+func (c *Config) Merge(src *Config) []error {
 	var errs []error
 
 	if src.Logging != nil {
-		errs = append(errs, c.Logging.merge(src.Logging)...)
+		errs = append(errs, c.Logging.Merge(src.Logging)...)
 	}
 
 	if src.Colors != nil {
-		errs = append(errs, c.Colors.merge(src.Colors)...)
+		errs = append(errs, c.Colors.Merge(src.Colors)...)
 	}
 
 	if src.Keys != nil {
-		errs = append(errs, c.Keys.merge(src.Keys)...)
+		errs = append(errs, c.Keys.Merge(src.Keys)...)
 	}
 
 	if src.Icons != nil {
@@ -56,7 +56,7 @@ func (c *Config) merge(src *Config) []error {
 		if nerd != nil && *nerd {
 			c.Icons = DefaultNerdIconConfig()
 		}
-		errs = append(errs, c.Icons.merge(src.Icons)...)
+		errs = append(errs, c.Icons.Merge(src.Icons)...)
 	}
 
 	if src.NotifCloseTime != nil {
@@ -74,7 +74,7 @@ func (c *Config) merge(src *Config) []error {
 }
 
 func Load() (*Config, error) {
-	path, err := resolveConfigPath()
+	path, err := ResolveConfigPath()
 	if err != nil {
 		return nil, fmt.Errorf("resolve config path: %w", err)
 	}
@@ -101,7 +101,7 @@ func LoadOrDefaults() (Config, error) {
 	if err != nil {
 		return cfg, fmt.Errorf("user config loading failed: %w", err)
 	}
-	errs := cfg.merge(userCfg)
+	errs := cfg.Merge(userCfg)
 
 	if len(errs) > 0 {
 		err = fmt.Errorf("user config: %w", errors.Join(errs...))

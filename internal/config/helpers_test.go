@@ -1,8 +1,10 @@
-package config
+package config_test
 
 import (
 	"reflect"
 	"testing"
+
+	"github.com/alphameo/nm-tui/internal/config"
 )
 
 // assertNoNilFields recursively verifies that every pointer, slice, map, and
@@ -20,7 +22,7 @@ func assertNoNilFields(t *testing.T, v any) {
 			}
 			check(path, rv.Elem())
 		case reflect.Struct:
-			for i := 0; i < rv.NumField(); i++ {
+			for i := range rv.NumField() {
 				f := rv.Type().Field(i)
 				if !f.IsExported() {
 					continue
@@ -31,12 +33,14 @@ func assertNoNilFields(t *testing.T, v any) {
 			if rv.IsNil() {
 				t.Errorf("%s is nil", path)
 			}
+		default:
+			return
 		}
 	}
 	check("", reflect.ValueOf(v))
 }
 
-func assertKeyBinding(t *testing.T, name string, b *KeyBinding, want ...string) {
+func assertKeyBinding(t *testing.T, name string, b *config.KeyBinding, want ...string) {
 	t.Helper()
 	if b == nil {
 		t.Errorf("%s: nil binding, want %v", name, want)
@@ -47,7 +51,7 @@ func assertKeyBinding(t *testing.T, name string, b *KeyBinding, want ...string) 
 	}
 }
 
-func assertNilKeyBinding(t *testing.T, name string, b *KeyBinding) {
+func assertNilKeyBinding(t *testing.T, name string, b *config.KeyBinding) {
 	t.Helper()
 	if b != nil {
 		t.Errorf("%s = %v, want nil", name, *b)

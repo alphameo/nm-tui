@@ -11,11 +11,6 @@ import (
 
 type KeyBinding []string
 
-func keyBinding(keys ...string) *KeyBinding {
-	k := KeyBinding(keys)
-	return &k
-}
-
 func (k *KeyBinding) UnmarshalKDL(node *kdl.Node) error {
 	args := node.Arguments()
 	*k = make(KeyBinding, len(args))
@@ -83,142 +78,142 @@ type NetworkProfilesKeys struct {
 
 func DefaultKeys() *KeyConfig {
 	return &KeyConfig{
-		Toggle:        keyBinding("space"),
-		Rescan:        keyBinding("r"),
-		RescanFocused: keyBinding("ctrl+r"),
-		FocusNext:     keyBinding("tab"),
-		FocusPrev:     keyBinding("shift+tab"),
-		Focus1:        keyBinding("1"),
-		Focus2:        keyBinding("2"),
-		Focus3:        keyBinding("3"),
-		Focus4:        keyBinding("4"),
-		Focus5:        keyBinding("5"),
-		Focus6:        keyBinding("6"),
-		Focus7:        keyBinding("7"),
-		Focus8:        keyBinding("8"),
-		Focus9:        keyBinding("9"),
-		Focus10:       keyBinding("0"),
+		Toggle:        &KeyBinding{"space"},
+		Rescan:        &KeyBinding{"r"},
+		RescanFocused: &KeyBinding{"ctrl+r"},
+		FocusNext:     &KeyBinding{"tab"},
+		FocusPrev:     &KeyBinding{"shift+tab"},
+		Focus1:        &KeyBinding{"1"},
+		Focus2:        &KeyBinding{"2"},
+		Focus3:        &KeyBinding{"3"},
+		Focus4:        &KeyBinding{"4"},
+		Focus5:        &KeyBinding{"5"},
+		Focus6:        &KeyBinding{"6"},
+		Focus7:        &KeyBinding{"7"},
+		Focus8:        &KeyBinding{"8"},
+		Focus9:        &KeyBinding{"9"},
+		Focus10:       &KeyBinding{"0"},
 		Main: &MainKeys{
-			Help:    keyBinding("?"),
-			TabNext: keyBinding("]"),
-			TabPrev: keyBinding("["),
-			Quit:    keyBinding("esc", "ctrl+c", "q", "ctrl+q"),
+			Help:    &KeyBinding{"?"},
+			TabNext: &KeyBinding{"]"},
+			TabPrev: &KeyBinding{"["},
+			Quit:    &KeyBinding{"esc", "ctrl+c", "q", "ctrl+q"},
 		},
 		Dialog: &DialogKeys{
-			TogglePWVisibility: keyBinding("ctrl+p"),
-			Accept:             keyBinding("enter"),
-			Close:              keyBinding("esc", "ctrl+q", "ctrl+c"),
+			TogglePWVisibility: &KeyBinding{"ctrl+p"},
+			Accept:             &KeyBinding{"enter"},
+			Close:              &KeyBinding{"esc", "ctrl+q", "ctrl+c"},
 		},
 		Networks: &NetworksKeys{
-			CreateProfile:     keyBinding("a", "c"),
-			OpenCaptivePortal: keyBinding("l"),
-			QuickHotspot:      keyBinding("ctrl+h"),
-			CreateHotspot:     keyBinding("h"),
+			CreateProfile:     &KeyBinding{"a", "c"},
+			OpenCaptivePortal: &KeyBinding{"l"},
+			QuickHotspot:      &KeyBinding{"ctrl+h"},
+			CreateHotspot:     &KeyBinding{"h"},
 		},
 		AvailableNetworks: &AvailableNetworksKeys{
-			Connect: keyBinding("enter"),
+			Connect: &KeyBinding{"enter"},
 		},
 		NetworkProfiles: &NetworkProfilesKeys{
-			Edit:       keyBinding("enter"),
-			Connect:    keyBinding("space"),
-			Disconnect: keyBinding("ctrl+space"),
-			Delete:     keyBinding("d", "delete"),
+			Edit:       &KeyBinding{"enter"},
+			Connect:    &KeyBinding{"space"},
+			Disconnect: &KeyBinding{"ctrl+space"},
+			Delete:     &KeyBinding{"d", "delete"},
 		},
 	}
 }
 
-func (k *KeyConfig) merge(src *KeyConfig) []error {
+func (k *KeyConfig) Merge(src *KeyConfig) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&k.Toggle, src.Toggle, "toggle")...)
-	errs = append(errs, mergeKeyList(&k.Rescan, src.Rescan, "rescan")...)
-	errs = append(errs, mergeKeyList(&k.RescanFocused, src.RescanFocused, "rescan_focused")...)
-	errs = append(errs, mergeKeyList(&k.FocusNext, src.FocusNext, "focus_next")...)
-	errs = append(errs, mergeKeyList(&k.FocusPrev, src.FocusPrev, "focus_prev")...)
-	errs = append(errs, mergeKeyList(&k.Focus1, src.Focus1, "focus_1")...)
-	errs = append(errs, mergeKeyList(&k.Focus2, src.Focus2, "focus_2")...)
-	errs = append(errs, mergeKeyList(&k.Focus3, src.Focus3, "focus_3")...)
-	errs = append(errs, mergeKeyList(&k.Focus4, src.Focus4, "focus_4")...)
-	errs = append(errs, mergeKeyList(&k.Focus5, src.Focus5, "focus_5")...)
-	errs = append(errs, mergeKeyList(&k.Focus6, src.Focus6, "focus_6")...)
-	errs = append(errs, mergeKeyList(&k.Focus7, src.Focus7, "focus_7")...)
-	errs = append(errs, mergeKeyList(&k.Focus8, src.Focus8, "focus_8")...)
-	errs = append(errs, mergeKeyList(&k.Focus9, src.Focus9, "focus_9")...)
-	errs = append(errs, mergeKeyList(&k.Focus10, src.Focus10, "focus_10")...)
+	errs = append(errs, MergeKeyList(&k.Toggle, src.Toggle, "toggle")...)
+	errs = append(errs, MergeKeyList(&k.Rescan, src.Rescan, "rescan")...)
+	errs = append(errs, MergeKeyList(&k.RescanFocused, src.RescanFocused, "rescan_focused")...)
+	errs = append(errs, MergeKeyList(&k.FocusNext, src.FocusNext, "focus_next")...)
+	errs = append(errs, MergeKeyList(&k.FocusPrev, src.FocusPrev, "focus_prev")...)
+	errs = append(errs, MergeKeyList(&k.Focus1, src.Focus1, "focus_1")...)
+	errs = append(errs, MergeKeyList(&k.Focus2, src.Focus2, "focus_2")...)
+	errs = append(errs, MergeKeyList(&k.Focus3, src.Focus3, "focus_3")...)
+	errs = append(errs, MergeKeyList(&k.Focus4, src.Focus4, "focus_4")...)
+	errs = append(errs, MergeKeyList(&k.Focus5, src.Focus5, "focus_5")...)
+	errs = append(errs, MergeKeyList(&k.Focus6, src.Focus6, "focus_6")...)
+	errs = append(errs, MergeKeyList(&k.Focus7, src.Focus7, "focus_7")...)
+	errs = append(errs, MergeKeyList(&k.Focus8, src.Focus8, "focus_8")...)
+	errs = append(errs, MergeKeyList(&k.Focus9, src.Focus9, "focus_9")...)
+	errs = append(errs, MergeKeyList(&k.Focus10, src.Focus10, "focus_10")...)
 
-	errs = append(errs, k.Main.merge(src.Main)...)
-	errs = append(errs, k.Dialog.merge(src.Dialog)...)
-	errs = append(errs, k.Networks.merge(src.Networks)...)
-	errs = append(errs, k.AvailableNetworks.merge(src.AvailableNetworks)...)
-	errs = append(errs, k.NetworkProfiles.merge(src.NetworkProfiles)...)
+	errs = append(errs, k.Main.Merge(src.Main)...)
+	errs = append(errs, k.Dialog.Merge(src.Dialog)...)
+	errs = append(errs, k.Networks.Merge(src.Networks)...)
+	errs = append(errs, k.AvailableNetworks.Merge(src.AvailableNetworks)...)
+	errs = append(errs, k.NetworkProfiles.Merge(src.NetworkProfiles)...)
 	return errs
 }
 
-func (m *MainKeys) merge(src *MainKeys) []error {
+func (m *MainKeys) Merge(src *MainKeys) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&m.Help, src.Help, "rescan")...)
-	errs = append(errs, mergeKeyList(&m.TabNext, src.TabNext, "main.next_tab")...)
-	errs = append(errs, mergeKeyList(&m.TabPrev, src.TabPrev, "main.prev_tab")...)
-	errs = append(errs, mergeKeyList(&m.Quit, src.Quit, "main.quit")...)
+	errs = append(errs, MergeKeyList(&m.Help, src.Help, "rescan")...)
+	errs = append(errs, MergeKeyList(&m.TabNext, src.TabNext, "main.next_tab")...)
+	errs = append(errs, MergeKeyList(&m.TabPrev, src.TabPrev, "main.prev_tab")...)
+	errs = append(errs, MergeKeyList(&m.Quit, src.Quit, "main.quit")...)
 	return errs
 }
 
-func (d *DialogKeys) merge(src *DialogKeys) []error {
+func (d *DialogKeys) Merge(src *DialogKeys) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&d.TogglePWVisibility, src.TogglePWVisibility, "dialog.toggle_pw_visibility")...)
-	errs = append(errs, mergeKeyList(&d.Accept, src.Accept, "dialog.accept")...)
-	errs = append(errs, mergeKeyList(&d.Close, src.Close, "dialog.close")...)
+	errs = append(errs, MergeKeyList(&d.TogglePWVisibility, src.TogglePWVisibility, "dialog.toggle_pw_visibility")...)
+	errs = append(errs, MergeKeyList(&d.Accept, src.Accept, "dialog.accept")...)
+	errs = append(errs, MergeKeyList(&d.Close, src.Close, "dialog.close")...)
 	return errs
 }
 
-func (w *NetworksKeys) merge(src *NetworksKeys) []error {
+func (w *NetworksKeys) Merge(src *NetworksKeys) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&w.CreateProfile, src.CreateProfile, "networks.create_profile")...)
-	errs = append(errs, mergeKeyList(&w.OpenCaptivePortal, src.OpenCaptivePortal, "networks.open_network_login")...)
-	errs = append(errs, mergeKeyList(&w.QuickHotspot, src.QuickHotspot, "networks.quick_hotspot")...)
-	errs = append(errs, mergeKeyList(&w.CreateHotspot, src.CreateHotspot, "networks.create_hotspot")...)
+	errs = append(errs, MergeKeyList(&w.CreateProfile, src.CreateProfile, "networks.create_profile")...)
+	errs = append(errs, MergeKeyList(&w.OpenCaptivePortal, src.OpenCaptivePortal, "networks.open_network_login")...)
+	errs = append(errs, MergeKeyList(&w.QuickHotspot, src.QuickHotspot, "networks.quick_hotspot")...)
+	errs = append(errs, MergeKeyList(&w.CreateHotspot, src.CreateHotspot, "networks.create_hotspot")...)
 	return errs
 }
 
-func (a *AvailableNetworksKeys) merge(src *AvailableNetworksKeys) []error {
+func (a *AvailableNetworksKeys) Merge(src *AvailableNetworksKeys) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&a.Connect, src.Connect, "available_networks.connect")...)
+	errs = append(errs, MergeKeyList(&a.Connect, src.Connect, "available_networks.connect")...)
 	return errs
 }
 
-func (s *NetworkProfilesKeys) merge(src *NetworkProfilesKeys) []error {
+func (s *NetworkProfilesKeys) Merge(src *NetworkProfilesKeys) []error {
 	if src == nil {
 		return nil
 	}
 
 	var errs []error
-	errs = append(errs, mergeKeyList(&s.Edit, src.Edit, "network_profiles.edit")...)
-	errs = append(errs, mergeKeyList(&s.Connect, src.Connect, "network_profiles.connect")...)
-	errs = append(errs, mergeKeyList(&s.Disconnect, src.Disconnect, "network_profiles.disconnect")...)
-	errs = append(errs, mergeKeyList(&s.Delete, src.Delete, "network_profiles.delete")...)
+	errs = append(errs, MergeKeyList(&s.Edit, src.Edit, "network_profiles.edit")...)
+	errs = append(errs, MergeKeyList(&s.Connect, src.Connect, "network_profiles.connect")...)
+	errs = append(errs, MergeKeyList(&s.Disconnect, src.Disconnect, "network_profiles.disconnect")...)
+	errs = append(errs, MergeKeyList(&s.Delete, src.Delete, "network_profiles.delete")...)
 	return errs
 }
 
-func mergeKeyList(dst **KeyBinding, src *KeyBinding, tag string) []error {
+func MergeKeyList(dst **KeyBinding, src *KeyBinding, tag string) []error {
 	if src == nil {
 		return nil
 	}

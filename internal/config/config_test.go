@@ -1,39 +1,41 @@
-package config
+package config_test
 
 import (
 	"strings"
 	"testing"
+
+	"github.com/alphameo/nm-tui/internal/config"
 )
 
 func TestDefaultConfig(t *testing.T) {
-	assertNoNilFields(t, DefaultConfig())
+	assertNoNilFields(t, config.DefaultConfig())
 }
 
 func TestConfigMerge(t *testing.T) {
 	t.Run("empty source produces no errors", func(t *testing.T) {
-		cfg := DefaultConfig()
-		if errs := cfg.merge(&Config{}); len(errs) != 0 {
+		cfg := config.DefaultConfig()
+		if errs := cfg.Merge(&config.Config{}); len(errs) != 0 {
 			t.Errorf("unexpected errors: %v", errs)
 		}
 	})
 
 	t.Run("nil child sections are handled", func(t *testing.T) {
-		cfg := DefaultConfig()
-		src := Config{
-			Logging: &LogConfig{},
-			Colors:  &ColorConfig{},
-			Keys:    &KeyConfig{},
-			Icons:   &IconConfig{},
+		cfg := config.DefaultConfig()
+		src := config.Config{
+			Logging: &config.LogConfig{},
+			Colors:  &config.ColorConfig{},
+			Keys:    &config.KeyConfig{},
+			Icons:   &config.IconConfig{},
 		}
-		if errs := cfg.merge(&src); len(errs) != 0 {
+		if errs := cfg.Merge(&src); len(errs) != 0 {
 			t.Errorf("unexpected errors: %v", errs)
 		}
 	})
 
 	t.Run("notification close time valid", func(t *testing.T) {
-		cfg := DefaultConfig()
-		src := Config{NotifCloseTime: new(250)}
-		if errs := cfg.merge(&src); len(errs) != 0 {
+		cfg := config.DefaultConfig()
+		src := config.Config{NotifCloseTime: new(250)}
+		if errs := cfg.Merge(&src); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
 		}
 		if got, want := *cfg.NotifCloseTime, 250; got != want {
@@ -42,9 +44,9 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("notification close time invalid", func(t *testing.T) {
-		cfg := DefaultConfig()
-		src := Config{NotifCloseTime: new(-1)}
-		errs := cfg.merge(&src)
+		cfg := config.DefaultConfig()
+		src := config.Config{NotifCloseTime: new(-1)}
+		errs := cfg.Merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
 		}
@@ -57,18 +59,18 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("nerd preset swaps icons to nerd defaults", func(t *testing.T) {
-		cfg := DefaultConfig()
-		src := Config{Icons: &IconConfig{
+		cfg := config.DefaultConfig()
+		src := config.Config{Icons: &config.IconConfig{
 			NerdPreset:  new(true),
-			BorderStyle: new(BorderSquare),
+			BorderStyle: new(config.BorderSquare),
 		}}
-		if errs := cfg.merge(&src); len(errs) != 0 {
+		if errs := cfg.Merge(&src); len(errs) != 0 {
 			t.Fatalf("unexpected errors: %v", errs)
 		}
-		if got, want := *cfg.Icons.BorderStyle, BorderSquare; got != want {
+		if got, want := *cfg.Icons.BorderStyle, config.BorderSquare; got != want {
 			t.Errorf("BorderStyle = %q, want %q", got, want)
 		}
-		if got, want := *cfg.Icons.SpinnerStyle, SpinnerMeter; got != want {
+		if got, want := *cfg.Icons.SpinnerStyle, config.SpinnerMeter; got != want {
 			t.Errorf("SpinnerStyle = %q, want nerd default %q", got, want)
 		}
 		if got, want := *cfg.Icons.ToggleOff, " "; got != want {
@@ -77,9 +79,9 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("icon merge errors are propagated", func(t *testing.T) {
-		cfg := DefaultConfig()
-		src := Config{Icons: &IconConfig{BorderStyle: new("bogus")}}
-		errs := cfg.merge(&src)
+		cfg := config.DefaultConfig()
+		src := config.Config{Icons: &config.IconConfig{BorderStyle: new("bogus")}}
+		errs := cfg.Merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
 		}
@@ -89,9 +91,9 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("logging merge errors are propagated", func(t *testing.T) {
-		cfg := DefaultConfig()
-		src := Config{Logging: &LogConfig{Level: new("verbose")}}
-		errs := cfg.merge(&src)
+		cfg := config.DefaultConfig()
+		src := config.Config{Logging: &config.LogConfig{Level: new("verbose")}}
+		errs := cfg.Merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
 		}
@@ -101,9 +103,9 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("colors merge errors are propagated", func(t *testing.T) {
-		cfg := DefaultConfig()
-		src := Config{Colors: &ColorConfig{Text: new("notacolor")}}
-		errs := cfg.merge(&src)
+		cfg := config.DefaultConfig()
+		src := config.Config{Colors: &config.ColorConfig{Text: new("notacolor")}}
+		errs := cfg.Merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
 		}
@@ -113,9 +115,9 @@ func TestConfigMerge(t *testing.T) {
 	})
 
 	t.Run("keys merge errors are propagated", func(t *testing.T) {
-		cfg := DefaultConfig()
-		src := Config{Keys: &KeyConfig{Toggle: keyBinding("notakey")}}
-		errs := cfg.merge(&src)
+		cfg := config.DefaultConfig()
+		src := config.Config{Keys: &config.KeyConfig{Toggle: &config.KeyBinding{"notakey"}}}
+		errs := cfg.Merge(&src)
 		if len(errs) != 1 {
 			t.Fatalf("want 1 error, got %v", errs)
 		}
@@ -123,25 +125,4 @@ func TestConfigMerge(t *testing.T) {
 			t.Errorf("unexpected error: %v", errs[0])
 		}
 	})
-}
-
-func TestValidateTime(t *testing.T) {
-	tests := []struct {
-		name string
-		in   int
-		want bool
-	}{
-		{"positive", 1, true},
-		{"large positive", 10000, true},
-		{"zero", 0, false},
-		{"negative", -5, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := validateTime(tt.in)
-			if (err == nil) != tt.want {
-				t.Errorf("validateTime(%d) error = %v, want ok=%v", tt.in, err, tt.want)
-			}
-		})
-	}
 }

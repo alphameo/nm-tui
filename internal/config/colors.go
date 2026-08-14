@@ -24,7 +24,7 @@ func DefaultColorConfig() *ColorConfig {
 	}
 }
 
-func (c *ColorConfig) merge(src *ColorConfig) []error {
+func (c *ColorConfig) Merge(src *ColorConfig) []error {
 	var errs []error
 	collect := func(err error) {
 		if err != nil {
@@ -48,11 +48,11 @@ func mergeColor(dst *string, src *string, tag string) error {
 
 	color := *src
 
-	if color == defaultKeyword {
+	if color == DefaultKeyword {
 		return nil
 	}
 
-	if err := validateColor(color); err != nil {
+	if err := ValidateColor(color); err != nil {
 		return fmt.Errorf("%s color: %w", tag, err)
 	}
 
@@ -60,10 +60,10 @@ func mergeColor(dst *string, src *string, tag string) error {
 	return nil
 }
 
-func validateColor(color string) error {
+func ValidateColor(color string) error {
 	c := strings.ToLower(color)
 
-	if c == defaultKeyword {
+	if c == DefaultKeyword {
 		return nil
 	}
 	if ValidHex(c) {
