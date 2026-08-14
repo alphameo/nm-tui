@@ -120,7 +120,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
 	case tea.ForegroundColorMsg:
-		styles.TextColor = msg
+		styles.SetTextColor(msg)
 		styles.UpdateColorscheme()
 	case OpenPopupMsg:
 		m.popup.content = msg.model

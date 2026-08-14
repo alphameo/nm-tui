@@ -29,7 +29,8 @@ func writeConfigFile(t *testing.T, src string) {
 		t.Fatal(err)
 	}
 	path := filepath.Join(cfgDir, config.ConfigFileName)
-	if err := os.WriteFile(path, []byte(src), 0o600); err != nil { //nolint:gosec // writes test config to a t.TempDir path
+	err := os.WriteFile(path, []byte(src), 0o600) //nolint:gosec // writes test config to a t.TempDir path
+	if err != nil {
 		t.Fatal(err)
 	}
 }

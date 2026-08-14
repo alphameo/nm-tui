@@ -68,6 +68,10 @@ func Init(cfg config.Config) error {
 	return nil
 }
 
+func SetTextColor(color color.Color) {
+	TextColor = color
+}
+
 func UpdateColorscheme() {
 	DefaultStyle = lipgloss.NewStyle().Foreground(TextColor).Background(BgColor)
 	AccentStyle = DefaultStyle.Foreground(AccentColor).Bold(true)

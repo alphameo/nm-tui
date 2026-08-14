@@ -88,7 +88,7 @@ func Load() (*Config, error) {
 	}()
 
 	var cfg Config
-	if err := kdl.Decode(f, &cfg); err != nil {
+	if err = kdl.Decode(f, &cfg); err != nil {
 		return nil, fmt.Errorf("decode config: %w", err)
 	}
 

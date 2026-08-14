@@ -15,7 +15,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/models"
 )
 
-// Injects via `go build -ldflags "-X main.version=$(VERSION)"`
+// Injects via `go build -ldflags "-X main.version=$(VERSION)"`.
 var version = "dev"
 
 func main() {
@@ -32,20 +32,20 @@ func main() {
 
 	cfg, cfgErr := config.LoadOrDefaults()
 	if cfgErr != nil {
-		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
+		stdLogger.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
 	}
 
 	logPath := *cfg.Logging.FilePath
 	logPathDir := filepath.Dir(logPath)
 	if err := os.MkdirAll(logPathDir, 0o700); err != nil {
-		err := fmt.Errorf("create log directory: %w", err)
-		slog.Error(err.Error())
+		err = fmt.Errorf("create log directory: %w", err)
+		stdLogger.Error(err.Error())
 		panic(err)
 	}
 	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
 	if err != nil {
-		err := fmt.Errorf("open log file: %w", err)
-		slog.Error(err.Error())
+		err = fmt.Errorf("open log file: %w", err)
+		stdLogger.Error(err.Error())
 		panic(err)
 	}
 	defer func() {
@@ -55,7 +55,7 @@ func main() {
 	logLevel, err := resolveLogLevel(*cfg.Logging.Level)
 	if err != nil {
 		err = fmt.Errorf("log level: %w", err)
-		slog.Error(err.Error())
+		stdLogger.Error(err.Error())
 		panic(err)
 	}
 	fileLogger := slog.New(slog.NewJSONHandler(f, &slog.HandlerOptions{
@@ -64,23 +64,23 @@ func main() {
 	}))
 	slog.SetDefault(fileLogger)
 	if cfgErr != nil {
-		slog.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
+		fileLogger.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
 	}
 
-	slog.Info("The program is running")
-	defer slog.Info("Program is closed")
+	fileLogger.Info("The program is running")
+	defer fileLogger.Info("Program is closed")
 
 	nm := nm.NewCLI()
 	portalOpener := portal.New()
 	logMw := logging.New(fileLogger, nm, nm, portalOpener)
 	model, err := models.NewMainModel(logMw, logMw, logMw, cfg)
 	if err != nil {
-		slog.Error("error during model initialization", "errors", err.Error())
+		fileLogger.Error("error during model initialization", "errors", err.Error())
 	}
 
 	p := tea.NewProgram(model)
-	if _, err := p.Run(); err != nil {
-		slog.Error("runtime error", "error", err.Error())
+	if _, err = p.Run(); err != nil {
+		fileLogger.Error("runtime error", "error", err.Error())
 	}
 }
 

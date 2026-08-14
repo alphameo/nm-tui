@@ -14,10 +14,10 @@ type Focusable interface {
 	Blur()
 }
 
-// NilMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render
+// NilMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render.
 type NilMsg struct{}
 
-// NilCmd is a function, which returns fictive Msg to trigger Model Update
+// NilCmd is a function, which returns fictive Msg to trigger Model Update.
 var NilCmd = func() tea.Msg {
 	return NilMsg{}
 }

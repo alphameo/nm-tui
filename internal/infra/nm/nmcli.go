@@ -23,11 +23,11 @@ const CommandName = "nmcli"
 const (
 	KeyMgmgtNone  string = "none"
 	KeyMgmtWpaPsk string = "wpa-psk"
-	// add sae if errors
+	// Add sae if errors.
 )
 
 // run executes nmcli with the given args and returns its stdout. On failure
-// the returned error wraps opErr and the underlying *exec.ExitError
+// the returned error wraps opErr and the underlying [*exec.ExitError].
 func (n *CLI) run(ctx context.Context, opErr error, args ...string) ([]byte, error) {
 	out, err := exec.CommandContext(ctx, CommandName, args...).Output()
 	if err != nil {

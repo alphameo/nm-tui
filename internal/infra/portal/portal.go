@@ -28,7 +28,7 @@ func (p *Opener) OpenCaptivePortal(ctx context.Context) error {
 
 	url := fmt.Sprintf("http://%s", ip.String())
 
-	return p.openURL(url)
+	return p.openURL(ctx, url)
 }
 
 // getGatewayIP is equivalent to
@@ -47,7 +47,7 @@ func (p *Opener) getGatewayIP(ctx context.Context) (net.IP, error) {
 }
 
 // openURL opens the URL in the default browser (cross-platform).
-func (p *Opener) openURL(url string) error {
+func (p *Opener) openURL(ctx context.Context, url string) error {
 	var (
 		cmd  string
 		args []string
@@ -66,5 +66,5 @@ func (p *Opener) openURL(url string) error {
 	}
 
 	args = append(args, url)
-	return exec.Command(cmd, args...).Start()
+	return exec.CommandContext(ctx, cmd, args...).Start()
 }
