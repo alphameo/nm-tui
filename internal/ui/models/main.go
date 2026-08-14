@@ -48,7 +48,12 @@ type MainModel struct {
 	height int
 }
 
-func NewMainModel(networksManager infra.NetworksManager, connectivityManager infra.ConnectivityManager, portalOpener infra.CaptivePortalOpener, cfg config.Config) (*MainModel, error) {
+func NewMainModel(
+	networksManager infra.NetworksManager,
+	connectivityManager infra.ConnectivityManager,
+	portalOpener infra.CaptivePortalOpener,
+	cfg config.Config,
+) (*MainModel, error) {
 	err := styles.Init(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("style initialization: %w", err)
@@ -101,7 +106,7 @@ func NewMainModel(networksManager infra.NetworksManager, connectivityManager inf
 	}, nil
 }
 
-func (m MainModel) Init() tea.Cmd {
+func (m *MainModel) Init() tea.Cmd {
 	var cmds []tea.Cmd
 	cmds = append(cmds, m.tabs.Init())
 
@@ -114,7 +119,7 @@ func (m MainModel) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Resize(msg.Width, msg.Height)
@@ -161,8 +166,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		var cmd tea.Cmd
 		if m.popup.active {
-			switch {
-			case key.Matches(msg, m.keys.closePopup):
+			if key.Matches(msg, m.keys.closePopup) {
 				return m, ClosePopupCmd()
 			}
 			m.popup, cmd = m.popup.Update(msg)
@@ -190,7 +194,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m MainModel) View() tea.View {
+func (m *MainModel) View() tea.View {
 	view := m.tabs.View()
 
 	if m.popup.active {
@@ -253,7 +257,7 @@ func (m *MainModel) Resize(width, height int) {
 	m.notification.style = notifStyle
 }
 
-func (m MainModel) activeBindingsShort() []key.Binding {
+func (m *MainModel) activeBindingsShort() []key.Binding {
 	if m.popup.active {
 		switch m.popup.content.(type) {
 		case *ConnectorModel:
@@ -285,6 +289,6 @@ func (m MainModel) activeBindingsShort() []key.Binding {
 	}
 }
 
-func (m MainModel) shortHelpView() string {
+func (m *MainModel) shortHelpView() string {
 	return m.help.ShortViewFor(m.activeBindingsShort())
 }
