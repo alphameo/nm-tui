@@ -130,6 +130,7 @@ func (m *ProfileEditorModel) Init() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
+//nolint:dupl // intentionally similar to profile_creator for now; will diverge
 func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
