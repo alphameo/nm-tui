@@ -238,38 +238,42 @@ var validModifier = map[string]bool{
 	"capslock": true, "scrolllock": true, "numlock": true,
 }
 
-var validKey = map[string]bool{
-	"enter": true, "tab": true, "backspace": true, "esc": true, "space": true,
-	"up": true, "down": true, "left": true, "right": true,
-	"begin": true, "find": true, "insert": true, "delete": true, "select": true,
-	"pgup": true, "pgdown": true, "home": true, "end": true,
+func buildValidKey() map[string]bool {
+	m := map[string]bool{
+		"enter": true, "tab": true, "backspace": true, "esc": true, "space": true,
+		"up": true, "down": true, "left": true, "right": true,
+		"begin": true, "find": true, "insert": true, "delete": true, "select": true,
+		"pgup": true, "pgdown": true, "home": true, "end": true,
 
-	"equal": true, "mul": true, "plus": true, "comma": true,
-	"minus": true, "period": true, "div": true, "sep": true,
-	"0": true, "1": true, "2": true, "3": true, "4": true,
-	"5": true, "6": true, "7": true, "8": true, "9": true,
+		"equal": true, "mul": true, "plus": true, "comma": true,
+		"minus": true, "period": true, "div": true, "sep": true,
+		"0": true, "1": true, "2": true, "3": true, "4": true,
+		"5": true, "6": true, "7": true, "8": true, "9": true,
 
-	"capslock": true, "scrolllock": true, "numlock": true,
-	"printscreen": true, "pause": true, "menu": true,
+		"capslock": true, "scrolllock": true, "numlock": true,
+		"printscreen": true, "pause": true, "menu": true,
 
-	"mediaplay": true, "mediapause": true, "mediaplaypause": true,
-	"mediastop": true, "mediafastforward": true, "mediarewind": true,
-	"medianext": true, "mediaprev": true, "mediarecord": true,
+		"mediaplay": true, "mediapause": true, "mediaplaypause": true,
+		"mediastop": true, "mediafastforward": true, "mediarewind": true,
+		"medianext": true, "mediaprev": true, "mediarecord": true,
 
-	"lowervol": true, "raisevol": true, "mute": true,
+		"lowervol": true, "raisevol": true, "mute": true,
 
-	"leftshift": true, "leftalt": true, "leftctrl": true,
-	"leftsuper": true, "lefthyper": true, "leftmeta": true,
-	"rightshift": true, "rightalt": true, "rightctrl": true,
-	"rightsuper": true, "righthyper": true, "rightmeta": true,
-	"isolevel3shift": true, "isolevel5shift": true,
-}
-
-func initKeyConfig() {
-	for i := 1; i <= 63; i++ {
-		validKey[fmt.Sprintf("f%d", i)] = true
+		"leftshift": true, "leftalt": true, "leftctrl": true,
+		"leftsuper": true, "lefthyper": true, "leftmeta": true,
+		"rightshift": true, "rightalt": true, "rightctrl": true,
+		"rightsuper": true, "righthyper": true, "rightmeta": true,
+		"isolevel3shift": true, "isolevel5shift": true,
 	}
+
+	for i := 1; i <= 63; i++ {
+		m[fmt.Sprintf("f%d", i)] = true
+	}
+
+	return m
 }
+
+var validKey = buildValidKey()
 
 func validKeyName(s string) bool {
 	if s == "" {

@@ -8,10 +8,6 @@ import (
 	"github.com/calico32/kdl-go"
 )
 
-func init() {
-	initKeyConfig()
-}
-
 const (
 	AppName        = "nm-tui"
 	ConfigFileName = "config.kdl"
