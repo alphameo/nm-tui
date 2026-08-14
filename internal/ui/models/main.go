@@ -164,22 +164,7 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.Cmd:
 		return m, msg
 	case tea.KeyPressMsg:
-		var cmd tea.Cmd
-		if m.popup.active {
-			if key.Matches(msg, m.keys.closePopup) {
-				return m, ClosePopupCmd()
-			}
-			m.popup, cmd = m.popup.Update(msg)
-			return m, cmd
-		}
-		switch {
-		case key.Matches(msg, m.keys.quit):
-			return m, tea.Quit
-		case key.Matches(msg, m.keys.help):
-			return m, OpenPopupCmd(m.help)
-		}
-		m.tabs, cmd = m.tabs.Update(msg)
-		return m, cmd
+		return m.updateOnKeyPress(msg)
 	}
 
 	var cmd tea.Cmd
@@ -192,6 +177,25 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
+}
+
+func (m *MainModel) updateOnKeyPress(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	if m.popup.active {
+		if key.Matches(msg, m.keys.closePopup) {
+			return m, ClosePopupCmd()
+		}
+		m.popup, cmd = m.popup.Update(msg)
+		return m, cmd
+	}
+	switch {
+	case key.Matches(msg, m.keys.quit):
+		return m, tea.Quit
+	case key.Matches(msg, m.keys.help):
+		return m, OpenPopupCmd(m.help)
+	}
+	m.tabs, cmd = m.tabs.Update(msg)
+	return m, cmd
 }
 
 func (m *MainModel) View() tea.View {
