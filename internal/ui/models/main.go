@@ -246,7 +246,7 @@ func (m *MainModel) Resize(width, height int) {
 	helpHeight := lipgloss.Height(m.shortHelpView())
 
 	m.tabs.Resize(width, m.height-helpHeight)
-	m.help.Resize(width/2, height/2)
+	m.help.Resize(int(float64(width)*0.8), int(float64(height)*0.8))
 	m.help.help.SetWidth(width)
 
 	notifStyle := m.notification.style.Width(width / 2)
