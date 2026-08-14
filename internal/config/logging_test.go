@@ -149,6 +149,7 @@ func TestLogConfigMerge(t *testing.T) {
 	})
 }
 
+//nolint:tparallel // uses t.Setenv, which forbids parallel execution
 func TestExpandPath(t *testing.T) {
 	t.Run("tilde expands to home", func(t *testing.T) {
 		home := t.TempDir()
