@@ -97,7 +97,7 @@ func DefaultKeys() *KeyConfig {
 		Focus7:        keyBinding("7"),
 		Focus8:        keyBinding("8"),
 		Focus9:        keyBinding("9"),
-		Focus10:       keyBinding("10"),
+		Focus10:       keyBinding("0"),
 		Main: &MainKeys{
 			Help:    keyBinding("?"),
 			TabNext: keyBinding("]"),
