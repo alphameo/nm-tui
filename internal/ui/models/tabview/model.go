@@ -116,6 +116,8 @@ func (m Model) View() string {
 	)
 }
 
+func (m *Model) ActiveTabIndex() int { return m.activeTab }
+
 func (m *Model) renderTabBar() {
 	width := m.styles.ContentStyle.GetWidth()
 	m.cachedTabBarView = RenderTabBar(

@@ -33,6 +33,9 @@ type MainModel struct {
 	popup        Popup
 	notification Notification
 
+	networks     *NetworksModel
+	connectivity *ConnectivityModel
+
 	connector      *ConnectorModel
 	profileCreator *ProfileCreatorModel
 	hotspotCreator *HotspotCreatorModel
@@ -63,15 +66,15 @@ func NewMainModel(networksManager infra.NetworksManager, connectivityManager inf
 	available := NewAvailableNetworksModel(keys.availableNetworks, networksManager)
 	profiles := NewNetworkProfilesModel(keys.networkProfiles, networksManager)
 
-	wifi := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
+	networks := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
 	connectivity := NewConnectivityModel(keys.connectivity, connectivityManager)
 
-	wifiTable := tabview.New([]tabview.Tab{
-		{Title: wifi.Title(), Content: wifi},
+	networksTable := tabview.New([]tabview.Tab{
+		{Title: networks.Title(), Content: networks},
 		{Title: connectivity.Title(), Content: connectivity},
 	})
-	wifiTable.SetStyles(styles.TabViewStyles)
-	wifiTable.Keys = keys.tabs
+	networksTable.SetStyles(styles.TabViewStyles)
+	networksTable.Keys = keys.tabs
 
 	p := Popup{
 		active: false,
@@ -81,9 +84,12 @@ func NewMainModel(networksManager infra.NetworksManager, connectivityManager inf
 	n := Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
 
 	return &MainModel{
-		tabs:         wifiTable,
+		tabs:         networksTable,
 		popup:        p,
 		notification: n,
+
+		networks:     networks,
+		connectivity: connectivity,
 
 		connector:      connector,
 		profileCreator: profileCreator,
@@ -219,7 +225,7 @@ func (m MainModel) View() tea.View {
 		)
 	}
 
-	help := m.help.ShortView()
+	help := m.shortHelpView()
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
 	v := tea.NewView(view)
 	v.AltScreen = true
@@ -237,11 +243,50 @@ func (m *MainModel) Height() int {
 func (m *MainModel) Resize(width, height int) {
 	m.width = width
 	m.height = height
-	helpHeight := lipgloss.Height(m.help.ShortView())
+	helpHeight := lipgloss.Height(m.shortHelpView())
 
 	m.tabs.Resize(width, m.height-helpHeight)
 	m.help.Resize(width/2, height/2)
+	m.help.help.SetWidth(width)
 
 	notifStyle := m.notification.style.Width(width / 2)
 	m.notification.style = notifStyle
+}
+
+func (m MainModel) activeBindingsShort() []key.Binding {
+	helpKey := []key.Binding{m.keys.help}
+
+	if m.popup.active {
+		switch m.popup.content.(type) {
+		case *HelpModel:
+			return helpKey
+		case *ConnectorModel:
+			return append(helpKey, m.help.connectorShort()...)
+		case *ProfileCreatorModel:
+			return append(helpKey, m.help.profileCreatorShort()...)
+		case *HotspotCreatorModel:
+			return append(helpKey, m.help.hotspotCreatorShort()...)
+		case *ProfileEditorModel:
+			return append(helpKey, m.help.profileEditorShort()...)
+		}
+		return helpKey
+	}
+
+	switch m.tabs.ActiveTabIndex() {
+	case 1: // Connectivity tab
+		return append(helpKey, m.help.connectivityShort()...)
+	default: // Networks tab: tab actions + focused window
+		keys := []key.Binding{}
+		keys = append(keys, m.help.networksShort()...)
+		if m.networks.available.Focused() {
+			keys = append(keys, m.help.availableNetworksShort()...)
+		} else {
+			keys = append(keys, m.help.networkProfilesShort()...)
+		}
+		return append(helpKey, keys...)
+	}
+}
+
+func (m MainModel) shortHelpView() string {
+	return m.help.ShortViewFor(m.activeBindingsShort())
 }

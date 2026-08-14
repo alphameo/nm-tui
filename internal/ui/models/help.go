@@ -107,6 +107,10 @@ func (m *HelpModel) ShortView() string {
 	return m.help.ShortHelpView(m.Short())
 }
 
+func (m *HelpModel) ShortViewFor(bindings []key.Binding) string {
+	return m.help.ShortHelpView(bindings)
+}
+
 func (m *HelpModel) FullView() string {
 	var view string
 	globalTTL := "Global"
@@ -190,11 +194,24 @@ func (m *HelpModel) connectivityFull() [][]key.Binding {
 	}}
 }
 
+func (m *HelpModel) connectivityShort() []key.Binding {
+	return []key.Binding{
+		m.keyMap.connectivity.rescan,
+	}
+}
+
 func (m *HelpModel) availableNetworksFull() [][]key.Binding {
 	return [][]key.Binding{{
 		m.keyMap.availableNetworks.rescan,
 		m.keyMap.availableNetworks.connect,
 	}}
+}
+
+func (m *HelpModel) availableNetworksShort() []key.Binding {
+	return []key.Binding{
+		m.keyMap.availableNetworks.rescan,
+		m.keyMap.availableNetworks.connect,
+	}
 }
 
 func (m *HelpModel) connectorFull() [][]key.Binding {
@@ -207,6 +224,13 @@ func (m *HelpModel) connectorFull() [][]key.Binding {
 	}}
 }
 
+func (m *HelpModel) connectorShort() []key.Binding {
+	return []key.Binding{
+		m.keyMap.connector.togglePWVisibility,
+		m.keyMap.connector.connect,
+	}
+}
+
 func (m *HelpModel) hotspotCreatorFull() [][]key.Binding {
 	return [][]key.Binding{{
 		m.keyMap.hotspotCreator.prev,
@@ -217,6 +241,13 @@ func (m *HelpModel) hotspotCreatorFull() [][]key.Binding {
 	}}
 }
 
+func (m *HelpModel) hotspotCreatorShort() []key.Binding {
+	return []key.Binding{
+		m.keyMap.hotspotCreator.togglePWVisibility,
+		m.keyMap.hotspotCreator.create,
+	}
+}
+
 func (m *HelpModel) networkProfilesFull() [][]key.Binding {
 	return [][]key.Binding{{
 		m.keyMap.networkProfiles.connect,
@@ -225,6 +256,16 @@ func (m *HelpModel) networkProfilesFull() [][]key.Binding {
 		m.keyMap.networkProfiles.delete,
 		m.keyMap.networkProfiles.rescan,
 	}}
+}
+
+func (m *HelpModel) networkProfilesShort() []key.Binding {
+	return []key.Binding{
+		m.keyMap.networkProfiles.connect,
+		m.keyMap.networkProfiles.disconnect,
+		m.keyMap.networkProfiles.edit,
+		m.keyMap.networkProfiles.delete,
+		m.keyMap.networkProfiles.rescan,
+	}
 }
 
 func (m *HelpModel) networksFull() [][]key.Binding {
@@ -241,6 +282,16 @@ func (m *HelpModel) networksFull() [][]key.Binding {
 	}}
 }
 
+func (m *HelpModel) networksShort() []key.Binding {
+	return []key.Binding{
+		m.keyMap.networks.createProfile,
+		m.keyMap.networks.createHotspot,
+		m.keyMap.networks.quickHotspot,
+		m.keyMap.networks.openCaptivePortal,
+		m.keyMap.networks.rescan,
+	}
+}
+
 func (m *HelpModel) profileCreatorFull() [][]key.Binding {
 	return [][]key.Binding{{
 		m.keyMap.profileCreator.prev,
@@ -251,6 +302,13 @@ func (m *HelpModel) profileCreatorFull() [][]key.Binding {
 	}}
 }
 
+func (m *HelpModel) profileCreatorShort() []key.Binding {
+	return []key.Binding{
+		m.keyMap.profileCreator.togglePWVisibility,
+		m.keyMap.profileCreator.create,
+	}
+}
+
 func (m *HelpModel) profileEditorFull() [][]key.Binding {
 	return [][]key.Binding{{
 		m.keyMap.profileEditor.prev,
@@ -259,6 +317,13 @@ func (m *HelpModel) profileEditorFull() [][]key.Binding {
 		m.keyMap.profileEditor.save,
 		m.keyMap.main.closePopup,
 	}}
+}
+
+func (m *HelpModel) profileEditorShort() []key.Binding {
+	return []key.Binding{
+		m.keyMap.profileEditor.togglePWVisibility,
+		m.keyMap.profileEditor.save,
+	}
 }
 
 func HelpFromKeys(keys ...string) string {
