@@ -1,10 +1,11 @@
-package tabview
+package tabview_test
 
 import (
 	"strings"
 	"testing"
 
 	"charm.land/lipgloss/v2"
+	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 )
 
 func testTabStyles() (lipgloss.Style, lipgloss.Style) {
@@ -35,7 +36,7 @@ func TestRenderTabBar(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := RenderTabBar(tt.titles, active, inactive, tt.fullWidth, tt.active)
+			got := tabview.RenderTabBar(tt.titles, active, inactive, tt.fullWidth, tt.active)
 			if got == "" {
 				t.Fatalf("RenderTabBar() returned empty string")
 			}
@@ -51,8 +52,8 @@ func TestRenderTabBar(t *testing.T) {
 func TestRenderTabBarEdgeBorders(t *testing.T) {
 	active, inactive := testTabStyles()
 
-	gotActiveFirst := RenderTabBar([]string{"one", "two"}, active, inactive, 20, 0)
-	gotActiveLast := RenderTabBar([]string{"one", "two"}, active, inactive, 20, 1)
+	gotActiveFirst := tabview.RenderTabBar([]string{"one", "two"}, active, inactive, 20, 0)
+	gotActiveLast := tabview.RenderTabBar([]string{"one", "two"}, active, inactive, 20, 1)
 
 	checks := []struct {
 		name   string

@@ -171,7 +171,7 @@ func (m *HotspotCreatorModel) View() string {
 }
 
 func (m *HotspotCreatorModel) focusNextCmd() tea.Cmd {
-	if int(m.focusIdx) >= len(m.focuses)-1 {
+	if m.focusIdx >= len(m.focuses)-1 {
 		return nil
 	}
 	m.focuses[m.focusIdx].Blur()

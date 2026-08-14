@@ -166,7 +166,7 @@ func (m *ConnectorModel) View() string {
 }
 
 func (m *ConnectorModel) focusNextCmd() tea.Cmd {
-	if int(m.focusIdx) >= len(m.focuses)-1 {
+	if m.focusIdx >= len(m.focuses)-1 {
 		return nil
 	}
 	m.focuses[m.focusIdx].Blur()

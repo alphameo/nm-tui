@@ -189,7 +189,7 @@ func (m *ProfileCreatorModel) View() string {
 }
 
 func (m *ProfileCreatorModel) focusNextCmd() tea.Cmd {
-	if int(m.focusIdx) >= len(m.focuses)-1 {
+	if m.focusIdx >= len(m.focuses)-1 {
 		return nil
 	}
 	m.focuses[m.focusIdx].Blur()
