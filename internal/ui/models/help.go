@@ -95,18 +95,6 @@ func (m *HelpModel) View() string {
 	return view
 }
 
-func (m *HelpModel) Short() []key.Binding {
-	keys := []key.Binding{
-		m.keyMap.main.quit,
-		m.keyMap.main.closePopup,
-	}
-	return keys
-}
-
-func (m *HelpModel) ShortView() string {
-	return m.help.ShortHelpView(m.Short())
-}
-
 func (m *HelpModel) ShortViewFor(bindings []key.Binding) string {
 	return m.help.ShortHelpView(bindings)
 }
