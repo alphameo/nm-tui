@@ -1,0 +1,14 @@
+notification_close_time -5
+colors {
+    accent "notacolor"
+}
+logging {
+    level "verbose"
+}
+icons {
+    border_style "dashed"
+    input_cursor_shape "squiggle"
+}
+keys {
+    toggle "notakey"
+}

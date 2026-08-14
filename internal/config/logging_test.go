@@ -12,11 +12,14 @@ func TestDefaultLogConfig(t *testing.T) {
 		t.Setenv("XDG_STATE_HOME", dir)
 
 		cfg := DefaultLogConfig()
-		if cfg.FilePath == nil {
-			t.Error("FilePath is nil")
+		assertNoNilFields(t, cfg)
+
+		if got, want := *cfg.Level, LogError; got != want {
+			t.Errorf("Level = %q, want %q", got, want)
 		}
-		if cfg.Level == nil {
-			t.Error("Level is nil")
+		wantPath := filepath.Join(dir, appName, "log")
+		if got := *cfg.FilePath; got != wantPath {
+			t.Errorf("FilePath = %q, want %q", got, wantPath)
 		}
 	})
 
@@ -26,11 +29,14 @@ func TestDefaultLogConfig(t *testing.T) {
 		t.Setenv("HOME", home)
 
 		cfg := DefaultLogConfig()
-		if cfg.FilePath == nil {
-			t.Error("FilePath is nil")
+		assertNoNilFields(t, cfg)
+
+		if got, want := *cfg.Level, LogError; got != want {
+			t.Errorf("Level = %q, want %q", got, want)
 		}
-		if cfg.Level == nil {
-			t.Error("Level is nil")
+		wantPath := filepath.Join(home, ".local", "state", appName, "log")
+		if got := *cfg.FilePath; got != wantPath {
+			t.Errorf("FilePath = %q, want %q", got, wantPath)
 		}
 	})
 }

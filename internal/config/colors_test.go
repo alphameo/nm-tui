@@ -6,23 +6,7 @@ import (
 )
 
 func TestDefaultColorConfig(t *testing.T) {
-	cfg := DefaultColorConfig()
-
-	if cfg.Text == nil {
-		t.Error("Text is nil")
-	}
-	if cfg.Accent == nil {
-		t.Error("Accent is nil")
-	}
-	if cfg.Muted == nil {
-		t.Error("Muted is nil")
-	}
-	if cfg.Error == nil {
-		t.Error("Error is nil")
-	}
-	if cfg.Notif == nil {
-		t.Error("Notif is nil")
-	}
+	assertNoNilFields(t, DefaultColorConfig())
 }
 
 func TestValidHex(t *testing.T) {
