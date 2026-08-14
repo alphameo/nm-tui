@@ -311,6 +311,16 @@ func (n *CLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, err
 	return mode, nil
 }
 
+// setFetchResult stores a fetched field into dst under mu, collecting any error.
+func setFetchResult[T any](mu *sync.Mutex, errs *[]error, dst *T, value T, err error) {
+	mu.Lock()
+	defer mu.Unlock()
+	if err != nil {
+		*errs = append(*errs, err)
+	}
+	*dst = value
+}
+
 func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, error) {
 	var errs []error
 	info := infra.NetworkProfile{
@@ -324,67 +334,37 @@ func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, 
 	go func() {
 		defer wg.Done()
 		ssid, err := n.getWifiSSID(ctx, id)
-		mu.Lock()
-		defer mu.Unlock()
-		if err != nil {
-			errs = append(errs, err)
-		}
-		info.SSID = ssid
+		setFetchResult(&mu, &errs, &info.SSID, ssid, err)
 	}()
 
 	go func() {
 		defer wg.Done()
 		password, err := n.GetProfilePassword(ctx, id)
-		mu.Lock()
-		defer mu.Unlock()
-		if err != nil {
-			errs = append(errs, err)
-		}
-		info.Password = password
+		setFetchResult(&mu, &errs, &info.Password, password, err)
 	}()
 
 	go func() {
 		defer wg.Done()
 		autoconnect, err := n.getWifiAutoconnect(ctx, id)
-		mu.Lock()
-		defer mu.Unlock()
-		if err != nil {
-			errs = append(errs, err)
-		}
-		info.Autoconnect = autoconnect
+		setFetchResult(&mu, &errs, &info.Autoconnect, autoconnect, err)
 	}()
 
 	go func() {
 		defer wg.Done()
 		autoconnectPriority, err := n.getWifiAutoconnectPriority(ctx, id)
-		mu.Lock()
-		defer mu.Unlock()
-		if err != nil {
-			errs = append(errs, err)
-		}
-		info.AutoconnectPriority = autoconnectPriority
+		setFetchResult(&mu, &errs, &info.AutoconnectPriority, autoconnectPriority, err)
 	}()
 
 	go func() {
 		defer wg.Done()
 		activated, err := n.getWifiActive(ctx, id)
-		mu.Lock()
-		defer mu.Unlock()
-		if err != nil {
-			errs = append(errs, err)
-		}
-		info.Active = activated
+		setFetchResult(&mu, &errs, &info.Active, activated, err)
 	}()
 
 	go func() {
 		defer wg.Done()
 		mode, err := n.getNetMode(ctx, id)
-		mu.Lock()
-		defer mu.Unlock()
-		if err != nil {
-			errs = append(errs, err)
-		}
-		info.Mode = mode
+		setFetchResult(&mu, &errs, &info.Mode, mode, err)
 	}()
 
 	wg.Wait()
