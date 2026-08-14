@@ -175,6 +175,10 @@ func (m *HelpModel) mainFull() [][]key.Binding {
 	}}
 }
 
+func (m *HelpModel) mainShort() []key.Binding {
+	return []key.Binding{m.keyMap.main.help}
+}
+
 func (m *HelpModel) connectivityFull() [][]key.Binding {
 	return [][]key.Binding{{
 		m.fullKB(m.keyMap.connectivity.prev, "Move to previous control"),
@@ -219,6 +223,7 @@ func (m *HelpModel) connectorShort() []key.Binding {
 	k := []key.Binding{
 		m.keyMap.connector.togglePWVisibility,
 		m.keyMap.connector.connect,
+		m.keyMap.main.closePopup,
 	}
 	return m.shortKBs(k)
 }
@@ -237,6 +242,7 @@ func (m *HelpModel) hotspotCreatorShort() []key.Binding {
 	k := []key.Binding{
 		m.keyMap.hotspotCreator.togglePWVisibility,
 		m.keyMap.hotspotCreator.create,
+		m.keyMap.main.closePopup,
 	}
 	return m.shortKBs(k)
 }
@@ -301,6 +307,7 @@ func (m *HelpModel) profileCreatorShort() []key.Binding {
 	k := []key.Binding{
 		m.keyMap.profileCreator.togglePWVisibility,
 		m.keyMap.profileCreator.create,
+		m.keyMap.main.closePopup,
 	}
 	return m.shortKBs(k)
 }
@@ -319,6 +326,7 @@ func (m *HelpModel) profileEditorShort() []key.Binding {
 	k := []key.Binding{
 		m.keyMap.profileEditor.togglePWVisibility,
 		m.keyMap.profileEditor.save,
+		m.keyMap.main.closePopup,
 	}
 	return m.shortKBs(k)
 }
