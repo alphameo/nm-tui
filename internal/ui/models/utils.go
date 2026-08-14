@@ -103,7 +103,7 @@ func DeferedCloseNotificationCmd(t time.Duration) tea.Cmd {
 	}
 }
 
-var ErrPasswordFmt error = errors.New("wrong password format")
+var ErrPasswordFmt = errors.New("wrong password format")
 
 func passwordValidator(input string) error {
 	l := len(input)
