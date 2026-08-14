@@ -57,7 +57,7 @@ func initKeys(keys config.KeyConfig) keyMaps {
 			createProfile:     NewKey(*keys.Networks.CreateProfile, "create profile"),
 			createHotspot:     NewKey(*keys.Networks.CreateHotspot, "create hotspot"),
 			quickHotspot:      NewKey(*keys.Networks.QuickHotspot, "quick hotspot"),
-			openCaptivePortal: NewKey(*keys.Networks.OpenCaptivePortal, "open login portal"),
+			openCaptivePortal: NewKey(*keys.Networks.OpenCaptivePortal, "login portal"),
 			win1:              NewKey(*keys.Focus1, "1st window"),
 			win2:              NewKey(*keys.Focus2, "2nd window"),
 		},
