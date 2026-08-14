@@ -24,7 +24,12 @@ type Middleware struct {
 }
 
 // New returns a *Middleware wrapping the given managers.
-func New(logger *slog.Logger, networks infra.NetworksManager, connectivity infra.ConnectivityManager, portal infra.CaptivePortalOpener) *Middleware {
+func New(
+	logger *slog.Logger,
+	networks infra.NetworksManager,
+	connectivity infra.ConnectivityManager,
+	portal infra.CaptivePortalOpener,
+) *Middleware {
 	return &Middleware{logger: logger, networks: networks, connectivity: connectivity, portal: portal}
 }
 

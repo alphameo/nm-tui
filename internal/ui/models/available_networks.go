@@ -82,7 +82,10 @@ type AvailableNetworksModel struct {
 	height int
 }
 
-func NewAvailableNetworksModel(keys availableNetworksKeyMap, networksManager infra.NetworksManager) *AvailableNetworksModel {
+func NewAvailableNetworksModel(
+	keys availableNetworksKeyMap,
+	networksManager infra.NetworksManager,
+) *AvailableNetworksModel {
 	cols := make([]table.Column, 4)
 	cols[availableNetworksCfg.connColIdx] = table.Column{
 		Title: styles.SymbolConnection,

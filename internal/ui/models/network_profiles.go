@@ -84,7 +84,10 @@ var networkProfilesCfg = networkProfilesConfig{
 
 func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.NetworksManager) *NetworkProfilesModel {
 	cols := make([]table.Column, 4)
-	cols[networkProfilesCfg.connColIdx] = table.Column{Title: styles.SymbolConnection, Width: len(styles.SymbolConnection)}
+	cols[networkProfilesCfg.connColIdx] = table.Column{
+		Title: styles.SymbolConnection,
+		Width: len(styles.SymbolConnection),
+	}
 	cols[networkProfilesCfg.modeColIdx] = table.Column{Title: "Mode", Width: 4}
 	cols[networkProfilesCfg.ssidColIdx] = table.Column{Title: "SSID"}
 	cols[networkProfilesCfg.nameColIdx] = table.Column{Title: "Name"}

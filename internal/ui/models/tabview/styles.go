@@ -17,9 +17,7 @@ func NewInactiveTabBarBorder(border lipgloss.Border) lipgloss.Border {
 }
 
 func NewActiveTabBarBorder(border lipgloss.Border) lipgloss.Border {
-	lBot := border.BottomRight
-	border.BottomRight = border.BottomLeft
-	border.BottomLeft = lBot
+	border.BottomRight, border.BottomLeft = border.BottomLeft, border.BottomRight
 	border.Bottom = " "
 	return border
 }

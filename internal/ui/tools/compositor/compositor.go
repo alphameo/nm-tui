@@ -16,9 +16,9 @@ const (
 	End
 )
 
-func resolvePos(fgW, fgH, bgW, bgH int, XAnch, YAnch Anchor, xOffset, yOffset int) (int, int) {
+func resolvePos(fgW, fgH, bgW, bgH int, xAnch, yAnch Anchor, xOffset, yOffset int) (int, int) {
 	var xPos, yPos int
-	switch XAnch {
+	switch xAnch {
 	case Begin:
 		xPos = 0
 	case Center:
@@ -26,7 +26,7 @@ func resolvePos(fgW, fgH, bgW, bgH int, XAnch, YAnch Anchor, xOffset, yOffset in
 	case End:
 		xPos = bgW - fgW
 	}
-	switch YAnch {
+	switch yAnch {
 	case Begin:
 		yPos = 0
 	case Center:
