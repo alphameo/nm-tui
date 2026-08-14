@@ -119,7 +119,7 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 			m.focuses[m.focusWindowIdx].Focus()
 		case key.Matches(msg, m.keys.winPrev):
 			m.focuses[m.focusWindowIdx].Blur()
-			m.focusWindowIdx = (m.focusWindowIdx - 1) % len(m.focuses)
+			m.focusWindowIdx = (len(m.focuses) + m.focusWindowIdx - 1) % len(m.focuses)
 			m.focuses[m.focusWindowIdx].Focus()
 		case key.Matches(msg, m.keys.win1):
 			m.focuses[m.focusWindowIdx].Blur()
