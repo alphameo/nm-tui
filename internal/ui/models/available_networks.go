@@ -185,8 +185,21 @@ func (m *AvailableNetworksModel) activeStyle() *lipgloss.Style {
 	return &m.bluredStyle
 }
 
+func (m *NetworkProfilesModel) UpdateTable() {
+	if m.focus {
+		m.dataTable.SetStyles(m.focusedTableStyles)
+	} else {
+		m.dataTable.SetStyles(m.bluredTableStyles)
+	}
+}
+
+func (m *NetworkProfilesModel) SetTableStyles(focused, blured table.Styles) {
+	m.bluredTableStyles = blured
+	m.focusedTableStyles = focused
+	m.UpdateTable()
+}
+
 func (m *AvailableNetworksModel) Init() tea.Cmd {
-	m.dataTable.SetStyles(m.bluredTableStyles)
 	return m.RescanCmd()
 }
 

@@ -69,13 +69,11 @@ func NewMainModel(
 	available := NewAvailableNetworksModel(keys.availableNetworks, networksManager)
 	available.focusedStyle = styles.BorderedFocusedStyle
 	available.bluredStyle = styles.BorderedStyle
-	available.focusedTableStyles = styles.TableStyles
-	available.bluredTableStyles = styles.DataTableStyles
+	available.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
 	profiles := NewNetworkProfilesModel(keys.networkProfiles, networksManager)
 	profiles.focusedStyle = styles.BorderedFocusedStyle
 	profiles.bluredStyle = styles.BorderedStyle
-	profiles.focusedTableStyles = styles.TableStyles
-	profiles.bluredTableStyles = styles.DataTableStyles
+	profiles.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
 
 	networks := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
 	connectivity := NewConnectivityModel(keys.connectivity, connectivityManager)
