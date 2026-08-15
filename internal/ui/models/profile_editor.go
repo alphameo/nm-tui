@@ -187,7 +187,7 @@ func (m *ProfileEditorModel) View() string {
 	mode := styles.BoldStyle.Render(m.mode)
 	mode = lipgloss.JoinHorizontal(lipgloss.Center, "Mode     ", mode)
 
-	autoconn := styles.ViewToggle(m.autoconnect)
+	autoconn := m.autoconnect.View()
 	autoconn = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconn)
 
 	autoconnPrior := styles.ViewInputWithValidation(&m.autoconnPriority)

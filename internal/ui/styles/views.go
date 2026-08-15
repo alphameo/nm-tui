@@ -3,7 +3,6 @@ package styles
 import (
 	"charm.land/bubbles/v2/textinput"
 	"charm.land/lipgloss/v2"
-	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 )
 
 type focusable interface {
@@ -18,19 +17,6 @@ func ViewBorderedFocusable(component focusable) string {
 		style = BorderedFocusedStyle
 	} else {
 		style = BorderedStyle
-	}
-	view = style.Render(view)
-
-	return view
-}
-
-func ViewToggle(toggle toggle.Model) string {
-	view := toggle.View()
-	var style lipgloss.Style
-	if toggle.Focused() {
-		style = ToggleFocusedStyle
-	} else {
-		style = ToggleStyle
 	}
 	view = style.Render(view)
 
