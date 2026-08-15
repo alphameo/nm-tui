@@ -42,6 +42,7 @@ type ProfileCreatorModel struct {
 	keys profileCreatorKeyMap
 
 	netMngr infra.NetworksManager
+	style   lipgloss.Style
 }
 
 func NewProfileCreatorModel(keys profileCreatorKeyMap, networksManager infra.NetworksManager) *ProfileCreatorModel {
@@ -68,6 +69,7 @@ func NewProfileCreatorModel(keys profileCreatorKeyMap, networksManager infra.Net
 		keys: keys,
 
 		netMngr: networksManager,
+		style:   lipgloss.NewStyle(),
 	}
 
 	inp := []Focusable{
@@ -185,7 +187,7 @@ func (m *ProfileCreatorModel) View() string {
 		0,
 		0,
 	)
-	return view
+	return m.style.Render(view)
 }
 
 func (m *ProfileCreatorModel) focusNextCmd() tea.Cmd {

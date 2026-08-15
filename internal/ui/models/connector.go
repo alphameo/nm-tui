@@ -41,6 +41,7 @@ type ConnectorModel struct {
 	keys connectorKeyMap
 
 	netMngr infra.NetworksManager
+	style   lipgloss.Style
 }
 
 func NewConnectorModel(keys connectorKeyMap, networksManager infra.NetworksManager) *ConnectorModel {
@@ -58,6 +59,7 @@ func NewConnectorModel(keys connectorKeyMap, networksManager infra.NetworksManag
 		password: pw,
 		keys:     keys,
 		netMngr:  networksManager,
+		style:    lipgloss.NewStyle(),
 	}
 
 	inp := []Focusable{
@@ -161,7 +163,7 @@ func (m *ConnectorModel) View() string {
 		0,
 		0,
 	)
-	return view
+	return m.style.Render(view)
 }
 
 func (m *ConnectorModel) focusNextCmd() tea.Cmd {
