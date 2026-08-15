@@ -76,11 +76,13 @@ func main() {
 	model, err := models.NewMainModel(logMw, logMw, logMw, cfg)
 	if err != nil {
 		fileLogger.Error("error during model initialization", "errors", err.Error())
+		return
 	}
 
 	p := tea.NewProgram(model)
 	if _, err = p.Run(); err != nil {
 		fileLogger.Error("runtime error", "error", err.Error())
+		return
 	}
 }
 
