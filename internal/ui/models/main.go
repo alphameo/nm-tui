@@ -68,7 +68,7 @@ func NewMainModel(
 	hotspotCreator := NewHotspotCreatorModel(keys.hotspotCreator, networksManager)
 	hotspotCreator.style = styles.OverlayStyle
 	profileEditor := NewProfileEditorModel(keys.profileEditor, networksManager)
-	profileCreator.style = styles.OverlayStyle
+	profileEditor.style = styles.OverlayStyle
 
 	available := NewAvailableNetworksModel(keys.availableNetworks, networksManager)
 	available.focusedStyle = styles.BorderedFocusedStyle
