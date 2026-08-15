@@ -42,28 +42,17 @@ type HotspotCreatorModel struct {
 	keys hotspotCreatorKeyMap
 
 	netMngr infra.NetworksManager
-	style  lipgloss.Style
+	style   lipgloss.Style
 }
 
 func NewHotspotCreatorModel(keys hotspotCreatorKeyMap, networksManager infra.NetworksManager) *HotspotCreatorModel {
-	ssid := newDefaultInput()
-	ssid.Placeholder = "SSID"
-
-	name := newDefaultInput()
-	name.Placeholder = "Name"
-
-	pw := newDefaultPassword()
-	pw.Placeholder = "Password"
-	pw.Validate = passwordValidator
-	pw.Err = passwordValidator(pw.Value())
-
 	model := &HotspotCreatorModel{
-		ssid:     ssid,
-		name:     name,
-		password: pw,
+		ssid:     newDefaultSSIDInput(),
+		name:     newDefaultNameInput(),
+		password: newDefaultPasswordInput(),
 		keys:     keys,
 		netMngr:  networksManager,
-		style:   lipgloss.NewStyle(),
+		style:    lipgloss.NewStyle(),
 	}
 
 	inp := []Focusable{
