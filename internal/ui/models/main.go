@@ -41,11 +41,9 @@ type MainModel struct {
 	hotspotCreator *HotspotCreatorModel
 	profileEditor  *ProfileEditorModel
 
-	keys *mainKeyMap
-	help *HelpModel
-
-	width  int
-	height int
+	keys  *mainKeyMap
+	help  *HelpModel
+	style lipgloss.Style
 }
 
 func NewMainModel(
@@ -69,10 +67,19 @@ func NewMainModel(
 	profileEditor := NewProfileEditorModel(keys.profileEditor, networksManager)
 
 	available := NewAvailableNetworksModel(keys.availableNetworks, networksManager)
+	available.focusedStyle = styles.BorderedFocusedStyle
+	available.bluredStyle = styles.BorderedStyle
+	available.focusedTableStyles = styles.TableStyles
+	available.bluredTableStyles = styles.DataTableStyles
 	profiles := NewNetworkProfilesModel(keys.networkProfiles, networksManager)
+	profiles.focusedStyle = styles.BorderedFocusedStyle
+	profiles.bluredStyle = styles.BorderedStyle
+	profiles.focusedTableStyles = styles.TableStyles
+	profiles.bluredTableStyles = styles.DataTableStyles
 
 	networks := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
 	connectivity := NewConnectivityModel(keys.connectivity, connectivityManager)
+	connectivity.tableStyle = styles.BorderedStyle
 
 	networksTable := tabview.New([]tabview.Tab{
 		{Title: networks.Title(), Content: networks},
@@ -101,8 +108,9 @@ func NewMainModel(
 		hotspotCreator: hotspotCreator,
 		profileEditor:  profileEditor,
 
-		keys: &keys.main,
-		help: NewHelpModel(keys),
+		keys:  &keys.main,
+		help:  NewHelpModel(keys),
+		style: lipgloss.NewStyle(),
 	}, nil
 }
 
@@ -235,26 +243,27 @@ func (m *MainModel) View() tea.View {
 
 	help := m.shortHelpView()
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
+	view = m.style.Render(view)
 	v := tea.NewView(view)
 	v.AltScreen = true
 	return v
 }
 
-func (m *MainModel) Width() int {
-	return m.width
-}
+func (m *MainModel) Width() int { return m.style.GetWidth() }
 
-func (m *MainModel) Height() int {
-	return m.height
-}
+func (m *MainModel) Height() int { return m.style.GetHeight() }
 
 func (m *MainModel) Resize(width, height int) {
-	m.width = width
-	m.height = height
+	m.style = m.style.Width(width).Height(height)
+
+	border := m.style.GetBorderStyle()
+	width -= border.GetLeftSize() + border.GetRightSize()
+	width -= border.GetBottomSize() + border.GetTopSize()
+
 	helpHeight := lipgloss.Height(m.shortHelpView())
 
-	m.tabs.Resize(width, m.height-helpHeight)
-	m.help.Resize(int(float64(width)*0.8), int(float64(height)*0.8))
+	m.tabs.Resize(width, height-helpHeight)
+	m.help.Resize(int(float32(width)*0.8), int(float32(height)*0.8))
 	m.help.help.SetWidth(width)
 
 	notifStyle := m.notification.style.Width(width / 2)
