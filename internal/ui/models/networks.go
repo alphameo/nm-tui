@@ -38,8 +38,7 @@ type NetworksModel struct {
 
 	keys networksKeyMap
 
-	width  int
-	height int
+	style lipgloss.Style
 }
 
 func NewNetworksModel(
@@ -55,6 +54,7 @@ func NewNetworksModel(
 		netMngr:   networksManager,
 		portal:    portalOpener,
 		keys:      keys,
+		style:     lipgloss.NewStyle(),
 	}
 
 	wins := []Focusable{w.available, w.profiles}
@@ -64,8 +64,11 @@ func NewNetworksModel(
 }
 
 func (m *NetworksModel) Resize(width, height int) {
-	m.width = width
-	m.height = height
+	m.style = m.style.Width(width).Height(height)
+
+	border := m.style.GetBorderStyle()
+	width -= border.GetLeftSize() + border.GetRightSize()
+	width -= border.GetBottomSize() + border.GetTopSize()
 
 	savedHeight := height / 2
 	availableHeight := height - savedHeight
@@ -74,29 +77,17 @@ func (m *NetworksModel) Resize(width, height int) {
 	m.profiles.Resize(width, savedHeight)
 }
 
-func (m *NetworksModel) Width() int {
-	return m.width
-}
+func (m *NetworksModel) Width() int { return m.style.GetWidth() }
 
-func (m *NetworksModel) Height() int {
-	return m.height
-}
+func (m *NetworksModel) Height() int { return m.style.GetHeight() }
 
-func (m *NetworksModel) Title() string {
-	return "Networks"
-}
+func (m *NetworksModel) Title() string { return "Networks" }
 
-func (m *NetworksModel) Focus() {
-	m.focus = true
-}
+func (m *NetworksModel) Focus() { m.focus = true }
 
-func (m *NetworksModel) Blur() {
-	m.focus = false
-}
+func (m *NetworksModel) Blur() { m.focus = false }
 
-func (m *NetworksModel) Focused() bool {
-	return m.focus
-}
+func (m *NetworksModel) Focused() bool { return m.focus }
 
 func (m *NetworksModel) Init() tea.Cmd {
 	return tea.Batch(
@@ -176,11 +167,12 @@ func (m *NetworksModel) View() string {
 	availableView := m.available.View()
 	savedView := m.profiles.View()
 
-	return lipgloss.JoinVertical(
+	view := lipgloss.JoinVertical(
 		lipgloss.Center,
 		availableView,
 		savedView,
 	)
+	return m.style.Render(view)
 }
 
 type RescanNetworksMsg struct {

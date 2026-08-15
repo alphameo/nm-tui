@@ -34,8 +34,8 @@ var (
 	BorderedStyle        lipgloss.Style
 	BorderedFocusedStyle lipgloss.Style
 
-	TableStyle     table.Styles
-	DataTableStyle table.Styles
+	TableStyles     table.Styles
+	DataTableStyles table.Styles
 
 	InputCursor tea.CursorShape
 	InputStyle  textinput.Styles
@@ -83,8 +83,8 @@ func UpdateColorscheme() {
 	BorderOffset = lipgloss.Width(Border.Left) * 2
 	TabBarHeight = BorderOffset + 1
 
-	TableStyle = tableStyle()
-	DataTableStyle = dataTableStyle()
+	TableStyles = tableStyle()
+	DataTableStyles = dataTableStyle()
 
 	InputStyle = inputStyle()
 

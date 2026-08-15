@@ -49,7 +49,9 @@ type networkProfilesKeyMap struct {
 }
 
 type NetworkProfilesModel struct {
-	dataTable table.Model
+	dataTable          table.Model
+	focusedTableStyles table.Styles
+	bluredTableStyles  table.Styles
 
 	indicatorSpinner     spinner.Model
 	indicatorState       networkProfilesState
@@ -61,8 +63,8 @@ type NetworkProfilesModel struct {
 
 	netMngr infra.NetworksManager
 
-	width  int
-	height int
+	focusedStyle lipgloss.Style
+	bluredStyle  lipgloss.Style
 }
 
 type networkProfilesConfig struct {
@@ -92,7 +94,7 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 	cols[networkProfilesCfg.ssidColIdx] = table.Column{Title: "SSID"}
 	cols[networkProfilesCfg.nameColIdx] = table.Column{Title: "Name"}
 
-	initTableStyle := styles.DataTableStyle
+	initTableStyle := styles.DataTableStyles
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
@@ -103,13 +105,17 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 	s.Spinner = styles.Spinner
 
 	model := &NetworkProfilesModel{
-		dataTable: t,
+		dataTable:          t,
+		focusedTableStyles: table.DefaultStyles(),
+		bluredTableStyles:  table.DefaultStyles(),
 
 		indicatorSpinner: s,
 		indicatorState:   NetProfilesDone,
 
-		keys:    keys,
-		netMngr: networksManager,
+		keys:         keys,
+		netMngr:      networksManager,
+		focusedStyle: lipgloss.NewStyle(),
+		bluredStyle:  lipgloss.NewStyle(),
 	}
 	model.bakeSizes()
 
@@ -122,11 +128,12 @@ func (m *NetworkProfilesModel) bakeSizes() {
 }
 
 func (m *NetworkProfilesModel) Resize(width, height int) {
-	m.width = width
-	m.height = height
+	m.focusedStyle = m.focusedStyle.Width(width).Height(height)
+	m.bluredStyle = m.bluredStyle.Width(width).Height(height)
 
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	border := m.focusedStyle.GetBorderStyle()
+	width -= border.GetLeftSize() + border.GetRightSize()
+	height -= border.GetBottomSize() + border.GetTopSize()
 
 	height -= m.indicatorStateHeight
 
@@ -147,29 +154,32 @@ func (m *NetworkProfilesModel) Resize(width, height int) {
 	m.dataTable.UpdateViewport()
 }
 
-func (m *NetworkProfilesModel) Width() int {
-	return m.width
-}
+func (m *NetworkProfilesModel) Width() int { return m.focusedStyle.GetWidth() }
 
-func (m *NetworkProfilesModel) Height() int {
-	return m.height
-}
+func (m *NetworkProfilesModel) Height() int { return m.focusedStyle.GetHeight() }
 
 func (m *NetworkProfilesModel) Focus() tea.Cmd {
 	m.focus = true
 	m.dataTable.Focus()
-	m.dataTable.SetStyles(styles.TableStyle)
+	m.dataTable.SetStyles(m.focusedTableStyles)
 	return nil
 }
 
 func (m *NetworkProfilesModel) Blur() {
 	m.focus = false
 	m.dataTable.Blur()
-	m.dataTable.SetStyles(styles.DataTableStyle)
+	m.dataTable.SetStyles(m.bluredTableStyles)
 }
 
 func (m *NetworkProfilesModel) Focused() bool {
 	return m.focus
+}
+
+func (m *NetworkProfilesModel) activeStyle() *lipgloss.Style {
+	if m.focus {
+		return &m.focusedStyle
+	}
+	return &m.bluredStyle
 }
 
 func (m *NetworkProfilesModel) Init() tea.Cmd {
@@ -232,17 +242,12 @@ func (m *NetworkProfilesModel) View() string {
 		statusline,
 	)
 
-	var style lipgloss.Style
-	if m.focus {
-		style = styles.BorderedFocusedStyle
-	} else {
-		style = styles.BorderedStyle
-	}
+	style := m.activeStyle()
 	view = renderer.RenderWithTitleAndKeybind(
 		view,
 		"Network profiles",
 		"2",
-		style,
+		*style,
 		styles.AccentColor,
 	)
 	return view

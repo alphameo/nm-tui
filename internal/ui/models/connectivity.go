@@ -74,6 +74,7 @@ type connectivityKeyMap struct {
 
 type ConnectivityModel struct {
 	devicesTable table.Model
+	tableStyle   lipgloss.Style
 
 	wwan       toggle.Model
 	wifi       toggle.Model
@@ -93,8 +94,7 @@ type ConnectivityModel struct {
 
 	connMngr infra.ConnectivityManager
 
-	height int
-	width  int
+	style lipgloss.Style
 }
 
 func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.ConnectivityManager) *ConnectivityModel {
@@ -106,7 +106,7 @@ func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.Con
 
 	t := table.New(
 		table.WithColumns(cols),
-		table.WithStyles(styles.DataTableStyle),
+		table.WithStyles(styles.DataTableStyles),
 	)
 
 	wwan := toggle.New()
@@ -123,6 +123,7 @@ func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.Con
 
 	model := &ConnectivityModel{
 		devicesTable:     t,
+		tableStyle:       lipgloss.NewStyle(),
 		indicatorSpinner: s,
 		indicatorState:   ConnectivityDone,
 
@@ -134,6 +135,7 @@ func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.Con
 
 		connMngr: connectivityManager,
 		keys:     keys,
+		style:    lipgloss.NewStyle(),
 	}
 
 	focuses := []Focusable{
@@ -147,11 +149,15 @@ func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.Con
 }
 
 func (m *ConnectivityModel) Resize(width, height int) {
-	m.height = height
-	m.width = width
+	m.style = m.style.Width(width).Height(height)
 
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	border := m.style.GetBorderStyle()
+	width -= border.GetLeftSize() + border.GetRightSize()
+	height -= border.GetBottomSize() + border.GetTopSize()
+
+	tableBorder := m.tableStyle.GetBorderStyle()
+	width -= tableBorder.GetLeftSize() + tableBorder.GetRightSize()
+	height -= tableBorder.GetBottomSize() + tableBorder.GetTopSize()
 
 	m.devicesTable.SetWidth(width)
 	m.devicesTable.SetHeight(height - 9)
@@ -170,29 +176,17 @@ func (m *ConnectivityModel) Resize(width, height int) {
 	m.devicesTable.UpdateViewport()
 }
 
-func (m *ConnectivityModel) Width() int {
-	return m.width
-}
+func (m *ConnectivityModel) Width() int { return m.style.GetWidth() }
 
-func (m *ConnectivityModel) Height() int {
-	return m.height
-}
+func (m *ConnectivityModel) Height() int { return m.style.GetHeight() }
 
-func (m *ConnectivityModel) Title() string {
-	return "Connectivity"
-}
+func (m *ConnectivityModel) Title() string { return "Connectivity" }
 
-func (m *ConnectivityModel) Focus() {
-	m.focus = true
-}
+func (m *ConnectivityModel) Focus() { m.focus = true }
 
-func (m *ConnectivityModel) Blur() {
-	m.focus = false
-}
+func (m *ConnectivityModel) Blur() { m.focus = false }
 
-func (m *ConnectivityModel) Focused() bool {
-	return m.focus
-}
+func (m *ConnectivityModel) Focused() bool { return m.focus }
 
 func (m *ConnectivityModel) Init() tea.Cmd {
 	return tea.Batch(
@@ -256,7 +250,7 @@ func (m *ConnectivityModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd)
 }
 
 func (m *ConnectivityModel) View() string {
-	table := styles.BorderedStyle.Render(m.devicesTable.View())
+	table := m.tableStyle.Render(m.devicesTable.View())
 
 	wwan := styles.ViewToggle(m.wwan)
 	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN       ", wwan)
@@ -282,12 +276,13 @@ func (m *ConnectivityModel) View() string {
 	)
 	togglers = connectivityCfg.togglersStyle.Render(togglers)
 
-	return lipgloss.JoinVertical(
+	view := lipgloss.JoinVertical(
 		lipgloss.Center,
 		table,
 		togglers,
 		statusline,
 	)
+	return m.style.Render(view)
 }
 
 func (m *ConnectivityModel) indicatorView() string {

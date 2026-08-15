@@ -66,7 +66,9 @@ type availableNetworksKeyMap struct {
 }
 
 type AvailableNetworksModel struct {
-	dataTable table.Model
+	dataTable          table.Model
+	focusedTableStyles table.Styles
+	bluredTableStyles  table.Styles
 
 	indicatorSpinner     spinner.Model
 	indicatorState       availableNetworksState
@@ -78,8 +80,8 @@ type AvailableNetworksModel struct {
 
 	netMngr infra.NetworksManager
 
-	width  int
-	height int
+	focusedStyle lipgloss.Style
+	bluredStyle  lipgloss.Style
 }
 
 func NewAvailableNetworksModel(
@@ -98,7 +100,7 @@ func NewAvailableNetworksModel(
 		Width: max(availableNetworksCfg.minSignalColWidth, len(styles.SymbolSignal)),
 	}
 
-	initTableStyle := styles.DataTableStyle
+	initTableStyle := styles.DataTableStyles
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
@@ -109,13 +111,17 @@ func NewAvailableNetworksModel(
 	s.Spinner = styles.Spinner
 
 	model := &AvailableNetworksModel{
-		dataTable: t,
+		dataTable:          t,
+		focusedTableStyles: table.DefaultStyles(),
+		bluredTableStyles:  table.DefaultStyles(),
 
 		indicatorSpinner: s,
 		indicatorState:   AvailableNetsDone,
 
-		keys:    keys,
-		netMngr: networksManager,
+		keys:         keys,
+		netMngr:      networksManager,
+		focusedStyle: lipgloss.NewStyle(),
+		bluredStyle:  lipgloss.NewStyle(),
 	}
 
 	model.bakeSizes()
@@ -129,11 +135,12 @@ func (m *AvailableNetworksModel) bakeSizes() {
 }
 
 func (m *AvailableNetworksModel) Resize(width, height int) {
-	m.width = width
-	m.height = height
+	m.focusedStyle = m.focusedStyle.Width(width).Height(height)
+	m.bluredStyle = m.bluredStyle.Width(width).Height(height)
 
-	width -= styles.BorderOffset
-	height -= styles.BorderOffset
+	border := m.focusedStyle.GetBorderStyle()
+	width -= border.GetLeftSize() + border.GetRightSize()
+	height -= border.GetBottomSize() + border.GetTopSize()
 
 	height -= m.indicatorStateHeight
 
@@ -152,17 +159,13 @@ func (m *AvailableNetworksModel) Resize(width, height int) {
 	m.dataTable.UpdateViewport()
 }
 
-func (m *AvailableNetworksModel) Width() int {
-	return m.width
-}
+func (m *AvailableNetworksModel) Width() int { return m.focusedStyle.GetWidth() }
 
-func (m *AvailableNetworksModel) Height() int {
-	return m.height
-}
+func (m *AvailableNetworksModel) Height() int { return m.focusedStyle.GetHeight() }
 
 func (m *AvailableNetworksModel) Focus() tea.Cmd {
 	m.focus = true
-	m.dataTable.SetStyles(styles.TableStyle)
+	m.dataTable.SetStyles(m.focusedTableStyles)
 	m.dataTable.Focus()
 	return nil
 }
@@ -170,11 +173,18 @@ func (m *AvailableNetworksModel) Focus() tea.Cmd {
 func (m *AvailableNetworksModel) Blur() {
 	m.focus = false
 	m.dataTable.Blur()
-	m.dataTable.SetStyles(styles.DataTableStyle)
+	m.dataTable.SetStyles(m.bluredTableStyles)
 }
 
 func (m *AvailableNetworksModel) Focused() bool {
 	return m.focus
+}
+
+func (m *AvailableNetworksModel) activeStyle() *lipgloss.Style {
+	if m.focus {
+		return &m.focusedStyle
+	}
+	return &m.bluredStyle
 }
 
 func (m *AvailableNetworksModel) Init() tea.Cmd {
@@ -230,17 +240,12 @@ func (m *AvailableNetworksModel) View() string {
 		statusline,
 	)
 
-	var style lipgloss.Style
-	if m.focus {
-		style = styles.BorderedFocusedStyle
-	} else {
-		style = styles.BorderedStyle
-	}
+	style := m.activeStyle()
 	view = renderer.RenderWithTitleAndKeybind(
 		view,
 		"Available networks",
 		"1",
-		style,
+		*style,
 		styles.AccentColor,
 	)
 	return view
