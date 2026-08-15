@@ -100,11 +100,9 @@ func NewAvailableNetworksModel(
 		Width: max(availableNetworksCfg.minSignalColWidth, len(styles.SymbolSignal)),
 	}
 
-	initTableStyle := styles.DataTableStyles
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
-		table.WithStyles(initTableStyle),
 	)
 
 	s := spinner.New()
@@ -188,6 +186,7 @@ func (m *AvailableNetworksModel) activeStyle() *lipgloss.Style {
 }
 
 func (m *AvailableNetworksModel) Init() tea.Cmd {
+	m.dataTable.SetStyles(m.bluredTableStyles)
 	return m.RescanCmd()
 }
 

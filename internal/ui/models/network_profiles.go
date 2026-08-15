@@ -94,11 +94,9 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 	cols[networkProfilesCfg.ssidColIdx] = table.Column{Title: "SSID"}
 	cols[networkProfilesCfg.nameColIdx] = table.Column{Title: "Name"}
 
-	initTableStyle := styles.DataTableStyles
 	t := table.New(
 		table.WithColumns(cols),
 		table.WithFocused(true),
-		table.WithStyles(initTableStyle),
 	)
 
 	s := spinner.New()
@@ -183,6 +181,7 @@ func (m *NetworkProfilesModel) activeStyle() *lipgloss.Style {
 }
 
 func (m *NetworkProfilesModel) Init() tea.Cmd {
+	m.dataTable.SetStyles(m.bluredTableStyles)
 	return m.RescanCmd()
 }
 
