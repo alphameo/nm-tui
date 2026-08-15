@@ -18,6 +18,8 @@ import (
 )
 
 var (
+	userTermFG string
+
 	TextColor   color.Color
 	BgColor     color.Color
 	AccentColor color.Color
@@ -201,6 +203,12 @@ func initIcons(icons config.IconConfig) error {
 }
 
 func initColors(colors config.ColorConfig) error {
+	var err error
+	userTermFG, err = queryTerminalForegroundColor()
+	if err != nil {
+		return err
+	}
+
 	color, err := resolveCfgColor(*colors.Text)
 	if err != nil {
 		return err
@@ -272,7 +280,7 @@ func resolveCfgColor(cfgColor string) (string, error) {
 	case config.ColorBrightWhite:
 		return "15", nil
 	case config.ColorNone:
-		return "", nil
+		return userTermFG, nil
 	}
 
 	if config.ValidHex(c) {
