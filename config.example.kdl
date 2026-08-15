@@ -50,8 +50,8 @@ icons {
     password_hidden_character "*" // default for nerd: "•", limited to 1 character
     error "!"                     // default for nerd: "✗"
     check "v"                     // default for nerd: " "
-    connection "con"              // default for nerd: " "
-    signal "sig"                  // default for nerd: "󱘖 "
+    connection "con"              // default for nerd: "󱘖 "
+    signal "sig"                  // default for nerd: " "
     access_point "ap"             // default for nerd: "󰀃 "
     infra "infr"                  // default for nerd: "🖳 "
     mesh "#"                      // default for nerd: " "
