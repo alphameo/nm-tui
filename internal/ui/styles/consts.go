@@ -17,9 +17,6 @@ var (
 )
 
 var (
-	BorderOffset int
-	TabBarHeight int
-
 	SymbolColoredError string
 	SymbolsToggle      toggle.Symbols
 	SymbolEllipsis     string
