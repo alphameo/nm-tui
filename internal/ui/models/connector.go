@@ -45,18 +45,10 @@ type ConnectorModel struct {
 }
 
 func NewConnectorModel(keys connectorKeyMap, networksManager infra.NetworksManager) *ConnectorModel {
-	name := newDefaultInput()
-	name.Placeholder = "Name"
-
-	pw := newDefaultPassword()
-	pw.Placeholder = "Password"
-	pw.Validate = passwordValidator
-	pw.Err = passwordValidator(pw.Value())
-
 	model := &ConnectorModel{
 		ssid:     "",
-		name:     name,
-		password: pw,
+		name:     newDefaultNameInput(),
+		password: newDefaultPasswordInput(),
 		keys:     keys,
 		netMngr:  networksManager,
 		style:    lipgloss.NewStyle(),

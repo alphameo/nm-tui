@@ -46,25 +46,11 @@ type ProfileCreatorModel struct {
 }
 
 func NewProfileCreatorModel(keys profileCreatorKeyMap, networksManager infra.NetworksManager) *ProfileCreatorModel {
-	ssid := newDefaultInput()
-	ssid.Placeholder = "SSID"
-
-	name := newDefaultInput()
-	name.Placeholder = "Name"
-
-	pw := newDefaultPassword()
-	pw.Placeholder = "Password"
-	pw.Validate = passwordValidator
-	pw.Err = passwordValidator(pw.Value())
-
-	hidden := toggle.New()
-	hidden.Symbols = styles.SymbolsToggle
-
 	model := &ProfileCreatorModel{
-		ssid:     ssid,
-		name:     name,
-		password: pw,
-		hidden:   hidden,
+		ssid:     newDefaultSSIDInput(),
+		name:     newDefaultNameInput(),
+		password: newDefaultPasswordInput(),
+		hidden:   newDefaultToggle(),
 
 		keys: keys,
 

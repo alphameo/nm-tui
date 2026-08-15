@@ -53,17 +53,6 @@ type ProfileEditorModel struct {
 }
 
 func NewProfileEditorModel(keys profileEditorKeyMap, networksManager infra.NetworksManager) *ProfileEditorModel {
-	name := newDefaultInput()
-	name.Placeholder = "Name"
-
-	pw := newDefaultPassword()
-	pw.Placeholder = "Password"
-	pw.Validate = passwordValidator
-	pw.Err = passwordValidator(pw.Value())
-
-	autoconn := toggle.New()
-	autoconn.Symbols = styles.SymbolsToggle
-
 	autoconnPrior := newDefaultInput()
 	autoconnPrior.SetWidth(4)
 	autoconnPrior.Validate = autoconnectPriorityValidator
@@ -72,9 +61,9 @@ func NewProfileEditorModel(keys profileEditorKeyMap, networksManager infra.Netwo
 		ssid:             "",
 		active:           false,
 		mode:             "",
-		name:             name,
-		password:         pw,
-		autoconnect:      autoconn,
+		name:             newDefaultNameInput(),
+		password:         newDefaultPasswordInput(),
+		autoconnect:      newDefaultToggle(),
 		autoconnPriority: autoconnPrior,
 
 		keys:    keys,
