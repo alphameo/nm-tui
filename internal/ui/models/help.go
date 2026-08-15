@@ -29,7 +29,8 @@ type HelpModel struct {
 	help     help.Model
 	keyMap   keyMaps
 
-	keys helpKeyMap
+	keys  helpKeyMap
+	style lipgloss.Style
 }
 
 func NewHelpModel(keys keyMaps) *HelpModel {
@@ -44,14 +45,21 @@ func NewHelpModel(keys keyMaps) *HelpModel {
 		keyMap:   keys,
 		help:     h,
 		keys:     keys.help,
+		style:    lipgloss.NewStyle(),
 	}
 	help.viewport.SetContent(help.fullView())
 	return &help
 }
 
 func (m *HelpModel) Resize(width, height int) {
-	m.viewport.SetWidth(width - styles.BorderOffset)
-	m.viewport.SetHeight(height - styles.BorderOffset)
+	m.style = m.style.Width(width).Height(height)
+
+	border := m.style.GetBorderStyle()
+	width -= border.GetLeftSize() + border.GetRightSize()
+	height -= border.GetBottomSize() + border.GetTopSize()
+
+	m.viewport.SetWidth(width)
+	m.viewport.SetHeight(height)
 }
 
 func (m *HelpModel) Init() tea.Cmd {
@@ -62,8 +70,7 @@ func (m *HelpModel) Init() tea.Cmd {
 func (m *HelpModel) Update(msg tea.Msg) (*HelpModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.viewport.SetWidth(msg.Width - styles.BorderOffset)
-		m.viewport.SetHeight(msg.Height - styles.BorderOffset)
+		m.Resize(msg.Width, msg.Height)
 	case tea.KeyPressMsg:
 		if key.Matches(msg, m.keys.quit) {
 			return m, ClosePopupCmd()

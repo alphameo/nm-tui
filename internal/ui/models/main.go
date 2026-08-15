@@ -97,6 +97,9 @@ func NewMainModel(
 	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
 	n := Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
 
+	help := NewHelpModel(keys)
+	help.style = styles.OverlayStyle
+
 	return &MainModel{
 		tabs:         networksTable,
 		popup:        p,
@@ -111,7 +114,7 @@ func NewMainModel(
 		profileEditor:  profileEditor,
 
 		keys:  &keys.main,
-		help:  NewHelpModel(keys),
+		help:  help,
 		style: lipgloss.NewStyle(),
 	}, nil
 }
