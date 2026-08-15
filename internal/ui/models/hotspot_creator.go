@@ -147,9 +147,9 @@ func (m *HotspotCreatorModel) View() string {
 		fields...,
 	)
 
-	view = styles.OverlayStyle.Render(view)
+	view = m.style.Render(view)
 	title := styles.DefaultStyle.Render(renderer.RenderTitle(hotspotCreatorCfg.title))
-	view = compositor.Compose(
+	return compositor.Compose(
 		title,
 		view,
 		compositor.Center,
@@ -157,7 +157,6 @@ func (m *HotspotCreatorModel) View() string {
 		0,
 		0,
 	)
-	return m.style.Render(view)
 }
 
 func (m *HotspotCreatorModel) focusNextCmd() tea.Cmd {
