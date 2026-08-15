@@ -36,7 +36,7 @@ type HelpModel struct {
 func NewHelpModel(keys keyMaps) *HelpModel {
 	v := viewport.New()
 	h := help.New()
-	h.Styles = styles.HelpStyle
+	h.Styles = styles.HelpStyles
 	h.Ellipsis = styles.SymbolEllipsis
 	h.ShortSeparator = fmt.Sprintf(" %s ", styles.SymbolSeparator)
 

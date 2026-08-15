@@ -4,7 +4,17 @@ package toggle
 import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
+
+type Styles struct {
+	Focused lipgloss.Style
+	Blured  lipgloss.Style
+}
+
+func DefaultStyles() Styles {
+	return Styles{Focused: lipgloss.NewStyle(), Blured: lipgloss.NewStyle()}
+}
 
 type Symbols struct {
 	Activated   string
@@ -24,6 +34,8 @@ type Model struct {
 	Symbols Symbols
 
 	Keys KeyMap
+
+	Styles Styles
 }
 
 func New() Model {
@@ -31,6 +43,7 @@ func New() Model {
 		value:   false,
 		Symbols: DefaultSymbols(),
 		Keys:    DefaultKeys(),
+		Styles:  DefaultStyles(),
 	}
 }
 
@@ -56,11 +69,14 @@ func (t Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (t Model) View() string {
-	symbols := t.Symbols
+	var view string
 	if t.value {
-		return symbols.Activated
+		view = t.Symbols.Activated
+	} else {
+		view = t.Symbols.Deactivated
 	}
-	return symbols.Deactivated
+	style := *t.activeStyle()
+	return style.Render(view)
 }
 
 func (t *Model) Focus() tea.Cmd {
@@ -74,4 +90,11 @@ func (t *Model) Blur() {
 
 func (t *Model) Focused() bool {
 	return t.focus
+}
+
+func (t *Model) activeStyle() *lipgloss.Style {
+	if t.focus {
+		return &t.Styles.Focused
+	}
+	return &t.Styles.Blured
 }

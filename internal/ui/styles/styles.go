@@ -38,17 +38,16 @@ var (
 	DataTableStyles table.Styles
 
 	InputCursor tea.CursorShape
-	InputStyle  textinput.Styles
+	InputStyles textinput.Styles
 
-	HelpStyle help.Styles
+	ToggleStyles toggle.Styles
+
+	HelpStyles help.Styles
 
 	TabViewStyles tabview.Styles
 
 	OverlayStyle       lipgloss.Style
 	NotifBorderedStyle lipgloss.Style
-
-	ToggleStyle        lipgloss.Style
-	ToggleFocusedStyle lipgloss.Style
 
 	Spinner spinner.Spinner = spinner.Line
 )
@@ -81,12 +80,14 @@ func UpdateColorscheme() {
 	BorderedStyle = DefaultStyle.Border(Border).BorderForeground(TextColor).BorderBackground(BgColor)
 	BorderedFocusedStyle = BorderedStyle.BorderForeground(AccentColor)
 
-	TableStyles = tableStyle()
-	DataTableStyles = dataTableStyle()
+	TableStyles = tableStyles()
+	DataTableStyles = dataTableStyles()
 
-	InputStyle = inputStyle()
+	InputStyles = inputStyles()
 
-	HelpStyle = helpStyle()
+	ToggleStyles = toggleStyles()
+
+	HelpStyles = helpStyles()
 
 	TabViewStyles = tabview.GenerateStyles(BorderedStyle)
 
@@ -99,13 +100,10 @@ func UpdateColorscheme() {
 
 	NotifBorderedStyle = OverlayStyle.BorderForeground(NotifColor)
 
-	ToggleStyle = DefaultStyle.Margin(0, 1)
-	ToggleFocusedStyle = ToggleStyle.Foreground(AccentColor)
-
 	SymbolColoredError = DefaultStyle.Foreground(ErrorColor).Render(SymbolError)
 }
 
-func tableStyle() table.Styles {
+func tableStyles() table.Styles {
 	return table.Styles{
 		Selected: lipgloss.NewStyle().
 			Foreground(TextColor).
@@ -120,13 +118,13 @@ func tableStyle() table.Styles {
 	}
 }
 
-func dataTableStyle() table.Styles {
-	style := tableStyle()
+func dataTableStyles() table.Styles {
+	style := tableStyles()
 	style.Selected = style.Selected.Background(BgColor)
 	return style
 }
 
-func inputStyle() textinput.Styles {
+func inputStyles() textinput.Styles {
 	return textinput.Styles{
 		Focused: textinput.StyleState{
 			Placeholder: MutedStyle,
@@ -148,7 +146,14 @@ func inputStyle() textinput.Styles {
 	}
 }
 
-func helpStyle() help.Styles {
+func toggleStyles() toggle.Styles {
+	return toggle.Styles{
+		Focused: AccentStyle.Margin(0, 1),
+		Blured:  DefaultStyle.Margin(0, 1),
+	}
+}
+
+func helpStyles() help.Styles {
 	style := help.DefaultDarkStyles()
 	style.ShortKey = DefaultStyle
 	style.ShortDesc = MutedStyle

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/textinput"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -8,7 +9,7 @@ import (
 
 func newDefaultInput() textinput.Model {
 	input := textinput.New()
-	input.SetStyles(styles.InputStyle)
+	input.SetStyles(styles.InputStyles)
 	input.SetWidth(20)
 	input.Prompt = ""
 	return input
@@ -38,6 +39,13 @@ func newDefaultPasswordInput() textinput.Model {
 
 func newDefaultToggle() toggle.Model {
 	t := toggle.New()
+	t.Styles = styles.ToggleStyles
 	t.Symbols = styles.SymbolsToggle
 	return t
+}
+
+func newDefaultSpinner() spinner.Model {
+	s := spinner.New()
+	s.Spinner = styles.Spinner
+	return s
 }

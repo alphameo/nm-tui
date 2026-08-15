@@ -109,17 +109,13 @@ func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.Con
 		table.WithStyles(styles.DataTableStyles),
 	)
 
-	wwan := toggle.New()
-	wwan.Symbols = styles.SymbolsToggle
+	wwan := newDefaultToggle()
 
-	wifi := toggle.New()
-	wifi.Symbols = styles.SymbolsToggle
+	wifi := newDefaultToggle()
 
-	networking := toggle.New()
-	networking.Symbols = styles.SymbolsToggle
+	networking := newDefaultToggle()
 
-	s := spinner.New()
-	s.Spinner = styles.Spinner
+	s := newDefaultSpinner()
 
 	model := &ConnectivityModel{
 		devicesTable:     t,
@@ -252,13 +248,13 @@ func (m *ConnectivityModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd)
 func (m *ConnectivityModel) View() string {
 	table := m.tableStyle.Render(m.devicesTable.View())
 
-	wwan := styles.ViewToggle(m.wwan)
+	wwan := m.wwan.View()
 	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN       ", wwan)
 
-	wifi := styles.ViewToggle(m.wifi)
+	wifi := m.wifi.View()
 	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi      ", wifi)
 
-	networking := styles.ViewToggle(m.networking)
+	networking := m.networking.View()
 	networking = lipgloss.JoinHorizontal(lipgloss.Center, "Networking ", networking)
 
 	connectivity := styles.BoldStyle.Render(m.connectivity)
