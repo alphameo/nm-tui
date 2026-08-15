@@ -15,11 +15,15 @@ import (
 )
 
 type connectorConfig struct {
-	title string
+	title   string
+	nameIdx int
+	pwIdx   int
 }
 
 var connectorCfg = connectorConfig{
-	title: "Connect to Network",
+	title:   "Connect to Network",
+	nameIdx: 0,
+	pwIdx:   1,
 }
 
 type connectorKeyMap struct {
@@ -49,15 +53,16 @@ func NewConnectorModel(keys connectorKeyMap, networksManager infra.NetworksManag
 		ssid:     "",
 		name:     newDefaultNameInput(),
 		password: newDefaultPasswordInput(),
+		focusIdx: connectorCfg.pwIdx,
 		keys:     keys,
 		netMngr:  networksManager,
 		style:    lipgloss.NewStyle(),
 	}
 
-	inp := []Focusable{
-		&model.name,
-		&model.password,
-	}
+	inp := make([]Focusable, 2)
+	inp[connectorCfg.nameIdx] = &model.name
+	inp[connectorCfg.pwIdx] = &model.password
+
 	model.focuses = inp
 
 	return model
@@ -67,7 +72,7 @@ func (m *ConnectorModel) setNew(ssid string) tea.Cmd {
 	m.ssid = ssid
 
 	m.name.SetValue(ssid)
-	m.focusIdx = 0
+	m.focusIdx = connectorCfg.pwIdx
 
 	m.password.Reset()
 	pw, err := m.netMngr.GetProfilePassword(context.Background(), ssid)
