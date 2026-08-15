@@ -145,9 +145,9 @@ func (m *ConnectorModel) View() string {
 		fields...,
 	)
 
-	view = styles.OverlayStyle.Render(view)
+	view = m.style.Render(view)
 	title := styles.DefaultStyle.Render(renderer.RenderTitle(connectorCfg.title))
-	view = compositor.Compose(
+	return compositor.Compose(
 		title,
 		view,
 		compositor.Center,
@@ -155,7 +155,6 @@ func (m *ConnectorModel) View() string {
 		0,
 		0,
 	)
-	return m.style.Render(view)
 }
 
 func (m *ConnectorModel) focusNextCmd() tea.Cmd {

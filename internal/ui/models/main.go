@@ -62,9 +62,13 @@ func NewMainModel(
 	mainCfg.notificationCloseTime = time.Duration(*cfg.NotifCloseTime) * time.Second
 
 	connector := NewConnectorModel(keys.connector, networksManager)
+	connector.style = styles.OverlayStyle
 	profileCreator := NewProfileCreatorModel(keys.profileCreator, networksManager)
+	profileCreator.style = styles.OverlayStyle
 	hotspotCreator := NewHotspotCreatorModel(keys.hotspotCreator, networksManager)
+	hotspotCreator.style = styles.OverlayStyle
 	profileEditor := NewProfileEditorModel(keys.profileEditor, networksManager)
+	profileCreator.style = styles.OverlayStyle
 
 	available := NewAvailableNetworksModel(keys.availableNetworks, networksManager)
 	available.focusedStyle = styles.BorderedFocusedStyle
