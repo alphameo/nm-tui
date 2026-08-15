@@ -80,8 +80,6 @@ func UpdateColorscheme() {
 
 	BorderedStyle = DefaultStyle.Border(Border).BorderForeground(TextColor).BorderBackground(BgColor)
 	BorderedFocusedStyle = BorderedStyle.BorderForeground(AccentColor)
-	BorderOffset = lipgloss.Width(Border.Left) * 2
-	TabBarHeight = BorderOffset + 1
 
 	TableStyles = tableStyle()
 	DataTableStyles = dataTableStyle()
