@@ -342,20 +342,14 @@ func (m *DeviceModel) RescanCmd() tea.Cmd {
 }
 
 func (m *DeviceModel) focusNextCmd() tea.Cmd {
-	if m.focusIdx >= len(m.focuses)-1 {
-		return nil
-	}
 	m.focuses[m.focusIdx].Blur()
-	m.focusIdx++
+	m.focusIdx = (m.focusIdx + len(m.focuses) + 1) % len(m.focuses)
 	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *DeviceModel) focusPrevCmd() tea.Cmd {
-	if m.focusIdx <= 0 {
-		return nil
-	}
 	m.focuses[m.focusIdx].Blur()
-	m.focusIdx--
+	m.focusIdx = (m.focusIdx + len(m.focuses) - 1) % len(m.focuses)
 	return m.focuses[m.focusIdx].Focus()
 }
 
