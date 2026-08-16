@@ -10,6 +10,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/models/focus"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
@@ -87,8 +88,7 @@ type DeviceModel struct {
 
 	focus bool
 
-	focuses  []Focusable // used for batch operations on input focusable elements
-	focusIdx int
+	focuses focus.Group
 
 	keys deviceKeyMap
 
@@ -134,12 +134,12 @@ func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *Devic
 		style:    lipgloss.NewStyle(),
 	}
 
-	focuses := []Focusable{
+	focuses := []focus.Focusable{
 		&model.wwan,
 		&model.wifi,
 		&model.networking,
 	}
-	model.focuses = focuses
+	model.focuses = *focus.NewGroup(focuses)
 
 	return model
 }
@@ -187,7 +187,7 @@ func (m *DeviceModel) Focused() bool { return m.focus }
 func (m *DeviceModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.RescanCmd(),
-		m.focuses[m.focusIdx].Focus(),
+		m.focuses.FocusCurrent(),
 	)
 }
 
@@ -199,9 +199,9 @@ func (m *DeviceModel) Update(msg tea.Msg) (*DeviceModel, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
-			return m, m.focusNextCmd()
+			return m, m.focuses.FocusCycleNextCmd()
 		case key.Matches(msg, m.keys.prev):
-			return m, m.focusPrevCmd()
+			return m, m.focuses.FocusCyclePrevCmd()
 		case key.Matches(msg, m.keys.rescan):
 			return m, m.RescanCmd()
 		// NOTE: It is supposed that all togglers has the same bindings
@@ -339,18 +339,6 @@ func (m *DeviceModel) RescanCmd() tea.Cmd {
 			return m.setStateCmd(DeviceDone)
 		},
 	)
-}
-
-func (m *DeviceModel) focusNextCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) + 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
-}
-
-func (m *DeviceModel) focusPrevCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) - 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *DeviceModel) setStateCmd(state deviceState) tea.Cmd {

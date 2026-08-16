@@ -9,6 +9,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/models/focus"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
@@ -36,8 +37,7 @@ type ProfileCreatorModel struct {
 	password textinput.Model
 	hidden   toggle.Model
 
-	focuses  []Focusable // used for batch operations on input focusable elements
-	focusIdx int
+	focuses focus.Group
 
 	keys profileCreatorKeyMap
 
@@ -58,21 +58,19 @@ func NewProfileCreatorModel(keys profileCreatorKeyMap, networksManager infra.Net
 		style:   lipgloss.NewStyle(),
 	}
 
-	inp := []Focusable{
+	inp := []focus.Focusable{
 		&model.ssid,
 		&model.name,
 		&model.password,
 		&model.hidden,
 	}
-	model.focuses = inp
-	model.focusIdx = 0
+	model.focuses = *focus.NewGroup(inp)
 
 	return model
 }
 
 func (m *ProfileCreatorModel) Reset() tea.Cmd {
 	m.ssid.Reset()
-	m.focusIdx = 0
 
 	m.name.Reset()
 	m.name.Blur()
@@ -83,11 +81,11 @@ func (m *ProfileCreatorModel) Reset() tea.Cmd {
 	m.hidden.SetValue(false)
 	m.hidden.Blur()
 
-	return m.focuses[m.focusIdx].Focus()
+	return m.focuses.SetFocusIdx(0)
 }
 
 func (m *ProfileCreatorModel) Init() tea.Cmd {
-	return m.focuses[m.focusIdx].Focus()
+	return m.focuses.SetFocusIdx(0)
 }
 
 //nolint:dupl // intentionally similar to profile_editor for now; will diverge
@@ -95,9 +93,9 @@ func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd
 	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
-			return m, m.focusNextCmd()
+			return m, m.focuses.FocusCycleNextCmd()
 		case key.Matches(msg, m.keys.prev):
-			return m, m.focusPrevCmd()
+			return m, m.focuses.FocusCyclePrevCmd()
 		case key.Matches(msg, m.keys.togglePWVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
@@ -173,18 +171,6 @@ func (m *ProfileCreatorModel) View() string {
 		0,
 		0,
 	)
-}
-
-func (m *ProfileCreatorModel) focusNextCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) + 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
-}
-
-func (m *ProfileCreatorModel) focusPrevCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) - 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *ProfileCreatorModel) createWifiConnCmd() tea.Cmd {

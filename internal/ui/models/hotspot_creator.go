@@ -9,6 +9,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/models/focus"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
@@ -36,8 +37,7 @@ type HotspotCreatorModel struct {
 
 	password textinput.Model
 
-	focuses  []Focusable // used for batch operations on input focusable elements
-	focusIdx int
+	focuses focus.Group
 
 	keys hotspotCreatorKeyMap
 
@@ -55,19 +55,18 @@ func NewHotspotCreatorModel(keys hotspotCreatorKeyMap, networksManager infra.Net
 		style:    lipgloss.NewStyle(),
 	}
 
-	inp := []Focusable{
+	inp := []focus.Focusable{
 		&model.ssid,
 		&model.name,
 		&model.password,
 	}
-	model.focuses = inp
+	model.focuses = *focus.NewGroup(inp)
 
 	return model
 }
 
 func (m *HotspotCreatorModel) Reset() tea.Cmd {
 	m.ssid.Reset()
-	m.focusIdx = 0
 
 	m.name.Reset()
 	m.name.Blur()
@@ -75,20 +74,20 @@ func (m *HotspotCreatorModel) Reset() tea.Cmd {
 	m.password.Reset()
 	m.password.Blur()
 
-	return m.focuses[m.focusIdx].Focus()
+	return m.focuses.SetFocusIdx(0)
 }
 
 func (m *HotspotCreatorModel) Init() tea.Cmd {
-	return m.focuses[m.focusIdx].Focus()
+	return m.focuses.SetFocusIdx(0)
 }
 
 func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
-			return m, m.focusNextCmd()
+			return m, m.focuses.FocusCycleNextCmd()
 		case key.Matches(msg, m.keys.prev):
-			return m, m.focusPrevCmd()
+			return m, m.focuses.FocusCyclePrevCmd()
 		case key.Matches(msg, m.keys.togglePWVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
@@ -157,18 +156,6 @@ func (m *HotspotCreatorModel) View() string {
 		0,
 		0,
 	)
-}
-
-func (m *HotspotCreatorModel) focusNextCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) + 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
-}
-
-func (m *HotspotCreatorModel) focusPrevCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) - 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *HotspotCreatorModel) createHotspotProfileCmd() tea.Cmd {

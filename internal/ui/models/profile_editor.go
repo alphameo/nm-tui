@@ -10,6 +10,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/models/focus"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
@@ -43,8 +44,7 @@ type ProfileEditorModel struct {
 	autoconnect      toggle.Model
 	autoconnPriority textinput.Model
 
-	focuses  []Focusable // used for batch operations on input focusable elements
-	focusIdx int
+	focuses focus.Group
 
 	keys profileEditorKeyMap
 
@@ -70,13 +70,13 @@ func NewProfileEditorModel(keys profileEditorKeyMap, networksManager infra.Netwo
 		netMngr: networksManager,
 		style:   lipgloss.NewStyle(),
 	}
-	inp := []Focusable{
+	inp := []focus.Focusable{
 		&model.name,
 		&model.password,
 		&model.autoconnect,
 		&model.autoconnPriority,
 	}
-	model.focuses = inp
+	model.focuses = *focus.NewGroup(inp)
 
 	return model
 }
@@ -112,13 +112,11 @@ func (m *ProfileEditorModel) setNew(name string) tea.Cmd {
 	m.autoconnPriority.SetValue(strconv.Itoa(info.AutoconnectPriority))
 	m.autoconnPriority.Blur()
 
-	m.focusIdx = 0
-
-	return m.focuses[m.focusIdx].Focus()
+	return m.focuses.SetFocusIdx(0)
 }
 
 func (m *ProfileEditorModel) Init() tea.Cmd {
-	return m.focuses[m.focusIdx].Focus()
+	return m.focuses.SetFocusIdx(0)
 }
 
 //nolint:dupl // intentionally similar to profile_creator for now; will diverge
@@ -126,9 +124,9 @@ func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) 
 	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
-			return m, m.focusNextCmd()
+			return m, m.focuses.FocusCycleNextCmd()
 		case key.Matches(msg, m.keys.prev):
-			return m, m.focusPrevCmd()
+			return m, m.focuses.FocusCyclePrevCmd()
 		case key.Matches(msg, m.keys.togglePWVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
@@ -221,18 +219,6 @@ func (m *ProfileEditorModel) connectionView() string {
 		return styles.AccentStyle.Render(" (connected)")
 	}
 	return ""
-}
-
-func (m *ProfileEditorModel) focusNextCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) + 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
-}
-
-func (m *ProfileEditorModel) focusPrevCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) - 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *ProfileEditorModel) saveProfileInfoCmd() tea.Cmd {

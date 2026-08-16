@@ -8,12 +8,6 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-type Focusable interface {
-	Focused() bool
-	Focus() tea.Cmd
-	Blur()
-}
-
 // NilMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render.
 type NilMsg struct{}
 

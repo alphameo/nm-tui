@@ -9,6 +9,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/models/focus"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 )
 
@@ -30,8 +31,7 @@ type NetworksModel struct {
 
 	focus bool
 
-	focuses        []Focusable // used for batch operations for wifi models
-	focusWindowIdx int
+	focuses focus.Group
 
 	netMngr infra.NetworksManager
 	portal  infra.CaptivePortalOpener
@@ -57,9 +57,8 @@ func NewNetworksModel(
 		style:     lipgloss.NewStyle(),
 	}
 
-	wins := []Focusable{w.available, w.profiles}
-	w.available.Focus()
-	w.focuses = wins
+	wins := []focus.Focusable{w.available, w.profiles}
+	w.focuses = *focus.NewGroup(wins)
 	return w
 }
 
@@ -93,6 +92,7 @@ func (m *NetworksModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.available.Init(),
 		m.profiles.Init(),
+		m.focuses.SetFocusIdx(0),
 	)
 }
 
@@ -105,21 +105,13 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keys.winNext):
-			m.focuses[m.focusWindowIdx].Blur()
-			m.focusWindowIdx = (m.focusWindowIdx + 1) % len(m.focuses)
-			m.focuses[m.focusWindowIdx].Focus()
+			return m, m.focuses.FocusCycleNextCmd()
 		case key.Matches(msg, m.keys.winPrev):
-			m.focuses[m.focusWindowIdx].Blur()
-			m.focusWindowIdx = (len(m.focuses) + m.focusWindowIdx - 1) % len(m.focuses)
-			m.focuses[m.focusWindowIdx].Focus()
+			return m, m.focuses.FocusCyclePrevCmd()
 		case key.Matches(msg, m.keys.win1):
-			m.focuses[m.focusWindowIdx].Blur()
-			m.focusWindowIdx = 0
-			m.focuses[m.focusWindowIdx].Focus()
+			return m, m.focuses.SetFocusIdx(0)
 		case key.Matches(msg, m.keys.win2):
-			m.focuses[m.focusWindowIdx].Blur()
-			m.focusWindowIdx = 1
-			m.focuses[m.focusWindowIdx].Focus()
+			return m, m.focuses.SetFocusIdx(1)
 		case key.Matches(msg, m.keys.rescan):
 			return m, tea.Batch(
 				RescanNetworkProfilesCmd(0),

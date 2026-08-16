@@ -9,6 +9,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
+	"github.com/alphameo/nm-tui/internal/ui/models/focus"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 	"github.com/alphameo/nm-tui/internal/ui/tools/compositor"
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
@@ -39,8 +40,7 @@ type ConnectorModel struct {
 	name     textinput.Model
 	password textinput.Model
 
-	focuses  []Focusable // used for batch operations on input focusable elements
-	focusIdx int
+	focuses focus.Group
 
 	keys connectorKeyMap
 
@@ -53,17 +53,16 @@ func NewConnectorModel(keys connectorKeyMap, networksManager infra.NetworksManag
 		ssid:     "",
 		name:     newDefaultNameInput(),
 		password: newDefaultPasswordInput(),
-		focusIdx: connectorCfg.pwIdx,
 		keys:     keys,
 		netMngr:  networksManager,
 		style:    lipgloss.NewStyle(),
 	}
 
-	inp := make([]Focusable, 2)
+	inp := make([]focus.Focusable, 2)
 	inp[connectorCfg.nameIdx] = &model.name
 	inp[connectorCfg.pwIdx] = &model.password
 
-	model.focuses = inp
+	model.focuses = *focus.NewGroup(inp)
 
 	return model
 }
@@ -72,7 +71,6 @@ func (m *ConnectorModel) setNew(ssid string) tea.Cmd {
 	m.ssid = ssid
 
 	m.name.SetValue(ssid)
-	m.focusIdx = connectorCfg.pwIdx
 
 	m.password.Reset()
 	pw, err := m.netMngr.GetProfilePassword(context.Background(), ssid)
@@ -81,20 +79,20 @@ func (m *ConnectorModel) setNew(ssid string) tea.Cmd {
 	}
 	m.password.Blur()
 
-	return m.focuses[m.focusIdx].Focus()
+	return m.focuses.SetFocusIdx(connectorCfg.pwIdx)
 }
 
 func (m *ConnectorModel) Init() tea.Cmd {
-	return m.focuses[m.focusIdx].Focus()
+	return m.focuses.SetFocusIdx(connectorCfg.pwIdx)
 }
 
 func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.next):
-			return m, m.focusNextCmd()
+			return m, m.focuses.FocusCycleNextCmd()
 		case key.Matches(msg, m.keys.prev):
-			return m, m.focusPrevCmd()
+			return m, m.focuses.FocusCyclePrevCmd()
 		case key.Matches(msg, m.keys.togglePWVisibility):
 			if m.password.EchoMode == textinput.EchoPassword {
 				m.password.EchoMode = textinput.EchoNormal
@@ -160,18 +158,6 @@ func (m *ConnectorModel) View() string {
 		0,
 		0,
 	)
-}
-
-func (m *ConnectorModel) focusNextCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) + 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
-}
-
-func (m *ConnectorModel) focusPrevCmd() tea.Cmd {
-	m.focuses[m.focusIdx].Blur()
-	m.focusIdx = (m.focusIdx + len(m.focuses) - 1) % len(m.focuses)
-	return m.focuses[m.focusIdx].Focus()
 }
 
 func (m *ConnectorModel) connectToWifiCmd() tea.Cmd {
