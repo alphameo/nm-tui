@@ -29,6 +29,8 @@ type mainKeyMap struct {
 }
 
 type MainModel struct {
+	ready bool
+
 	tabs         tabview.Model
 	popup        Popup
 	notification Notification
@@ -129,6 +131,7 @@ func (m *MainModel) Init() tea.Cmd {
 func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+		m.ready = true
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
 	case OpenPopupMsg:
@@ -203,6 +206,10 @@ func (m *MainModel) updateOnKeyPress(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m *MainModel) View() tea.View {
+	if !m.ready {
+		return tea.View{}
+	}
+
 	view := m.tabs.View()
 
 	if m.popup.active {
