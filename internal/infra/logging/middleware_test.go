@@ -65,7 +65,7 @@ func (s *wifiStub) GetProfilePassword(context.Context, string) (string, error) {
 }
 
 type networkStub struct {
-	infra.ConnectivityManager
+	infra.DeviceManager
 }
 
 type portalStub struct {

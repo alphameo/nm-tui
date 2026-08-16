@@ -33,8 +33,8 @@ type MainModel struct {
 	popup        Popup
 	notification Notification
 
-	networks     *NetworksModel
-	connectivity *ConnectivityModel
+	networks *NetworksModel
+	device   *DeviceModel
 
 	connector      *ConnectorModel
 	profileCreator *ProfileCreatorModel
@@ -48,7 +48,7 @@ type MainModel struct {
 
 func NewMainModel(
 	networksManager infra.NetworksManager,
-	connectivityManager infra.ConnectivityManager,
+	deviceManager infra.DeviceManager,
 	portalOpener infra.CaptivePortalOpener,
 	cfg config.Config,
 ) (*MainModel, error) {
@@ -80,12 +80,12 @@ func NewMainModel(
 	profiles.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
 
 	networks := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
-	connectivity := NewConnectivityModel(keys.connectivity, connectivityManager)
-	connectivity.tableStyle = styles.BorderedStyle
+	device := NewDeviceModel(keys.device, deviceManager)
+	device.tableStyle = styles.BorderedStyle
 
 	networksTable := tabview.New([]tabview.Tab{
 		{Title: networks.Title(), Content: networks},
-		{Title: connectivity.Title(), Content: connectivity},
+		{Title: device.Title(), Content: device},
 	})
 	networksTable.SetStyles(styles.TabViewStyles)
 	networksTable.Keys = keys.tabs
@@ -105,8 +105,8 @@ func NewMainModel(
 		popup:        p,
 		notification: n,
 
-		networks:     networks,
-		connectivity: connectivity,
+		networks: networks,
+		device:   device,
 
 		connector:      connector,
 		profileCreator: profileCreator,
@@ -284,8 +284,8 @@ func (m *MainModel) activeBindingsShort() []key.Binding {
 	helpKey := m.help.mainShort()
 
 	switch m.tabs.ActiveTabIndex() {
-	case 1: // Connectivity tab
-		return append(helpKey, m.help.connectivityShort()...)
+	case 1: // Device tab
+		return append(helpKey, m.help.deviceShort()...)
 	default: // Networks tab: tab actions + focused window
 		keys := []key.Binding{}
 		keys = append(keys, m.help.networksShort()...)

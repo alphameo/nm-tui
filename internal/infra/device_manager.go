@@ -41,7 +41,7 @@ type NetworkDevice struct {
 }
 
 var (
-	ErrListDevices = errors.New("failed to list network devices")
+	ErrListNetworkDevices = errors.New("failed to list network devices")
 
 	ErrGetConnectivityStatus = errors.New("failed to get connectivity status")
 	ErrParseConnectivity     = errors.New("failed to parse connectivity status")
@@ -61,9 +61,9 @@ var (
 	ErrDisableWWAN   = errors.New("failed to disable wwan radio")
 )
 
-type ConnectivityManager interface {
-	// ListDevices returns info about network devices
-	ListDevices(ctx context.Context) ([]NetworkDevice, error)
+type DeviceManager interface {
+	// ListNetworkDevices returns info about network devices
+	ListNetworkDevices(ctx context.Context) ([]NetworkDevice, error)
 
 	// GetConnectivityStatus returns connectivity status of device
 	GetConnectivityStatus(ctx context.Context) (ConnectivityStatus, error)

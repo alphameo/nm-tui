@@ -15,7 +15,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
-type connectivityConfig struct {
+type deviceConfig struct {
 	togglersStyle lipgloss.Style
 	deviceColIdx  int
 	typeColIdx    int
@@ -27,7 +27,7 @@ type connectivityConfig struct {
 	stateWidthProportion  float32
 }
 
-var connectivityCfg = connectivityConfig{
+var deviceCfg = deviceConfig{
 	togglersStyle:         lipgloss.NewStyle().Margin(1, 0),
 	deviceColIdx:          0,
 	typeColIdx:            1,
@@ -38,41 +38,41 @@ var connectivityCfg = connectivityConfig{
 	stateWidthProportion:  0.3,
 }
 
-type connectivityState int
+type deviceState int
 
 const (
-	ConnectivityNil connectivityState = iota
-	ConnectivityScanning
-	ConnectivityTogglingWifi
-	ConnectivityTogglingWWAN
-	ConnectivityTogglingNetworking
-	ConnectivityDone
+	DeviceNil deviceState = iota
+	DeviceScanning
+	DeviceTogglingWifi
+	DeviceTogglingWWAN
+	DeviceTogglingNetworking
+	DeviceDone
 )
 
-func (s *connectivityState) String() string {
+func (s *deviceState) String() string {
 	switch *s {
-	case ConnectivityScanning:
+	case DeviceScanning:
 		return "Scanning"
-	case ConnectivityTogglingWWAN:
+	case DeviceTogglingWWAN:
 		return "Toggling WWAN"
-	case ConnectivityTogglingWifi:
+	case DeviceTogglingWifi:
 		return "Toggling Wi-Fi"
-	case ConnectivityTogglingNetworking:
+	case DeviceTogglingNetworking:
 		return "Toggling Wi-Fi"
-	case ConnectivityDone:
+	case DeviceDone:
 		return "󰄬"
 	default:
 		return "Undefined"
 	}
 }
 
-type connectivityKeyMap struct {
+type deviceKeyMap struct {
 	prev   key.Binding
 	next   key.Binding
 	rescan key.Binding
 }
 
-type ConnectivityModel struct {
+type DeviceModel struct {
 	devicesTable table.Model
 	tableStyle   lipgloss.Style
 
@@ -83,26 +83,26 @@ type ConnectivityModel struct {
 	connectivity string
 
 	indicatorSpinner spinner.Model
-	indicatorState   connectivityState
+	indicatorState   deviceState
 
 	focus bool
 
 	focuses  []Focusable // used for batch operations on input focusable elements
 	focusIdx int
 
-	keys connectivityKeyMap
+	keys deviceKeyMap
 
-	connMngr infra.ConnectivityManager
+	connMngr infra.DeviceManager
 
 	style lipgloss.Style
 }
 
-func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.ConnectivityManager) *ConnectivityModel {
+func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *DeviceModel {
 	cols := make([]table.Column, 4)
-	cols[connectivityCfg.deviceColIdx] = table.Column{Title: "Device"}
-	cols[connectivityCfg.typeColIdx] = table.Column{Title: "Type"}
-	cols[connectivityCfg.connColIdx] = table.Column{Title: "Connection"}
-	cols[connectivityCfg.stateColIdx] = table.Column{Title: "State"}
+	cols[deviceCfg.deviceColIdx] = table.Column{Title: "Device"}
+	cols[deviceCfg.typeColIdx] = table.Column{Title: "Type"}
+	cols[deviceCfg.connColIdx] = table.Column{Title: "Connection"}
+	cols[deviceCfg.stateColIdx] = table.Column{Title: "State"}
 
 	t := table.New(
 		table.WithColumns(cols),
@@ -117,11 +117,11 @@ func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.Con
 
 	s := newDefaultSpinner()
 
-	model := &ConnectivityModel{
+	model := &DeviceModel{
 		devicesTable:     t,
 		tableStyle:       lipgloss.NewStyle(),
 		indicatorSpinner: s,
-		indicatorState:   ConnectivityDone,
+		indicatorState:   DeviceDone,
 
 		wwan:       wwan,
 		wifi:       wifi,
@@ -129,7 +129,7 @@ func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.Con
 
 		connectivity: "",
 
-		connMngr: connectivityManager,
+		connMngr: deviceManager,
 		keys:     keys,
 		style:    lipgloss.NewStyle(),
 	}
@@ -144,7 +144,7 @@ func NewConnectivityModel(keys connectivityKeyMap, connectivityManager infra.Con
 	return model
 }
 
-func (m *ConnectivityModel) Resize(width, height int) {
+func (m *DeviceModel) Resize(width, height int) {
 	m.style = m.style.Width(width).Height(height)
 
 	border := m.style.GetBorderStyle()
@@ -160,38 +160,38 @@ func (m *ConnectivityModel) Resize(width, height int) {
 
 	tableUtilityOffset := len(m.devicesTable.Columns()) * 2
 
-	deviceColWidth := int(float32(width) * connectivityCfg.deviceWidthProportion)
-	typeColWidth := int(float32(width) * connectivityCfg.typeWidthProportion)
-	stateWidth := int(float32(width) * connectivityCfg.stateWidthProportion)
+	deviceColWidth := int(float32(width) * deviceCfg.deviceWidthProportion)
+	typeColWidth := int(float32(width) * deviceCfg.typeWidthProportion)
+	stateWidth := int(float32(width) * deviceCfg.stateWidthProportion)
 	connWidth := width - typeColWidth - deviceColWidth - tableUtilityOffset - stateWidth
 
-	m.devicesTable.Columns()[connectivityCfg.deviceColIdx].Width = deviceColWidth
-	m.devicesTable.Columns()[connectivityCfg.typeColIdx].Width = typeColWidth
-	m.devicesTable.Columns()[connectivityCfg.stateColIdx].Width = stateWidth
-	m.devicesTable.Columns()[connectivityCfg.connColIdx].Width = connWidth
+	m.devicesTable.Columns()[deviceCfg.deviceColIdx].Width = deviceColWidth
+	m.devicesTable.Columns()[deviceCfg.typeColIdx].Width = typeColWidth
+	m.devicesTable.Columns()[deviceCfg.stateColIdx].Width = stateWidth
+	m.devicesTable.Columns()[deviceCfg.connColIdx].Width = connWidth
 	m.devicesTable.UpdateViewport()
 }
 
-func (m *ConnectivityModel) Width() int { return m.style.GetWidth() }
+func (m *DeviceModel) Width() int { return m.style.GetWidth() }
 
-func (m *ConnectivityModel) Height() int { return m.style.GetHeight() }
+func (m *DeviceModel) Height() int { return m.style.GetHeight() }
 
-func (m *ConnectivityModel) Title() string { return "Connectivity" }
+func (m *DeviceModel) Title() string { return "Device" }
 
-func (m *ConnectivityModel) Focus() { m.focus = true }
+func (m *DeviceModel) Focus() { m.focus = true }
 
-func (m *ConnectivityModel) Blur() { m.focus = false }
+func (m *DeviceModel) Blur() { m.focus = false }
 
-func (m *ConnectivityModel) Focused() bool { return m.focus }
+func (m *DeviceModel) Focused() bool { return m.focus }
 
-func (m *ConnectivityModel) Init() tea.Cmd {
+func (m *DeviceModel) Init() tea.Cmd {
 	return tea.Batch(
 		m.RescanCmd(),
 		m.focuses[m.focusIdx].Focus(),
 	)
 }
 
-func (m *ConnectivityModel) Update(msg tea.Msg) (*ConnectivityModel, tea.Cmd) {
+func (m *DeviceModel) Update(msg tea.Msg) (*DeviceModel, tea.Cmd) {
 	if !m.focus {
 		return m, nil
 	}
@@ -221,7 +221,7 @@ func (m *ConnectivityModel) Update(msg tea.Msg) (*ConnectivityModel, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	if m.indicatorState != ConnectivityDone {
+	if m.indicatorState != DeviceDone {
 		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
 		cmds = append(cmds, cmd)
 	}
@@ -241,11 +241,11 @@ func (m *ConnectivityModel) Update(msg tea.Msg) (*ConnectivityModel, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *ConnectivityModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
+func (m *DeviceModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 	return m.Update(msg)
 }
 
-func (m *ConnectivityModel) View() string {
+func (m *DeviceModel) View() string {
 	table := m.tableStyle.Render(m.devicesTable.View())
 
 	wwan := m.wwan.View()
@@ -270,7 +270,7 @@ func (m *ConnectivityModel) View() string {
 		"",
 		connectivity,
 	)
-	togglers = connectivityCfg.togglersStyle.Render(togglers)
+	togglers = deviceCfg.togglersStyle.Render(togglers)
 
 	view := lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -281,9 +281,9 @@ func (m *ConnectivityModel) View() string {
 	return m.style.Render(view)
 }
 
-func (m *ConnectivityModel) indicatorView() string {
+func (m *DeviceModel) indicatorView() string {
 	var view string
-	if m.indicatorState != ConnectivityDone {
+	if m.indicatorState != DeviceDone {
 		view = fmt.Sprintf(
 			"%s %s",
 			m.indicatorState.String(),
@@ -295,11 +295,11 @@ func (m *ConnectivityModel) indicatorView() string {
 	return view
 }
 
-func (m *ConnectivityModel) RescanCmd() tea.Cmd {
+func (m *DeviceModel) RescanCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(ConnectivityScanning),
+		m.setStateCmd(DeviceScanning),
 		func() tea.Msg {
-			list, err := m.connMngr.ListDevices(context.Background())
+			list, err := m.connMngr.ListNetworkDevices(context.Background())
 			if err != nil {
 				return NotifyCmd("Cannot get network devices")
 			}
@@ -336,12 +336,12 @@ func (m *ConnectivityModel) RescanCmd() tea.Cmd {
 			}
 			m.connectivity = conStatus.String()
 
-			return m.setStateCmd(ConnectivityDone)
+			return m.setStateCmd(DeviceDone)
 		},
 	)
 }
 
-func (m *ConnectivityModel) focusNextCmd() tea.Cmd {
+func (m *DeviceModel) focusNextCmd() tea.Cmd {
 	if m.focusIdx >= len(m.focuses)-1 {
 		return nil
 	}
@@ -350,7 +350,7 @@ func (m *ConnectivityModel) focusNextCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *ConnectivityModel) focusPrevCmd() tea.Cmd {
+func (m *DeviceModel) focusPrevCmd() tea.Cmd {
 	if m.focusIdx <= 0 {
 		return nil
 	}
@@ -359,24 +359,24 @@ func (m *ConnectivityModel) focusPrevCmd() tea.Cmd {
 	return m.focuses[m.focusIdx].Focus()
 }
 
-func (m *ConnectivityModel) setStateCmd(state connectivityState) tea.Cmd {
+func (m *DeviceModel) setStateCmd(state deviceState) tea.Cmd {
 	updCmd := func() tea.Msg {
 		m.indicatorState = state
 		return NilMsg{}
 	}
 
-	if state == ConnectivityDone {
+	if state == DeviceDone {
 		return updCmd
 	}
 	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 }
 
-func (m *ConnectivityModel) toggleWWAN() tea.Cmd {
-	if m.indicatorState != ConnectivityDone {
+func (m *DeviceModel) toggleWWAN() tea.Cmd {
+	if m.indicatorState != DeviceDone {
 		return nil
 	}
 	return tea.Sequence(
-		m.setStateCmd(ConnectivityTogglingWWAN),
+		m.setStateCmd(DeviceTogglingWWAN),
 		func() tea.Msg {
 			var err error
 			if m.wwan.Value() {
@@ -393,12 +393,12 @@ func (m *ConnectivityModel) toggleWWAN() tea.Cmd {
 	)
 }
 
-func (m *ConnectivityModel) toggleWIFI() tea.Cmd {
-	if m.indicatorState != ConnectivityDone {
+func (m *DeviceModel) toggleWIFI() tea.Cmd {
+	if m.indicatorState != DeviceDone {
 		return nil
 	}
 	return tea.Sequence(
-		m.setStateCmd(ConnectivityTogglingWifi),
+		m.setStateCmd(DeviceTogglingWifi),
 		func() tea.Msg {
 			var err error
 			if m.wifi.Value() {
@@ -415,12 +415,12 @@ func (m *ConnectivityModel) toggleWIFI() tea.Cmd {
 	)
 }
 
-func (m *ConnectivityModel) toggleNetworking() tea.Cmd {
-	if m.indicatorState != ConnectivityDone {
+func (m *DeviceModel) toggleNetworking() tea.Cmd {
+	if m.indicatorState != DeviceDone {
 		return nil
 	}
 	return tea.Sequence(
-		m.setStateCmd(ConnectivityTogglingNetworking),
+		m.setStateCmd(DeviceTogglingNetworking),
 		func() tea.Msg {
 			var err error
 			if m.networking.Value() {

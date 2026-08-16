@@ -116,9 +116,9 @@ func (m *HelpModel) fullView() string {
 	mainTTL = styles.AccentStyle.Render(mainTTL)
 	main := m.mainFull()
 
-	connectivityTTL := "Connectivity"
-	connectivityTTL = styles.AccentStyle.Render(connectivityTTL)
-	connectivity := m.connectivityFull()
+	deviceTTL := "Device"
+	deviceTTL = styles.AccentStyle.Render(deviceTTL)
+	device := m.deviceFull()
 
 	availableNetworksTTL := "Available Networks"
 	availableNetworksTTL = styles.AccentStyle.Render(availableNetworksTTL)
@@ -160,7 +160,7 @@ func (m *HelpModel) fullView() string {
 		connectorTTL, m.help.FullHelpView(connector), "",
 		networkProfilesTTL, m.help.FullHelpView(networkProfiles), "",
 		profileEditorTTL, m.help.FullHelpView(profileEditor), "",
-		connectivityTTL, m.help.FullHelpView(connectivity), "",
+		deviceTTL, m.help.FullHelpView(device), "",
 	)
 
 	return view
@@ -185,17 +185,17 @@ func (m *HelpModel) mainShort() []key.Binding {
 	return []key.Binding{m.keyMap.main.help}
 }
 
-func (m *HelpModel) connectivityFull() [][]key.Binding {
+func (m *HelpModel) deviceFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.fullKB(m.keyMap.connectivity.prev, "Move to previous control"),
-		m.fullKB(m.keyMap.connectivity.next, "Move to next control"),
-		m.fullKB(m.keyMap.connectivity.rescan, "Rescan device state"),
+		m.fullKB(m.keyMap.device.prev, "Move to previous control"),
+		m.fullKB(m.keyMap.device.next, "Move to next control"),
+		m.fullKB(m.keyMap.device.rescan, "Rescan device state"),
 	}}
 }
 
-func (m *HelpModel) connectivityShort() []key.Binding {
+func (m *HelpModel) deviceShort() []key.Binding {
 	k := []key.Binding{
-		m.keyMap.connectivity.rescan,
+		m.keyMap.device.rescan,
 	}
 	return m.shortKBs(k)
 }

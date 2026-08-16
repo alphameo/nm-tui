@@ -36,9 +36,9 @@ func (n *CLI) run(ctx context.Context, opErr error, args ...string) ([]byte, err
 	return out, nil
 }
 
-func (n *CLI) ListDevices(ctx context.Context) ([]infra.NetworkDevice, error) {
+func (n *CLI) ListNetworkDevices(ctx context.Context) ([]infra.NetworkDevice, error) {
 	args := []string{"-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device", "status"}
-	out, err := n.run(ctx, infra.ErrListDevices, args...)
+	out, err := n.run(ctx, infra.ErrListNetworkDevices, args...)
 	if err != nil {
 		return nil, err
 	}

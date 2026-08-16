@@ -17,20 +17,20 @@ import (
 // Error level along with the exit code of the failed command when the error
 // is an [*exec.ExitError].
 type Middleware struct {
-	logger       *slog.Logger
-	networks     infra.NetworksManager
-	connectivity infra.ConnectivityManager
-	portal       infra.CaptivePortalOpener
+	logger   *slog.Logger
+	networks infra.NetworksManager
+	device   infra.DeviceManager
+	portal   infra.CaptivePortalOpener
 }
 
 // New returns a *Middleware wrapping the given managers.
 func New(
 	logger *slog.Logger,
 	networks infra.NetworksManager,
-	connectivity infra.ConnectivityManager,
+	device infra.DeviceManager,
 	portal infra.CaptivePortalOpener,
 ) *Middleware {
-	return &Middleware{logger: logger, networks: networks, connectivity: connectivity, portal: portal}
+	return &Middleware{logger: logger, networks: networks, device: device, portal: portal}
 }
 
 func (m *Middleware) call(operation string, fn func() error) error {
@@ -154,62 +154,62 @@ func (m *Middleware) OpenCaptivePortal(ctx context.Context) error {
 	})
 }
 
-func (m *Middleware) ListDevices(ctx context.Context) ([]infra.NetworkDevice, error) {
+func (m *Middleware) ListNetworkDevices(ctx context.Context) ([]infra.NetworkDevice, error) {
 	return callResult(m, "network.list_devices", func() ([]infra.NetworkDevice, error) {
-		return m.connectivity.ListDevices(ctx)
+		return m.device.ListNetworkDevices(ctx)
 	})
 }
 
 func (m *Middleware) GetConnectivityStatus(ctx context.Context) (infra.ConnectivityStatus, error) {
 	return callResult(m, "network.get_connectivity_status", func() (infra.ConnectivityStatus, error) {
-		return m.connectivity.GetConnectivityStatus(ctx)
+		return m.device.GetConnectivityStatus(ctx)
 	})
 }
 
 func (m *Middleware) IsNetworkingEnabled(ctx context.Context) (bool, error) {
 	return callResult(m, "network.is_networking_enabled", func() (bool, error) {
-		return m.connectivity.IsNetworkingEnabled(ctx)
+		return m.device.IsNetworkingEnabled(ctx)
 	})
 }
 
 func (m *Middleware) EnableNetworking(ctx context.Context) error {
 	return m.call("network.enable_networking", func() error {
-		return m.connectivity.EnableNetworking(ctx)
+		return m.device.EnableNetworking(ctx)
 	})
 }
 
 func (m *Middleware) DisableNetworking(ctx context.Context) error {
 	return m.call("network.disable_networking", func() error {
-		return m.connectivity.DisableNetworking(ctx)
+		return m.device.DisableNetworking(ctx)
 	})
 }
 
 func (m *Middleware) GetRadioStatus(ctx context.Context) (infra.RadioStatus, error) {
 	return callResult(m, "network.get_radio_status", func() (infra.RadioStatus, error) {
-		return m.connectivity.GetRadioStatus(ctx)
+		return m.device.GetRadioStatus(ctx)
 	})
 }
 
 func (m *Middleware) EnableWWAN(ctx context.Context) error {
 	return m.call("network.enable_wwan", func() error {
-		return m.connectivity.EnableWWAN(ctx)
+		return m.device.EnableWWAN(ctx)
 	})
 }
 
 func (m *Middleware) DisableWWAN(ctx context.Context) error {
 	return m.call("network.disable_wwan", func() error {
-		return m.connectivity.DisableWWAN(ctx)
+		return m.device.DisableWWAN(ctx)
 	})
 }
 
 func (m *Middleware) EnableWifi(ctx context.Context) error {
 	return m.call("network.enable_wifi", func() error {
-		return m.connectivity.EnableWifi(ctx)
+		return m.device.EnableWifi(ctx)
 	})
 }
 
 func (m *Middleware) DisableWifi(ctx context.Context) error {
 	return m.call("network.disable_wifi", func() error {
-		return m.connectivity.DisableWifi(ctx)
+		return m.device.DisableWifi(ctx)
 	})
 }

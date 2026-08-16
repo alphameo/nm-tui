@@ -20,7 +20,7 @@ type keyMaps struct {
 	main              mainKeyMap
 	tabs              tabview.KeyMap
 	toggle            toggle.KeyMap
-	connectivity      connectivityKeyMap
+	device            deviceKeyMap
 	networks          networksKeyMap
 	networkProfiles   networkProfilesKeyMap
 	profileEditor     profileEditorKeyMap
@@ -45,7 +45,7 @@ func initKeys(keys config.KeyConfig) keyMaps {
 		toggle: toggle.KeyMap{
 			Toggle: NewKey(*keys.Toggle, "toggle"),
 		},
-		connectivity: connectivityKeyMap{
+		device: deviceKeyMap{
 			prev:   NewKey(*keys.FocusPrev, "prev field"),
 			next:   NewKey(*keys.FocusNext, "next field"),
 			rescan: NewKey(*keys.Rescan, "rescan"),
