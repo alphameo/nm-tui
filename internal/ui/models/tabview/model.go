@@ -17,7 +17,6 @@ type Model struct {
 
 	styles Styles
 
-	borderOffset int
 	tabBarHeight int
 
 	Keys KeyMap
@@ -48,25 +47,20 @@ func New(tabs []Tab) Model {
 }
 
 func (m *Model) SetStyles(styles Styles) {
-	borderOffset := lipgloss.Width(styles.ContentStyle.GetBorderStyle().Left) * 2
-	tabBarHeight := borderOffset + 1
+	border := styles.ActiveTabStyle.GetBorderStyle()
+	tabBarHeight := border.GetBottomSize() + border.GetTopSize() + 1
 	m.styles = styles
-	m.borderOffset = borderOffset
 	m.tabBarHeight = tabBarHeight
 }
 
 func (m *Model) Resize(width, height int) {
 	height -= m.tabBarHeight
 
-	m.styles.ContentStyle = m.styles.ContentStyle.Width(width).Height(height)
+	for _, m := range m.tabContents {
+		m.Resize(width, height)
+	}
 
 	m.renderTabBar()
-
-	width -= m.borderOffset
-	height -= m.borderOffset
-	for _, t := range m.tabContents {
-		t.Resize(width, height)
-	}
 }
 
 func (m *Model) Init() tea.Cmd {
@@ -106,7 +100,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	tabView := m.tabContents[m.activeTab].View()
-	tabView = m.styles.ContentStyle.Render(tabView)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -118,11 +111,11 @@ func (m Model) View() string {
 func (m *Model) ActiveTabIndex() int { return m.activeTab }
 
 func (m *Model) renderTabBar() {
-	width := m.styles.ContentStyle.GetWidth()
+	width := m.tabContents[m.activeTab].Width()
 	m.cachedTabBarView = RenderTabBar(
 		m.tabTitles,
-		m.styles.ActiveTabBarStyle,
-		m.styles.InactiveTabBarStyle,
+		m.styles.ActiveTabStyle,
+		m.styles.InactiveTabStyle,
 		width,
 		m.activeTab,
 	)

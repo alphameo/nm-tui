@@ -84,13 +84,17 @@ func NewMainModel(
 	networks := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
 	device := NewDeviceModel(keys.device, deviceManager)
 	device.tableStyle = styles.BorderedStyle
+	tabContentBorder := tabview.DefaultContentBorder(styles.Border)
+	tabContentStyle := styles.DefaultStyle.Border(tabContentBorder)
+	networks.style = tabContentStyle
+	device.style = tabContentStyle
 
-	networksTable := tabview.New([]tabview.Tab{
+	tabs := tabview.New([]tabview.Tab{
 		{Title: networks.Title(), Content: networks},
 		{Title: device.Title(), Content: device},
 	})
-	networksTable.SetStyles(styles.TabViewStyles)
-	networksTable.Keys = keys.tabs
+	tabs.SetStyles(styles.TabViewStyles)
+	tabs.Keys = keys.tabs
 
 	p := Popup{
 		active: false,
@@ -103,7 +107,7 @@ func NewMainModel(
 	help.style = styles.OverlayStyle
 
 	return &MainModel{
-		tabs:         networksTable,
+		tabs:         tabs,
 		popup:        p,
 		notification: n,
 

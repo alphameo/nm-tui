@@ -5,24 +5,23 @@ import (
 )
 
 type Styles struct {
-	ContentStyle        lipgloss.Style
-	ActiveTabBarStyle   lipgloss.Style
-	InactiveTabBarStyle lipgloss.Style
+	ActiveTabStyle   lipgloss.Style
+	InactiveTabStyle lipgloss.Style
 }
 
-func NewInactiveTabBarBorder(border lipgloss.Border) lipgloss.Border {
+func DefaultInactiveTabBorder(border lipgloss.Border) lipgloss.Border {
 	border.BottomLeft = border.MiddleBottom
 	border.BottomRight = border.MiddleBottom
 	return border
 }
 
-func NewActiveTabBarBorder(border lipgloss.Border) lipgloss.Border {
+func DefaultActiveTabBorder(border lipgloss.Border) lipgloss.Border {
 	border.BottomRight, border.BottomLeft = border.BottomLeft, border.BottomRight
 	border.Bottom = " "
 	return border
 }
 
-func NewContentBorder(border lipgloss.Border) lipgloss.Border {
+func DefaultContentBorder(border lipgloss.Border) lipgloss.Border {
 	border.Top = " "
 	border.TopLeft = border.Left
 	border.TopRight = border.Right
@@ -32,14 +31,12 @@ func NewContentBorder(border lipgloss.Border) lipgloss.Border {
 func GenerateStyles(style lipgloss.Style) Styles {
 	border := style.GetBorderStyle()
 
-	inactive := NewInactiveTabBarBorder(border)
-	active := NewActiveTabBarBorder(border)
-	content := NewContentBorder(border)
+	inactive := DefaultInactiveTabBorder(border)
+	active := DefaultActiveTabBorder(border)
 
 	return Styles{
-		ContentStyle:        style.Border(content),
-		ActiveTabBarStyle:   style.Border(active).Padding(0, 1),
-		InactiveTabBarStyle: style.Border(inactive).Padding(0, 1),
+		ActiveTabStyle:   style.Border(active).Padding(0, 1),
+		InactiveTabStyle: style.Border(inactive).Padding(0, 1),
 	}
 }
 
