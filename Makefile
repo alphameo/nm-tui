@@ -1,4 +1,4 @@
-.PHONY: build build-dev run deps clean-build logs lint lint-fix test test-config test-infra test-compositor test-tabview
+.PHONY: build build-dev run deps clean-build logs lint lint-fix format test
 
 VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo dev)
 
@@ -33,19 +33,3 @@ format:
 test:
 	go test -v ./...
 	go test -cover ./...
-
-test-config:
-	go test ./internal/config/ -v
-	go test ./internal/config/ -cover
-
-test-infra:
-	go test ./internal/infra/ -v
-	go test ./internal/infra/ -cover
-
-test-compositor:
-	go test ./internal/ui/tools/compositor/ -v
-	go test ./internal/ui/tools/compositor/ -cover
-
-test-tabview:
-	go test ./internal/ui/models/tabview/ -v
-	go test ./internal/ui/models/tabview/ -cover
