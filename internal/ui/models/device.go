@@ -3,8 +3,6 @@ package models
 import (
 	"context"
 	"fmt"
-	"log/slog"
-	"strconv"
 
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/spinner"
@@ -148,7 +146,6 @@ func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *Devic
 
 func (m *DeviceModel) Resize(width, height int) {
 	m.style = m.style.Width(width).Height(height)
-	slog.Error(strconv.Itoa(height))
 
 	border := m.style.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
@@ -157,12 +154,9 @@ func (m *DeviceModel) Resize(width, height int) {
 	tableBorder := m.tableStyle.GetBorderStyle()
 	width -= tableBorder.GetLeftSize() + tableBorder.GetRightSize()
 	height -= tableBorder.GetBottomSize() + tableBorder.GetTopSize()
-	slog.Error(strconv.Itoa(height))
 
 	controlsHeight := lipgloss.Height(m.controlsView())
-	slog.Error(strconv.Itoa(controlsHeight))
 	statuslineHeight := lipgloss.Height(m.indicatorView())
-	slog.Error(strconv.Itoa(statuslineHeight))
 	height -= controlsHeight + statuslineHeight + 1 // FIXME: fix after tabview content style unlinking
 
 	m.devicesTable.SetWidth(width)
