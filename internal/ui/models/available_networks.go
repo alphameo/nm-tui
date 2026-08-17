@@ -21,6 +21,8 @@ type availableNetworksConfig struct {
 	ssidColIdx              int
 	securityColIdx          int
 	signalColIdx            int
+	ssidColTitle            string
+	securityColTitle        string
 	securityWidthProportion float32
 	minSignalColWidth       int
 }
@@ -30,6 +32,9 @@ var availableNetworksCfg = availableNetworksConfig{
 	ssidColIdx:     1,
 	securityColIdx: 2,
 	signalColIdx:   3,
+
+	ssidColTitle:     "SSID",
+	securityColTitle: "Security",
 
 	securityWidthProportion: 0.3,
 	minSignalColWidth:       3,
@@ -92,8 +97,14 @@ func NewAvailableNetworksModel(
 		Title: styles.SymbolConnection,
 		Width: len(styles.SymbolConnection),
 	}
-	cols[availableNetworksCfg.ssidColIdx] = table.Column{Title: "SSID"}
-	cols[availableNetworksCfg.securityColIdx] = table.Column{Title: "Security"}
+	cols[availableNetworksCfg.ssidColIdx] = table.Column{
+		Title: availableNetworksCfg.ssidColTitle,
+		Width: len(availableNetworksCfg.ssidColTitle),
+	}
+	cols[availableNetworksCfg.securityColIdx] = table.Column{
+		Title: availableNetworksCfg.securityColTitle,
+		Width: len(availableNetworksCfg.securityColTitle),
+	}
 	cols[availableNetworksCfg.signalColIdx] = table.Column{
 		Title: styles.SymbolSignal,
 		Width: max(availableNetworksCfg.minSignalColWidth, len(styles.SymbolSignal)),
