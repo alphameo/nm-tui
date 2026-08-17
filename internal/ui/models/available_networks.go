@@ -70,9 +70,8 @@ type AvailableNetworksModel struct {
 	focusedTableStyles table.Styles
 	bluredTableStyles  table.Styles
 
-	indicatorSpinner     spinner.Model
-	indicatorState       availableNetworksState
-	indicatorStateHeight int
+	indicatorSpinner spinner.Model
+	indicatorState   availableNetworksState
 
 	focus bool
 
@@ -122,14 +121,7 @@ func NewAvailableNetworksModel(
 		bluredStyle:  lipgloss.NewStyle(),
 	}
 
-	model.bakeSizes()
-
 	return model
-}
-
-func (m *AvailableNetworksModel) bakeSizes() {
-	state := m.indicatorView()
-	m.indicatorStateHeight = lipgloss.Height(state)
 }
 
 func (m *AvailableNetworksModel) Resize(width, height int) {
@@ -140,7 +132,9 @@ func (m *AvailableNetworksModel) Resize(width, height int) {
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
 
-	height -= m.indicatorStateHeight
+	indicatorStateHeight := lipgloss.Height(m.indicatorView())
+
+	height -= indicatorStateHeight
 
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)

@@ -109,7 +109,7 @@ func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd
 			}
 			return m, tea.Sequence(
 				ClosePopupCmd(),
-				m.createWifiConnCmd(),
+				m.createProfileCmd(),
 			)
 		}
 	}
@@ -173,7 +173,7 @@ func (m *ProfileCreatorModel) View() string {
 	)
 }
 
-func (m *ProfileCreatorModel) createWifiConnCmd() tea.Cmd {
+func (m *ProfileCreatorModel) createProfileCmd() tea.Cmd {
 	return tea.Sequence(
 		SetAvailableNetworksStateCmd(AvailableNetsCreating),
 		func() tea.Msg {

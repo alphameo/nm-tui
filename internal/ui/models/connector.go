@@ -67,7 +67,7 @@ func NewConnectorModel(keys connectorKeyMap, networksManager infra.NetworksManag
 	return model
 }
 
-func (m *ConnectorModel) setNew(ssid string) tea.Cmd {
+func (m *ConnectorModel) setNewNetworkCmd(ssid string) tea.Cmd {
 	m.ssid = ssid
 
 	m.name.SetValue(ssid)

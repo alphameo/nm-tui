@@ -81,7 +81,7 @@ func NewProfileEditorModel(keys profileEditorKeyMap, networksManager infra.Netwo
 	return model
 }
 
-func (m *ProfileEditorModel) setNew(name string) tea.Cmd {
+func (m *ProfileEditorModel) setNewProfile(name string) tea.Cmd {
 	info, err := m.netMngr.GetProfile(context.Background(), name)
 	if err != nil {
 		return NotifyCmd(

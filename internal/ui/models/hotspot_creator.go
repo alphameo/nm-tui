@@ -31,10 +31,8 @@ type hotspotCreatorKeyMap struct {
 }
 
 type HotspotCreatorModel struct {
-	ssid textinput.Model
-
-	name textinput.Model
-
+	ssid     textinput.Model
+	name     textinput.Model
 	password textinput.Model
 
 	focuses focus.Group

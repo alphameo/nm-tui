@@ -53,9 +53,8 @@ type NetworkProfilesModel struct {
 	focusedTableStyles table.Styles
 	bluredTableStyles  table.Styles
 
-	indicatorSpinner     spinner.Model
-	indicatorState       networkProfilesState
-	indicatorStateHeight int
+	indicatorSpinner spinner.Model
+	indicatorState   networkProfilesState
 
 	focus bool
 
@@ -115,14 +114,8 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 		focusedStyle: lipgloss.NewStyle(),
 		bluredStyle:  lipgloss.NewStyle(),
 	}
-	model.bakeSizes()
 
 	return model
-}
-
-func (m *NetworkProfilesModel) bakeSizes() {
-	state := m.indicatorView()
-	m.indicatorStateHeight = lipgloss.Height(state)
 }
 
 func (m *NetworkProfilesModel) Resize(width, height int) {
@@ -133,7 +126,8 @@ func (m *NetworkProfilesModel) Resize(width, height int) {
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
 
-	height -= m.indicatorStateHeight
+	indicatorStateHeight := lipgloss.Height(m.indicatorView())
+	height -= indicatorStateHeight
 
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)

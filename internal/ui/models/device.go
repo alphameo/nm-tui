@@ -3,6 +3,8 @@ package models
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"strconv"
 
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/spinner"
@@ -146,6 +148,7 @@ func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *Devic
 
 func (m *DeviceModel) Resize(width, height int) {
 	m.style = m.style.Width(width).Height(height)
+	slog.Error(strconv.Itoa(height))
 
 	border := m.style.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
@@ -154,9 +157,16 @@ func (m *DeviceModel) Resize(width, height int) {
 	tableBorder := m.tableStyle.GetBorderStyle()
 	width -= tableBorder.GetLeftSize() + tableBorder.GetRightSize()
 	height -= tableBorder.GetBottomSize() + tableBorder.GetTopSize()
+	slog.Error(strconv.Itoa(height))
+
+	controlsHeight := lipgloss.Height(m.controlsView())
+	slog.Error(strconv.Itoa(controlsHeight))
+	statuslineHeight := lipgloss.Height(m.indicatorView())
+	slog.Error(strconv.Itoa(statuslineHeight))
+	height -= controlsHeight + statuslineHeight + 1 // FIXME: fix after tabview content style unlinking
 
 	m.devicesTable.SetWidth(width)
-	m.devicesTable.SetHeight(height - 9)
+	m.devicesTable.SetHeight(height)
 
 	tableUtilityOffset := len(m.devicesTable.Columns()) * 2
 
@@ -248,34 +258,13 @@ func (m *DeviceModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 func (m *DeviceModel) View() string {
 	table := m.tableStyle.Render(m.devicesTable.View())
 
-	wwan := m.wwan.View()
-	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN       ", wwan)
-
-	wifi := m.wifi.View()
-	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi      ", wifi)
-
-	networking := m.networking.View()
-	networking = lipgloss.JoinHorizontal(lipgloss.Center, "Networking ", networking)
-
-	connectivity := styles.BoldStyle.Render(m.connectivity)
-	connectivity = fmt.Sprintf("Connectivity %s", connectivity)
-
+	controls := m.controlsView()
 	statusline := m.indicatorView()
-
-	togglers := lipgloss.JoinVertical(
-		lipgloss.Left,
-		wwan,
-		wifi,
-		networking,
-		"",
-		connectivity,
-	)
-	togglers = deviceCfg.togglersStyle.Render(togglers)
 
 	view := lipgloss.JoinVertical(
 		lipgloss.Center,
 		table,
-		togglers,
+		controls,
 		statusline,
 	)
 	return m.style.Render(view)
@@ -293,6 +282,31 @@ func (m *DeviceModel) indicatorView() string {
 		view = m.indicatorState.String()
 	}
 	return view
+}
+
+func (m *DeviceModel) controlsView() string {
+	wwan := m.wwan.View()
+	wwan = lipgloss.JoinHorizontal(lipgloss.Center, "WWAN       ", wwan)
+
+	wifi := m.wifi.View()
+	wifi = lipgloss.JoinHorizontal(lipgloss.Center, "Wi-Fi      ", wifi)
+
+	networking := m.networking.View()
+	networking = lipgloss.JoinHorizontal(lipgloss.Center, "Networking ", networking)
+
+	connectivity := styles.BoldStyle.Render(m.connectivity)
+	connectivity = fmt.Sprintf("Connectivity %s", connectivity)
+
+	togglers := lipgloss.JoinVertical(
+		lipgloss.Left,
+		wwan,
+		wifi,
+		networking,
+		"",
+		connectivity,
+	)
+
+	return deviceCfg.togglersStyle.Render(togglers)
 }
 
 func (m *DeviceModel) RescanCmd() tea.Cmd {

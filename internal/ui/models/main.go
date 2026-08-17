@@ -144,7 +144,7 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case openConnectorMsg:
 		return m, tea.Batch(
-			m.connector.setNew(string(msg)),
+			m.connector.setNewNetworkCmd(string(msg)),
 			OpenPopupCmd(m.connector),
 		)
 	case openHotspotCreatorMsg:
@@ -159,7 +159,7 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		)
 	case openProfileEditorMsg:
 		return m, tea.Batch(
-			m.profileEditor.setNew(string(msg)),
+			m.profileEditor.setNewProfile(string(msg)),
 			OpenPopupCmd(m.profileEditor),
 		)
 	case NotificationTextMsg:
