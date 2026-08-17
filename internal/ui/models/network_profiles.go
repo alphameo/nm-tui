@@ -68,18 +68,27 @@ type NetworkProfilesModel struct {
 
 type networkProfilesConfig struct {
 	connColIdx int
+	modeColIdx int
 	ssidColIdx int
 	nameColIdx int
-	modeColIdx int
+
+	modeColTitle string
+	ssidColTitle string
+	nameColTitle string
 
 	ssidWidthProportion float32
 }
 
 var networkProfilesCfg = networkProfilesConfig{
-	connColIdx:          0,
-	modeColIdx:          1,
-	ssidColIdx:          2,
-	nameColIdx:          3,
+	connColIdx: 0,
+	modeColIdx: 1,
+	ssidColIdx: 2,
+	nameColIdx: 3,
+
+	modeColTitle: "Mode",
+	ssidColTitle: "SSID",
+	nameColTitle: "Name",
+
 	ssidWidthProportion: 0.5,
 }
 
@@ -89,9 +98,18 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 		Title: styles.SymbolConnection,
 		Width: len(styles.SymbolConnection),
 	}
-	cols[networkProfilesCfg.modeColIdx] = table.Column{Title: "Mode", Width: 4}
-	cols[networkProfilesCfg.ssidColIdx] = table.Column{Title: "SSID"}
-	cols[networkProfilesCfg.nameColIdx] = table.Column{Title: "Name"}
+	cols[networkProfilesCfg.modeColIdx] = table.Column{
+		Title: networkProfilesCfg.modeColTitle,
+		Width: len(networkProfilesCfg.modeColTitle),
+	}
+	cols[networkProfilesCfg.ssidColIdx] = table.Column{
+		Title: networkProfilesCfg.ssidColTitle,
+		Width: len(networkProfilesCfg.ssidColTitle),
+	}
+	cols[networkProfilesCfg.nameColIdx] = table.Column{
+		Title: networkProfilesCfg.nameColTitle,
+		Width: len(networkProfilesCfg.nameColTitle),
+	}
 
 	t := table.New(
 		table.WithColumns(cols),
