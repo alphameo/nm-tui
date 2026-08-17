@@ -67,7 +67,7 @@ func (m *NetworksModel) Resize(width, height int) {
 
 	border := m.style.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
-	width -= border.GetBottomSize() + border.GetTopSize()
+	height -= border.GetBottomSize() + border.GetTopSize()
 
 	savedHeight := height / 2
 	availableHeight := height - savedHeight
