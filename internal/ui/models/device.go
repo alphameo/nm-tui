@@ -17,11 +17,17 @@ import (
 )
 
 type deviceConfig struct {
-	togglersStyle lipgloss.Style
-	deviceColIdx  int
-	typeColIdx    int
-	connColIdx    int
-	stateColIdx   int
+	controlsStyle lipgloss.Style
+
+	deviceColIdx int
+	typeColIdx   int
+	connColIdx   int
+	stateColIdx  int
+
+	deviceColTitle string
+	typeColTitle   string
+	connColTitle   string
+	stateColTitle  string
 
 	deviceWidthProportion float32
 	typeWidthProportion   float32
@@ -29,11 +35,18 @@ type deviceConfig struct {
 }
 
 var deviceCfg = deviceConfig{
-	togglersStyle:         lipgloss.NewStyle().Margin(1, 0),
-	deviceColIdx:          0,
-	typeColIdx:            1,
-	connColIdx:            2,
-	stateColIdx:           3,
+	controlsStyle: lipgloss.NewStyle().Margin(1, 0),
+
+	deviceColIdx: 0,
+	typeColIdx:   1,
+	connColIdx:   2,
+	stateColIdx:  3,
+
+	deviceColTitle: "Device",
+	typeColTitle:   "Type",
+	connColTitle:   "Connection",
+	stateColTitle:  "State",
+
 	deviceWidthProportion: 0.2,
 	typeWidthProportion:   0.15,
 	stateWidthProportion:  0.3,
@@ -99,10 +112,22 @@ type DeviceModel struct {
 
 func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *DeviceModel {
 	cols := make([]table.Column, 4)
-	cols[deviceCfg.deviceColIdx] = table.Column{Title: "Device"}
-	cols[deviceCfg.typeColIdx] = table.Column{Title: "Type"}
-	cols[deviceCfg.connColIdx] = table.Column{Title: "Connection"}
-	cols[deviceCfg.stateColIdx] = table.Column{Title: "State"}
+	cols[deviceCfg.deviceColIdx] = table.Column{
+		Title: deviceCfg.deviceColTitle,
+		Width: len(deviceCfg.deviceColTitle),
+	}
+	cols[deviceCfg.typeColIdx] = table.Column{
+		Title: deviceCfg.typeColTitle,
+		Width: len(deviceCfg.typeColTitle),
+	}
+	cols[deviceCfg.connColIdx] = table.Column{
+		Title: deviceCfg.connColTitle,
+		Width: len(deviceCfg.connColTitle),
+	}
+	cols[deviceCfg.stateColIdx] = table.Column{
+		Title: deviceCfg.stateColTitle,
+		Width: len(deviceCfg.stateColTitle),
+	}
 
 	t := table.New(
 		table.WithColumns(cols),
@@ -151,13 +176,15 @@ func (m *DeviceModel) Resize(width, height int) {
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
 
+	controlsHeight := lipgloss.Height(m.controlsView())
+	statuslineHeight := lipgloss.Height(m.indicatorView())
+	height -= controlsHeight + statuslineHeight
+
+	m.tableStyle = m.tableStyle.Width(width).Height(height)
+
 	tableBorder := m.tableStyle.GetBorderStyle()
 	width -= tableBorder.GetLeftSize() + tableBorder.GetRightSize()
 	height -= tableBorder.GetBottomSize() + tableBorder.GetTopSize()
-
-	controlsHeight := lipgloss.Height(m.controlsView())
-	statuslineHeight := lipgloss.Height(m.indicatorView())
-	height -= controlsHeight + statuslineHeight + 1 // FIXME: fix after tabview content style unlinking
 
 	m.devicesTable.SetWidth(width)
 	m.devicesTable.SetHeight(height)
@@ -300,7 +327,7 @@ func (m *DeviceModel) controlsView() string {
 		connectivity,
 	)
 
-	return deviceCfg.togglersStyle.Render(togglers)
+	return deviceCfg.controlsStyle.Render(togglers)
 }
 
 func (m *DeviceModel) RescanCmd() tea.Cmd {
