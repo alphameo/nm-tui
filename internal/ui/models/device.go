@@ -180,8 +180,6 @@ func (m *DeviceModel) Resize(width, height int) {
 	statuslineHeight := lipgloss.Height(m.indicatorView())
 	height -= controlsHeight + statuslineHeight
 
-	m.tableStyle = m.tableStyle.Width(width).Height(height)
-
 	tableBorder := m.tableStyle.GetBorderStyle()
 	width -= tableBorder.GetLeftSize() + tableBorder.GetRightSize()
 	height -= tableBorder.GetBottomSize() + tableBorder.GetTopSize()
