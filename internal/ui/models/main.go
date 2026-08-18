@@ -139,11 +139,18 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
 	case IntervalRescanMsg:
-		return m, tea.Batch(
-			RescanNetworksCmd(),
-			RescanDeviceCmd(),
-			IntervalRescanCmd(mainCfg.rescanInterval),
-		)
+		var cmds []tea.Cmd
+		if m.networks.available.indicatorState == AvailableNetsDone {
+			cmds = append(cmds, RescanAvailableNetworksCmd())
+		}
+		if m.networks.profiles.indicatorState == NetProfilesDone {
+			cmds = append(cmds, RescanNetworkProfilesCmd())
+		}
+		if m.device.indicatorState == DeviceDone {
+			cmds = append(cmds, RescanDeviceCmd())
+		}
+		cmds = append(cmds, IntervalRescanCmd(mainCfg.rescanInterval))
+		return m, tea.Batch(cmds...)
 	case OpenPopupMsg:
 		m.popup.content = msg.model
 		m.popup.active = true
