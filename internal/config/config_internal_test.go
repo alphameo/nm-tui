@@ -46,7 +46,7 @@ func TestValidateNonNegativeTime(t *testing.T) {
 
 			err := validateNonNegativeTime(tt.in)
 			if (err == nil) != tt.want {
-				t.Errorf("validateNonNeggativeTime(%d) error = %v, want ok=%v", tt.in, err, tt.want)
+				t.Errorf("validateNonNegativeTime(%d) error = %v, want ok=%v", tt.in, err, tt.want)
 			}
 		})
 	}
