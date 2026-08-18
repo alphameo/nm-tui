@@ -12,6 +12,9 @@
 // How long (in milliseconds) connection popups/notifications stay visible.
 notification_close_time 50
 
+// After this time (in seconds) rescan will be triggered on elements of the screen
+rescan_interval 10
+
 // Colors support:
 // 1. rgb-format: e.g. "#000000"
 // 2. default value: "default" (keeps the built-in default)

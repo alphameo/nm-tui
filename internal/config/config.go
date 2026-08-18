@@ -20,6 +20,7 @@ type Config struct {
 	Logging        *LogConfig   `kdl:"logging"`
 	Icons          *IconConfig  `kdl:"icons"`
 	NotifCloseTime *int         `kdl:"notification_close_time"`
+	RescanInterval *int         `kdl:"rescan_interval"`
 }
 
 func DefaultConfig() Config {
@@ -29,6 +30,7 @@ func DefaultConfig() Config {
 		Logging:        DefaultLogConfig(),
 		Icons:          DefaultIconConfig(),
 		NotifCloseTime: new(50),
+		RescanInterval: new(10),
 	}
 }
 
@@ -57,7 +59,7 @@ func (c *Config) Merge(src *Config) []error {
 
 	if src.NotifCloseTime != nil {
 		time := *src.NotifCloseTime
-		err := validateTime(time)
+		err := validatePositiveTime(time)
 		if err != nil {
 			err = fmt.Errorf("notification_close_time value: %w", err)
 			errs = append(errs, err)
@@ -66,6 +68,16 @@ func (c *Config) Merge(src *Config) []error {
 		}
 	}
 
+	if src.RescanInterval != nil {
+		interval := *src.RescanInterval
+		err := validateNonNegativeTime(interval)
+		if err != nil {
+			err = fmt.Errorf("rescan_interval value: %w", err)
+			errs = append(errs, err)
+		} else {
+			c.RescanInterval = src.RescanInterval
+		}
+	}
 	return errs
 }
 
@@ -107,9 +119,16 @@ func LoadOrDefaults() (Config, error) {
 	return cfg, err
 }
 
-func validateTime(time int) error {
+func validatePositiveTime(time int) error {
 	if time <= 0 {
 		return fmt.Errorf("time <= 0: %d", time)
+	}
+	return nil
+}
+
+func validateNonNegativeTime(time int) error {
+	if time < 0 {
+		return fmt.Errorf("time < 0: %d", time)
 	}
 	return nil
 }
