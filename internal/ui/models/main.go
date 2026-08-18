@@ -16,10 +16,12 @@ import (
 
 type mainConfig struct {
 	notificationCloseTime time.Duration
+	rescanInterval        time.Duration
 }
 
 var mainCfg = mainConfig{
 	notificationCloseTime: 50 * time.Second,
+	rescanInterval:        10 * time.Second,
 }
 
 type mainKeyMap struct {
@@ -62,6 +64,7 @@ func NewMainModel(
 	keys := initKeys(*cfg.Keys)
 
 	mainCfg.notificationCloseTime = time.Duration(*cfg.NotifCloseTime) * time.Second
+	mainCfg.rescanInterval = time.Duration(*cfg.RescanInterval) * time.Second
 
 	connector := NewConnectorModel(keys.connector, networksManager)
 	connector.style = styles.OverlayStyle
@@ -126,10 +129,7 @@ func NewMainModel(
 }
 
 func (m *MainModel) Init() tea.Cmd {
-	var cmds []tea.Cmd
-	cmds = append(cmds, m.tabs.Init())
-
-	return tea.Batch(cmds...)
+	return tea.Batch(m.tabs.Init(), IntervalRescanCmd(mainCfg.rescanInterval))
 }
 
 func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -138,6 +138,12 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.ready = true
 		m.Resize(msg.Width, msg.Height)
 		return m, nil
+	case IntervalRescanMsg:
+		return m, tea.Batch(
+			RescanNetworksCmd(),
+			RescanDeviceCmd(),
+			IntervalRescanCmd(mainCfg.rescanInterval),
+		)
 	case OpenPopupMsg:
 		m.popup.content = msg.model
 		m.popup.active = true
@@ -319,4 +325,16 @@ type NilMsg struct{}
 // NilCmd is a function, which returns fictive Msg to trigger Model Update.
 var NilCmd = func() tea.Msg {
 	return NilMsg{}
+}
+
+type IntervalRescanMsg struct{}
+
+func IntervalRescanCmd(interval time.Duration) tea.Cmd {
+	if interval <= 0 {
+		return nil
+	}
+	return func() tea.Msg {
+		time.Sleep(interval)
+		return IntervalRescanMsg{}
+	}
 }
