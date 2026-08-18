@@ -176,12 +176,12 @@ func (m *ConnectorModel) connectToWifiCmd() tea.Cmd {
 						"Cannot connect to %s via given password:\n%v",
 						m.ssid, err,
 					)),
-					RescanNetworksCmd(0),
+					RescanNetworksCmd(),
 				)
 			}
 			return tea.Batch(
 				SetAvailableNetworksStateCmd(AvailableNetsDone),
-				RescanNetworksCmd(0),
+				RescanNetworksCmd(),
 			)
 		},
 	)
