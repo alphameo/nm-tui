@@ -40,8 +40,7 @@ func NotifyCmd(text string) tea.Cmd {
 }
 
 func DeferedCloseNotificationCmd(t time.Duration) tea.Cmd {
-	return func() tea.Msg {
-		time.Sleep(t)
+	return tea.Tick(t, func(time.Time) tea.Msg {
 		return NotificationActivityMsg(false)
-	}
+	})
 }
