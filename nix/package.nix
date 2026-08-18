@@ -10,7 +10,7 @@
 buildGoModule {
     inherit src;
     pname = "nm-tui";
-    version = "0.1.0";
+    version = "0.2.1";
 
     vendorHash = "sha256-JYO6UHZwOmudADOiTAPM+mSm3KMKOERFTiM1beMN+MI=";
 
