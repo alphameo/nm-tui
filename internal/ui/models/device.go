@@ -225,7 +225,10 @@ func (m *DeviceModel) Update(msg tea.Msg) (*DeviceModel, tea.Cmd) {
 		return m, nil
 	}
 
-	if msg, ok := msg.(tea.KeyPressMsg); ok {
+	switch msg := msg.(type) {
+	case RescanDeviceMsg:
+		return m, m.RescanCmd()
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.keys.next):
 			return m, m.focuses.FocusCycleNextCmd()
@@ -450,4 +453,12 @@ func (m *DeviceModel) toggleNetworking() tea.Cmd {
 			return m.RescanCmd()
 		},
 	)
+}
+
+type RescanDeviceMsg struct{}
+
+func RescanDeviceCmd() tea.Cmd {
+	return func() tea.Msg {
+		return RescanDeviceMsg{}
+	}
 }
