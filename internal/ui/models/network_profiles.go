@@ -3,7 +3,6 @@ package models
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/spinner"
@@ -232,12 +231,11 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 		case key.Matches(msg, m.keys.disconnect):
 			return m, m.disconnectFromSelectedCmd()
 		case key.Matches(msg, m.keys.rescan):
-			return m, RescanNetworkProfilesCmd(0)
+			return m, RescanNetworkProfilesCmd()
 		case key.Matches(msg, m.keys.delete):
 			return m, m.deleteSelectedCmd()
 		}
 	case RescanNetworkProfilesMsg:
-		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
 	case WifiSavedStateMsg:
 		return m, m.setStateCmd(networkProfilesState(msg))
@@ -291,13 +289,11 @@ func (m *NetworkProfilesModel) indicatorView() string {
 	return view
 }
 
-type RescanNetworkProfilesMsg struct {
-	delay time.Duration
-}
+type RescanNetworkProfilesMsg struct{}
 
-func RescanNetworkProfilesCmd(delay time.Duration) tea.Cmd {
+func RescanNetworkProfilesCmd() tea.Cmd {
 	return func() tea.Msg {
-		return RescanNetworkProfilesMsg{delay: delay}
+		return RescanNetworkProfilesMsg{}
 	}
 }
 
@@ -377,7 +373,7 @@ func (m *NetworkProfilesModel) connectToSelectedCmd() tea.Cmd {
 			return tea.Batch(
 				m.setStateCmd(NetProfilesDone),
 				m.gotoTop(),
-				RescanNetworksCmd(0),
+				RescanNetworksCmd(),
 			)
 		},
 	)
@@ -402,7 +398,7 @@ func (m *NetworkProfilesModel) disconnectFromSelectedCmd() tea.Cmd {
 			}
 			return tea.Batch(
 				m.gotoTop(),
-				RescanNetworksCmd(200*time.Millisecond),
+				RescanNetworksCmd(),
 			)
 		})
 }
@@ -419,6 +415,6 @@ func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 		if cursor == len(m.dataTable.Rows())-1 {
 			m.dataTable.SetCursor(cursor - 1)
 		}
-		return RescanNetworksCmd(time.Millisecond * 200)
+		return RescanNetworksCmd()
 	}
 }

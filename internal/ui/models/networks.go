@@ -3,7 +3,6 @@ package models
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
@@ -114,8 +113,8 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 			return m, m.focuses.SetFocusIdx(1)
 		case key.Matches(msg, m.keys.rescan):
 			return m, tea.Batch(
-				RescanNetworkProfilesCmd(0),
-				RescanAvailableNetworksCmd(0),
+				RescanNetworkProfilesCmd(),
+				RescanAvailableNetworksCmd(),
 			)
 		case key.Matches(msg, m.keys.createProfile):
 			return m, OpenProfileCreatorCmd()
@@ -134,8 +133,8 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 		}
 	case RescanNetworksMsg:
 		return m, tea.Batch(
-			RescanNetworkProfilesCmd(msg.delay),
-			RescanAvailableNetworksCmd(msg.delay),
+			RescanNetworkProfilesCmd(),
+			RescanAvailableNetworksCmd(),
 		)
 	}
 
@@ -167,13 +166,11 @@ func (m *NetworksModel) View() string {
 	return m.style.Render(view)
 }
 
-type RescanNetworksMsg struct {
-	delay time.Duration
-}
+type RescanNetworksMsg struct{}
 
-func RescanNetworksCmd(delay time.Duration) tea.Cmd {
+func RescanNetworksCmd() tea.Cmd {
 	return func() tea.Msg {
-		return RescanNetworksMsg{delay: delay}
+		return RescanNetworksMsg{}
 	}
 }
 
@@ -183,6 +180,6 @@ func (m *NetworksModel) quickHotspot() tea.Cmd {
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Failed enabling quick wifi hotspot:\n%v", err))
 		}
-		return RescanNetworksCmd(0)
+		return RescanNetworksCmd()
 	}
 }

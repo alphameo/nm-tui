@@ -246,7 +246,7 @@ func (m *ProfileEditorModel) saveProfileInfoCmd() tea.Cmd {
 				m.nameBak,
 			))
 		}
-		return RescanNetworkProfilesCmd(0)
+		return RescanNetworkProfilesCmd()
 	}
 }
 

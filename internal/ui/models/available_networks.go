@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"time"
 
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/spinner"
@@ -230,7 +229,6 @@ func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, t
 	case AvailableNetworksStateMsg:
 		return m, m.setStateCmd(availableNetworksState(msg))
 	case RescanAvailableNetworksMsg:
-		time.Sleep(msg.delay)
 		return m, m.RescanCmd()
 	}
 
@@ -315,13 +313,11 @@ func (m *AvailableNetworksModel) RescanCmd() tea.Cmd {
 	)
 }
 
-type RescanAvailableNetworksMsg struct {
-	delay time.Duration
-}
+type RescanAvailableNetworksMsg struct{}
 
-func RescanAvailableNetworksCmd(delay time.Duration) tea.Cmd {
+func RescanAvailableNetworksCmd() tea.Cmd {
 	return func() tea.Msg {
-		return RescanAvailableNetworksMsg{delay: delay}
+		return RescanAvailableNetworksMsg{}
 	}
 }
 
