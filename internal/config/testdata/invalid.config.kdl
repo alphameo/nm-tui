@@ -1,4 +1,5 @@
 notification_close_time -5
+rescan_interval -5
 colors {
     accent "notacolor"
 }
