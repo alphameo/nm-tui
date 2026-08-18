@@ -1,6 +1,9 @@
 package models
 
 import (
+	"errors"
+	"fmt"
+
 	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/textinput"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
@@ -48,4 +51,14 @@ func newDefaultSpinner() spinner.Model {
 	s := spinner.New()
 	s.Spinner = styles.Spinner
 	return s
+}
+
+var ErrPasswordFmt = errors.New("wrong password format")
+
+func passwordValidator(input string) error {
+	l := len(input)
+	if l > 0 && l < 8 {
+		return fmt.Errorf("%w: length < 8", ErrPasswordFmt)
+	}
+	return nil
 }
