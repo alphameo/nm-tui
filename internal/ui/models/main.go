@@ -340,8 +340,7 @@ func IntervalRescanCmd(interval time.Duration) tea.Cmd {
 	if interval <= 0 {
 		return nil
 	}
-	return func() tea.Msg {
-		time.Sleep(interval)
+	return tea.Tick(interval, func(time.Time) tea.Msg {
 		return IntervalRescanMsg{}
-	}
+	})
 }
