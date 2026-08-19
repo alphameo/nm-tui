@@ -89,8 +89,7 @@ func (m *NetworksModel) Focused() bool { return m.focus }
 
 func (m *NetworksModel) Init() tea.Cmd {
 	return tea.Batch(
-		m.available.Init(),
-		m.profiles.Init(),
+		m.rescanAllCmd(),
 		m.focuses.SetFocusIdx(0),
 	)
 }
@@ -112,10 +111,7 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 		case key.Matches(msg, m.keys.win2):
 			return m, m.focuses.SetFocusIdx(1)
 		case key.Matches(msg, m.keys.rescan):
-			return m, tea.Batch(
-				RescanNetworkProfilesCmd(),
-				RescanAvailableNetworksCmd(),
-			)
+			return m, m.rescanAllCmd()
 		case key.Matches(msg, m.keys.createProfile):
 			return m, OpenProfileCreatorCmd()
 		case key.Matches(msg, m.keys.createHotspot):
@@ -132,10 +128,7 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 			return m, m.quickHotspot()
 		}
 	case RescanNetworksMsg:
-		return m, tea.Batch(
-			RescanNetworkProfilesCmd(),
-			RescanAvailableNetworksCmd(),
-		)
+		return m, m.rescanAllCmd()
 	}
 
 	var cmds []tea.Cmd
@@ -174,6 +167,36 @@ func RescanNetworksCmd() tea.Cmd {
 	}
 }
 
+type NetworksRescannedMsg struct {
+	Available   []AvailableNetwork
+	Profiles    []NetworkProfileShort
+	ScanErr     error
+	ProfilesErr error
+}
+
+func (m *NetworksModel) rescanAllCmd() tea.Cmd {
+	return tea.Sequence(
+		tea.Batch(
+			m.available.setStateCmd(AvailableNetsScanning),
+			m.profiles.setStateCmd(NetProfilesScanning),
+		),
+		func() tea.Msg {
+			ctx := context.Background()
+			availableRecords, scanErr := m.netMngr.ScanNetworks(ctx)
+			availables := convertAvailableNetworks(availableRecords)
+			profileRecords, profilesErr := m.netMngr.ListProfiles(ctx)
+			profiles := convertNetworkProfileShorts(profileRecords)
+			availableExt, profilesExt := CrossReferenceNetworks(availables, profiles)
+			return NetworksRescannedMsg{
+				Available:   availableExt,
+				Profiles:    profilesExt,
+				ScanErr:     scanErr,
+				ProfilesErr: profilesErr,
+			}
+		},
+	)
+}
+
 func (m *NetworksModel) quickHotspot() tea.Cmd {
 	return func() tea.Msg {
 		err := m.netMngr.QuickHotspot(context.Background())
@@ -182,4 +205,56 @@ func (m *NetworksModel) quickHotspot() tea.Cmd {
 		}
 		return RescanNetworksCmd()
 	}
+}
+
+type AvailableNetwork struct {
+	SSID          string
+	Active        bool
+	Security      string
+	Signal        int
+	ProfileExists bool
+}
+
+type NetworkProfileShort struct {
+	Name      string
+	SSID      string
+	Active    bool
+	Mode      string
+	Available bool
+}
+
+// CrossReferenceNetworks matches available networks and saved profiles by SSID:
+// marks each profile Available when its SSID is currently in range and each
+// available network ProfileExists when a saved profile targets the same SSID.
+func CrossReferenceNetworks(
+	available []AvailableNetwork,
+	profiles []NetworkProfileShort,
+) ([]AvailableNetwork, []NetworkProfileShort) {
+	availableSSIDs := make(map[string]struct{}, len(available))
+	for _, net := range available {
+		if net.SSID != "" {
+			availableSSIDs[net.SSID] = struct{}{}
+		}
+	}
+
+	profileSSIDs := make(map[string]struct{}, len(profiles))
+	for _, profile := range profiles {
+		if profile.SSID != "" {
+			profileSSIDs[profile.SSID] = struct{}{}
+		}
+	}
+
+	res := make([]AvailableNetwork, len(available))
+	for i, net := range available {
+		_, net.ProfileExists = profileSSIDs[net.SSID]
+		res[i] = net
+	}
+
+	prof := make([]NetworkProfileShort, len(profiles))
+	for i, profile := range profiles {
+		_, profile.Available = availableSSIDs[profile.SSID]
+		prof[i] = profile
+	}
+
+	return res, prof
 }

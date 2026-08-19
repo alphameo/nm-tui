@@ -95,8 +95,8 @@ var networkProfilesCfg = networkProfilesConfig{
 func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.NetworksManager) *NetworkProfilesModel {
 	cols := make([]table.Column, 4)
 	cols[networkProfilesCfg.connColIdx] = table.Column{
-		Title: styles.SymbolConnection,
-		Width: len(styles.SymbolConnection),
+		Title: "State",
+		Width: len("State"),
 	}
 	cols[networkProfilesCfg.modeColIdx] = table.Column{
 		Title: networkProfilesCfg.modeColTitle,
@@ -206,10 +206,6 @@ func (m *AvailableNetworksModel) SetTableStyles(focused, blured table.Styles) {
 	m.UpdateTable()
 }
 
-func (m *NetworkProfilesModel) Init() tea.Cmd {
-	return m.RescanCmd()
-}
-
 func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
@@ -232,12 +228,10 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 		case key.Matches(msg, m.keys.deactivate):
 			return m, m.deactivateConnToSelectedCmd()
 		case key.Matches(msg, m.keys.rescan):
-			return m, RescanNetworkProfilesCmd()
+			return m, RescanNetworksCmd()
 		case key.Matches(msg, m.keys.delete):
 			return m, m.deleteSelectedCmd()
 		}
-	case RescanNetworkProfilesMsg:
-		return m, m.RescanCmd()
 	case WifiSavedStateMsg:
 		return m, m.setStateCmd(networkProfilesState(msg))
 	}
@@ -290,60 +284,32 @@ func (m *NetworkProfilesModel) indicatorView() string {
 	return m.IndicatorStyle.Render(view)
 }
 
-type RescanNetworkProfilesMsg struct{}
-
-func RescanNetworkProfilesCmd() tea.Cmd {
-	return func() tea.Msg {
-		return RescanNetworkProfilesMsg{}
+func (m *NetworkProfilesModel) setProfiles(list []NetworkProfileShort, err error) tea.Cmd {
+	rows := []table.Row{}
+	for _, wifiSaved := range list {
+		var connectionFlag string
+		if wifiSaved.Active {
+			connectionFlag = styles.SymbolCheck
+		} else if wifiSaved.Available {
+			connectionFlag = styles.SymbolSaved
+		}
+		rows = append(rows, table.Row{
+			connectionFlag,
+			wifiSaved.Mode,
+			wifiSaved.SSID,
+			wifiSaved.Name,
+		})
 	}
-}
 
-func (m *NetworkProfilesModel) RescanCmd() tea.Cmd {
-	return tea.Sequence(
-		m.setStateCmd(NetProfilesScanning),
-		func() tea.Msg {
-			list, err := m.netMngr.ListProfiles(context.Background())
-			if err != nil {
-				return tea.Batch(
-					NotifyCmd("Cannot get network profiles"),
-					m.setStateCmd(NetProfilesDone),
-				)
-			}
-			rows := []table.Row{}
-			for _, wifiSaved := range list {
-				var connectionFlag string
-				if wifiSaved.Active {
-					connectionFlag = styles.SymbolCheck
-				}
-				rows = append(rows, table.Row{
-					connectionFlag,
-					ViewNetworkMode(wifiSaved.Mode),
-					wifiSaved.SSID,
-					wifiSaved.Name,
-				})
-			}
+	m.dataTable.SetRows(rows)
 
-			m.dataTable.SetRows(rows)
-
-			return m.setStateCmd(NetProfilesDone)
-		},
-	)
-}
-
-func ViewNetworkMode(mode infra.NetworkMode) string {
-	switch mode {
-	case infra.NetworkAccessPoint:
-		return styles.SymbolAccessPoint
-	case infra.NetworkInfra:
-		return styles.SymbolInfra
-	case infra.NetworkMesh:
-		return styles.SymbolMesh
-	case infra.NetworkAdHoc:
-		return styles.SymbolAdHoc
-	default:
-		return "?"
+	cmds := []tea.Cmd{m.setStateCmd(NetProfilesDone)}
+	if err != nil {
+		cmds = append(cmds, NotifyCmd("Cannot get network profiles"))
 	}
+	return tea.Batch(cmds...)
 }
+
 
 type WifiSavedStateMsg networkProfilesState
 

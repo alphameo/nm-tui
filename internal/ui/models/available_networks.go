@@ -16,24 +16,26 @@ import (
 )
 
 type availableNetworksConfig struct {
-	connColIdx              int
+	stateColIdx             int
 	ssidColIdx              int
 	securityColIdx          int
 	signalColIdx            int
 	ssidColTitle            string
 	securityColTitle        string
+	stateColTitle           string
 	securityWidthProportion float32
 	minSignalColWidth       int
 }
 
 var availableNetworksCfg = availableNetworksConfig{
-	connColIdx:     0,
+	stateColIdx:    0,
 	ssidColIdx:     1,
 	securityColIdx: 2,
 	signalColIdx:   3,
 
 	ssidColTitle:     "SSID",
 	securityColTitle: "Security",
+	stateColTitle:    "State",
 
 	securityWidthProportion: 0.3,
 	minSignalColWidth:       3,
@@ -101,9 +103,9 @@ func NewAvailableNetworksModel(
 	networksManager infra.NetworksManager,
 ) *AvailableNetworksModel {
 	cols := make([]table.Column, 4)
-	cols[availableNetworksCfg.connColIdx] = table.Column{
-		Title: styles.SymbolConnection,
-		Width: len(styles.SymbolConnection),
+	cols[availableNetworksCfg.stateColIdx] = table.Column{
+		Title: availableNetworksCfg.stateColTitle,
+		Width: len(availableNetworksCfg.stateColTitle),
 	}
 	cols[availableNetworksCfg.ssidColIdx] = table.Column{
 		Title: availableNetworksCfg.ssidColTitle,
@@ -162,7 +164,7 @@ func (m *AvailableNetworksModel) Resize(width, height int) {
 
 	secColWidth := int(float32(width) * availableNetworksCfg.securityWidthProportion)
 	signalColWidth := m.dataTable.Columns()[availableNetworksCfg.signalColIdx].Width
-	conColWidth := m.dataTable.Columns()[availableNetworksCfg.connColIdx].Width
+	conColWidth := m.dataTable.Columns()[availableNetworksCfg.stateColIdx].Width
 	ssidWidth := width - signalColWidth - tableUtilityOffset - conColWidth - secColWidth
 
 	m.dataTable.Columns()[availableNetworksCfg.securityColIdx].Width = secColWidth
@@ -212,10 +214,6 @@ func (m *NetworkProfilesModel) SetTableStyles(focused, blured table.Styles) {
 	m.UpdateTable()
 }
 
-func (m *AvailableNetworksModel) Init() tea.Cmd {
-	return m.RescanCmd()
-}
-
 func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
@@ -227,7 +225,7 @@ func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, t
 			if m.indicatorState != AvailableNetsDone {
 				return m, nil
 			}
-			return m, m.RescanCmd()
+			return m, RescanNetworksCmd()
 		case key.Matches(msg, m.keys.connect):
 			row := m.dataTable.SelectedRow()
 			if row != nil {
@@ -249,8 +247,6 @@ func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, t
 		}
 	case AvailableNetworksStateMsg:
 		return m, m.setStateCmd(availableNetworksState(msg))
-	case RescanAvailableNetworksMsg:
-		return m, m.RescanCmd()
 	}
 
 	var cmd tea.Cmd
@@ -301,45 +297,32 @@ func (m *AvailableNetworksModel) indicatorView() string {
 	return m.IndicatorStyle.Render(view)
 }
 
-func (m *AvailableNetworksModel) RescanCmd() tea.Cmd {
-	return tea.Sequence(
-		m.setStateCmd(AvailableNetsScanning),
-		func() tea.Msg {
-			list, err := m.netMngr.ScanNetworks(context.Background())
-			if err != nil {
-				return tea.Batch(
-					m.setStateCmd(AvailableNetsDone),
-					NotifyCmd("Cannot scan available wifi networks"),
-				)
-			}
-			rows := []table.Row{}
-			for _, wifiNet := range list {
-				var connectionFlag string
-				if wifiNet.Active {
-					connectionFlag = styles.SymbolCheck
-				}
-				rows = append(rows, table.Row{
-					connectionFlag,
-					wifiNet.SSID,
-					wifiNet.Security,
-					strconv.Itoa(wifiNet.Signal),
-				})
-			}
-
-			m.dataTable.SetRows(rows)
-			m.dataTable.GotoTop()
-			m.dataTable.UpdateViewport()
-			return m.setStateCmd(AvailableNetsDone)
-		},
-	)
-}
-
-type RescanAvailableNetworksMsg struct{}
-
-func RescanAvailableNetworksCmd() tea.Cmd {
-	return func() tea.Msg {
-		return RescanAvailableNetworksMsg{}
+func (m *AvailableNetworksModel) setAvailable(list []AvailableNetwork, err error) tea.Cmd {
+	rows := []table.Row{}
+	for _, wifiNet := range list {
+		var connectionFlag string
+		if wifiNet.Active {
+			connectionFlag = styles.SymbolCheck
+		} else if wifiNet.ProfileExists {
+			connectionFlag = styles.SymbolSaved
+		}
+		rows = append(rows, table.Row{
+			connectionFlag,
+			wifiNet.SSID,
+			wifiNet.Security,
+			strconv.Itoa(wifiNet.Signal),
+		})
 	}
+
+	m.dataTable.SetRows(rows)
+	m.dataTable.GotoTop()
+	m.dataTable.UpdateViewport()
+
+	cmds := []tea.Cmd{m.setStateCmd(AvailableNetsDone)}
+	if err != nil {
+		cmds = append(cmds, NotifyCmd("Cannot scan available wifi networks"))
+	}
+	return tea.Batch(cmds...)
 }
 
 type AvailableNetworksStateMsg availableNetworksState
