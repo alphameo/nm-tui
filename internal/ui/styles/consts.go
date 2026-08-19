@@ -14,6 +14,7 @@ var (
 	SymbolConnection   string
 	SymbolSignal       string
 	SymbolSaved        string
+	SymbolAvailable    string
 	SymbolAccessPoint  string
 	SymbolInfra        string
 	SymbolMesh         string
