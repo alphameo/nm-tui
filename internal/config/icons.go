@@ -50,6 +50,7 @@ type IconConfig struct {
 	Connection       *string `kdl:"connection"`
 	Signal           *string `kdl:"signal"`
 	Saved            *string `kdl:"saved"`
+	Available        *string `kdl:"available"`
 	AccessPoint      *string `kdl:"access_point"`
 	Infra            *string `kdl:"infra"`
 	Mesh             *string `kdl:"mesh"`
@@ -72,6 +73,7 @@ func DefaultNerdIconConfig() *IconConfig {
 		Connection:       new("󱘖 "),
 		Signal:           new(" "),
 		Saved:            new(" "),
+		Available:        new("⭗ "),
 		AccessPoint:      new("󰀃 "),
 		Infra:            new("🖳 "),
 		Mesh:             new(" "),
@@ -95,6 +97,7 @@ func DefaultNonNerdIconConfig() *IconConfig {
 		Connection:       new("con"),
 		Signal:           new("sig"),
 		Saved:            new("sav"),
+		Available:        new("o"),
 		AccessPoint:      new("ap"),
 		Infra:            new("infr"),
 		Mesh:             new("#"),
@@ -127,6 +130,7 @@ func (c *IconConfig) Merge(src *IconConfig) []error {
 	collect(mergeIcon(c.Connection, src.Connection, "connection"))
 	collect(mergeIcon(c.Signal, src.Signal, "signal"))
 	collect(mergeIcon(c.Saved, src.Saved, "saved"))
+	collect(mergeIcon(c.Available, src.Available, "saved"))
 	collect(mergeIcon(c.AccessPoint, src.AccessPoint, "access_point"))
 	collect(mergeIcon(c.Infra, src.Infra, "infra"))
 	collect(mergeIcon(c.Mesh, src.Mesh, "mesh"))
