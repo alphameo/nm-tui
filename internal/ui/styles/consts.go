@@ -13,6 +13,7 @@ var (
 	SymbolCheck        string
 	SymbolConnection   string
 	SymbolSignal       string
+	SymbolSaved        string
 	SymbolAccessPoint  string
 	SymbolInfra        string
 	SymbolMesh         string
