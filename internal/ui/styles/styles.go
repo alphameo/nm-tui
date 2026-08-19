@@ -193,6 +193,7 @@ func initIcons(icons config.IconConfig) error {
 	SymbolConnection = *icons.Connection
 	SymbolSignal = *icons.Signal
 	SymbolSaved = *icons.Saved
+	SymbolAvailable = *icons.Available
 	SymbolAccessPoint = *icons.AccessPoint
 	SymbolInfra = *icons.Infra
 	SymbolMesh = *icons.Mesh
