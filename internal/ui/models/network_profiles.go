@@ -291,7 +291,7 @@ func (m *NetworkProfilesModel) setProfiles(list []NetworkProfileShort, err error
 		if wifiSaved.Active {
 			connectionFlag = styles.SymbolCheck
 		} else if wifiSaved.Available {
-			connectionFlag = styles.SymbolSaved
+			connectionFlag = styles.SymbolAvailable
 		}
 		rows = append(rows, table.Row{
 			connectionFlag,
@@ -309,7 +309,6 @@ func (m *NetworkProfilesModel) setProfiles(list []NetworkProfileShort, err error
 	}
 	return tea.Batch(cmds...)
 }
-
 
 type WifiSavedStateMsg networkProfilesState
 
