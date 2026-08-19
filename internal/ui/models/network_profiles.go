@@ -379,13 +379,6 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 	)
 }
 
-func (m *NetworkProfilesModel) gotoTop() tea.Cmd {
-	return func() tea.Msg {
-		m.dataTable.GotoTop()
-		return NilCmd()
-	}
-}
-
 func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(m.setStateCmd(NetProfilesDisconnecting),
 		func() tea.Msg {
@@ -416,5 +409,12 @@ func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 			m.dataTable.SetCursor(cursor - 1)
 		}
 		return RescanNetworksCmd()
+	}
+}
+
+func (m *NetworkProfilesModel) gotoTop() tea.Cmd {
+	return func() tea.Msg {
+		m.dataTable.GotoTop()
+		return NilCmd()
 	}
 }
