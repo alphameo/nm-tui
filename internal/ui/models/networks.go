@@ -37,7 +37,7 @@ type NetworksModel struct {
 
 	keys networksKeyMap
 
-	style lipgloss.Style
+	Style lipgloss.Style
 }
 
 func NewNetworksModel(
@@ -53,7 +53,7 @@ func NewNetworksModel(
 		netMngr:   networksManager,
 		portal:    portalOpener,
 		keys:      keys,
-		style:     lipgloss.NewStyle(),
+		Style:     lipgloss.NewStyle(),
 	}
 
 	wins := []focus.Focusable{w.available, w.profiles}
@@ -62,9 +62,9 @@ func NewNetworksModel(
 }
 
 func (m *NetworksModel) Resize(width, height int) {
-	m.style = m.style.Width(width).Height(height)
+	m.Style = m.Style.Width(width).Height(height)
 
-	border := m.style.GetBorderStyle()
+	border := m.Style.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
 
@@ -75,9 +75,9 @@ func (m *NetworksModel) Resize(width, height int) {
 	m.profiles.Resize(width, savedHeight)
 }
 
-func (m *NetworksModel) Width() int { return m.style.GetWidth() }
+func (m *NetworksModel) Width() int { return m.Style.GetWidth() }
 
-func (m *NetworksModel) Height() int { return m.style.GetHeight() }
+func (m *NetworksModel) Height() int { return m.Style.GetHeight() }
 
 func (m *NetworksModel) Title() string { return "Networks" }
 
@@ -163,7 +163,7 @@ func (m *NetworksModel) View() string {
 		availableView,
 		savedView,
 	)
-	return m.style.Render(view)
+	return m.Style.Render(view)
 }
 
 type RescanNetworksMsg struct{}

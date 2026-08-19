@@ -49,7 +49,7 @@ type ProfileEditorModel struct {
 	keys profileEditorKeyMap
 
 	netMngr infra.NetworksManager
-	style   lipgloss.Style
+	Style   lipgloss.Style
 }
 
 func NewProfileEditorModel(keys profileEditorKeyMap, networksManager infra.NetworksManager) *ProfileEditorModel {
@@ -68,7 +68,7 @@ func NewProfileEditorModel(keys profileEditorKeyMap, networksManager infra.Netwo
 
 		keys:    keys,
 		netMngr: networksManager,
-		style:   lipgloss.NewStyle(),
+		Style:   lipgloss.NewStyle(),
 	}
 	inp := []focus.Focusable{
 		&model.name,
@@ -202,7 +202,7 @@ func (m *ProfileEditorModel) View() string {
 		autoconnPrior,
 	)
 
-	view = m.style.Render(view)
+	view = m.Style.Render(view)
 	title := styles.DefaultStyle.Render(renderer.RenderTitle(profileEditorCfg.title))
 	return compositor.Compose(
 		title,

@@ -45,7 +45,7 @@ type ConnectorModel struct {
 	keys connectorKeyMap
 
 	netMngr infra.NetworksManager
-	style   lipgloss.Style
+	Style   lipgloss.Style
 }
 
 func NewConnectorModel(keys connectorKeyMap, networksManager infra.NetworksManager) *ConnectorModel {
@@ -55,7 +55,7 @@ func NewConnectorModel(keys connectorKeyMap, networksManager infra.NetworksManag
 		password: newDefaultPasswordInput(),
 		keys:     keys,
 		netMngr:  networksManager,
-		style:    lipgloss.NewStyle(),
+		Style:    lipgloss.NewStyle(),
 	}
 
 	inp := make([]focus.Focusable, 2)
@@ -148,7 +148,7 @@ func (m *ConnectorModel) View() string {
 		fields...,
 	)
 
-	view = m.style.Render(view)
+	view = m.Style.Render(view)
 	title := styles.DefaultStyle.Render(renderer.RenderTitle(connectorCfg.title))
 	return compositor.Compose(
 		title,

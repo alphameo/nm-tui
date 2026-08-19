@@ -88,7 +88,7 @@ type deviceKeyMap struct {
 
 type DeviceModel struct {
 	devicesTable table.Model
-	tableStyle   lipgloss.Style
+	TableStyle   lipgloss.Style
 
 	wwan       toggle.Model
 	wifi       toggle.Model
@@ -98,7 +98,7 @@ type DeviceModel struct {
 
 	indicatorSpinner spinner.Model
 	indicatorState   deviceState
-	indicatorStyle   lipgloss.Style
+	IndicatorStyle   lipgloss.Style
 
 	focus bool
 
@@ -108,7 +108,7 @@ type DeviceModel struct {
 
 	connMngr infra.DeviceManager
 
-	style lipgloss.Style
+	Style lipgloss.Style
 }
 
 func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *DeviceModel {
@@ -145,11 +145,11 @@ func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *Devic
 
 	model := &DeviceModel{
 		devicesTable: t,
-		tableStyle:   lipgloss.NewStyle(),
+		TableStyle:   lipgloss.NewStyle(),
 
 		indicatorSpinner: s,
 		indicatorState:   DeviceDone,
-		indicatorStyle:   lipgloss.NewStyle(),
+		IndicatorStyle:   lipgloss.NewStyle(),
 
 		wwan:       wwan,
 		wifi:       wifi,
@@ -159,7 +159,7 @@ func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *Devic
 
 		connMngr: deviceManager,
 		keys:     keys,
-		style:    lipgloss.NewStyle(),
+		Style:    lipgloss.NewStyle(),
 	}
 
 	focuses := []focus.Focusable{
@@ -173,9 +173,9 @@ func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *Devic
 }
 
 func (m *DeviceModel) Resize(width, height int) {
-	m.style = m.style.Width(width).Height(height)
+	m.Style = m.Style.Width(width).Height(height)
 
-	border := m.style.GetBorderStyle()
+	border := m.Style.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
 
@@ -183,7 +183,7 @@ func (m *DeviceModel) Resize(width, height int) {
 	statuslineHeight := lipgloss.Height(m.indicatorView())
 	height -= controlsHeight + statuslineHeight
 
-	tableBorder := m.tableStyle.GetBorderStyle()
+	tableBorder := m.TableStyle.GetBorderStyle()
 	width -= tableBorder.GetLeftSize() + tableBorder.GetRightSize()
 	height -= tableBorder.GetBottomSize() + tableBorder.GetTopSize()
 
@@ -204,9 +204,9 @@ func (m *DeviceModel) Resize(width, height int) {
 	m.devicesTable.UpdateViewport()
 }
 
-func (m *DeviceModel) Width() int { return m.style.GetWidth() }
+func (m *DeviceModel) Width() int { return m.Style.GetWidth() }
 
-func (m *DeviceModel) Height() int { return m.style.GetHeight() }
+func (m *DeviceModel) Height() int { return m.Style.GetHeight() }
 
 func (m *DeviceModel) Title() string { return "Device" }
 
@@ -281,7 +281,7 @@ func (m *DeviceModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 }
 
 func (m *DeviceModel) View() string {
-	table := m.tableStyle.Render(m.devicesTable.View())
+	table := m.TableStyle.Render(m.devicesTable.View())
 
 	controls := m.controlsView()
 	statusline := m.indicatorView()
@@ -292,7 +292,7 @@ func (m *DeviceModel) View() string {
 		controls,
 		statusline,
 	)
-	return m.style.Render(view)
+	return m.Style.Render(view)
 }
 
 func (m *DeviceModel) indicatorView() string {
@@ -306,7 +306,7 @@ func (m *DeviceModel) indicatorView() string {
 	} else {
 		view = m.indicatorState.String()
 	}
-	return m.indicatorStyle.Render(view)
+	return m.IndicatorStyle.Render(view)
 }
 
 func (m *DeviceModel) controlsView() string {

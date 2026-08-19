@@ -47,7 +47,7 @@ type MainModel struct {
 
 	keys  *mainKeyMap
 	help  *HelpModel
-	style lipgloss.Style
+	Style lipgloss.Style
 }
 
 func NewMainModel(
@@ -67,36 +67,36 @@ func NewMainModel(
 	mainCfg.rescanInterval = time.Duration(*cfg.RescanInterval) * time.Second
 
 	connector := NewConnectorModel(keys.connector, networksManager)
-	connector.style = styles.OverlayStyle
+	connector.Style = styles.OverlayStyle
 	profileCreator := NewProfileCreatorModel(keys.profileCreator, networksManager)
-	profileCreator.style = styles.OverlayStyle
+	profileCreator.Style = styles.OverlayStyle
 	hotspotCreator := NewHotspotCreatorModel(keys.hotspotCreator, networksManager)
-	hotspotCreator.style = styles.OverlayStyle
+	hotspotCreator.Style = styles.OverlayStyle
 	profileEditor := NewProfileEditorModel(keys.profileEditor, networksManager)
-	profileEditor.style = styles.OverlayStyle
+	profileEditor.Style = styles.OverlayStyle
 
 	available := NewAvailableNetworksModel(keys.availableNetworks, networksManager)
 	available.focusedStyle = styles.BorderedFocusedStyle
 	available.bluredStyle = styles.BorderedStyle
 	available.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
-	available.indicatorStyle = styles.DefaultStyle
+	available.IndicatorStyle = styles.DefaultStyle
 
 	profiles := NewNetworkProfilesModel(keys.networkProfiles, networksManager)
 	profiles.focusedStyle = styles.BorderedFocusedStyle
 	profiles.bluredStyle = styles.BorderedStyle
 	profiles.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
-	profiles.indicatorStyle = styles.DefaultStyle
+	profiles.IndicatorStyle = styles.DefaultStyle
 
 	networks := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
 
 	device := NewDeviceModel(keys.device, deviceManager)
-	device.tableStyle = styles.BorderedStyle
-	device.indicatorStyle = styles.DefaultStyle
+	device.TableStyle = styles.BorderedStyle
+	device.IndicatorStyle = styles.DefaultStyle
 
 	tabContentBorder := tabview.DefaultContentBorder(styles.Border)
 	tabContentStyle := styles.DefaultStyle.Border(tabContentBorder)
-	networks.style = tabContentStyle
-	device.style = tabContentStyle
+	networks.Style = tabContentStyle
+	device.Style = tabContentStyle
 
 	tabs := tabview.New([]tabview.Tab{
 		{Title: networks.Title(), Content: networks},
@@ -113,7 +113,7 @@ func NewMainModel(
 	n := Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
 
 	help := NewHelpModel(keys)
-	help.style = styles.OverlayStyle
+	help.Style = styles.OverlayStyle
 
 	return &MainModel{
 		tabs:         tabs,
@@ -130,7 +130,7 @@ func NewMainModel(
 
 		keys:  &keys.main,
 		help:  help,
-		style: lipgloss.NewStyle(),
+		Style: lipgloss.NewStyle(),
 	}, nil
 }
 
@@ -269,20 +269,20 @@ func (m *MainModel) View() tea.View {
 
 	help := m.shortHelpView()
 	view = lipgloss.JoinVertical(lipgloss.Center, view, help)
-	view = m.style.Render(view)
+	view = m.Style.Render(view)
 	v := tea.NewView(view)
 	v.AltScreen = true
 	return v
 }
 
-func (m *MainModel) Width() int { return m.style.GetWidth() }
+func (m *MainModel) Width() int { return m.Style.GetWidth() }
 
-func (m *MainModel) Height() int { return m.style.GetHeight() }
+func (m *MainModel) Height() int { return m.Style.GetHeight() }
 
 func (m *MainModel) Resize(width, height int) {
-	m.style = m.style.Width(width).Height(height)
+	m.Style = m.Style.Width(width).Height(height)
 
-	border := m.style.GetBorderStyle()
+	border := m.Style.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
 	width -= border.GetBottomSize() + border.GetTopSize()
 

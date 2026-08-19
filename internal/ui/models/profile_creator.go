@@ -42,7 +42,7 @@ type ProfileCreatorModel struct {
 	keys profileCreatorKeyMap
 
 	netMngr infra.NetworksManager
-	style   lipgloss.Style
+	Style   lipgloss.Style
 }
 
 func NewProfileCreatorModel(keys profileCreatorKeyMap, networksManager infra.NetworksManager) *ProfileCreatorModel {
@@ -55,7 +55,7 @@ func NewProfileCreatorModel(keys profileCreatorKeyMap, networksManager infra.Net
 		keys: keys,
 
 		netMngr: networksManager,
-		style:   lipgloss.NewStyle(),
+		Style:   lipgloss.NewStyle(),
 	}
 
 	inp := []focus.Focusable{
@@ -161,7 +161,7 @@ func (m *ProfileCreatorModel) View() string {
 		fields...,
 	)
 
-	view = m.style.Render(view)
+	view = m.Style.Render(view)
 	title := styles.DefaultStyle.Render(renderer.RenderTitle(profileCreatorCfg.title))
 	return compositor.Compose(
 		title,

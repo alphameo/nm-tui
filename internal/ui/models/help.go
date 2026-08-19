@@ -30,7 +30,7 @@ type HelpModel struct {
 	keyMap   keyMaps
 
 	keys  helpKeyMap
-	style lipgloss.Style
+	Style lipgloss.Style
 }
 
 func NewHelpModel(keys keyMaps) *HelpModel {
@@ -45,16 +45,16 @@ func NewHelpModel(keys keyMaps) *HelpModel {
 		keyMap:   keys,
 		help:     h,
 		keys:     keys.help,
-		style:    lipgloss.NewStyle(),
+		Style:    lipgloss.NewStyle(),
 	}
 	help.viewport.SetContent(help.fullView())
 	return &help
 }
 
 func (m *HelpModel) Resize(width, height int) {
-	m.style = m.style.Width(width).Height(height)
+	m.Style = m.Style.Width(width).Height(height)
 
-	border := m.style.GetBorderStyle()
+	border := m.Style.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
 

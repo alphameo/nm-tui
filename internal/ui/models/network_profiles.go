@@ -54,7 +54,7 @@ type NetworkProfilesModel struct {
 
 	indicatorSpinner spinner.Model
 	indicatorState   networkProfilesState
-	indicatorStyle   lipgloss.Style
+	IndicatorStyle   lipgloss.Style
 
 	focus bool
 
@@ -125,7 +125,7 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 
 		indicatorSpinner: s,
 		indicatorState:   NetProfilesDone,
-		indicatorStyle:   lipgloss.NewStyle(),
+		IndicatorStyle:   lipgloss.NewStyle(),
 
 		keys:         keys,
 		netMngr:      networksManager,
@@ -287,7 +287,7 @@ func (m *NetworkProfilesModel) indicatorView() string {
 	} else {
 		view = m.indicatorState.String()
 	}
-	return m.indicatorStyle.Render(view)
+	return m.IndicatorStyle.Render(view)
 }
 
 type RescanNetworkProfilesMsg struct{}

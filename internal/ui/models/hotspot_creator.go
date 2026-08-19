@@ -40,7 +40,7 @@ type HotspotCreatorModel struct {
 	keys hotspotCreatorKeyMap
 
 	netMngr infra.NetworksManager
-	style   lipgloss.Style
+	Style   lipgloss.Style
 }
 
 func NewHotspotCreatorModel(keys hotspotCreatorKeyMap, networksManager infra.NetworksManager) *HotspotCreatorModel {
@@ -50,7 +50,7 @@ func NewHotspotCreatorModel(keys hotspotCreatorKeyMap, networksManager infra.Net
 		password: newDefaultPasswordInput(),
 		keys:     keys,
 		netMngr:  networksManager,
-		style:    lipgloss.NewStyle(),
+		Style:    lipgloss.NewStyle(),
 	}
 
 	inp := []focus.Focusable{
@@ -144,7 +144,7 @@ func (m *HotspotCreatorModel) View() string {
 		fields...,
 	)
 
-	view = m.style.Render(view)
+	view = m.Style.Render(view)
 	title := styles.DefaultStyle.Render(renderer.RenderTitle(hotspotCreatorCfg.title))
 	return compositor.Compose(
 		title,
