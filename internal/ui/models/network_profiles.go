@@ -226,10 +226,10 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 			return m, OpenProfileEditorCmd(name)
 
 		case key.Matches(msg, m.keys.activate):
-			return m, m.connectToSelectedCmd()
+			return m, m.activateConnToSelectedCmd()
 
 		case key.Matches(msg, m.keys.deactivate):
-			return m, m.disconnectFromSelectedCmd()
+			return m, m.deactivateConnToSelectedCmd()
 		case key.Matches(msg, m.keys.rescan):
 			return m, RescanNetworkProfilesCmd()
 		case key.Matches(msg, m.keys.delete):
@@ -358,7 +358,7 @@ func (m *NetworkProfilesModel) setStateCmd(state networkProfilesState) tea.Cmd {
 	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
 }
 
-func (m *NetworkProfilesModel) connectToSelectedCmd() tea.Cmd {
+func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(NetProfilesConnecting),
 		func() tea.Msg {
@@ -386,7 +386,7 @@ func (m *NetworkProfilesModel) gotoTop() tea.Cmd {
 	}
 }
 
-func (m *NetworkProfilesModel) disconnectFromSelectedCmd() tea.Cmd {
+func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(m.setStateCmd(NetProfilesDisconnecting),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]

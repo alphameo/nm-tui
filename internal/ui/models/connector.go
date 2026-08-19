@@ -106,7 +106,7 @@ func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
 			}
 			return m, tea.Sequence(
 				ClosePopupCmd(),
-				m.connectToWifiCmd(),
+				m.connectToNetworkCmd(),
 			)
 		}
 	}
@@ -160,7 +160,7 @@ func (m *ConnectorModel) View() string {
 	)
 }
 
-func (m *ConnectorModel) connectToWifiCmd() tea.Cmd {
+func (m *ConnectorModel) connectToNetworkCmd() tea.Cmd {
 	return tea.Sequence(
 		SetAvailableNetworksStateCmd(AvailableNetsConnecting),
 		func() tea.Msg {

@@ -255,8 +255,8 @@ func (m *HelpModel) hotspotCreatorShort() []key.Binding {
 
 func (m *HelpModel) networkProfilesFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.fullKB(m.keyMap.networkProfiles.activate, "Activate connection with network associated with selected profile"),
-		m.fullKB(m.keyMap.networkProfiles.deactivate, "Deactivate connection with network associated with selected profile"),
+		m.fullKB(m.keyMap.networkProfiles.activate, "Activate connection to network associated with selected profile"),
+		m.fullKB(m.keyMap.networkProfiles.deactivate, "Deactivate connection to network associated with selected profile"),
 		m.fullKB(m.keyMap.networkProfiles.edit, "Open Profile Editor for selected profile"),
 		m.fullKB(m.keyMap.networkProfiles.delete, "Delete network profile"),
 		m.fullKB(m.keyMap.networkProfiles.rescan, "Rescan saved network profiles"),
