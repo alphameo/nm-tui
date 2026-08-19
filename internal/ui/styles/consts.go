@@ -1,6 +1,9 @@
 package styles
 
 import (
+	"time"
+
+	"charm.land/bubbles/v2/spinner"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 )
 
@@ -22,3 +25,16 @@ var (
 	SymbolEllipsis     string
 	SymbolSeparator    string
 )
+
+var spinnerMeter = spinner.Spinner{
+	Frames: []string{
+		"▱ ▱ ▱ ",
+		"▰ ▱ ▱ ",
+		"▰ ▰ ▱ ",
+		"▰ ▰ ▰ ",
+		"▰ ▰ ▱ ",
+		"▰ ▱ ▱ ",
+		"▱ ▱ ▱ ",
+	},
+	FPS: time.Second / 7,
+}

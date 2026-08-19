@@ -84,6 +84,7 @@ type AvailableNetworksModel struct {
 
 	indicatorSpinner spinner.Model
 	indicatorState   availableNetworksState
+	indicatorStyle   lipgloss.Style
 
 	focus bool
 
@@ -122,8 +123,7 @@ func NewAvailableNetworksModel(
 		table.WithFocused(true),
 	)
 
-	s := spinner.New()
-	s.Spinner = styles.Spinner
+	s := newDefaultSpinner()
 
 	model := &AvailableNetworksModel{
 		dataTable:          t,
@@ -132,6 +132,7 @@ func NewAvailableNetworksModel(
 
 		indicatorSpinner: s,
 		indicatorState:   AvailableNetsDone,
+		indicatorStyle:   lipgloss.NewStyle(),
 
 		keys:         keys,
 		netMngr:      networksManager,
@@ -297,7 +298,7 @@ func (m *AvailableNetworksModel) indicatorView() string {
 	} else {
 		view = m.indicatorState.String()
 	}
-	return view
+	return m.indicatorStyle.Render(view)
 }
 
 func (m *AvailableNetworksModel) RescanCmd() tea.Cmd {

@@ -79,14 +79,20 @@ func NewMainModel(
 	available.focusedStyle = styles.BorderedFocusedStyle
 	available.bluredStyle = styles.BorderedStyle
 	available.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
+	available.indicatorStyle = styles.DefaultStyle
+
 	profiles := NewNetworkProfilesModel(keys.networkProfiles, networksManager)
 	profiles.focusedStyle = styles.BorderedFocusedStyle
 	profiles.bluredStyle = styles.BorderedStyle
 	profiles.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
+	profiles.indicatorStyle = styles.DefaultStyle
 
 	networks := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
+
 	device := NewDeviceModel(keys.device, deviceManager)
 	device.tableStyle = styles.BorderedStyle
+	device.indicatorStyle = styles.DefaultStyle
+
 	tabContentBorder := tabview.DefaultContentBorder(styles.Border)
 	tabContentStyle := styles.DefaultStyle.Border(tabContentBorder)
 	networks.style = tabContentStyle

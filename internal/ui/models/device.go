@@ -98,6 +98,7 @@ type DeviceModel struct {
 
 	indicatorSpinner spinner.Model
 	indicatorState   deviceState
+	indicatorStyle   lipgloss.Style
 
 	focus bool
 
@@ -143,10 +144,12 @@ func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *Devic
 	s := newDefaultSpinner()
 
 	model := &DeviceModel{
-		devicesTable:     t,
-		tableStyle:       lipgloss.NewStyle(),
+		devicesTable: t,
+		tableStyle:   lipgloss.NewStyle(),
+
 		indicatorSpinner: s,
 		indicatorState:   DeviceDone,
+		indicatorStyle:   lipgloss.NewStyle(),
 
 		wwan:       wwan,
 		wifi:       wifi,
@@ -303,7 +306,7 @@ func (m *DeviceModel) indicatorView() string {
 	} else {
 		view = m.indicatorState.String()
 	}
-	return view
+	return m.indicatorStyle.Render(view)
 }
 
 func (m *DeviceModel) controlsView() string {

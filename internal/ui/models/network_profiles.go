@@ -54,6 +54,7 @@ type NetworkProfilesModel struct {
 
 	indicatorSpinner spinner.Model
 	indicatorState   networkProfilesState
+	indicatorStyle   lipgloss.Style
 
 	focus bool
 
@@ -115,8 +116,7 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 		table.WithFocused(true),
 	)
 
-	s := spinner.New()
-	s.Spinner = styles.Spinner
+	s := newDefaultSpinner()
 
 	model := &NetworkProfilesModel{
 		dataTable:          t,
@@ -125,6 +125,7 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 
 		indicatorSpinner: s,
 		indicatorState:   NetProfilesDone,
+		indicatorStyle:   lipgloss.NewStyle(),
 
 		keys:         keys,
 		netMngr:      networksManager,
@@ -286,7 +287,7 @@ func (m *NetworkProfilesModel) indicatorView() string {
 	} else {
 		view = m.indicatorState.String()
 	}
-	return view
+	return m.indicatorStyle.Render(view)
 }
 
 type RescanNetworkProfilesMsg struct{}

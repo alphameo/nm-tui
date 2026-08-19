@@ -49,6 +49,7 @@ func newDefaultToggle() toggle.Model {
 
 func newDefaultSpinner() spinner.Model {
 	s := spinner.New()
+	s.Style = styles.DefaultStyle
 	s.Spinner = styles.Spinner
 	return s
 }

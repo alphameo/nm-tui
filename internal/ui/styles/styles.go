@@ -334,7 +334,7 @@ func resolveSpinnerStyle(spinnerStyle string) (spinner.Spinner, error) {
 	case config.SpinnerPoints:
 		return spinner.Points, nil
 	case config.SpinnerMeter:
-		return spinner.Meter, nil
+		return spinnerMeter, nil
 	case config.SpinnerHamburger:
 		return spinner.Hamburger, nil
 	default:
