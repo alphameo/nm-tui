@@ -204,8 +204,14 @@ func (m *HelpModel) availableNetworksFull() [][]key.Binding {
 	return [][]key.Binding{{
 		m.fullKB(m.keyMap.availableNetworks.rescan, "Rescan available networks"),
 		m.fullKB(m.keyMap.availableNetworks.connect, "Open Connector for selected network"),
-		m.fullKB(m.keyMap.availableNetworks.activate, "Activate the connection to the selected network if a profile exists with a name matching the SSID."),
-		m.fullKB(m.keyMap.availableNetworks.deactivate, "Deactivate connection to the selected network"),
+		m.fullKB(
+			m.keyMap.availableNetworks.activate,
+			"Activate the connection to the selected network if a profile exists with a name matching the SSID",
+		),
+		m.fullKB(
+			m.keyMap.availableNetworks.deactivate,
+			"Deactivate connection to the selected network if SSID matches profile name",
+		),
 	}}
 }
 
@@ -257,8 +263,14 @@ func (m *HelpModel) hotspotCreatorShort() []key.Binding {
 
 func (m *HelpModel) networkProfilesFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.fullKB(m.keyMap.networkProfiles.activate, "Activate connection to network associated with selected profile"),
-		m.fullKB(m.keyMap.networkProfiles.deactivate, "Deactivate connection to network associated with selected profile"),
+		m.fullKB(
+			m.keyMap.networkProfiles.activate,
+			"Activate connection to network associated with selected profile",
+		),
+		m.fullKB(
+			m.keyMap.networkProfiles.deactivate,
+			"Deactivate connection to network associated with selected profile",
+		),
 		m.fullKB(m.keyMap.networkProfiles.edit, "Open Profile Editor for selected profile"),
 		m.fullKB(m.keyMap.networkProfiles.delete, "Delete network profile"),
 		m.fullKB(m.keyMap.networkProfiles.rescan, "Rescan saved network profiles"),

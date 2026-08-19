@@ -369,7 +369,8 @@ func (m *AvailableNetworksModel) activateConnToSelectedCmd() tea.Cmd {
 			if err != nil {
 				return tea.Batch(
 					m.setStateCmd(AvailableNetsDone),
-					NotifyCmd(fmt.Sprintf("Cannot activate connection to network with SSID=%q\nTry connect via profile (The profile name and SSID may differ)", name)),
+					NotifyCmd(fmt.Sprintf("Cannot activate connection to network with SSID=%q\n"+
+						"Try connect via profile (the profile name and SSID may differ)", name)),
 				)
 			}
 			return tea.Batch(
@@ -389,7 +390,8 @@ func (m *AvailableNetworksModel) deactivateConnToSelectedCmd() tea.Cmd {
 				return tea.Batch(
 					m.setStateCmd(AvailableNetsDone),
 					NotifyCmd(
-						fmt.Sprintf("Error while deactivating connection to network with SSID=%q\nTry connect via profile (The profile name and SSID may differ)", name),
+						fmt.Sprintf("Error while deactivating connection to network with SSID=%q\n"+
+							"try disconnect via profile (The profile name and SSID may differ)", name),
 					),
 				)
 			}
