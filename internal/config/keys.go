@@ -66,7 +66,9 @@ type NetworksKeys struct {
 }
 
 type AvailableNetworksKeys struct {
-	Connect *KeyBinding `kdl:"connect"`
+	Connect    *KeyBinding `kdl:"connect"`
+	Activate   *KeyBinding `kdl:"activate"`
+	Deactivate *KeyBinding `kdl:"deactivate"`
 }
 
 type NetworkProfilesKeys struct {
@@ -111,7 +113,9 @@ func DefaultKeys() *KeyConfig {
 			CreateHotspot:     &KeyBinding{"h"},
 		},
 		AvailableNetworks: &AvailableNetworksKeys{
-			Connect: &KeyBinding{"enter"},
+			Connect:    &KeyBinding{"enter"},
+			Activate:   &KeyBinding{"space"},
+			Deactivate: &KeyBinding{"ctrl+space"},
 		},
 		NetworkProfiles: &NetworkProfilesKeys{
 			Edit:       &KeyBinding{"enter"},
@@ -197,6 +201,8 @@ func (a *AvailableNetworksKeys) Merge(src *AvailableNetworksKeys) []error {
 
 	var errs []error
 	errs = append(errs, MergeKeyList(&a.Connect, src.Connect, "available_networks.connect")...)
+	errs = append(errs, MergeKeyList(&a.Activate, src.Activate, "available_networks.connect")...)
+	errs = append(errs, MergeKeyList(&a.Deactivate, src.Deactivate, "available_networks.connect")...)
 	return errs
 }
 

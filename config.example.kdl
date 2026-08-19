@@ -108,6 +108,8 @@ keys {
     }
     available_networks {
         connect "enter"
+        activate "space"
+        deactivate "ctrl+space"
     }
     network_profiles {
         edit "enter"
