@@ -24,8 +24,9 @@ Why `nm-tui`: built-in `nmtui` doesn't look great and there aren't many TUI alte
 ## Features
 
 - 😎 TUI style (looks cool)
-- 📡 Scan and list available WiFi-networks
-- 🔑 Connect to WiFi-networks with password input
+- 📡 Scan and list available networks
+- 🔑 Connect to networks with password
+- 🔘 Activate connections to saved networks
 - 📜 View detailed network information (signal strength, security, etc.)
 - 🌐 Control device networking
 - 📡 Create hotspot
