@@ -330,8 +330,10 @@ func (m *MainModel) shortHelpView() string {
 type NilMsg struct{}
 
 // NilCmd is a function, which returns fictive Msg to trigger Model Update.
-var NilCmd = func() tea.Msg {
-	return NilMsg{}
+func NilCmd() tea.Cmd {
+	return func() tea.Msg {
+		return NilMsg{}
+	}
 }
 
 type IntervalRescanMsg struct{}

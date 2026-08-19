@@ -382,7 +382,7 @@ func (m *NetworkProfilesModel) connectToSelectedCmd() tea.Cmd {
 func (m *NetworkProfilesModel) gotoTop() tea.Cmd {
 	return func() tea.Msg {
 		m.dataTable.GotoTop()
-		return NilCmd
+		return NilCmd()
 	}
 }
 
