@@ -19,8 +19,8 @@ type networkProfilesState int
 const (
 	NetProfilesNil networkProfilesState = iota
 	NetProfilesScanning
-	NetProfilesConnecting
-	NetProfilesDisconnecting
+	NetProfilesActivating
+	NetProfilesDeactivating
 	NetProfilesDone
 )
 
@@ -28,10 +28,10 @@ func (s *networkProfilesState) String() string {
 	switch *s {
 	case NetProfilesScanning:
 		return "Scanning"
-	case NetProfilesConnecting:
-		return "Connecting"
-	case NetProfilesDisconnecting:
-		return "Disconnecting"
+	case NetProfilesActivating:
+		return "Activating"
+	case NetProfilesDeactivating:
+		return "Deactivating"
 	case NetProfilesDone:
 		return "󰄬"
 	default:
@@ -360,7 +360,7 @@ func (m *NetworkProfilesModel) setStateCmd(state networkProfilesState) tea.Cmd {
 
 func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(NetProfilesConnecting),
+		m.setStateCmd(NetProfilesActivating),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
 			err := m.netMngr.ActivateProfile(context.Background(), name)
@@ -380,7 +380,7 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 }
 
 func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
-	return tea.Sequence(m.setStateCmd(NetProfilesDisconnecting),
+	return tea.Sequence(m.setStateCmd(NetProfilesDeactivating),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
 			err := m.netMngr.DeactivateProfile(context.Background(), name)
