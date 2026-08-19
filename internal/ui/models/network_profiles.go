@@ -367,7 +367,7 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 			if err != nil {
 				return tea.Batch(
 					m.setStateCmd(NetProfilesDone),
-					NotifyCmd(fmt.Sprintf("Cannot connect to %s", name)),
+					NotifyCmd(fmt.Sprintf("Cannot connect to %q", name)),
 				)
 			}
 			return tea.Batch(
@@ -385,11 +385,15 @@ func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
 			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
 			err := m.netMngr.DeactivateProfile(context.Background(), name)
 			if err != nil {
-				return NotifyCmd(
-					fmt.Sprintf("Error while disconnecting from %s", name),
+				return tea.Batch(
+					m.setStateCmd(NetProfilesDone),
+					NotifyCmd(
+						fmt.Sprintf("Error while deactivating connection with %q", name),
+					),
 				)
 			}
 			return tea.Batch(
+				m.setStateCmd(NetProfilesDone),
 				m.gotoTop(),
 				RescanNetworksCmd(),
 			)
@@ -402,7 +406,7 @@ func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 		name := row[networkProfilesCfg.nameColIdx]
 		err := m.netMngr.DeleteProfile(context.Background(), name)
 		if err != nil {
-			return NotifyCmd(fmt.Sprintf("Error while deleting %s", name))
+			return NotifyCmd(fmt.Sprintf("Error while deleting profile %q", name))
 		}
 		cursor := m.dataTable.Cursor()
 		if cursor == len(m.dataTable.Rows())-1 {

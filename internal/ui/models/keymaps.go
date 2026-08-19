@@ -69,8 +69,10 @@ func initKeys(keys config.KeyConfig) keyMaps {
 			delete:     NewKey(*keys.NetworkProfiles.Delete, "delete"),
 		},
 		availableNetworks: availableNetworksKeyMap{
-			rescan:  NewKey(*keys.RescanFocused, "rescan available"),
-			connect: NewKey(*keys.AvailableNetworks.Connect, "connect"),
+			rescan:     NewKey(*keys.RescanFocused, "rescan available"),
+			connect:    NewKey(*keys.AvailableNetworks.Connect, "connect"),
+			activate:   NewKey(*keys.AvailableNetworks.Activate, "activate"),
+			deactivate: NewKey(*keys.AvailableNetworks.Deactivate, "deactivate"),
 		},
 		profileEditor: profileEditorKeyMap{
 			prev:               NewKey(*keys.FocusPrev, "prev field"),

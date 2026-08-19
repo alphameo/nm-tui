@@ -44,6 +44,8 @@ type availableNetworksState int
 const (
 	AvailableNetsNil availableNetworksState = iota
 	AvailableNetsScanning
+	AvailableNetsActivating
+	AvailableNetsDeactivating
 	AvailableNetsConnecting
 	AvailableNetsCreating
 	AvailableNetsDone
@@ -53,6 +55,10 @@ func (s *availableNetworksState) String() string {
 	switch *s {
 	case AvailableNetsScanning:
 		return "Scanning"
+	case AvailableNetsActivating:
+		return "Activating"
+	case AvailableNetsDeactivating:
+		return "Deactivating"
 	case AvailableNetsConnecting:
 		return "Connecting"
 	case AvailableNetsCreating:
@@ -65,8 +71,10 @@ func (s *availableNetworksState) String() string {
 }
 
 type availableNetworksKeyMap struct {
-	rescan  key.Binding
-	connect key.Binding
+	rescan     key.Binding
+	connect    key.Binding
+	activate   key.Binding
+	deactivate key.Binding
 }
 
 type AvailableNetworksModel struct {
@@ -225,6 +233,18 @@ func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, t
 				return m, OpenConnectorCmd(row[availableNetworksCfg.ssidColIdx])
 			}
 			return m, nil
+		case key.Matches(msg, m.keys.activate):
+			row := m.dataTable.SelectedRow()
+			if row != nil {
+				return m, m.activateConnToSelectedCmd()
+			}
+			return m, nil
+		case key.Matches(msg, m.keys.deactivate):
+			row := m.dataTable.SelectedRow()
+			if row != nil {
+				return m, m.deactivateConnToSelectedCmd()
+			}
+			return m, nil
 		}
 	case AvailableNetworksStateMsg:
 		return m, m.setStateCmd(availableNetworksState(msg))
@@ -338,4 +358,44 @@ func SetAvailableNetworksStateCmd(state availableNetworksState) tea.Cmd {
 	return func() tea.Msg {
 		return AvailableNetworksStateMsg(state)
 	}
+}
+
+func (m *AvailableNetworksModel) activateConnToSelectedCmd() tea.Cmd {
+	return tea.Sequence(
+		m.setStateCmd(AvailableNetsActivating),
+		func() tea.Msg {
+			name := m.dataTable.SelectedRow()[availableNetworksCfg.ssidColIdx]
+			err := m.netMngr.ActivateProfile(context.Background(), name)
+			if err != nil {
+				return tea.Batch(
+					m.setStateCmd(AvailableNetsDone),
+					NotifyCmd(fmt.Sprintf("Cannot activate connection to network with SSID=%q\nTry connect via profile (The profile name and SSID may differ)", name)),
+				)
+			}
+			return tea.Batch(
+				m.setStateCmd(AvailableNetsDone),
+				RescanNetworksCmd(),
+			)
+		},
+	)
+}
+
+func (m *AvailableNetworksModel) deactivateConnToSelectedCmd() tea.Cmd {
+	return tea.Sequence(m.setStateCmd(AvailableNetsDeactivating),
+		func() tea.Msg {
+			name := m.dataTable.SelectedRow()[availableNetworksCfg.ssidColIdx]
+			err := m.netMngr.DeactivateProfile(context.Background(), name)
+			if err != nil {
+				return tea.Batch(
+					m.setStateCmd(AvailableNetsDone),
+					NotifyCmd(
+						fmt.Sprintf("Error while deactivating connection to network with SSID=%q\nTry connect via profile (The profile name and SSID may differ)", name),
+					),
+				)
+			}
+			return tea.Batch(
+				m.setStateCmd(AvailableNetsDone),
+				RescanNetworksCmd(),
+			)
+		})
 }

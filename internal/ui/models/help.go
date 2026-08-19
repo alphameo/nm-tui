@@ -204,6 +204,8 @@ func (m *HelpModel) availableNetworksFull() [][]key.Binding {
 	return [][]key.Binding{{
 		m.fullKB(m.keyMap.availableNetworks.rescan, "Rescan available networks"),
 		m.fullKB(m.keyMap.availableNetworks.connect, "Open Connector for selected network"),
+		m.fullKB(m.keyMap.availableNetworks.activate, "Activate the connection to the selected network if a profile exists with a name matching the SSID."),
+		m.fullKB(m.keyMap.availableNetworks.deactivate, "Deactivate connection to the selected network"),
 	}}
 }
 
