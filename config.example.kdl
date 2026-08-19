@@ -111,8 +111,8 @@ keys {
     }
     network_profiles {
         edit "enter"
-        connect "space"
-        disconnect "ctrl+space"
+        activate "space"
+        deactivate "ctrl+space"
         delete "d" "delete"
     }
 }

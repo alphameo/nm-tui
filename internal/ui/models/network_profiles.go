@@ -41,8 +41,8 @@ func (s *networkProfilesState) String() string {
 
 type networkProfilesKeyMap struct {
 	edit       key.Binding
-	connect    key.Binding
-	disconnect key.Binding
+	activate   key.Binding
+	deactivate key.Binding
 	rescan     key.Binding
 	delete     key.Binding
 }
@@ -225,10 +225,10 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 
 			return m, OpenProfileEditorCmd(name)
 
-		case key.Matches(msg, m.keys.connect):
+		case key.Matches(msg, m.keys.activate):
 			return m, m.connectToSelectedCmd()
 
-		case key.Matches(msg, m.keys.disconnect):
+		case key.Matches(msg, m.keys.deactivate):
 			return m, m.disconnectFromSelectedCmd()
 		case key.Matches(msg, m.keys.rescan):
 			return m, RescanNetworkProfilesCmd()

@@ -71,8 +71,8 @@ type AvailableNetworksKeys struct {
 
 type NetworkProfilesKeys struct {
 	Edit       *KeyBinding `kdl:"edit"`
-	Connect    *KeyBinding `kdl:"connect"`
-	Disconnect *KeyBinding `kdl:"disconnect"`
+	Activate   *KeyBinding `kdl:"activate"`
+	Deactivate *KeyBinding `kdl:"deactivate"`
 	Delete     *KeyBinding `kdl:"delete"`
 }
 
@@ -115,8 +115,8 @@ func DefaultKeys() *KeyConfig {
 		},
 		NetworkProfiles: &NetworkProfilesKeys{
 			Edit:       &KeyBinding{"enter"},
-			Connect:    &KeyBinding{"space"},
-			Disconnect: &KeyBinding{"ctrl+space"},
+			Activate:   &KeyBinding{"space"},
+			Deactivate: &KeyBinding{"ctrl+space"},
 			Delete:     &KeyBinding{"d", "delete"},
 		},
 	}
@@ -207,8 +207,8 @@ func (s *NetworkProfilesKeys) Merge(src *NetworkProfilesKeys) []error {
 
 	var errs []error
 	errs = append(errs, MergeKeyList(&s.Edit, src.Edit, "network_profiles.edit")...)
-	errs = append(errs, MergeKeyList(&s.Connect, src.Connect, "network_profiles.connect")...)
-	errs = append(errs, MergeKeyList(&s.Disconnect, src.Disconnect, "network_profiles.disconnect")...)
+	errs = append(errs, MergeKeyList(&s.Activate, src.Activate, "network_profiles.activate")...)
+	errs = append(errs, MergeKeyList(&s.Deactivate, src.Deactivate, "network_profiles.deactivate")...)
 	errs = append(errs, MergeKeyList(&s.Delete, src.Delete, "network_profiles.delete")...)
 	return errs
 }

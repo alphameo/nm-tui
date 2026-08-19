@@ -141,12 +141,12 @@ func TestWifiSavedKeysMerge(t *testing.T) {
 		t.Fatalf("nil source: unexpected errors: %v", errs)
 	}
 
-	src := &config.NetworkProfilesKeys{Delete: &config.KeyBinding{"x"}, Disconnect: &config.KeyBinding{"ctrl+space"}}
+	src := &config.NetworkProfilesKeys{Delete: &config.KeyBinding{"x"}, Deactivate: &config.KeyBinding{"ctrl+space"}}
 	if errs := dst.Merge(src); len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
 	assertKeyBinding(t, "delete", dst.Delete, "x")
-	assertKeyBinding(t, "disconnect", dst.Disconnect, "ctrl+space")
+	assertKeyBinding(t, "deactivate", dst.Deactivate, "ctrl+space")
 	assertNilKeyBinding(t, "edit", dst.Edit)
 }
 
