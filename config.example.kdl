@@ -9,8 +9,8 @@
 //         accent "#865fff"
 //     }
 
-// How long (in milliseconds) connection popups/notifications stay visible.
-notification_close_time 50
+// How long (in seconds) connection popups/notifications stay visible.
+notification_close_time 5
 
 // After this time (in seconds) rescan will be triggered on elements of the screen
 rescan_interval 10

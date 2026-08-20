@@ -29,7 +29,7 @@ func DefaultConfig() Config {
 		Keys:           DefaultKeys(),
 		Logging:        DefaultLogConfig(),
 		Icons:          DefaultIconConfig(),
-		NotifCloseTime: new(50),
+		NotifCloseTime: new(5),
 		RescanInterval: new(10),
 	}
 }
