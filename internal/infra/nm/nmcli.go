@@ -75,8 +75,25 @@ func (n *CLI) ScanNetworks(ctx context.Context) ([]infra.AvailableNetwork, error
 		return nil, err
 	}
 
+	return parseNetworks(string(out))
+}
+
+func (n *CLI) ListNetworks(ctx context.Context) ([]infra.AvailableNetwork, error) {
+	args := []string{
+		"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL",
+		"device", "wifi", "list",
+	}
+	out, err := n.run(ctx, infra.ErrListNetworks, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return parseNetworks(string(out))
+}
+
+func parseNetworks(networks string) ([]infra.AvailableNetwork, error) {
 	var res []infra.AvailableNetwork
-	lines := strings.SplitSeq(string(out), "\n")
+	lines := strings.SplitSeq(networks, "\n")
 	for line := range lines {
 		if line == "" {
 			continue
@@ -189,6 +206,14 @@ func (n *CLI) ConnectToNetwork(ctx context.Context, ssid, password string) error
 		"password", password,
 	}
 	_, err := n.run(ctx, infra.ErrConnectToNetwork, args...)
+	return err
+}
+
+func (n *CLI) TryActivateNetwork(ctx context.Context, ssid string) error {
+	args := []string{
+		"device", "wifi", "connect", ssid,
+	}
+	_, err := n.run(ctx, infra.ErrTryActivateNetwork, args...)
 	return err
 }
 
