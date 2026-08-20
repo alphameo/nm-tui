@@ -21,21 +21,20 @@ func (k *KeyBinding) UnmarshalKDL(node *kdl.Node) error {
 }
 
 type KeyConfig struct {
-	Toggle        *KeyBinding `kdl:"toggle"`
-	Rescan        *KeyBinding `kdl:"rescan"`
-	RescanFocused *KeyBinding `kdl:"rescan_focused"`
-	FocusNext     *KeyBinding `kdl:"focus_next"`
-	FocusPrev     *KeyBinding `kdl:"focus_prev"`
-	Focus1        *KeyBinding `kdl:"focus_1"`
-	Focus2        *KeyBinding `kdl:"focus_2"`
-	Focus3        *KeyBinding `kdl:"focus_3"`
-	Focus4        *KeyBinding `kdl:"focus_4"`
-	Focus5        *KeyBinding `kdl:"focus_5"`
-	Focus6        *KeyBinding `kdl:"focus_6"`
-	Focus7        *KeyBinding `kdl:"focus_7"`
-	Focus8        *KeyBinding `kdl:"focus_8"`
-	Focus9        *KeyBinding `kdl:"focus_9"`
-	Focus10       *KeyBinding `kdl:"focus_10"`
+	Toggle    *KeyBinding `kdl:"toggle"`
+	Rescan    *KeyBinding `kdl:"rescan"`
+	FocusNext *KeyBinding `kdl:"focus_next"`
+	FocusPrev *KeyBinding `kdl:"focus_prev"`
+	Focus1    *KeyBinding `kdl:"focus_1"`
+	Focus2    *KeyBinding `kdl:"focus_2"`
+	Focus3    *KeyBinding `kdl:"focus_3"`
+	Focus4    *KeyBinding `kdl:"focus_4"`
+	Focus5    *KeyBinding `kdl:"focus_5"`
+	Focus6    *KeyBinding `kdl:"focus_6"`
+	Focus7    *KeyBinding `kdl:"focus_7"`
+	Focus8    *KeyBinding `kdl:"focus_8"`
+	Focus9    *KeyBinding `kdl:"focus_9"`
+	Focus10   *KeyBinding `kdl:"focus_10"`
 
 	Main   *MainKeys   `kdl:"main"`
 	Dialog *DialogKeys `kdl:"dialog"`
@@ -80,21 +79,20 @@ type NetworkProfilesKeys struct {
 
 func DefaultKeys() *KeyConfig {
 	return &KeyConfig{
-		Toggle:        &KeyBinding{"space"},
-		Rescan:        &KeyBinding{"r"},
-		RescanFocused: &KeyBinding{"ctrl+r"},
-		FocusNext:     &KeyBinding{"tab"},
-		FocusPrev:     &KeyBinding{"shift+tab"},
-		Focus1:        &KeyBinding{"1"},
-		Focus2:        &KeyBinding{"2"},
-		Focus3:        &KeyBinding{"3"},
-		Focus4:        &KeyBinding{"4"},
-		Focus5:        &KeyBinding{"5"},
-		Focus6:        &KeyBinding{"6"},
-		Focus7:        &KeyBinding{"7"},
-		Focus8:        &KeyBinding{"8"},
-		Focus9:        &KeyBinding{"9"},
-		Focus10:       &KeyBinding{"0"},
+		Toggle:    &KeyBinding{"space"},
+		Rescan:    &KeyBinding{"r"},
+		FocusNext: &KeyBinding{"tab"},
+		FocusPrev: &KeyBinding{"shift+tab"},
+		Focus1:    &KeyBinding{"1"},
+		Focus2:    &KeyBinding{"2"},
+		Focus3:    &KeyBinding{"3"},
+		Focus4:    &KeyBinding{"4"},
+		Focus5:    &KeyBinding{"5"},
+		Focus6:    &KeyBinding{"6"},
+		Focus7:    &KeyBinding{"7"},
+		Focus8:    &KeyBinding{"8"},
+		Focus9:    &KeyBinding{"9"},
+		Focus10:   &KeyBinding{"0"},
 		Main: &MainKeys{
 			Help:    &KeyBinding{"?"},
 			TabNext: &KeyBinding{"]"},
@@ -134,7 +132,6 @@ func (k *KeyConfig) Merge(src *KeyConfig) []error {
 	var errs []error
 	errs = append(errs, MergeKeyList(&k.Toggle, src.Toggle, "toggle")...)
 	errs = append(errs, MergeKeyList(&k.Rescan, src.Rescan, "rescan")...)
-	errs = append(errs, MergeKeyList(&k.RescanFocused, src.RescanFocused, "rescan_focused")...)
 	errs = append(errs, MergeKeyList(&k.FocusNext, src.FocusNext, "focus_next")...)
 	errs = append(errs, MergeKeyList(&k.FocusPrev, src.FocusPrev, "focus_prev")...)
 	errs = append(errs, MergeKeyList(&k.Focus1, src.Focus1, "focus_1")...)
