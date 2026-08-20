@@ -205,7 +205,8 @@ func (m *HelpModel) availableNetworksFull() [][]key.Binding {
 		m.fullKB(m.keyMap.availableNetworks.connect, "Open Connector for selected network"),
 		m.fullKB(
 			m.keyMap.availableNetworks.activate,
-			"Activate the connection to the selected network by SSID. Use profile credentials if it exists, or create new one",
+			"Activate the connection to the selected network by SSID."+
+				"Use profile credentials if it exists, or create new one",
 		),
 		m.fullKB(
 			m.keyMap.availableNetworks.deactivate,
