@@ -167,8 +167,7 @@ func (m *AvailableNetworksModel) SetTableStyles(focused, blured table.Styles) {
 }
 
 func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
+	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		if !m.focus {
 			return m, nil
 		}
