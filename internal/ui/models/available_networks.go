@@ -260,13 +260,13 @@ func (m *AvailableNetworksModel) activateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
 		SetNetworksStateCmd(NetsActivating),
 		func() tea.Msg {
-			name := m.dataTable.SelectedRow()[availableNetworksCfg.ssidColIdx]
-			err := m.netMngr.ActivateProfile(context.Background(), name)
+			ssid := m.dataTable.SelectedRow()[availableNetworksCfg.ssidColIdx]
+			err := m.netMngr.TryActivateNetwork(context.Background(), ssid)
 			if err != nil {
 				return tea.Batch(
 					SetNetworksStateCmd(NetsDone),
 					NotifyCmd(fmt.Sprintf("Cannot activate connection to network with SSID=%q\n"+
-						"Try connect via profile (the profile name and SSID may differ)", name)),
+						"Try connect via profile", ssid)),
 				)
 			}
 			return tea.Batch(
