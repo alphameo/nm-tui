@@ -98,8 +98,11 @@ var (
 )
 
 type NetworksManager interface {
-	// ScanNetworks shows list of wifi-networks able to be connected.
+	// ScanNetworks returns list of networks able to be connected.
 	ScanNetworks(ctx context.Context) ([]AvailableNetwork, error)
+
+	// ListNetworks returns cached list of networks able to be connected.
+	ListNetworks(ctx context.Context) ([]AvailableNetwork, error)
 
 	// ListProfileNames returns names of saved connections.
 	ListProfileNames(ctx context.Context) ([]string, error)
@@ -109,6 +112,10 @@ type NetworksManager interface {
 
 	// ConnectToNetwork creates network connection.
 	ConnectToNetwork(ctx context.Context, ssid, password string) error
+
+	// TryActivateNetwork connects to the network by SSID. Uses credentials from the corresponding profile if
+	// corresponding profile exists, or cretes profile if does not.
+	TryActivateNetwork(ctx context.Context, ssid string) error
 
 	// CreateConnectionProfile creates specified connection profile.
 	CreateConnectionProfile(ctx context.Context, name, ssid, password string, hidden bool) error
