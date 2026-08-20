@@ -294,7 +294,7 @@ func (m *HelpModel) networksFull() [][]key.Binding {
 		m.fullKB(m.keyMap.networks.createHotspot, "Open Hotspot Creator"),
 		m.fullKB(m.keyMap.networks.quickHotspot, "Enable hotspot, silently create its profile if not present"),
 		m.fullKB(m.keyMap.networks.openCaptivePortal, "Open login (captive) portal in external browser"),
-		m.fullKB(m.keyMap.networks.rescan, "Rescan all networks"),
+		m.fullKB(m.keyMap.networks.rescan, "Rescan networks"),
 	}}
 }
 
