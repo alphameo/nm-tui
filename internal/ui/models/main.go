@@ -146,7 +146,7 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case IntervalRescanMsg:
 		var cmds []tea.Cmd
 		if m.networks.indicatorState == NetsDone {
-			cmds = append(cmds, m.networks.rescanAllCmd())
+			cmds = append(cmds, m.networks.rescanCmd())
 		}
 		if m.device.indicatorState == DeviceDone {
 			cmds = append(cmds, RescanDeviceCmd())

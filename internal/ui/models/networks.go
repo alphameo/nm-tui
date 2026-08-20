@@ -134,7 +134,7 @@ func (m *NetworksModel) Focused() bool { return m.focus }
 
 func (m *NetworksModel) Init() tea.Cmd {
 	return tea.Batch(
-		m.rescanAllCmd(),
+		m.listNetsCmd(),
 		m.focuses.SetFocusIdx(0),
 	)
 }
@@ -159,7 +159,7 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 			if m.indicatorState != NetsDone {
 				return m, nil
 			}
-			return m, m.rescanAllCmd()
+			return m, m.rescanCmd()
 		case key.Matches(msg, m.keys.createProfile):
 			return m, OpenProfileCreatorCmd()
 		case key.Matches(msg, m.keys.createHotspot):
@@ -176,7 +176,7 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 			return m, m.quickHotspot()
 		}
 	case RescanNetworksMsg:
-		return m, m.rescanAllCmd()
+		return m, m.rescanCmd()
 	case NetworksStateMsg:
 		return m, m.setStateCmd(networksState(msg))
 	}
@@ -265,7 +265,27 @@ type NetworksRescannedMsg struct {
 	ProfilesErr error
 }
 
-func (m *NetworksModel) rescanAllCmd() tea.Cmd {
+func (m *NetworksModel) listNetsCmd() tea.Cmd {
+	return tea.Sequence(
+		m.setStateCmd(NetsScanning),
+		func() tea.Msg {
+			ctx := context.Background()
+			availableRecords, scanErr := m.netMngr.ListNetworks(ctx)
+			availables := convertAvailableNetworks(availableRecords)
+			profileRecords, profilesErr := m.netMngr.ListProfiles(ctx)
+			profiles := convertNetworkProfileShorts(profileRecords)
+			availableExt, profilesExt := CrossReferenceNetworks(availables, profiles)
+			return NetworksRescannedMsg{
+				Available:   availableExt,
+				Profiles:    profilesExt,
+				ScanErr:     scanErr,
+				ProfilesErr: profilesErr,
+			}
+		},
+	)
+}
+
+func (m *NetworksModel) rescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(NetsScanning),
 		func() tea.Msg {
