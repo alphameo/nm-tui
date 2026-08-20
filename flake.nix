@@ -10,7 +10,7 @@
         };
 
     inputs = {
-        nixpkgs.url = "github:NixOS/nixpkgs/master"; # go 1.26.3
+        nixpkgs.url = "github:NixOS/nixpkgs/master"; # go 1.26.5
         systems.url = "github:nix-systems/default-linux";
 
         flakelight = {
