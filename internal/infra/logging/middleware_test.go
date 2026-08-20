@@ -52,7 +52,7 @@ type wifiStub struct {
 	pass       string
 }
 
-func (s *wifiStub) ScanNetworks(context.Context) ([]infra.AvailableNetwork, error) {
+func (s *wifiStub) ListNetworksWithRescan(context.Context) ([]infra.AvailableNetwork, error) {
 	return nil, s.scanErr
 }
 
@@ -90,7 +90,7 @@ func TestScanWifisFailureLogsErrorAndExitCode(t *testing.T) {
 	h := newCapture(slog.LevelDebug)
 	m := logging.New(slog.New(h), &wifiStub{scanErr: exitErr(t, 3)}, &networkStub{}, &portalStub{})
 
-	if _, err := m.ScanNetworks(context.Background()); err == nil {
+	if _, err := m.ListNetworksWithRescan(context.Background()); err == nil {
 		t.Fatal("want error, got nil")
 	}
 	if len(h.records) != 1 {

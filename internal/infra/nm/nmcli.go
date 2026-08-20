@@ -65,7 +65,7 @@ func (n *CLI) ListNetworkDevices(ctx context.Context) ([]infra.NetworkDevice, er
 	return res, nil
 }
 
-func (n *CLI) ScanNetworks(ctx context.Context) ([]infra.AvailableNetwork, error) {
+func (n *CLI) ListNetworksWithRescan(ctx context.Context) ([]infra.AvailableNetwork, error) {
 	args := []string{
 		"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL",
 		"device", "wifi", "list", "--rescan", "yes",
