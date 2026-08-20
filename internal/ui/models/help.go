@@ -217,6 +217,8 @@ func (m *HelpModel) availableNetworksFull() [][]key.Binding {
 func (m *HelpModel) availableNetworksShort() []key.Binding {
 	k := []key.Binding{
 		m.keyMap.availableNetworks.connect,
+		m.keyMap.availableNetworks.activate,
+		m.keyMap.availableNetworks.deactivate,
 	}
 	return m.shortKBs(k)
 }
