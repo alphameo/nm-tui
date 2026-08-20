@@ -1,6 +1,11 @@
-.PHONY: build build-dev flake-upd run deps clean-build logs lint lint-fix format test
+.PHONY: all clean build build-dev flake-upd run deps clean-build logs lint lint-fix format test
 
 VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo dev)
+
+all: build
+
+clean:
+	rm -rf ./bin/*
 
 build:
 	CGO_ENABLED=0 go build -ldflags "-X main.version=$(VERSION)" -o bin/nm-tui ./cmd/nm-tui/main.go
