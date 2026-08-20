@@ -64,14 +64,6 @@ func (s *wifiStub) GetProfilePassword(context.Context, string) (string, error) {
 	return s.pass, s.scanErr
 }
 
-type networkStub struct {
-	infra.DeviceManager
-}
-
-type portalStub struct {
-	infra.CaptivePortalOpener
-}
-
 func exitErr(t *testing.T, code int) error {
 	t.Helper()
 	// #nosec G204 -- test helper; code is a fixed integer from the test
@@ -88,7 +80,7 @@ func TestScanWifisFailureLogsErrorAndExitCode(t *testing.T) {
 	t.Parallel()
 
 	h := newCapture(slog.LevelDebug)
-	m := logging.New(slog.New(h), &wifiStub{scanErr: exitErr(t, 3)}, &networkStub{}, &portalStub{})
+	m := logging.NewNetworks(slog.New(h), &wifiStub{scanErr: exitErr(t, 3)})
 
 	if _, err := m.ListNetworksWithRescan(context.Background()); err == nil {
 		t.Fatal("want error, got nil")
@@ -113,7 +105,7 @@ func TestSecretsNeverLogged(t *testing.T) {
 
 	h := newCapture(slog.LevelDebug)
 	pass := "super-secret-pass-1"
-	m := logging.New(slog.New(h), &wifiStub{pass: pass}, &networkStub{}, &portalStub{})
+	m := logging.NewNetworks(slog.New(h), &wifiStub{pass: pass})
 
 	got, err := m.GetProfilePassword(context.Background(), "home")
 	if err != nil {

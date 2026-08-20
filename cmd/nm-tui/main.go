@@ -72,8 +72,10 @@ func main() {
 
 	nm := nm.NewCLI()
 	portalOpener := portal.New()
-	logMw := logging.New(fileLogger, nm, nm, portalOpener)
-	model, err := models.NewMainModel(logMw, logMw, logMw, cfg)
+	networksMw := logging.NewNetworks(fileLogger, nm)
+	deviceMw := logging.NewDevice(fileLogger, nm)
+	portalMw := logging.NewPortal(fileLogger, portalOpener)
+	model, err := models.NewMainModel(networksMw, deviceMw, portalMw, cfg)
 	if err != nil {
 		fileLogger.Error("error during model initialization", "errors", err.Error())
 		return
