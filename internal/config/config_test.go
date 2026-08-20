@@ -44,7 +44,7 @@ func TestConfigMerge(t *testing.T) {
 			wantErr:   1,
 			fragments: []string{"notification_close_time"},
 			check: func(t *testing.T, cfg *config.Config) {
-				if got, want := *cfg.NotifCloseTime, 50; got != want {
+				if got, want := *cfg.NotifCloseTime, *config.DefaultConfig().NotifCloseTime; got != want {
 					t.Errorf("NotifCloseTime should stay default, got %d want %d", got, want)
 				}
 			},
