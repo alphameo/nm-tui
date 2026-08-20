@@ -76,6 +76,12 @@ func (m *Middleware) ScanNetworks(ctx context.Context) ([]infra.AvailableNetwork
 	})
 }
 
+func (m *Middleware) ListNetworks(ctx context.Context) ([]infra.AvailableNetwork, error) {
+	return callResult(m, "networks.list_networks", func() ([]infra.AvailableNetwork, error) {
+		return m.networks.ListNetworks(ctx)
+	})
+}
+
 func (m *Middleware) ListProfileNames(ctx context.Context) ([]string, error) {
 	return callResult(m, "networks.list_profile_names", func() ([]string, error) {
 		return m.networks.ListProfileNames(ctx)
@@ -91,6 +97,12 @@ func (m *Middleware) ListProfiles(ctx context.Context) ([]infra.NetworkProfileSh
 func (m *Middleware) ConnectToNetwork(ctx context.Context, ssid, password string) error {
 	return m.call("networks.connect_to_network", func() error {
 		return m.networks.ConnectToNetwork(ctx, ssid, password)
+	})
+}
+
+func (m *Middleware) TryActivateNetwork(ctx context.Context, ssid string) error {
+	return m.call("networks.try_activate_network", func() error {
+		return m.networks.TryActivateNetwork(ctx, ssid)
 	})
 }
 
