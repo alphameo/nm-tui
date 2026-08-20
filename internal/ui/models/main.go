@@ -79,15 +79,14 @@ func NewMainModel(
 	available.focusedStyle = styles.BorderedFocusedStyle
 	available.bluredStyle = styles.BorderedStyle
 	available.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
-	available.IndicatorStyle = styles.DefaultStyle
 
 	profiles := NewNetworkProfilesModel(keys.networkProfiles, networksManager)
 	profiles.focusedStyle = styles.BorderedFocusedStyle
 	profiles.bluredStyle = styles.BorderedStyle
 	profiles.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
-	profiles.IndicatorStyle = styles.DefaultStyle
 
 	networks := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
+	networks.IndicatorStyle = styles.DefaultStyle
 
 	device := NewDeviceModel(keys.device, deviceManager)
 	device.TableStyle = styles.BorderedStyle
@@ -146,8 +145,7 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case IntervalRescanMsg:
 		var cmds []tea.Cmd
-		if m.networks.available.indicatorState == AvailableNetsDone &&
-			m.networks.profiles.indicatorState == NetProfilesDone {
+		if m.networks.indicatorState == NetsDone {
 			cmds = append(cmds, m.networks.rescanAllCmd())
 		}
 		if m.device.indicatorState == DeviceDone {
