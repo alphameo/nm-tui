@@ -98,8 +98,8 @@ var (
 )
 
 type NetworksManager interface {
-	// ScanNetworks returns list of networks able to be connected.
-	ScanNetworks(ctx context.Context) ([]AvailableNetwork, error)
+	// ListNetworksWithRescan returns list of networks able to be connected.
+	ListNetworksWithRescan(ctx context.Context) ([]AvailableNetwork, error)
 
 	// ListNetworks returns cached list of networks able to be connected.
 	ListNetworks(ctx context.Context) ([]AvailableNetwork, error)

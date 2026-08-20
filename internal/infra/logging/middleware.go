@@ -70,9 +70,9 @@ func exitCode(err error) int {
 	return -1
 }
 
-func (m *Middleware) ScanNetworks(ctx context.Context) ([]infra.AvailableNetwork, error) {
+func (m *Middleware) ListNetworksWithRescan(ctx context.Context) ([]infra.AvailableNetwork, error) {
 	return callResult(m, "networks.scan_networks", func() ([]infra.AvailableNetwork, error) {
-		return m.networks.ScanNetworks(ctx)
+		return m.networks.ListNetworksWithRescan(ctx)
 	})
 }
 

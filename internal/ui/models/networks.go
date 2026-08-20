@@ -270,7 +270,7 @@ func (m *NetworksModel) rescanAllCmd() tea.Cmd {
 		m.setStateCmd(NetsScanning),
 		func() tea.Msg {
 			ctx := context.Background()
-			availableRecords, scanErr := m.netMngr.ScanNetworks(ctx)
+			availableRecords, scanErr := m.netMngr.ListNetworksWithRescan(ctx)
 			availables := convertAvailableNetworks(availableRecords)
 			profileRecords, profilesErr := m.netMngr.ListProfiles(ctx)
 			profiles := convertNetworkProfileShorts(profileRecords)
