@@ -158,7 +158,7 @@ func (m *HotspotCreatorModel) View() string {
 
 func (m *HotspotCreatorModel) createHotspotProfileCmd() tea.Cmd {
 	return tea.Sequence(
-		SetAvailableNetworksStateCmd(AvailableNetsCreating),
+		SetAvailableNetworksStateCmd(NetsCreating),
 		func() tea.Msg {
 			err := m.netMngr.CreateHotspotProfile(
 				context.Background(),
@@ -168,7 +168,7 @@ func (m *HotspotCreatorModel) createHotspotProfileCmd() tea.Cmd {
 			)
 			if err != nil {
 				return tea.Batch(
-					SetAvailableNetworksStateCmd(AvailableNetsDone),
+					SetAvailableNetworksStateCmd(NetsDone),
 					NotifyCmd(fmt.Sprintf(
 						"Cannot create hotspot %s:\n%v",
 						m.ssid.Value(), err,
@@ -177,7 +177,7 @@ func (m *HotspotCreatorModel) createHotspotProfileCmd() tea.Cmd {
 				)
 			}
 			return tea.Batch(
-				SetAvailableNetworksStateCmd(AvailableNetsDone),
+				SetAvailableNetworksStateCmd(NetsDone),
 				RescanNetworksCmd(),
 			)
 		},

@@ -62,14 +62,12 @@ func initKeys(keys config.KeyConfig) keyMaps {
 			win2:              NewKey(*keys.Focus2, "2nd window"),
 		},
 		networkProfiles: networkProfilesKeyMap{
-			rescan:     NewKey(*keys.RescanFocused, "rescan profiles"),
 			edit:       NewKey(*keys.NetworkProfiles.Edit, "edit"),
 			activate:   NewKey(*keys.NetworkProfiles.Activate, "activate"),
 			deactivate: NewKey(*keys.NetworkProfiles.Deactivate, "deactivate"),
 			delete:     NewKey(*keys.NetworkProfiles.Delete, "delete"),
 		},
 		availableNetworks: availableNetworksKeyMap{
-			rescan:     NewKey(*keys.RescanFocused, "rescan available"),
 			connect:    NewKey(*keys.AvailableNetworks.Connect, "connect"),
 			activate:   NewKey(*keys.AvailableNetworks.Activate, "activate"),
 			deactivate: NewKey(*keys.AvailableNetworks.Deactivate, "deactivate"),

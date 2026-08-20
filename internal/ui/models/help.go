@@ -202,7 +202,6 @@ func (m *HelpModel) deviceShort() []key.Binding {
 
 func (m *HelpModel) availableNetworksFull() [][]key.Binding {
 	return [][]key.Binding{{
-		m.fullKB(m.keyMap.availableNetworks.rescan, "Rescan available networks"),
 		m.fullKB(m.keyMap.availableNetworks.connect, "Open Connector for selected network"),
 		m.fullKB(
 			m.keyMap.availableNetworks.activate,
@@ -217,7 +216,6 @@ func (m *HelpModel) availableNetworksFull() [][]key.Binding {
 
 func (m *HelpModel) availableNetworksShort() []key.Binding {
 	k := []key.Binding{
-		m.keyMap.availableNetworks.rescan,
 		m.keyMap.availableNetworks.connect,
 	}
 	return m.shortKBs(k)
@@ -273,7 +271,6 @@ func (m *HelpModel) networkProfilesFull() [][]key.Binding {
 		),
 		m.fullKB(m.keyMap.networkProfiles.edit, "Open Profile Editor for selected profile"),
 		m.fullKB(m.keyMap.networkProfiles.delete, "Delete network profile"),
-		m.fullKB(m.keyMap.networkProfiles.rescan, "Rescan saved network profiles"),
 	}}
 }
 
@@ -283,7 +280,6 @@ func (m *HelpModel) networkProfilesShort() []key.Binding {
 		m.keyMap.networkProfiles.deactivate,
 		m.keyMap.networkProfiles.edit,
 		m.keyMap.networkProfiles.delete,
-		m.keyMap.networkProfiles.rescan,
 	}
 	return m.shortKBs(k)
 }

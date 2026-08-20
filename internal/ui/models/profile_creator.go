@@ -175,7 +175,7 @@ func (m *ProfileCreatorModel) View() string {
 
 func (m *ProfileCreatorModel) createProfileCmd() tea.Cmd {
 	return tea.Sequence(
-		SetAvailableNetworksStateCmd(AvailableNetsCreating),
+		SetAvailableNetworksStateCmd(NetsCreating),
 		func() tea.Msg {
 			err := m.netMngr.CreateConnectionProfile(
 				context.Background(),
@@ -190,7 +190,7 @@ func (m *ProfileCreatorModel) createProfileCmd() tea.Cmd {
 					hidden = "hidden "
 				}
 				return tea.Batch(
-					SetAvailableNetworksStateCmd(AvailableNetsDone),
+					SetAvailableNetworksStateCmd(NetsDone),
 					NotifyCmd(fmt.Sprintf(
 						"Cannot create connection to %s%s:\n%v",
 						hidden, m.ssid.Value(), err,
@@ -199,7 +199,7 @@ func (m *ProfileCreatorModel) createProfileCmd() tea.Cmd {
 				)
 			}
 			return tea.Batch(
-				SetAvailableNetworksStateCmd(AvailableNetsDone),
+				SetAvailableNetworksStateCmd(NetsDone),
 				RescanNetworksCmd(),
 			)
 		},

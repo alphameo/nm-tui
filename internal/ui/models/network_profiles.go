@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"charm.land/bubbles/v2/key"
-	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/table"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -14,36 +13,10 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/tools/renderer"
 )
 
-type networkProfilesState int
-
-const (
-	NetProfilesNil networkProfilesState = iota
-	NetProfilesScanning
-	NetProfilesActivating
-	NetProfilesDeactivating
-	NetProfilesDone
-)
-
-func (s *networkProfilesState) String() string {
-	switch *s {
-	case NetProfilesScanning:
-		return "Scanning"
-	case NetProfilesActivating:
-		return "Activating"
-	case NetProfilesDeactivating:
-		return "Deactivating"
-	case NetProfilesDone:
-		return "󰄬"
-	default:
-		return "Undefined"
-	}
-}
-
 type networkProfilesKeyMap struct {
 	edit       key.Binding
 	activate   key.Binding
 	deactivate key.Binding
-	rescan     key.Binding
 	delete     key.Binding
 }
 
@@ -51,10 +24,6 @@ type NetworkProfilesModel struct {
 	dataTable          table.Model
 	focusedTableStyles table.Styles
 	bluredTableStyles  table.Styles
-
-	indicatorSpinner spinner.Model
-	indicatorState   networkProfilesState
-	IndicatorStyle   lipgloss.Style
 
 	focus bool
 
@@ -116,16 +85,10 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 		table.WithFocused(true),
 	)
 
-	s := newDefaultSpinner()
-
 	model := &NetworkProfilesModel{
 		dataTable:          t,
 		focusedTableStyles: table.DefaultStyles(),
 		bluredTableStyles:  table.DefaultStyles(),
-
-		indicatorSpinner: s,
-		indicatorState:   NetProfilesDone,
-		IndicatorStyle:   lipgloss.NewStyle(),
 
 		keys:         keys,
 		netMngr:      networksManager,
@@ -143,9 +106,6 @@ func (m *NetworkProfilesModel) Resize(width, height int) {
 	border := m.focusedStyle.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
-
-	indicatorStateHeight := lipgloss.Height(m.indicatorView())
-	height -= indicatorStateHeight
 
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
@@ -227,22 +187,13 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 
 		case key.Matches(msg, m.keys.deactivate):
 			return m, m.deactivateConnToSelectedCmd()
-		case key.Matches(msg, m.keys.rescan):
-			return m, RescanNetworksCmd()
 		case key.Matches(msg, m.keys.delete):
 			return m, m.deleteSelectedCmd()
 		}
-	case WifiSavedStateMsg:
-		return m, m.setStateCmd(networkProfilesState(msg))
 	}
 
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
-
-	if m.indicatorState != NetProfilesDone {
-		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
-		cmds = append(cmds, cmd)
-	}
 
 	m.dataTable, cmd = m.dataTable.Update(msg)
 	cmds = append(cmds, cmd)
@@ -252,12 +203,6 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 
 func (m *NetworkProfilesModel) View() string {
 	view := m.dataTable.View()
-	statusline := m.indicatorView()
-	view = lipgloss.JoinVertical(
-		lipgloss.Center,
-		view,
-		statusline,
-	)
 
 	style := m.activeStyle()
 	view = renderer.RenderWithTitleAndKeybind(
@@ -268,20 +213,6 @@ func (m *NetworkProfilesModel) View() string {
 		styles.AccentColor,
 	)
 	return view
-}
-
-func (m *NetworkProfilesModel) indicatorView() string {
-	var view string
-	if m.indicatorState != NetProfilesDone {
-		view = fmt.Sprintf(
-			"%s %s",
-			m.indicatorState.String(),
-			m.indicatorSpinner.View(),
-		)
-	} else {
-		view = m.indicatorState.String()
-	}
-	return m.IndicatorStyle.Render(view)
 }
 
 func (m *NetworkProfilesModel) setProfiles(list []NetworkProfileShort, err error) tea.Cmd {
@@ -303,41 +234,27 @@ func (m *NetworkProfilesModel) setProfiles(list []NetworkProfileShort, err error
 
 	m.dataTable.SetRows(rows)
 
-	cmds := []tea.Cmd{m.setStateCmd(NetProfilesDone)}
+	cmds := []tea.Cmd{SetNetworksStateCmd(NetsDone)}
 	if err != nil {
 		cmds = append(cmds, NotifyCmd("Cannot get network profiles"))
 	}
 	return tea.Batch(cmds...)
 }
 
-type WifiSavedStateMsg networkProfilesState
-
-func (m *NetworkProfilesModel) setStateCmd(state networkProfilesState) tea.Cmd {
-	updCmd := func() tea.Msg {
-		m.indicatorState = state
-		return NilMsg{}
-	}
-
-	if state == NetProfilesDone {
-		return updCmd
-	}
-	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
-}
-
 func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(NetProfilesActivating),
+		SetNetworksStateCmd(NetsActivating),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
 			err := m.netMngr.ActivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
-					m.setStateCmd(NetProfilesDone),
+					SetNetworksStateCmd(NetsDone),
 					NotifyCmd(fmt.Sprintf("Cannot connect to %q", name)),
 				)
 			}
 			return tea.Batch(
-				m.setStateCmd(NetProfilesDone),
+				SetNetworksStateCmd(NetsDone),
 				m.gotoTop(),
 				RescanNetworksCmd(),
 			)
@@ -346,20 +263,20 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 }
 
 func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
-	return tea.Sequence(m.setStateCmd(NetProfilesDeactivating),
+	return tea.Sequence(SetNetworksStateCmd(NetsDeactivating),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
 			err := m.netMngr.DeactivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
-					m.setStateCmd(NetProfilesDone),
+					SetNetworksStateCmd(NetsDone),
 					NotifyCmd(
 						fmt.Sprintf("Error while deactivating connection with %q", name),
 					),
 				)
 			}
 			return tea.Batch(
-				m.setStateCmd(NetProfilesDone),
+				SetNetworksStateCmd(NetsDone),
 				m.gotoTop(),
 				RescanNetworksCmd(),
 			)

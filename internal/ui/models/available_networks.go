@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"charm.land/bubbles/v2/key"
-	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/table"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -41,39 +40,7 @@ var availableNetworksCfg = availableNetworksConfig{
 	minSignalColWidth:       3,
 }
 
-type availableNetworksState int
-
-const (
-	AvailableNetsNil availableNetworksState = iota
-	AvailableNetsScanning
-	AvailableNetsActivating
-	AvailableNetsDeactivating
-	AvailableNetsConnecting
-	AvailableNetsCreating
-	AvailableNetsDone
-)
-
-func (s *availableNetworksState) String() string {
-	switch *s {
-	case AvailableNetsScanning:
-		return "Scanning"
-	case AvailableNetsActivating:
-		return "Activating"
-	case AvailableNetsDeactivating:
-		return "Deactivating"
-	case AvailableNetsConnecting:
-		return "Connecting"
-	case AvailableNetsCreating:
-		return "Creating Connection Profile"
-	case AvailableNetsDone:
-		return styles.SymbolCheck
-	default:
-		return "Undefined"
-	}
-}
-
 type availableNetworksKeyMap struct {
-	rescan     key.Binding
 	connect    key.Binding
 	activate   key.Binding
 	deactivate key.Binding
@@ -83,10 +50,6 @@ type AvailableNetworksModel struct {
 	dataTable          table.Model
 	focusedTableStyles table.Styles
 	bluredTableStyles  table.Styles
-
-	indicatorSpinner spinner.Model
-	indicatorState   availableNetworksState
-	IndicatorStyle   lipgloss.Style
 
 	focus bool
 
@@ -125,16 +88,10 @@ func NewAvailableNetworksModel(
 		table.WithFocused(true),
 	)
 
-	s := newDefaultSpinner()
-
 	model := &AvailableNetworksModel{
 		dataTable:          t,
 		focusedTableStyles: table.DefaultStyles(),
 		bluredTableStyles:  table.DefaultStyles(),
-
-		indicatorSpinner: s,
-		indicatorState:   AvailableNetsDone,
-		IndicatorStyle:   lipgloss.NewStyle(),
 
 		keys:         keys,
 		netMngr:      networksManager,
@@ -152,10 +109,6 @@ func (m *AvailableNetworksModel) Resize(width, height int) {
 	border := m.focusedStyle.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
-
-	indicatorStateHeight := lipgloss.Height(m.indicatorView())
-
-	height -= indicatorStateHeight
 
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
@@ -221,11 +174,6 @@ func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, t
 			return m, nil
 		}
 		switch {
-		case key.Matches(msg, m.keys.rescan):
-			if m.indicatorState != AvailableNetsDone {
-				return m, nil
-			}
-			return m, RescanNetworksCmd()
 		case key.Matches(msg, m.keys.connect):
 			row := m.dataTable.SelectedRow()
 			if row != nil {
@@ -246,16 +194,11 @@ func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, t
 			return m, nil
 		}
 	case AvailableNetworksStateMsg:
-		return m, m.setStateCmd(availableNetworksState(msg))
+		return m, SetNetworksStateCmd(networksState(msg))
 	}
 
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
-
-	if m.indicatorState != AvailableNetsDone {
-		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
-		cmds = append(cmds, cmd)
-	}
 
 	m.dataTable, cmd = m.dataTable.Update(msg)
 	cmds = append(cmds, cmd)
@@ -265,12 +208,6 @@ func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, t
 
 func (m *AvailableNetworksModel) View() string {
 	view := m.dataTable.View()
-	statusline := m.indicatorView()
-	view = lipgloss.JoinVertical(
-		lipgloss.Center,
-		view,
-		statusline,
-	)
 
 	style := m.activeStyle()
 	view = renderer.RenderWithTitleAndKeybind(
@@ -281,20 +218,6 @@ func (m *AvailableNetworksModel) View() string {
 		styles.AccentColor,
 	)
 	return view
-}
-
-func (m *AvailableNetworksModel) indicatorView() string {
-	var view string
-	if m.indicatorState != AvailableNetsDone {
-		view = fmt.Sprintf(
-			"%s %s",
-			m.indicatorState.String(),
-			m.indicatorSpinner.View(),
-		)
-	} else {
-		view = m.indicatorState.String()
-	}
-	return m.IndicatorStyle.Render(view)
 }
 
 func (m *AvailableNetworksModel) setAvailable(list []AvailableNetwork, err error) tea.Cmd {
@@ -318,27 +241,16 @@ func (m *AvailableNetworksModel) setAvailable(list []AvailableNetwork, err error
 	m.dataTable.GotoTop()
 	m.dataTable.UpdateViewport()
 
-	cmds := []tea.Cmd{m.setStateCmd(AvailableNetsDone)}
+	cmds := []tea.Cmd{SetNetworksStateCmd(NetsDone)}
 	if err != nil {
 		cmds = append(cmds, NotifyCmd("Cannot scan available wifi networks"))
 	}
 	return tea.Batch(cmds...)
 }
 
-type AvailableNetworksStateMsg availableNetworksState
+type AvailableNetworksStateMsg networksState
 
-func (m *AvailableNetworksModel) setStateCmd(state availableNetworksState) tea.Cmd {
-	updCmd := func() tea.Msg {
-		m.indicatorState = state
-		return nil
-	}
-	if state == AvailableNetsDone {
-		return updCmd
-	}
-	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
-}
-
-func SetAvailableNetworksStateCmd(state availableNetworksState) tea.Cmd {
+func SetAvailableNetworksStateCmd(state networksState) tea.Cmd {
 	return func() tea.Msg {
 		return AvailableNetworksStateMsg(state)
 	}
@@ -346,19 +258,19 @@ func SetAvailableNetworksStateCmd(state availableNetworksState) tea.Cmd {
 
 func (m *AvailableNetworksModel) activateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
-		m.setStateCmd(AvailableNetsActivating),
+		SetNetworksStateCmd(NetsActivating),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[availableNetworksCfg.ssidColIdx]
 			err := m.netMngr.ActivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
-					m.setStateCmd(AvailableNetsDone),
+					SetNetworksStateCmd(NetsDone),
 					NotifyCmd(fmt.Sprintf("Cannot activate connection to network with SSID=%q\n"+
 						"Try connect via profile (the profile name and SSID may differ)", name)),
 				)
 			}
 			return tea.Batch(
-				m.setStateCmd(AvailableNetsDone),
+				SetNetworksStateCmd(NetsDone),
 				RescanNetworksCmd(),
 			)
 		},
@@ -366,13 +278,14 @@ func (m *AvailableNetworksModel) activateConnToSelectedCmd() tea.Cmd {
 }
 
 func (m *AvailableNetworksModel) deactivateConnToSelectedCmd() tea.Cmd {
-	return tea.Sequence(m.setStateCmd(AvailableNetsDeactivating),
+	return tea.Sequence(
+		SetNetworksStateCmd(NetsDeactivating),
 		func() tea.Msg {
 			name := m.dataTable.SelectedRow()[availableNetworksCfg.ssidColIdx]
 			err := m.netMngr.DeactivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
-					m.setStateCmd(AvailableNetsDone),
+					SetNetworksStateCmd(NetsDone),
 					NotifyCmd(
 						fmt.Sprintf("Error while deactivating connection to network with SSID=%q\n"+
 							"try disconnect via profile (The profile name and SSID may differ)", name),
@@ -380,7 +293,7 @@ func (m *AvailableNetworksModel) deactivateConnToSelectedCmd() tea.Cmd {
 				)
 			}
 			return tea.Batch(
-				m.setStateCmd(AvailableNetsDone),
+				SetNetworksStateCmd(NetsDone),
 				RescanNetworksCmd(),
 			)
 		})

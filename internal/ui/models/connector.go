@@ -162,7 +162,7 @@ func (m *ConnectorModel) View() string {
 
 func (m *ConnectorModel) connectToNetworkCmd() tea.Cmd {
 	return tea.Sequence(
-		SetAvailableNetworksStateCmd(AvailableNetsConnecting),
+		SetAvailableNetworksStateCmd(NetsConnecting),
 		func() tea.Msg {
 			err := m.netMngr.ConnectToNetwork(
 				context.Background(),
@@ -171,7 +171,7 @@ func (m *ConnectorModel) connectToNetworkCmd() tea.Cmd {
 			)
 			if err != nil {
 				return tea.Batch(
-					SetAvailableNetworksStateCmd(AvailableNetsDone),
+					SetAvailableNetworksStateCmd(NetsDone),
 					NotifyCmd(fmt.Sprintf(
 						"Cannot connect to %s via given password:\n%v",
 						m.ssid, err,
@@ -180,7 +180,7 @@ func (m *ConnectorModel) connectToNetworkCmd() tea.Cmd {
 				)
 			}
 			return tea.Batch(
-				SetAvailableNetworksStateCmd(AvailableNetsDone),
+				SetAvailableNetworksStateCmd(NetsDone),
 				RescanNetworksCmd(),
 			)
 		},

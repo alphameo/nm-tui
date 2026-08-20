@@ -5,11 +5,13 @@ import (
 	"fmt"
 
 	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/spinner"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/models/focus"
 	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
+	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
 type networksKeyMap struct {
@@ -24,9 +26,44 @@ type networksKeyMap struct {
 	createHotspot     key.Binding
 }
 
+type networksState int
+
+const (
+	NetsNil networksState = iota
+	NetsScanning
+	NetsActivating
+	NetsDeactivating
+	NetsConnecting
+	NetsCreating
+	NetsDone
+)
+
+func (s *networksState) String() string {
+	switch *s {
+	case NetsScanning:
+		return "Scanning"
+	case NetsActivating:
+		return "Activating"
+	case NetsDeactivating:
+		return "Deactivating"
+	case NetsConnecting:
+		return "Connecting"
+	case NetsCreating:
+		return "Creating Connection Profile"
+	case NetsDone:
+		return styles.SymbolCheck
+	default:
+		return "Undefined"
+	}
+}
+
 type NetworksModel struct {
 	available *AvailableNetworksModel
 	profiles  *NetworkProfilesModel
+
+	indicatorSpinner spinner.Model
+	indicatorState   networksState
+	IndicatorStyle   lipgloss.Style
 
 	focus bool
 
@@ -47,13 +84,18 @@ func NewNetworksModel(
 	networksManager infra.NetworksManager,
 	portalOpener infra.CaptivePortalOpener,
 ) *NetworksModel {
+	s := newDefaultSpinner()
 	w := &NetworksModel{
 		available: wifiAvailable,
 		profiles:  wifiSaved,
-		netMngr:   networksManager,
-		portal:    portalOpener,
-		keys:      keys,
-		Style:     lipgloss.NewStyle(),
+
+		indicatorSpinner: s,
+		IndicatorStyle:   lipgloss.NewStyle(),
+
+		netMngr: networksManager,
+		portal:  portalOpener,
+		keys:    keys,
+		Style:   lipgloss.NewStyle(),
 	}
 
 	wins := []focus.Focusable{w.available, w.profiles}
@@ -67,6 +109,9 @@ func (m *NetworksModel) Resize(width, height int) {
 	border := m.Style.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
+
+	indicatorStateHeight := lipgloss.Height(m.indicatorView())
+	height -= indicatorStateHeight
 
 	savedHeight := height / 2
 	availableHeight := height - savedHeight
@@ -111,6 +156,9 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 		case key.Matches(msg, m.keys.win2):
 			return m, m.focuses.SetFocusIdx(1)
 		case key.Matches(msg, m.keys.rescan):
+			if m.indicatorState != NetsDone {
+				return m, nil
+			}
 			return m, m.rescanAllCmd()
 		case key.Matches(msg, m.keys.createProfile):
 			return m, OpenProfileCreatorCmd()
@@ -129,6 +177,8 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 		}
 	case RescanNetworksMsg:
 		return m, m.rescanAllCmd()
+	case NetworksStateMsg:
+		return m, m.setStateCmd(networksState(msg))
 	}
 
 	var cmds []tea.Cmd
@@ -139,6 +189,11 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 
 	m.profiles, cmd = m.profiles.Update(msg)
 	cmds = append(cmds, cmd)
+
+	if m.indicatorState != NetsDone {
+		m.indicatorSpinner, cmd = m.indicatorSpinner.Update(msg)
+		cmds = append(cmds, cmd)
+	}
 
 	return m, tea.Batch(cmds...)
 }
@@ -151,12 +206,48 @@ func (m *NetworksModel) View() string {
 	availableView := m.available.View()
 	savedView := m.profiles.View()
 
+	statusline := m.indicatorView()
 	view := lipgloss.JoinVertical(
 		lipgloss.Center,
 		availableView,
 		savedView,
+		statusline,
 	)
 	return m.Style.Render(view)
+}
+
+func (m *NetworksModel) indicatorView() string {
+	var view string
+	if m.indicatorState != NetsDone {
+		view = fmt.Sprintf(
+			"%s %s",
+			m.indicatorState.String(),
+			m.indicatorSpinner.View(),
+		)
+	} else {
+		view = m.indicatorState.String()
+	}
+	return m.IndicatorStyle.Render(view)
+}
+
+type NetworksStateMsg networksState
+
+func (m *NetworksModel) setStateCmd(state networksState) tea.Cmd {
+	updCmd := func() tea.Msg {
+		m.indicatorState = state
+		return NilMsg{}
+	}
+
+	if state == NetsDone {
+		return updCmd
+	}
+	return tea.Sequence(updCmd, m.indicatorSpinner.Tick)
+}
+
+func SetNetworksStateCmd(state networksState) tea.Cmd {
+	return func() tea.Msg {
+		return NetworksStateMsg(state)
+	}
 }
 
 type RescanNetworksMsg struct{}
@@ -176,10 +267,7 @@ type NetworksRescannedMsg struct {
 
 func (m *NetworksModel) rescanAllCmd() tea.Cmd {
 	return tea.Sequence(
-		tea.Batch(
-			m.available.setStateCmd(AvailableNetsScanning),
-			m.profiles.setStateCmd(NetProfilesScanning),
-		),
+		m.setStateCmd(NetsScanning),
 		func() tea.Msg {
 			ctx := context.Background()
 			availableRecords, scanErr := m.netMngr.ScanNetworks(ctx)
