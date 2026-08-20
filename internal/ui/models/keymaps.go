@@ -53,7 +53,7 @@ func initKeys(keys config.KeyConfig) keyMaps {
 		networks: networksKeyMap{
 			winNext:           NewKey(*keys.FocusNext, "next window"),
 			winPrev:           NewKey(*keys.FocusPrev, "prev window"),
-			rescan:            NewKey(*keys.Rescan, "rescan all"),
+			rescan:            NewKey(*keys.Rescan, "rescan"),
 			createProfile:     NewKey(*keys.Networks.CreateProfile, "create profile"),
 			createHotspot:     NewKey(*keys.Networks.CreateHotspot, "create hotspot"),
 			quickHotspot:      NewKey(*keys.Networks.QuickHotspot, "quick hotspot"),
