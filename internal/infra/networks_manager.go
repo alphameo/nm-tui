@@ -69,8 +69,10 @@ type RadioStatus struct {
 var (
 	ErrCreateWifiConnection = errors.New("failed to create wifi connection")
 
-	ErrScanNetworks     = errors.New("failed to scan networks")
-	ErrConnectToNetwork = errors.New("failed to connect to network")
+	ErrScanNetworks       = errors.New("failed to list networks with rescan")
+	ErrListNetworks       = errors.New("failed to list networks")
+	ErrConnectToNetwork   = errors.New("failed to connect to network")
+	ErrTryActivateNetwork = errors.New("failed to activate network")
 
 	ErrListProfiles    = errors.New("failed to list network profiles")
 	ErrActivateProfile = errors.New("failed connecting to saved wifi network")
