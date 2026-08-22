@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -31,7 +33,7 @@ func main() {
 	slog.SetDefault(stdLogger)
 
 	cfg, cfgErr := config.LoadOrDefaults()
-	if cfgErr != nil {
+	if cfgErr != nil && !errors.Is(cfgErr, fs.ErrNotExist) {
 		stdLogger.Warn("errors in user config, falling back to defaults", "errors", cfgErr)
 	}
 
