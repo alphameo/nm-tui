@@ -318,8 +318,12 @@ func (m *NetworksModel) quickHotspot() tea.Cmd {
 type AvailableNetwork struct {
 	SSID          string
 	Active        bool
-	Security      string
+	SecurityMode  string
 	Signal        int
+	Band          float64
+	Rate          float64
+	LookingDevice string
+	NetworkMode   infra.NetworkMode
 	ProfileExists bool
 }
 
