@@ -190,12 +190,13 @@ func (m *DeviceModel) Resize(width, height int) {
 	m.devicesTable.SetWidth(width)
 	m.devicesTable.SetHeight(height)
 
-	tableUtilityOffset := len(m.devicesTable.Columns()) * 2
+	// NOTE: from padding
+	tablePaddingOffset := len(m.devicesTable.Columns()) * 2
 
 	deviceColWidth := int(float32(width) * deviceCfg.deviceWidthProportion)
 	typeColWidth := int(float32(width) * deviceCfg.typeWidthProportion)
 	stateWidth := int(float32(width) * deviceCfg.stateWidthProportion)
-	connWidth := width - typeColWidth - deviceColWidth - tableUtilityOffset - stateWidth
+	connWidth := width - typeColWidth - deviceColWidth - tablePaddingOffset - stateWidth
 
 	m.devicesTable.Columns()[deviceCfg.deviceColIdx].Width = deviceColWidth
 	m.devicesTable.Columns()[deviceCfg.typeColIdx].Width = typeColWidth
