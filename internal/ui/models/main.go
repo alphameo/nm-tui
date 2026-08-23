@@ -127,8 +127,9 @@ func NewMainModel(
 		hotspotCreator: hotspotCreator,
 		profileEditor:  profileEditor,
 
+		help: help,
+
 		keys:  &keys.main,
-		help:  help,
 		Style: lipgloss.NewStyle(),
 	}, nil
 }
@@ -281,7 +282,7 @@ func (m *MainModel) Width() int { return m.Style.GetWidth() }
 func (m *MainModel) Height() int { return m.Style.GetHeight() }
 
 func (m *MainModel) Resize(width, height int) {
-	m.Style = m.Style.Width(width).Height(height)
+	m.Style = m.Style.MaxWidth(width).MaxHeight(height)
 
 	border := m.Style.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
@@ -293,8 +294,7 @@ func (m *MainModel) Resize(width, height int) {
 	m.help.Resize(int(float32(width)*0.8), int(float32(height)*0.8))
 	m.help.help.SetWidth(width)
 
-	notifStyle := m.notification.style.Width(width / 2)
-	m.notification.style = notifStyle
+	m.notification.style = m.notification.style.Width(width / 2)
 }
 
 func (m *MainModel) activeBindingsShort() []key.Binding {
