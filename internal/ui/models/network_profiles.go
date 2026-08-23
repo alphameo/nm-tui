@@ -110,11 +110,12 @@ func (m *NetworkProfilesModel) Resize(width, height int) {
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 
-	tableUtilityOffset := len(m.dataTable.Columns()) * 2
+	tablePaddingOffset := len(m.dataTable.Columns()) * 2
+
 	connWidth := m.dataTable.Columns()[networkProfilesCfg.connColIdx].Width
 	modeWidth := m.dataTable.Columns()[networkProfilesCfg.modeColIdx].Width
 
-	computedWidth := width - tableUtilityOffset - connWidth - modeWidth
+	computedWidth := width - tablePaddingOffset - connWidth - modeWidth
 	possibleNameWidth := int(float32(computedWidth) * networkProfilesCfg.ssidWidthProportion)
 	ssidWidth := computedWidth - possibleNameWidth
 	nameWidth := computedWidth - ssidWidth

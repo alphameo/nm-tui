@@ -151,7 +151,8 @@ func (m *AvailableNetworksModel) Resize(width, height int) {
 	m.dataTable.SetWidth(width)
 	m.dataTable.SetHeight(height)
 
-	tableUtilityOffset := len(m.dataTable.Columns()) * 2
+	// NOTE: from padding
+	tablePaddingOffset := len(m.dataTable.Columns()) * 2
 
 	secColWidth := int(float32(width) * availableNetworksCfg.securityWidthProportion)
 	signalColWidth := m.dataTable.Columns()[availableNetworksCfg.signalColIdx].Width
@@ -160,7 +161,7 @@ func (m *AvailableNetworksModel) Resize(width, height int) {
 	rateColWidth := m.dataTable.Columns()[availableNetworksCfg.rateColIdx].Width
 	modeColWidth := m.dataTable.Columns()[availableNetworksCfg.modeColIdx].Width
 	deviceColWidth := m.dataTable.Columns()[availableNetworksCfg.deviceColIdx].Width
-	ssidWidth := width - signalColWidth - tableUtilityOffset - stateColWidth - secColWidth - modeColWidth - rateColWidth - bandColWidth - deviceColWidth
+	ssidWidth := width - tablePaddingOffset - signalColWidth - stateColWidth - secColWidth - modeColWidth - rateColWidth - bandColWidth - deviceColWidth
 
 	m.dataTable.Columns()[availableNetworksCfg.securityColIdx].Width = secColWidth
 	m.dataTable.Columns()[availableNetworksCfg.ssidColIdx].Width = ssidWidth
