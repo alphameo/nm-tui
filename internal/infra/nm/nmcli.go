@@ -3,6 +3,7 @@ package nm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strconv"
@@ -95,8 +96,10 @@ func (n *CLI) ListNetworks(ctx context.Context) ([]infra.AvailableNetwork, error
 
 func parseNetworks(networks string) ([]infra.AvailableNetwork, error) {
 	var res []infra.AvailableNetwork
+	var errs []error
 	lines := strings.SplitSeq(networks, "\n")
 	for line := range lines {
+		var netErrs []error
 		if line == "" {
 			continue
 		}
@@ -107,59 +110,74 @@ func parseNetworks(networks string) ([]infra.AvailableNetwork, error) {
 		}
 
 		ssid := parts[0]
-		if ssid == "" {
-			continue
+
+		signal, err := parseSignal(parts[3])
+		if err != nil {
+			netErrs = append(netErrs, err)
+		}
+
+		band, err := parseBandGHz(parts[4])
+		if err != nil {
+			netErrs = append(netErrs, err)
+		}
+
+		rate, err := parseRateMbits(parts[5])
+		if err != nil {
+			netErrs = append(netErrs, err)
 		}
 
 		mode, err := parseNetworkMode(parts[7])
 		if err != nil {
-			mode = infra.NetworkNil
+			netErrs = append(netErrs, err)
 		}
 
 		res = append(res, infra.AvailableNetwork{
 			SSID:          ssid,
 			Active:        parts[1] == "*",
 			SecurityMode:  parts[2],
-			Signal:        parseSignal(parts[3]),
-			Band:          parseBandGHz(parts[4]),
-			Rate:          parseRateMbits(parts[5]),
+			Signal:        signal,
+			Band:          band,
+			Rate:          rate,
 			LookingDevice: parts[6],
 			NetworkMode:   mode,
 		})
+		if len(netErrs) > 0 {
+			errs = append(errs, fmt.Errorf("error during parse %s: %w", ssid, errors.Join(netErrs...)))
+		}
 	}
-	return res, nil
+	return res, errors.Join(errs...)
 }
 
-func parseSignal(token string) int {
+func parseSignal(token string) (int, error) {
 	signal, err := strconv.Atoi(token)
 	if err != nil {
-		return 0
+		return 0, fmt.Errorf("can't convert to signal: got %q", token)
 	}
-	return signal
+	return signal, nil
 }
 
-func parseRateMbits(token string) float64 {
+func parseRateMbits(token string) (float64, error) {
 	rate, ok := strings.CutSuffix(strings.TrimSpace(token), " Mbit/s")
 	if !ok {
-		return 0
+		return 0, fmt.Errorf("can't parse rate: got %q", token)
 	}
 	v, err := strconv.ParseFloat(rate, 64)
 	if err != nil {
-		return 0
+		return 0, fmt.Errorf("can't convert to rate: %w", err)
 	}
-	return v
+	return v, nil
 }
 
-func parseBandGHz(token string) float64 {
+func parseBandGHz(token string) (float64, error) {
 	rate, ok := strings.CutSuffix(strings.TrimSpace(token), " GHz")
 	if !ok {
-		return 0
+		return 0, fmt.Errorf("can't parse band: got %q", token)
 	}
 	v, err := strconv.ParseFloat(rate, 64)
 	if err != nil {
-		return 0
+		return 0, fmt.Errorf("can't convert to band: %w", err)
 	}
-	return v
+	return v, nil
 }
 
 func (n *CLI) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, error) {
@@ -379,7 +397,7 @@ func parseNetworkMode(mode string) (infra.NetworkMode, error) {
 	}
 
 	if res == infra.NetworkNil {
-		return infra.NetworkNil, fmt.Errorf("%w: got %q", infra.ErrParseNetMode, mode)
+		return infra.NetworkNil, fmt.Errorf("can't parse network mode: got %q", mode)
 	}
 	return res, nil
 }
