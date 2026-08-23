@@ -91,7 +91,6 @@ var (
 	ErrGetWifiActivity            = errors.New("failed retrieving wifi network activity state")
 	ErrGetProfile                 = errors.New("failed retrieving wifi network information")
 	ErrGetNetMode                 = errors.New("failed retrieving network mode")
-	ErrParseNetMode               = errors.New("failed to parse network mode")
 
 	ErrUpdateProfile = errors.New("failed modifying wifi network information")
 
