@@ -15,29 +15,51 @@ import (
 )
 
 type availableNetworksConfig struct {
-	stateColIdx             int
-	ssidColIdx              int
-	securityColIdx          int
-	signalColIdx            int
-	ssidColTitle            string
-	securityColTitle        string
-	stateColTitle           string
+	stateColIdx    int
+	ssidColIdx     int
+	securityColIdx int
+	signalColIdx   int
+	bandColIdx     int
+	rateColIdx     int
+	modeColIdx     int
+	deviceColIdx   int
+
+	ssidColTitle     string
+	securityColTitle string
+	stateColTitle    string
+	modeColTitle     string
+	rateColTitle     string
+	bandColTitle     string
+	deviceColTitle   string
+
 	securityWidthProportion float32
 	minSignalColWidth       int
+	minRateColWidth         int
+	minBandColWidth         int
 }
 
 var availableNetworksCfg = availableNetworksConfig{
 	stateColIdx:    0,
-	ssidColIdx:     1,
-	securityColIdx: 2,
-	signalColIdx:   3,
+	modeColIdx:     1,
+	ssidColIdx:     2,
+	securityColIdx: 3,
+	bandColIdx:     4,
+	rateColIdx:     5,
+	deviceColIdx:   6,
+	signalColIdx:   7,
 
 	ssidColTitle:     "SSID",
 	securityColTitle: "Security",
 	stateColTitle:    "State",
+	modeColTitle:     "Mode",
+	rateColTitle:     "Mb/s",
+	bandColTitle:     "GHz",
+	deviceColTitle:   "Device",
 
 	securityWidthProportion: 0.3,
 	minSignalColWidth:       3,
+	minRateColWidth:         4,
+	minBandColWidth:         3,
 }
 
 type availableNetworksKeyMap struct {
@@ -65,7 +87,7 @@ func NewAvailableNetworksModel(
 	keys availableNetworksKeyMap,
 	networksManager infra.NetworksManager,
 ) *AvailableNetworksModel {
-	cols := make([]table.Column, 4)
+	cols := make([]table.Column, 8)
 	cols[availableNetworksCfg.stateColIdx] = table.Column{
 		Title: availableNetworksCfg.stateColTitle,
 		Width: len(availableNetworksCfg.stateColTitle),
@@ -81,6 +103,22 @@ func NewAvailableNetworksModel(
 	cols[availableNetworksCfg.signalColIdx] = table.Column{
 		Title: styles.SymbolSignal,
 		Width: max(availableNetworksCfg.minSignalColWidth, len(styles.SymbolSignal)),
+	}
+	cols[availableNetworksCfg.modeColIdx] = table.Column{
+		Title: availableNetworksCfg.modeColTitle,
+		Width: len(availableNetworksCfg.modeColTitle),
+	}
+	cols[availableNetworksCfg.bandColIdx] = table.Column{
+		Title: availableNetworksCfg.bandColTitle,
+		Width: max(len(availableNetworksCfg.bandColTitle), availableNetworksCfg.minBandColWidth),
+	}
+	cols[availableNetworksCfg.rateColIdx] = table.Column{
+		Title: availableNetworksCfg.rateColTitle,
+		Width: max(len(availableNetworksCfg.rateColTitle), availableNetworksCfg.minRateColWidth),
+	}
+	cols[availableNetworksCfg.deviceColIdx] = table.Column{
+		Title: availableNetworksCfg.deviceColTitle,
+		Width: len(availableNetworksCfg.deviceColTitle),
 	}
 
 	t := table.New(
@@ -117,8 +155,12 @@ func (m *AvailableNetworksModel) Resize(width, height int) {
 
 	secColWidth := int(float32(width) * availableNetworksCfg.securityWidthProportion)
 	signalColWidth := m.dataTable.Columns()[availableNetworksCfg.signalColIdx].Width
-	conColWidth := m.dataTable.Columns()[availableNetworksCfg.stateColIdx].Width
-	ssidWidth := width - signalColWidth - tableUtilityOffset - conColWidth - secColWidth
+	stateColWidth := m.dataTable.Columns()[availableNetworksCfg.stateColIdx].Width
+	bandColWidth := m.dataTable.Columns()[availableNetworksCfg.bandColIdx].Width
+	rateColWidth := m.dataTable.Columns()[availableNetworksCfg.rateColIdx].Width
+	modeColWidth := m.dataTable.Columns()[availableNetworksCfg.modeColIdx].Width
+	deviceColWidth := m.dataTable.Columns()[availableNetworksCfg.deviceColIdx].Width
+	ssidWidth := width - signalColWidth - tableUtilityOffset - stateColWidth - secColWidth - modeColWidth - rateColWidth - bandColWidth - deviceColWidth
 
 	m.dataTable.Columns()[availableNetworksCfg.securityColIdx].Width = secColWidth
 	m.dataTable.Columns()[availableNetworksCfg.ssidColIdx].Width = ssidWidth
@@ -222,19 +264,24 @@ func (m *AvailableNetworksModel) View() string {
 
 func (m *AvailableNetworksModel) setAvailable(list []AvailableNetwork, err error) tea.Cmd {
 	rows := []table.Row{}
-	for _, wifiNet := range list {
-		var connectionFlag string
-		if wifiNet.Active {
-			connectionFlag = styles.SymbolCheck
-		} else if wifiNet.ProfileExists {
-			connectionFlag = styles.SymbolSaved
+	for _, net := range list {
+		var state string
+		if net.Active {
+			state = styles.SymbolCheck
+		} else if net.ProfileExists {
+			state = styles.SymbolSaved
 		}
-		rows = append(rows, table.Row{
-			connectionFlag,
-			wifiNet.SSID,
-			wifiNet.Security,
-			strconv.Itoa(wifiNet.Signal),
-		})
+		row := make([]string, 8)
+		row[availableNetworksCfg.stateColIdx] = state
+		row[availableNetworksCfg.ssidColIdx] = net.SSID
+		row[availableNetworksCfg.securityColIdx] = net.SecurityMode
+		row[availableNetworksCfg.signalColIdx] = strconv.Itoa(net.Signal)
+		row[availableNetworksCfg.rateColIdx] = formatRate(net.Rate)
+		row[availableNetworksCfg.bandColIdx] = formatBand(net.Band)
+		row[availableNetworksCfg.deviceColIdx] = net.LookingDevice
+		row[availableNetworksCfg.modeColIdx] = ConvertNetworkMode(net.NetworkMode)
+
+		rows = append(rows, row)
 	}
 
 	m.dataTable.SetRows(rows)
@@ -246,6 +293,20 @@ func (m *AvailableNetworksModel) setAvailable(list []AvailableNetwork, err error
 		cmds = append(cmds, NotifyCmd("Cannot scan available wifi networks"))
 	}
 	return tea.Batch(cmds...)
+}
+
+func formatBand(band float64) string {
+	if band <= 0 {
+		return ""
+	}
+	return fmt.Sprintf("%g", band)
+}
+
+func formatRate(rate float64) string {
+	if rate <= 0 {
+		return ""
+	}
+	return fmt.Sprintf("%g", rate)
 }
 
 type AvailableNetworksStateMsg networksState
