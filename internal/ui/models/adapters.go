@@ -22,10 +22,14 @@ func ConvertNetworkMode(mode infra.NetworkMode) string {
 
 func convertAvailableNetwork(record infra.AvailableNetwork) AvailableNetwork {
 	return AvailableNetwork{
-		SSID:     record.SSID,
-		Active:   record.Active,
-		Security: record.Security,
-		Signal:   record.Signal,
+		SSID:          record.SSID,
+		Active:        record.Active,
+		SecurityMode:  record.SecurityMode,
+		Signal:        record.Signal,
+		Band:          record.Band,
+		Rate:          record.Rate,
+		LookingDevice: record.LookingDevice,
+		NetworkMode:   record.NetworkMode,
 	}
 }
 
