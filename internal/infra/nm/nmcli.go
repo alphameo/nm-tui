@@ -65,9 +65,11 @@ func (n *CLI) ListNetworkDevices(ctx context.Context) ([]infra.NetworkDevice, er
 	return res, nil
 }
 
+const listNetworksFlags = "SSID,IN-USE,SECURITY,SIGNAL,BAND,RATE,DEVICE,MODE"
+
 func (n *CLI) ListNetworksWithRescan(ctx context.Context) ([]infra.AvailableNetwork, error) {
 	args := []string{
-		"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL",
+		"-t", "-f", listNetworksFlags,
 		"device", "wifi", "list", "--rescan", "yes",
 	}
 	out, err := n.run(ctx, infra.ErrScanNetworks, args...)
@@ -80,7 +82,7 @@ func (n *CLI) ListNetworksWithRescan(ctx context.Context) ([]infra.AvailableNetw
 
 func (n *CLI) ListNetworks(ctx context.Context) ([]infra.AvailableNetwork, error) {
 	args := []string{
-		"-t", "-f", "SSID,IN-USE,SECURITY,SIGNAL",
+		"-t", "-f", listNetworksFlags,
 		"device", "wifi", "list",
 	}
 	out, err := n.run(ctx, infra.ErrListNetworks, args...)
@@ -109,18 +111,55 @@ func parseNetworks(networks string) ([]infra.AvailableNetwork, error) {
 			continue
 		}
 
-		signal, err := strconv.Atoi(parts[3])
+		mode, err := parseNetworkMode(parts[7])
 		if err != nil {
-			signal = 0
+			mode = infra.NetworkNil
 		}
+
 		res = append(res, infra.AvailableNetwork{
-			SSID:     ssid,
-			Active:   parts[1] == "*",
-			Security: parts[2],
-			Signal:   signal,
+			SSID:          ssid,
+			Active:        parts[1] == "*",
+			SecurityMode:  parts[2],
+			Signal:        parseSignal(parts[3]),
+			Band:          parseBandGHz(parts[4]),
+			Rate:          parseRateMbits(parts[5]),
+			LookingDevice: parts[6],
+			NetworkMode:   mode,
 		})
 	}
 	return res, nil
+}
+
+func parseSignal(token string) int {
+	signal, err := strconv.Atoi(token)
+	if err != nil {
+		return 0
+	}
+	return signal
+}
+
+func parseRateMbits(token string) float64 {
+	rate, ok := strings.CutSuffix(strings.TrimSpace(token), " Mbit/s")
+	if !ok {
+		return 0
+	}
+	v, err := strconv.ParseFloat(rate, 64)
+	if err != nil {
+		return 0
+	}
+	return v
+}
+
+func parseBandGHz(token string) float64 {
+	rate, ok := strings.CutSuffix(strings.TrimSpace(token), " GHz")
+	if !ok {
+		return 0
+	}
+	v, err := strconv.ParseFloat(rate, 64)
+	if err != nil {
+		return 0
+	}
+	return v
 }
 
 func (n *CLI) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, error) {
@@ -319,21 +358,30 @@ func (n *CLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, err
 		return infra.NetworkNil, err
 	}
 	res := strings.TrimSpace(string(out))
-	var mode infra.NetworkMode
-	switch res {
-	case "infrastructure":
-		mode = infra.NetworkInfra
-	case "ap":
-		mode = infra.NetworkAccessPoint
-	case "adhoc":
-		mode = infra.NetworkAdHoc
-	case "mesh":
-		mode = infra.NetworkMesh
-	}
-	if mode == infra.NetworkNil {
-		return infra.NetworkNil, fmt.Errorf("%w for %s: got %s", infra.ErrParseNetMode, id, res)
+	mode, err := parseNetworkMode(res)
+	if err != nil {
+		return infra.NetworkNil, fmt.Errorf("%w: %w", infra.ErrGetNetMode, err)
 	}
 	return mode, nil
+}
+
+func parseNetworkMode(mode string) (infra.NetworkMode, error) {
+	var res infra.NetworkMode
+	switch strings.ToLower(mode) {
+	case "infrastructure", "infra":
+		res = infra.NetworkInfra
+	case "ap":
+		res = infra.NetworkAccessPoint
+	case "adhoc":
+		res = infra.NetworkAdHoc
+	case "mesh":
+		res = infra.NetworkMesh
+	}
+
+	if res == infra.NetworkNil {
+		return infra.NetworkNil, fmt.Errorf("%w: got %q", infra.ErrParseNetMode, mode)
+	}
+	return res, nil
 }
 
 // setFetchResult stores a fetched field into dst under mu, collecting any error.
