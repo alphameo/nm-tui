@@ -6,10 +6,14 @@ import (
 )
 
 type AvailableNetwork struct {
-	SSID     string
-	Active   bool
-	Security string
-	Signal   int
+	SSID          string
+	Active        bool
+	SecurityMode  string
+	Signal        int
+	Band          float64
+	Rate          float64
+	LookingDevice string
+	NetworkMode   NetworkMode
 }
 
 type NetworkProfileShort struct {
