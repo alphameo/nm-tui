@@ -56,7 +56,7 @@ var availableNetworksCfg = availableNetworksConfig{
 	bandColTitle:     "GHz",
 	deviceColTitle:   "Device",
 
-	securityWidthProportion: 0.3,
+	securityWidthProportion: 0.25,
 	minSignalColWidth:       3,
 	minRateColWidth:         4,
 	minBandColWidth:         3,
