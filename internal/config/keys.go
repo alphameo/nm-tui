@@ -40,6 +40,7 @@ type KeyConfig struct {
 	Dialog *DialogKeys `kdl:"dialog"`
 
 	Networks          *NetworksKeys          `kdl:"networks"`
+	NetworkDevices    *NetworkDevicesKeys    `kdl:"network_devices"`
 	AvailableNetworks *AvailableNetworksKeys `kdl:"available_networks"`
 	NetworkProfiles   *NetworkProfilesKeys   `kdl:"network_profiles"`
 }
@@ -62,6 +63,10 @@ type NetworksKeys struct {
 	OpenCaptivePortal *KeyBinding `kdl:"open_network_login"`
 	QuickHotspot      *KeyBinding `kdl:"quick_hotspot"`
 	CreateHotspot     *KeyBinding `kdl:"create_hotspot"`
+}
+
+type NetworkDevicesKeys struct {
+	ShowInfo *KeyBinding `kdl:"show_info"`
 }
 
 type AvailableNetworksKeys struct {
@@ -110,6 +115,9 @@ func DefaultKeys() *KeyConfig {
 			QuickHotspot:      &KeyBinding{"ctrl+h"},
 			CreateHotspot:     &KeyBinding{"h"},
 		},
+		NetworkDevices: &NetworkDevicesKeys{
+			ShowInfo: &KeyBinding{"enter"},
+		},
 		AvailableNetworks: &AvailableNetworksKeys{
 			Connect:    &KeyBinding{"enter"},
 			Activate:   &KeyBinding{"space"},
@@ -148,6 +156,7 @@ func (k *KeyConfig) Merge(src *KeyConfig) []error {
 	errs = append(errs, k.Main.Merge(src.Main)...)
 	errs = append(errs, k.Dialog.Merge(src.Dialog)...)
 	errs = append(errs, k.Networks.Merge(src.Networks)...)
+	errs = append(errs, k.NetworkDevices.Merge(src.NetworkDevices)...)
 	errs = append(errs, k.AvailableNetworks.Merge(src.AvailableNetworks)...)
 	errs = append(errs, k.NetworkProfiles.Merge(src.NetworkProfiles)...)
 	return errs
@@ -188,6 +197,16 @@ func (w *NetworksKeys) Merge(src *NetworksKeys) []error {
 	errs = append(errs, MergeKeyList(&w.OpenCaptivePortal, src.OpenCaptivePortal, "networks.open_network_login")...)
 	errs = append(errs, MergeKeyList(&w.QuickHotspot, src.QuickHotspot, "networks.quick_hotspot")...)
 	errs = append(errs, MergeKeyList(&w.CreateHotspot, src.CreateHotspot, "networks.create_hotspot")...)
+	return errs
+}
+
+func (m *NetworkDevicesKeys) Merge(src *NetworkDevicesKeys) []error {
+	if src == nil {
+		return nil
+	}
+
+	var errs []error
+	errs = append(errs, MergeKeyList(&m.ShowInfo, src.ShowInfo, "show_info")...)
 	return errs
 }
 
