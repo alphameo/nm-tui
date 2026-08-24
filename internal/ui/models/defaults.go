@@ -6,6 +6,7 @@ import (
 
 	"charm.land/bubbles/v2/spinner"
 	"charm.land/bubbles/v2/textinput"
+	"charm.land/bubbles/v2/viewport"
 	"github.com/alphameo/nm-tui/internal/ui/models/toggle"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
@@ -62,4 +63,10 @@ func passwordValidator(input string) error {
 		return fmt.Errorf("%w: length < 8", ErrPasswordFmt)
 	}
 	return nil
+}
+
+func newDefaultViewport() viewport.Model {
+	viewport := viewport.New()
+	viewport.Style = styles.DefaultStyle
+	return viewport
 }

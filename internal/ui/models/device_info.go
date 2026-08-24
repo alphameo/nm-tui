@@ -29,7 +29,7 @@ type DeviceInfoModel struct {
 }
 
 func NewDeviceInfoModel(deviceManager infra.DeviceManager) *DeviceInfoModel {
-	info := viewport.New()
+	info := newDefaultViewport()
 	model := &DeviceInfoModel{
 		viewport: info,
 		devMngr:  deviceManager,
