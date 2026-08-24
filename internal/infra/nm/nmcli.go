@@ -324,6 +324,19 @@ func (n *CLI) getProfileSSID(ctx context.Context, id string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
+func (n *CLI) getProfileID(ctx context.Context, uuid string) (string, error) {
+	args := []string{
+		"-m", "tabular",
+		"-t", "-f", "connection.id",
+		"connection", "show", uuid,
+	}
+	out, err := n.run(ctx, fmt.Errorf("%w: ssid", infra.ErrGetProfileProperty), args...)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
+}
+
 func (n *CLI) getProfileUUID(ctx context.Context, id string) (string, error) {
 	args := []string{
 		"-m", "tabular",
@@ -443,13 +456,11 @@ func setFetchResult[T any](mu *sync.Mutex, errs *[]error, dst *T, value T, err e
 
 func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, error) {
 	var errs []error
-	info := infra.NetworkProfile{
-		Name: id,
-	}
+	info := infra.NetworkProfile{}
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
-	wg.Add(8)
+	wg.Add(9)
 
 	go func() {
 		defer wg.Done()
@@ -463,6 +474,11 @@ func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, 
 		setFetchResult(&mu, &errs, &info.UUID, uuid, err)
 	}()
 
+	go func() {
+		defer wg.Done()
+		uuid, err := n.getProfileID(ctx, id)
+		setFetchResult(&mu, &errs, &info.Name, uuid, err)
+	}()
 	go func() {
 		defer wg.Done()
 		password, err := n.GetProfilePassword(ctx, id)
