@@ -21,7 +21,7 @@ type networkProfilesKeyMap struct {
 }
 
 type NetworkProfilesModel struct {
-	dataTable          table.Model
+	table          table.Model
 	focusedTableStyles table.Styles
 	bluredTableStyles  table.Styles
 
@@ -86,7 +86,7 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 	)
 
 	model := &NetworkProfilesModel{
-		dataTable:          t,
+		table:          t,
 		focusedTableStyles: table.DefaultStyles(),
 		bluredTableStyles:  table.DefaultStyles(),
 
@@ -107,22 +107,22 @@ func (m *NetworkProfilesModel) Resize(width, height int) {
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
 
-	m.dataTable.SetWidth(width)
-	m.dataTable.SetHeight(height)
+	m.table.SetWidth(width)
+	m.table.SetHeight(height)
 
-	tablePaddingOffset := len(m.dataTable.Columns()) * 2
+	tablePaddingOffset := len(m.table.Columns()) * 2
 
-	connWidth := m.dataTable.Columns()[networkProfilesCfg.connColIdx].Width
-	modeWidth := m.dataTable.Columns()[networkProfilesCfg.modeColIdx].Width
+	connWidth := m.table.Columns()[networkProfilesCfg.connColIdx].Width
+	modeWidth := m.table.Columns()[networkProfilesCfg.modeColIdx].Width
 
 	computedWidth := width - tablePaddingOffset - connWidth - modeWidth
 	possibleNameWidth := int(float32(computedWidth) * networkProfilesCfg.ssidWidthProportion)
 	ssidWidth := computedWidth - possibleNameWidth
 	nameWidth := computedWidth - ssidWidth
 
-	m.dataTable.Columns()[networkProfilesCfg.nameColIdx].Width = nameWidth
-	m.dataTable.Columns()[networkProfilesCfg.ssidColIdx].Width = ssidWidth
-	m.dataTable.UpdateViewport()
+	m.table.Columns()[networkProfilesCfg.nameColIdx].Width = nameWidth
+	m.table.Columns()[networkProfilesCfg.ssidColIdx].Width = ssidWidth
+	m.table.UpdateViewport()
 }
 
 func (m *NetworkProfilesModel) Width() int { return m.focusedStyle.GetWidth() }
@@ -131,15 +131,15 @@ func (m *NetworkProfilesModel) Height() int { return m.focusedStyle.GetHeight() 
 
 func (m *NetworkProfilesModel) Focus() tea.Cmd {
 	m.focus = true
-	m.dataTable.Focus()
-	m.dataTable.SetStyles(m.focusedTableStyles)
+	m.table.Focus()
+	m.table.SetStyles(m.focusedTableStyles)
 	return nil
 }
 
 func (m *NetworkProfilesModel) Blur() {
 	m.focus = false
-	m.dataTable.Blur()
-	m.dataTable.SetStyles(m.bluredTableStyles)
+	m.table.Blur()
+	m.table.SetStyles(m.bluredTableStyles)
 }
 
 func (m *NetworkProfilesModel) Focused() bool {
@@ -155,9 +155,9 @@ func (m *NetworkProfilesModel) activeStyle() *lipgloss.Style {
 
 func (m *AvailableNetworksModel) UpdateTable() {
 	if m.focus {
-		m.dataTable.SetStyles(m.focusedTableStyles)
+		m.table.SetStyles(m.focusedTableStyles)
 	} else {
-		m.dataTable.SetStyles(m.bluredTableStyles)
+		m.table.SetStyles(m.bluredTableStyles)
 	}
 }
 
@@ -174,7 +174,7 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 		}
 		switch {
 		case key.Matches(msg, m.keys.edit):
-			row := m.dataTable.SelectedRow()
+			row := m.table.SelectedRow()
 			if row == nil {
 				return m, nil
 			}
@@ -195,14 +195,14 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	m.dataTable, cmd = m.dataTable.Update(msg)
+	m.table, cmd = m.table.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m *NetworkProfilesModel) View() string {
-	view := m.dataTable.View()
+	view := m.table.View()
 
 	style := m.activeStyle()
 	view = renderer.RenderWithTitleAndKeybind(
@@ -232,7 +232,7 @@ func (m *NetworkProfilesModel) setProfiles(list []NetworkProfileShort, err error
 		})
 	}
 
-	m.dataTable.SetRows(rows)
+	m.table.SetRows(rows)
 
 	cmds := []tea.Cmd{SetNetworksStateCmd(NetsDone)}
 	if err != nil {
@@ -245,7 +245,7 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
 		SetNetworksStateCmd(NetsActivating),
 		func() tea.Msg {
-			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
+			name := m.table.SelectedRow()[networkProfilesCfg.nameColIdx]
 			err := m.netMngr.ActivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
@@ -265,7 +265,7 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(SetNetworksStateCmd(NetsDeactivating),
 		func() tea.Msg {
-			name := m.dataTable.SelectedRow()[networkProfilesCfg.nameColIdx]
+			name := m.table.SelectedRow()[networkProfilesCfg.nameColIdx]
 			err := m.netMngr.DeactivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
@@ -284,16 +284,16 @@ func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
 }
 
 func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
-	row := m.dataTable.SelectedRow()
+	row := m.table.SelectedRow()
 	return func() tea.Msg {
 		name := row[networkProfilesCfg.nameColIdx]
 		err := m.netMngr.DeleteProfile(context.Background(), name)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Error while deleting profile %q", name))
 		}
-		cursor := m.dataTable.Cursor()
-		if cursor == len(m.dataTable.Rows())-1 {
-			m.dataTable.SetCursor(cursor - 1)
+		cursor := m.table.Cursor()
+		if cursor == len(m.table.Rows())-1 {
+			m.table.SetCursor(cursor - 1)
 		}
 		return RescanNetworksCmd()
 	}
@@ -301,7 +301,7 @@ func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 
 func (m *NetworkProfilesModel) gotoTop() tea.Cmd {
 	return func() tea.Msg {
-		m.dataTable.GotoTop()
+		m.table.GotoTop()
 		return NilCmd()
 	}
 }
