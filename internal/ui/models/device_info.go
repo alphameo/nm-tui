@@ -72,7 +72,7 @@ func (m *DeviceInfoModel) View() string {
 	view := m.info.View()
 
 	view = m.Style.Render(view)
-	title := styles.DefaultStyle.Render(renderer.RenderTitle(profileEditorCfg.title))
+	title := styles.DefaultStyle.Render(renderer.RenderTitle(deviceInfoCfg.title))
 	return compositor.Compose(
 		title,
 		view,
