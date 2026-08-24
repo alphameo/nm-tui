@@ -34,7 +34,9 @@ type profileEditorKeyMap struct {
 
 type ProfileEditorModel struct {
 	ssid   string
+	uuid   string
 	active bool
+	hidden bool
 	mode   string
 
 	name    textinput.Model
@@ -59,7 +61,9 @@ func NewProfileEditorModel(keys profileEditorKeyMap, networksManager infra.Netwo
 
 	model := &ProfileEditorModel{
 		ssid:             "",
+		uuid:             "",
 		active:           false,
+		hidden:           false,
 		mode:             "",
 		name:             newDefaultNameInput(),
 		password:         newDefaultPasswordInput(),
@@ -91,7 +95,11 @@ func (m *ProfileEditorModel) setNewProfile(name string) tea.Cmd {
 
 	m.ssid = info.SSID
 
+	m.uuid = info.UUID
+
 	m.active = info.Active
+
+	m.hidden = info.Hidden
 
 	m.mode = info.Mode.String()
 
@@ -171,10 +179,12 @@ func (m *ProfileEditorModel) View() string {
 	ssid := m.ssid
 	ssid = lipgloss.JoinHorizontal(
 		lipgloss.Center,
-		"SSID     ",
-		ssid,
+		"SSID     ", ssid,
 		m.connectionView(),
 	)
+
+	uuid := m.uuid
+	uuid = lipgloss.JoinHorizontal(lipgloss.Center, "UUID     ", uuid)
 
 	name := styles.ViewBorderedFocusable(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
@@ -186,14 +196,19 @@ func (m *ProfileEditorModel) View() string {
 	mode = lipgloss.JoinHorizontal(lipgloss.Center, "Mode     ", mode)
 
 	autoconn := m.autoconnect.View()
-	autoconn = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect          ", autoconn)
+	autoconn = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect  ", autoconn)
 
 	autoconnPrior := styles.ViewInputWithValidation(&m.autoconnPriority)
-	autoconnPrior = lipgloss.JoinHorizontal(lipgloss.Center, "Autoconnect priority ", autoconnPrior)
+	autoconnPrior = lipgloss.JoinHorizontal(lipgloss.Center, "  - priority ", autoconnPrior)
+
+	hidden := m.hiddenView()
+	hidden = lipgloss.JoinHorizontal(lipgloss.Center, "Hidden   ", hidden)
 
 	view := lipgloss.JoinVertical(
 		lipgloss.Left,
 		ssid,
+		uuid,
+		hidden,
 		mode,
 		"",
 		name,
@@ -219,6 +234,13 @@ func (m *ProfileEditorModel) connectionView() string {
 		return styles.AccentStyle.Render(" (connected)")
 	}
 	return ""
+}
+
+func (m *ProfileEditorModel) hiddenView() string {
+	if m.hidden {
+		return styles.BoldStyle.Render("yes")
+	}
+	return styles.BoldStyle.Render("no")
 }
 
 func (m *ProfileEditorModel) saveProfileInfoCmd() tea.Cmd {
