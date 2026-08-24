@@ -181,7 +181,7 @@ func parseBandGHz(token string) (float64, error) {
 }
 
 func (n *CLI) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, error) {
-	args := []string{"-t", "-f", "NAME,STATE", "connection", "show"}
+	args := []string{"-t", "-f", "UUID,NAME,STATE", "connection", "show"}
 	out, err := n.run(ctx, infra.ErrListProfiles, args...)
 	if err != nil {
 		return nil, err
@@ -197,23 +197,26 @@ func (n *CLI) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, er
 		}
 
 		parts := strings.Split(line, ":")
-		if len(parts) < 2 {
-			continue
-		}
-		if parts[0] == "lo" {
+		if len(parts) < 3 {
 			continue
 		}
 
-		name := parts[0]
-		ssid, err := n.getProfileSSID(ctx, name)
+		name := parts[1]
+		if name == "lo" {
+			continue
+		}
+
+		uuid := parts[0]
+		ssid, err := n.getProfileSSID(ctx, uuid)
 		if err != nil {
 			ssid = ""
 		}
 		wg.Add(1)
 		wifi := infra.NetworkProfileShort{
+			UUID:   uuid,
 			Name:   name,
 			SSID:   ssid,
-			Active: parts[1] == "activated",
+			Active: parts[2] == "activated",
 			Mode:   infra.NetworkNil,
 		}
 		res = append(res, wifi)
