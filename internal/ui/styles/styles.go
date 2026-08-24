@@ -98,7 +98,8 @@ func UpdateColorscheme() {
 		Align(lipgloss.Center, lipgloss.Center).
 		Padding(2, 4).
 		BorderForeground(AccentColor).
-		BorderBackground(BgColor)
+		BorderBackground(BgColor).
+		AlignHorizontal(lipgloss.Left)
 
 	NotifBorderedStyle = OverlayStyle.BorderForeground(NotifColor)
 
