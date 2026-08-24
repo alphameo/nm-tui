@@ -187,7 +187,7 @@ func (m *NetworkProfilesModel) Update(msg tea.Msg) (*NetworkProfilesModel, tea.C
 			if row == nil {
 				return m, nil
 			}
-			name := row[networkProfilesCfg.nameColIdx]
+			name := row[networkProfilesCfg.uuidColIdx]
 
 			return m, OpenProfileEditorCmd(name)
 
@@ -255,7 +255,7 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
 		SetNetworksStateCmd(NetsActivating),
 		func() tea.Msg {
-			name := m.table.SelectedRow()[networkProfilesCfg.nameColIdx]
+			name := m.table.SelectedRow()[networkProfilesCfg.uuidColIdx]
 			err := m.netMngr.ActivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
@@ -275,7 +275,7 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(SetNetworksStateCmd(NetsDeactivating),
 		func() tea.Msg {
-			name := m.table.SelectedRow()[networkProfilesCfg.nameColIdx]
+			name := m.table.SelectedRow()[networkProfilesCfg.uuidColIdx]
 			err := m.netMngr.DeactivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
@@ -296,7 +296,7 @@ func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
 func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 	row := m.table.SelectedRow()
 	return func() tea.Msg {
-		name := row[networkProfilesCfg.nameColIdx]
+		name := row[networkProfilesCfg.uuidColIdx]
 		err := m.netMngr.DeleteProfile(context.Background(), name)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Error while deleting profile %q", name))
