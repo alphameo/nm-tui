@@ -260,7 +260,7 @@ func (m *ProfileEditorModel) saveProfileInfoCmd() tea.Cmd {
 			Autoconnect:         m.autoconnect.Value(),
 			AutoconnectPriority: ap,
 		}
-		err = m.netMngr.UpdateProfile(context.Background(), m.nameBak, info)
+		err = m.netMngr.UpdateProfile(context.Background(), m.uuid, info)
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf(
 				"Cannot update information about %s",
