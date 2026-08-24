@@ -71,6 +71,7 @@ func NewProfileCreatorModel(keys profileCreatorKeyMap, networksManager infra.Net
 
 func (m *ProfileCreatorModel) Reset() tea.Cmd {
 	m.ssid.Reset()
+	m.ssid.SetValue("")
 
 	m.name.Reset()
 	m.name.Blur()
@@ -89,7 +90,6 @@ func (m *ProfileCreatorModel) Init() tea.Cmd {
 	return m.focuses.SetFocusIdx(0)
 }
 
-//nolint:dupl // intentionally similar to profile_editor for now; will diverge
 func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd) {
 	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
@@ -105,7 +105,7 @@ func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd
 			}
 			return m, nil
 		case key.Matches(msg, m.keys.create):
-			if m.password.Err != nil {
+			if m.password.Err != nil || m.ssid.Err != nil {
 				return m, nil
 			}
 			return m, tea.Sequence(
@@ -138,7 +138,7 @@ func (m *ProfileCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 }
 
 func (m *ProfileCreatorModel) View() string {
-	ssid := styles.ViewBorderedFocusable(&m.ssid)
+	ssid := styles.ViewInputWithValidation(&m.ssid)
 	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID     ", ssid)
 
 	name := styles.ViewBorderedFocusable(&m.name)

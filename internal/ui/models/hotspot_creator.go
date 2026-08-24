@@ -65,6 +65,7 @@ func NewHotspotCreatorModel(keys hotspotCreatorKeyMap, networksManager infra.Net
 
 func (m *HotspotCreatorModel) Reset() tea.Cmd {
 	m.ssid.Reset()
+	m.ssid.SetValue("")
 
 	m.name.Reset()
 	m.name.Blur()
@@ -95,7 +96,7 @@ func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd
 			}
 			return m, nil
 		case key.Matches(msg, m.keys.create):
-			if m.password.Err != nil {
+			if m.password.Err != nil || m.ssid.Err != nil {
 				return m, nil
 			}
 			return m, tea.Sequence(
@@ -125,7 +126,7 @@ func (m *HotspotCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 }
 
 func (m *HotspotCreatorModel) View() string {
-	ssid := styles.ViewBorderedFocusable(&m.ssid)
+	ssid := styles.ViewInputWithValidation(&m.ssid)
 	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID     ", ssid)
 
 	name := styles.ViewBorderedFocusable(&m.name)
