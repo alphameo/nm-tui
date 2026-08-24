@@ -36,6 +36,7 @@ type HelpModel struct {
 
 func NewHelpModel(keys keyMaps) *HelpModel {
 	v := viewport.New()
+	v.MouseWheelEnabled = true
 	h := help.New()
 	h.Styles = styles.HelpStyles
 	h.Ellipsis = styles.SymbolEllipsis
@@ -124,6 +125,10 @@ func (m *HelpModel) fullView() string {
 	mainTTL = styles.AccentStyle.Render(mainTTL)
 	main := m.mainFull()
 
+	helpTTL := "Help Menu"
+	helpTTL = styles.AccentStyle.Render(helpTTL)
+	help := m.helpFull()
+
 	deviceTTL := "Device"
 	deviceTTL = styles.AccentStyle.Render(deviceTTL)
 	device := m.deviceFull()
@@ -169,6 +174,7 @@ func (m *HelpModel) fullView() string {
 		view,
 		globalTTL, m.help.FullHelpView(global), "",
 		mainTTL, m.help.FullHelpView(main), "",
+		helpTTL, m.help.FullHelpView(help), "",
 		networksTTL, m.help.FullHelpView(networks), "",
 		netDevicesTTL, m.help.FullHelpView(netDevices), "",
 		deviceInfoTTL, m.help.FullHelpView(deviceInfo), "",
@@ -201,6 +207,20 @@ func (m *HelpModel) mainFull() [][]key.Binding {
 
 func (m *HelpModel) mainShort() []key.Binding {
 	return []key.Binding{m.keyMap.main.help}
+}
+
+func (m *HelpModel) helpFull() [][]key.Binding {
+	return [][]key.Binding{{
+		m.fullKB(m.keyMap.main.help, "Close Help menu"),
+		m.fullKB(m.keyMap.main.closePopup, "Close popup with Help menu"),
+	}}
+}
+
+func (m *HelpModel) helpShort() []key.Binding {
+	return []key.Binding{
+		m.keyMap.main.help,
+		m.keyMap.main.closePopup,
+	}
 }
 
 func (m *HelpModel) deviceFull() [][]key.Binding {

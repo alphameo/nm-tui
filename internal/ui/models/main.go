@@ -321,6 +321,8 @@ func (m *MainModel) activeBindingsShort() []key.Binding {
 			return m.help.profileEditorShort()
 		case *DeviceInfoModel:
 			return m.help.deviceInfoShort()
+		case *HelpModel:
+			return m.help.helpShort()
 		}
 		return m.help.mainShort()
 	}
