@@ -187,6 +187,11 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.profileEditor.setNewProfile(string(msg)),
 			OpenPopupCmd(m.profileEditor),
 		)
+	case openDeviceInfoMsg:
+		return m, tea.Batch(
+			m.deviceInfo.setNewDevice(string(msg)),
+			OpenPopupCmd(m.deviceInfo),
+		)
 	case NotificationTextMsg:
 		m.notification.message = string(msg)
 		return m, nil
