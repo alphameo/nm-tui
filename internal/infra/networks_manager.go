@@ -129,20 +129,26 @@ type NetworksManager interface {
 	QuickHotspot(ctx context.Context) error
 
 	// DeleteProfile removes network profile with given name from saved connections.
+	// name can be ID or UUID.
 	DeleteProfile(ctx context.Context, name string) error
 
 	// ActivateProfile activates network profile with given name: connects to network or enables hotspot.
+	// name can be ID or UUID.
 	ActivateProfile(ctx context.Context, name string) error
 
 	// DeactivateProfile deactivates network profile with given name: disconnects to network or disnables hotspot.
+	// name can be ID or UUID.
 	DeactivateProfile(ctx context.Context, name string) error
 
 	// GetProfilePassword gives password of saved network profile with given name.
+	// name can be ID or UUID.
 	GetProfilePassword(ctx context.Context, name string) (string, error)
 
 	// GetProfile gives information about saved network with given name.
+	// name can be ID or UUID.
 	GetProfile(ctx context.Context, name string) (NetworkProfile, error)
 
 	// UpdateProfile updates information about wifi-network with given name.
+	// name can be ID or UUID.
 	UpdateProfile(ctx context.Context, name string, info UpdateNetworkProfile) error
 }
