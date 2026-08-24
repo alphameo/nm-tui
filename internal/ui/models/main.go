@@ -316,24 +316,29 @@ func (m *MainModel) activeBindingsShort() []key.Binding {
 			return m.help.hotspotCreatorShort()
 		case *ProfileEditorModel:
 			return m.help.profileEditorShort()
+		case *DeviceInfoModel:
+			return m.help.deviceInfoShort()
 		}
 		return m.help.mainShort()
 	}
 
-	helpKey := m.help.mainShort()
+	keys := m.help.mainShort()
 
 	switch m.tabs.ActiveTabIndex() {
 	case 1: // Device tab
-		return append(helpKey, m.help.deviceShort()...)
+		keys = append(keys, m.help.deviceShort()...)
+		if m.device.netDevices.Focused() {
+			keys = append(keys, m.help.netDevicesShort()...)
+		}
+		return keys
 	default: // Networks tab: tab actions + focused window
-		keys := []key.Binding{}
 		keys = append(keys, m.help.networksShort()...)
 		if m.networks.available.Focused() {
 			keys = append(keys, m.help.availableNetworksShort()...)
 		} else {
 			keys = append(keys, m.help.networkProfilesShort()...)
 		}
-		return append(helpKey, keys...)
+		return keys
 	}
 }
 
