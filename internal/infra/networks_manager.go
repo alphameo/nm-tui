@@ -58,7 +58,7 @@ type NetworkProfile struct {
 	Mode                NetworkMode
 }
 
-type UpdateProfile struct {
+type UpdateNetworkProfile struct {
 	Name                string
 	Password            string
 	Autoconnect         bool
@@ -145,5 +145,5 @@ type NetworksManager interface {
 	GetProfile(ctx context.Context, name string) (NetworkProfile, error)
 
 	// UpdateProfile updates information about wifi-network with given name.
-	UpdateProfile(ctx context.Context, name string, info UpdateProfile) error
+	UpdateProfile(ctx context.Context, name string, info UpdateNetworkProfile) error
 }

@@ -475,7 +475,7 @@ func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, 
 	return info, nil
 }
 
-func (n *CLI) UpdateProfile(ctx context.Context, id string, info infra.UpdateProfile) error {
+func (n *CLI) UpdateProfile(ctx context.Context, id string, info infra.UpdateNetworkProfile) error {
 	var keyMgmgt string
 	if len(info.Password) == 0 {
 		keyMgmgt = KeyMgmgtNone

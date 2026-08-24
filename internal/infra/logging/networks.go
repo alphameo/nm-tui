@@ -111,7 +111,7 @@ func (m *NetworksMiddleware) GetProfile(ctx context.Context, name string) (infra
 	})
 }
 
-func (m *NetworksMiddleware) UpdateProfile(ctx context.Context, name string, info infra.UpdateProfile) error {
+func (m *NetworksMiddleware) UpdateProfile(ctx context.Context, name string, info infra.UpdateNetworkProfile) error {
 	return m.call("update_profile", func() error {
 		return m.networks.UpdateProfile(ctx, name, info)
 	})
