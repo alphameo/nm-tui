@@ -233,7 +233,7 @@ func (m *ProfileEditorModel) saveProfileInfoCmd() tea.Cmd {
 				),
 			)
 		}
-		info := infra.UpdateProfile{
+		info := infra.UpdateNetworkProfile{
 			Name:                m.name.Value(),
 			Password:            m.password.Value(),
 			Autoconnect:         m.autoconnect.Value(),
