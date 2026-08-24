@@ -347,7 +347,7 @@ func (n *CLI) getProfileAutoconnPriority(ctx context.Context, id string) (int, e
 	autoconnectResp := strings.TrimSpace(string(out))
 	autoconnectPriority, err := strconv.Atoi(autoconnectResp)
 	if err != nil {
-		return 0, fmt.Errorf("%w: autoconnection priority: %w", infra.ErrGetProfileProperty, id, err)
+		return 0, fmt.Errorf("%w: autoconnection priority: %w", infra.ErrGetProfileProperty, err)
 	}
 	return autoconnectPriority, nil
 }
