@@ -112,7 +112,7 @@ func NewMainModel(
 	n := Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
 
 	help := NewHelpModel(keys)
-	help.Style = styles.OverlayStyle
+	help.FullStyle = styles.OverlayStyle
 
 	return &MainModel{
 		tabs:         tabs,
@@ -291,8 +291,8 @@ func (m *MainModel) Resize(width, height int) {
 	helpHeight := lipgloss.Height(m.shortHelpView())
 
 	m.tabs.Resize(width, height-helpHeight)
-	m.help.Resize(int(float32(width)*0.8), int(float32(height)*0.8))
-	m.help.help.SetWidth(width)
+	m.help.ResizeShort(width)
+	m.help.ResizeFull(int(float32(width)*0.8), int(float32(height)*0.8))
 
 	m.notification.style = m.notification.style.Width(width / 2)
 }

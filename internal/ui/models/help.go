@@ -29,8 +29,9 @@ type HelpModel struct {
 	help     help.Model
 	keyMap   keyMaps
 
-	keys  helpKeyMap
-	Style lipgloss.Style
+	keys       helpKeyMap
+	FullStyle  lipgloss.Style
+	ShortStyle lipgloss.Style
 }
 
 func NewHelpModel(keys keyMaps) *HelpModel {
@@ -41,25 +42,35 @@ func NewHelpModel(keys keyMaps) *HelpModel {
 	h.ShortSeparator = fmt.Sprintf(" %s ", styles.SymbolSeparator)
 
 	help := HelpModel{
-		viewport: v,
-		keyMap:   keys,
-		help:     h,
-		keys:     keys.help,
-		Style:    lipgloss.NewStyle(),
+		viewport:   v,
+		keyMap:     keys,
+		help:       h,
+		keys:       keys.help,
+		FullStyle:  lipgloss.NewStyle(),
+		ShortStyle: lipgloss.NewStyle().MaxHeight(1),
 	}
 	help.viewport.SetContent(help.fullView())
 	return &help
 }
 
-func (m *HelpModel) Resize(width, height int) {
-	m.Style = m.Style.Width(width).Height(height)
+func (m *HelpModel) ResizeFull(width, height int) {
+	m.FullStyle = m.FullStyle.Width(width).Height(height)
 
-	border := m.Style.GetBorderStyle()
+	border := m.FullStyle.GetBorderStyle()
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
 
 	m.viewport.SetWidth(width)
 	m.viewport.SetHeight(height)
+}
+
+func (m *HelpModel) ResizeShort(width int) {
+	m.ShortStyle = m.ShortStyle.MaxWidth(width)
+
+	border := m.ShortStyle.GetBorderStyle()
+	width -= border.GetLeftSize() + border.GetRightSize()
+
+	m.help.SetWidth(width)
 }
 
 func (m *HelpModel) Init() tea.Cmd {
@@ -68,10 +79,7 @@ func (m *HelpModel) Init() tea.Cmd {
 }
 
 func (m *HelpModel) Update(msg tea.Msg) (*HelpModel, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.Resize(msg.Width, msg.Height)
-	case tea.KeyPressMsg:
+	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		if key.Matches(msg, m.keys.quit) {
 			return m, ClosePopupCmd()
 		}
@@ -103,7 +111,7 @@ func (m *HelpModel) View() string {
 }
 
 func (m *HelpModel) ShortViewFor(bindings []key.Binding) string {
-	return m.help.ShortHelpView(bindings)
+	return m.ShortStyle.Render(m.help.ShortHelpView(bindings))
 }
 
 func (m *HelpModel) fullView() string {
