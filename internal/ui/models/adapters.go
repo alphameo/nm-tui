@@ -44,6 +44,7 @@ func convertAvailableNetworks(records []infra.AvailableNetwork) []AvailableNetwo
 func convertNetworkProfileShort(record infra.NetworkProfileShort) NetworkProfileShort {
 	return NetworkProfileShort{
 		Name:   record.Name,
+		UUID:   record.UUID,
 		SSID:   record.SSID,
 		Active: record.Active,
 		Mode:   ConvertNetworkMode(record.Mode),
