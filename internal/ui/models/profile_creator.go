@@ -143,7 +143,7 @@ func (m *ProfileCreatorModel) View() string {
 	name := styles.ViewBorderedFocusable(&m.name)
 	name = lipgloss.JoinHorizontal(lipgloss.Center, "Name     ", name)
 
-	password := styles.ViewBorderedFocusable(&m.password)
+	password := styles.ViewInputWithValidation(&m.password)
 	password = lipgloss.JoinHorizontal(lipgloss.Center, "Password ", password)
 
 	hidden := m.hidden.View()
