@@ -36,34 +36,38 @@ type NetworkProfilesModel struct {
 }
 
 type networkProfilesConfig struct {
-	connColIdx int
-	modeColIdx int
-	ssidColIdx int
-	nameColIdx int
+	stateColIdx int
+	modeColIdx  int
+	ssidColIdx  int
+	nameColIdx  int
+	uuidColIdx  int
 
 	modeColTitle string
 	ssidColTitle string
 	nameColTitle string
+	uuidColTitle string
 
-	ssidWidthProportion float32
+	uuidWidthProportion float32
 }
 
 var networkProfilesCfg = networkProfilesConfig{
-	connColIdx: 0,
-	modeColIdx: 1,
-	ssidColIdx: 2,
-	nameColIdx: 3,
+	stateColIdx: 0,
+	modeColIdx:  1,
+	ssidColIdx:  2,
+	nameColIdx:  3,
+	uuidColIdx:  4,
 
 	modeColTitle: "Mode",
 	ssidColTitle: "SSID",
 	nameColTitle: "Name",
+	uuidColTitle: "UUID",
 
-	ssidWidthProportion: 0.5,
+	uuidWidthProportion: 0.5,
 }
 
 func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.NetworksManager) *NetworkProfilesModel {
-	cols := make([]table.Column, 4)
-	cols[networkProfilesCfg.connColIdx] = table.Column{
+	cols := make([]table.Column, 5)
+	cols[networkProfilesCfg.stateColIdx] = table.Column{
 		Title: "State",
 		Width: len("State"),
 	}
@@ -78,6 +82,10 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 	cols[networkProfilesCfg.nameColIdx] = table.Column{
 		Title: networkProfilesCfg.nameColTitle,
 		Width: len(networkProfilesCfg.nameColTitle),
+	}
+	cols[networkProfilesCfg.uuidColIdx] = table.Column{
+		Title: networkProfilesCfg.uuidColTitle,
+		Width: len(networkProfilesCfg.uuidColTitle),
 	}
 
 	t := table.New(
@@ -112,14 +120,15 @@ func (m *NetworkProfilesModel) Resize(width, height int) {
 
 	tablePaddingOffset := len(m.table.Columns()) * 2
 
-	connWidth := m.table.Columns()[networkProfilesCfg.connColIdx].Width
+	stateWidth := m.table.Columns()[networkProfilesCfg.stateColIdx].Width
 	modeWidth := m.table.Columns()[networkProfilesCfg.modeColIdx].Width
 
-	computedWidth := width - tablePaddingOffset - connWidth - modeWidth
-	possibleNameWidth := int(float32(computedWidth) * networkProfilesCfg.ssidWidthProportion)
-	ssidWidth := computedWidth - possibleNameWidth
-	nameWidth := computedWidth - ssidWidth
+	computedWidth := width - tablePaddingOffset - stateWidth - modeWidth
+	uuidWidth := int(float32(computedWidth) * networkProfilesCfg.uuidWidthProportion)
+	ssidWidth := int(float32(computedWidth-uuidWidth) * 0.5)
+	nameWidth := computedWidth - ssidWidth - uuidWidth
 
+	m.table.Columns()[networkProfilesCfg.uuidColIdx].Width = uuidWidth
 	m.table.Columns()[networkProfilesCfg.nameColIdx].Width = nameWidth
 	m.table.Columns()[networkProfilesCfg.ssidColIdx].Width = ssidWidth
 	m.table.UpdateViewport()
@@ -217,19 +226,20 @@ func (m *NetworkProfilesModel) View() string {
 
 func (m *NetworkProfilesModel) setProfiles(list []NetworkProfileShort, err error) tea.Cmd {
 	rows := []table.Row{}
-	for _, wifiSaved := range list {
-		var connectionFlag string
-		if wifiSaved.Active {
-			connectionFlag = styles.SymbolCheck
-		} else if wifiSaved.Available {
-			connectionFlag = styles.SymbolAvailable
+	for _, profile := range list {
+		var stateIcon string
+		if profile.Active {
+			stateIcon = styles.SymbolCheck
+		} else if profile.Available {
+			stateIcon = styles.SymbolAvailable
 		}
-		rows = append(rows, table.Row{
-			connectionFlag,
-			wifiSaved.Mode,
-			wifiSaved.SSID,
-			wifiSaved.Name,
-		})
+		row := make([]string, 5)
+		row[networkProfilesCfg.uuidColIdx] = profile.UUID
+		row[networkProfilesCfg.modeColIdx] = profile.Mode
+		row[networkProfilesCfg.stateColIdx] = stateIcon
+		row[networkProfilesCfg.nameColIdx] = profile.Name
+		row[networkProfilesCfg.ssidColIdx] = profile.SSID
+		rows = append(rows, row)
 	}
 
 	m.table.SetRows(rows)
