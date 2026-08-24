@@ -59,6 +59,8 @@ var (
 	ErrGetWWANStatus = errors.New("failed to get wwan radio status")
 	ErrEnableWWAN    = errors.New("failed to enable wwan radio")
 	ErrDisableWWAN   = errors.New("failed to disable wwan radio")
+
+	ErrGetDeviceInfo = errors.New("failed to get device info")
 )
 
 type DeviceManager interface {
@@ -91,4 +93,7 @@ type DeviceManager interface {
 
 	// DisableWifi disables wifi on device
 	DisableWifi(ctx context.Context) error
+
+	// DeviceInfo returns srting with device info from cli tool
+	GetDeviceInfo(ctx context.Context, name string) (string, error)
 }

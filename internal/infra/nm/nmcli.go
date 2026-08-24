@@ -640,3 +640,12 @@ func (n *CLI) QuickHotspot(ctx context.Context) error {
 	_, err := n.run(ctx, infra.ErrQuickHotspot, args...)
 	return err
 }
+
+func (n *CLI) GetDeviceInfo(ctx context.Context, name string) (string, error) {
+	args := []string{"device", "show", name}
+	out, err := n.run(ctx, infra.ErrGetDeviceInfo, args...)
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
+}
