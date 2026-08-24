@@ -128,6 +128,10 @@ func (m *HelpModel) fullView() string {
 	deviceTTL = styles.AccentStyle.Render(deviceTTL)
 	device := m.deviceFull()
 
+	netDevicesTTL := "Network Devices"
+	netDevicesTTL = styles.AccentStyle.Render(netDevicesTTL)
+	netDevices := m.netDevicesFull()
+
 	availableNetworksTTL := "Available Networks"
 	availableNetworksTTL = styles.AccentStyle.Render(availableNetworksTTL)
 	availableNetworks := m.availableNetworksFull()
@@ -162,6 +166,7 @@ func (m *HelpModel) fullView() string {
 		globalTTL, m.help.FullHelpView(global), "",
 		mainTTL, m.help.FullHelpView(main), "",
 		networksTTL, m.help.FullHelpView(networks), "",
+		netDevicesTTL, m.help.FullHelpView(netDevices), "",
 		profileCreatorTTL, m.help.FullHelpView(profileCreator), "",
 		hotspotCreatorTTL, m.help.FullHelpView(hotspotCreator), "",
 		availableNetworksTTL, m.help.FullHelpView(availableNetworks), "",
@@ -198,6 +203,12 @@ func (m *HelpModel) deviceFull() [][]key.Binding {
 		m.fullKB(m.keyMap.device.prev, "Move to previous control"),
 		m.fullKB(m.keyMap.device.next, "Move to next control"),
 		m.fullKB(m.keyMap.device.rescan, "Rescan device state"),
+	}}
+}
+
+func (m *HelpModel) netDevicesFull() [][]key.Binding {
+	return [][]key.Binding{{
+		m.fullKB(m.keyMap.networkDevices.showInfo, "Show information about selected device"),
 	}}
 }
 
