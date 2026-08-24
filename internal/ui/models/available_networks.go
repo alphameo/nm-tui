@@ -69,7 +69,7 @@ type availableNetworksKeyMap struct {
 }
 
 type AvailableNetworksModel struct {
-	dataTable          table.Model
+	table              table.Model
 	focusedTableStyles table.Styles
 	bluredTableStyles  table.Styles
 
@@ -127,7 +127,7 @@ func NewAvailableNetworksModel(
 	)
 
 	model := &AvailableNetworksModel{
-		dataTable:          t,
+		table:              t,
 		focusedTableStyles: table.DefaultStyles(),
 		bluredTableStyles:  table.DefaultStyles(),
 
@@ -148,45 +148,43 @@ func (m *AvailableNetworksModel) Resize(width, height int) {
 	width -= border.GetLeftSize() + border.GetRightSize()
 	height -= border.GetBottomSize() + border.GetTopSize()
 
-	m.dataTable.SetWidth(width)
-	m.dataTable.SetHeight(height)
+	m.table.SetWidth(width)
+	m.table.SetHeight(height)
 
 	// NOTE: from padding
-	tablePaddingOffset := len(m.dataTable.Columns()) * 2
+	tablePaddingOffset := len(m.table.Columns()) * 2
 
 	secColWidth := int(float32(width) * availableNetworksCfg.securityWidthProportion)
-	signalColWidth := m.dataTable.Columns()[availableNetworksCfg.signalColIdx].Width
-	stateColWidth := m.dataTable.Columns()[availableNetworksCfg.stateColIdx].Width
-	bandColWidth := m.dataTable.Columns()[availableNetworksCfg.bandColIdx].Width
-	rateColWidth := m.dataTable.Columns()[availableNetworksCfg.rateColIdx].Width
-	modeColWidth := m.dataTable.Columns()[availableNetworksCfg.modeColIdx].Width
-	deviceColWidth := m.dataTable.Columns()[availableNetworksCfg.deviceColIdx].Width
+	signalColWidth := m.table.Columns()[availableNetworksCfg.signalColIdx].Width
+	stateColWidth := m.table.Columns()[availableNetworksCfg.stateColIdx].Width
+	bandColWidth := m.table.Columns()[availableNetworksCfg.bandColIdx].Width
+	rateColWidth := m.table.Columns()[availableNetworksCfg.rateColIdx].Width
+	modeColWidth := m.table.Columns()[availableNetworksCfg.modeColIdx].Width
+	deviceColWidth := m.table.Columns()[availableNetworksCfg.deviceColIdx].Width
 	ssidWidth := width - tablePaddingOffset - signalColWidth - stateColWidth - secColWidth - modeColWidth - rateColWidth - bandColWidth - deviceColWidth
 
-	m.dataTable.Columns()[availableNetworksCfg.securityColIdx].Width = secColWidth
-	m.dataTable.Columns()[availableNetworksCfg.ssidColIdx].Width = ssidWidth
-	m.dataTable.UpdateViewport()
+	m.table.Columns()[availableNetworksCfg.securityColIdx].Width = secColWidth
+	m.table.Columns()[availableNetworksCfg.ssidColIdx].Width = ssidWidth
+	m.table.UpdateViewport()
 }
 
 func (m *AvailableNetworksModel) Width() int { return m.focusedStyle.GetWidth() }
 
 func (m *AvailableNetworksModel) Height() int { return m.focusedStyle.GetHeight() }
 
+func (m *AvailableNetworksModel) Focused() bool { return m.focus }
+
 func (m *AvailableNetworksModel) Focus() tea.Cmd {
 	m.focus = true
-	m.dataTable.SetStyles(m.focusedTableStyles)
-	m.dataTable.Focus()
+	m.table.SetStyles(m.focusedTableStyles)
+	m.table.Focus()
 	return nil
 }
 
 func (m *AvailableNetworksModel) Blur() {
 	m.focus = false
-	m.dataTable.Blur()
-	m.dataTable.SetStyles(m.bluredTableStyles)
-}
-
-func (m *AvailableNetworksModel) Focused() bool {
-	return m.focus
+	m.table.Blur()
+	m.table.SetStyles(m.bluredTableStyles)
 }
 
 func (m *AvailableNetworksModel) activeStyle() *lipgloss.Style {
@@ -198,9 +196,9 @@ func (m *AvailableNetworksModel) activeStyle() *lipgloss.Style {
 
 func (m *NetworkProfilesModel) UpdateTable() {
 	if m.focus {
-		m.dataTable.SetStyles(m.focusedTableStyles)
+		m.table.SetStyles(m.focusedTableStyles)
 	} else {
-		m.dataTable.SetStyles(m.bluredTableStyles)
+		m.table.SetStyles(m.bluredTableStyles)
 	}
 }
 
@@ -218,19 +216,19 @@ func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, t
 		}
 		switch {
 		case key.Matches(msg, m.keys.connect):
-			row := m.dataTable.SelectedRow()
+			row := m.table.SelectedRow()
 			if row != nil {
 				return m, OpenConnectorCmd(row[availableNetworksCfg.ssidColIdx])
 			}
 			return m, nil
 		case key.Matches(msg, m.keys.activate):
-			row := m.dataTable.SelectedRow()
+			row := m.table.SelectedRow()
 			if row != nil {
 				return m, m.activateConnToSelectedCmd()
 			}
 			return m, nil
 		case key.Matches(msg, m.keys.deactivate):
-			row := m.dataTable.SelectedRow()
+			row := m.table.SelectedRow()
 			if row != nil {
 				return m, m.deactivateConnToSelectedCmd()
 			}
@@ -243,14 +241,14 @@ func (m *AvailableNetworksModel) Update(msg tea.Msg) (*AvailableNetworksModel, t
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	m.dataTable, cmd = m.dataTable.Update(msg)
+	m.table, cmd = m.table.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m *AvailableNetworksModel) View() string {
-	view := m.dataTable.View()
+	view := m.table.View()
 
 	style := m.activeStyle()
 	view = renderer.RenderWithTitleAndKeybind(
@@ -285,9 +283,9 @@ func (m *AvailableNetworksModel) setAvailable(list []AvailableNetwork, err error
 		rows = append(rows, row)
 	}
 
-	m.dataTable.SetRows(rows)
-	m.dataTable.GotoTop()
-	m.dataTable.UpdateViewport()
+	m.table.SetRows(rows)
+	m.table.GotoTop()
+	m.table.UpdateViewport()
 
 	cmds := []tea.Cmd{SetNetworksStateCmd(NetsDone)}
 	if err != nil {
@@ -322,7 +320,7 @@ func (m *AvailableNetworksModel) activateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
 		SetNetworksStateCmd(NetsActivating),
 		func() tea.Msg {
-			ssid := m.dataTable.SelectedRow()[availableNetworksCfg.ssidColIdx]
+			ssid := m.table.SelectedRow()[availableNetworksCfg.ssidColIdx]
 			err := m.netMngr.TryActivateNetwork(context.Background(), ssid)
 			if err != nil {
 				return tea.Batch(
@@ -343,7 +341,7 @@ func (m *AvailableNetworksModel) deactivateConnToSelectedCmd() tea.Cmd {
 	return tea.Sequence(
 		SetNetworksStateCmd(NetsDeactivating),
 		func() tea.Msg {
-			name := m.dataTable.SelectedRow()[availableNetworksCfg.ssidColIdx]
+			name := m.table.SelectedRow()[availableNetworksCfg.ssidColIdx]
 			err := m.netMngr.DeactivateProfile(context.Background(), name)
 			if err != nil {
 				return tea.Batch(
