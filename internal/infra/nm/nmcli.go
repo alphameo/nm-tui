@@ -321,10 +321,36 @@ func (n *CLI) getProfileSSID(ctx context.Context, id string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
+func (n *CLI) getProfileUUID(ctx context.Context, id string) (string, error) {
+	args := []string{
+		"-m", "tabular",
+		"-t", "-f", "connection.uuid",
+		"connection", "show", id,
+	}
+	out, err := n.run(ctx, fmt.Errorf("%w: ssid", infra.ErrGetProfileProperty), args...)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
+}
+
 func (n *CLI) getProfileAutoconn(ctx context.Context, id string) (bool, error) {
 	args := []string{
 		"-m", "tabular",
 		"-t", "-f", "connection.autoconnect",
+		"connection", "show", id,
+	}
+	out, err := n.run(ctx, fmt.Errorf("%w: autoconnection", infra.ErrGetProfileProperty), args...)
+	if err != nil {
+		return false, err
+	}
+	return strings.TrimSpace(string(out)) == "yes", nil
+}
+
+func (n *CLI) getProfileHidden(ctx context.Context, id string) (bool, error) {
+	args := []string{
+		"-m", "tabular",
+		"-t", "-f", "802-11-wireless.hidden",
 		"connection", "show", id,
 	}
 	out, err := n.run(ctx, fmt.Errorf("%w: autoconnection", infra.ErrGetProfileProperty), args...)
@@ -420,12 +446,18 @@ func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, 
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
-	wg.Add(6)
+	wg.Add(8)
 
 	go func() {
 		defer wg.Done()
 		ssid, err := n.getProfileSSID(ctx, id)
 		setFetchResult(&mu, &errs, &info.SSID, ssid, err)
+	}()
+
+	go func() {
+		defer wg.Done()
+		uuid, err := n.getProfileUUID(ctx, id)
+		setFetchResult(&mu, &errs, &info.UUID, uuid, err)
 	}()
 
 	go func() {
@@ -456,6 +488,12 @@ func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, 
 		defer wg.Done()
 		mode, err := n.getProfileMode(ctx, id)
 		setFetchResult(&mu, &errs, &info.Mode, mode, err)
+	}()
+
+	go func() {
+		defer wg.Done()
+		hidden, err := n.getProfileHidden(ctx, id)
+		setFetchResult(&mu, &errs, &info.Hidden, hidden, err)
 	}()
 
 	wg.Wait()
