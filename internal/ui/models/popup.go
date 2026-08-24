@@ -57,6 +57,7 @@ type (
 	openHotspotCreatorMsg struct{}
 	openProfileCreatorMsg struct{}
 	openProfileEditorMsg  string
+	openDeviceInfoMsg     string
 )
 
 func OpenConnectorCmd(ssid string) tea.Cmd {
@@ -80,5 +81,11 @@ func OpenProfileCreatorCmd() tea.Cmd {
 func OpenProfileEditorCmd(name string) tea.Cmd {
 	return func() tea.Msg {
 		return openProfileEditorMsg(name)
+	}
+}
+
+func OpenDeviceInfoCmd(name string) tea.Cmd {
+	return func() tea.Msg {
+		return openDeviceInfoMsg(name)
 	}
 }
