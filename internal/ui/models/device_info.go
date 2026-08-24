@@ -22,7 +22,7 @@ var deviceInfoCfg = deviceInfoConfig{
 }
 
 type DeviceInfoModel struct {
-	info viewport.Model
+	viewport viewport.Model
 
 	devMngr infra.DeviceManager
 	Style   lipgloss.Style
@@ -31,9 +31,9 @@ type DeviceInfoModel struct {
 func NewDeviceInfoModel(deviceManager infra.DeviceManager) *DeviceInfoModel {
 	info := viewport.New()
 	model := &DeviceInfoModel{
-		info:    info,
-		devMngr: deviceManager,
-		Style:   lipgloss.NewStyle(),
+		viewport: info,
+		devMngr:  deviceManager,
+		Style:    lipgloss.NewStyle(),
 	}
 
 	return model
@@ -47,11 +47,24 @@ func (m *DeviceInfoModel) setNewDevice(name string) tea.Cmd {
 		)
 	}
 
-	m.info.SetContent(info)
+	m.viewport.SetContent(info)
+	_ = m.viewport.GotoTop()
 	return nil
 }
 
+func (m *DeviceInfoModel) Resize(width, height int) {
+	m.Style = m.Style.Width(width).Height(height)
+
+	border := m.Style.GetBorderStyle()
+	width -= border.GetLeftSize() + border.GetRightSize()
+	height -= border.GetBottomSize() + border.GetTopSize()
+
+	m.viewport.SetWidth(width)
+	m.viewport.SetHeight(height)
+}
+
 func (m *DeviceInfoModel) Init() tea.Cmd {
+	m.viewport.GotoTop()
 	return nil
 }
 
@@ -59,7 +72,7 @@ func (m *DeviceInfoModel) Update(msg tea.Msg) (*DeviceInfoModel, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	m.info, cmd = m.info.Update(msg)
+	m.viewport, cmd = m.viewport.Update(msg)
 	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
@@ -69,7 +82,7 @@ func (m *DeviceInfoModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
 }
 
 func (m *DeviceInfoModel) View() string {
-	view := m.info.View()
+	view := m.viewport.View()
 
 	view = m.Style.Render(view)
 	title := styles.DefaultStyle.Render(renderer.RenderTitle(deviceInfoCfg.title))
