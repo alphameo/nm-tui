@@ -164,17 +164,15 @@ func (m *DeviceModel) Update(msg tea.Msg) (*DeviceModel, tea.Cmd) {
 			return m, m.focuses.FocusCyclePrevCmd()
 		case key.Matches(msg, m.keys.rescan):
 			return m, m.RescanCmd()
-		// NOTE: It is supposed that all togglers has the same bindings
-		case key.Matches(msg, m.wwan.Keys.Toggle):
-			if m.wwan.Focused() {
-				return m, m.toggleWWAN()
-			}
-			if m.wifi.Focused() {
-				return m, m.toggleWIFI()
-			}
-			if m.networking.Focused() {
-				return m, m.toggleNetworking()
-			}
+		}
+		if key.Matches(msg, m.wwan.Keys.Toggle) && m.wwan.Focused() {
+			return m, m.toggleWWAN()
+		}
+		if key.Matches(msg, m.wifi.Keys.Toggle) && m.wifi.Focused() {
+			return m, m.toggleWIFI()
+		}
+		if key.Matches(msg, m.networking.Keys.Toggle) && m.networking.Focused() {
+			return m, m.toggleNetworking()
 		}
 	}
 
