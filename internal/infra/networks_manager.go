@@ -19,6 +19,7 @@ type AvailableNetwork struct {
 
 type NetworkProfileShort struct {
 	Name   string
+	UUID   string
 	SSID   string
 	Active bool
 	Mode   NetworkMode
