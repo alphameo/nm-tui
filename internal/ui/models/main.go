@@ -76,6 +76,7 @@ func NewMainModel(
 	profileEditor := NewProfileEditorModel(keys.profileEditor, networksManager)
 	profileEditor.Style = styles.OverlayStyle
 	deviceInfo := NewDeviceInfoModel(deviceManager)
+	deviceInfo.Style = styles.OverlayStyle
 
 	available := NewAvailableNetworksModel(keys.availableNetworks, networksManager)
 	available.focusedStyle = styles.BorderedFocusedStyle
@@ -301,6 +302,8 @@ func (m *MainModel) Resize(width, height int) {
 	m.tabs.Resize(width, height-helpHeight)
 	m.help.ResizeShort(width)
 	m.help.ResizeFull(int(float32(width)*0.8), int(float32(height)*0.8))
+
+	m.deviceInfo.Resize(int(float32(width)*0.8), int(float32(height)*0.3))
 
 	m.notification.style = m.notification.style.Width(width / 2)
 }
