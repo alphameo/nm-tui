@@ -35,7 +35,7 @@ type HelpModel struct {
 }
 
 func NewHelpModel(keys keyMaps) *HelpModel {
-	v := viewport.New()
+	v := newDefaultViewport()
 	v.MouseWheelEnabled = true
 	h := help.New()
 	h.Styles = styles.HelpStyles
