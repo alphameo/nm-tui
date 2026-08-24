@@ -91,9 +91,14 @@ func NewMainModel(
 	networks := NewNetworksModel(available, profiles, keys.networks, networksManager, portalOpener)
 	networks.IndicatorStyle = styles.DefaultStyle
 
-	device := NewDeviceModel(keys.device, deviceManager)
-	device.TableStyle = styles.BorderedStyle
+	netDevices := NewNetworkDevicesModel(keys.networkDevices, deviceManager)
+	netDevices.focusedStyle = styles.BorderedFocusedStyle
+	netDevices.bluredStyle = styles.BorderedStyle
+	netDevices.SetTableStyles(styles.TableStyles, styles.DataTableStyles)
+
+	device := NewDeviceModel(netDevices, keys.device, deviceManager)
 	device.IndicatorStyle = styles.DefaultStyle
+	device.ControlsStyle = lipgloss.NewStyle().Margin(1, 0)
 
 	tabContentBorder := tabview.DefaultContentBorder(styles.Border)
 	tabContentStyle := styles.DefaultStyle.Border(tabContentBorder)

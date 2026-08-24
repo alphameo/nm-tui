@@ -16,42 +16,6 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
-type deviceConfig struct {
-	controlsStyle lipgloss.Style
-
-	deviceColIdx int
-	typeColIdx   int
-	connColIdx   int
-	stateColIdx  int
-
-	deviceColTitle string
-	typeColTitle   string
-	connColTitle   string
-	stateColTitle  string
-
-	deviceWidthProportion float32
-	typeWidthProportion   float32
-	stateWidthProportion  float32
-}
-
-var deviceCfg = deviceConfig{
-	controlsStyle: lipgloss.NewStyle().Margin(1, 0),
-
-	deviceColIdx: 0,
-	typeColIdx:   1,
-	connColIdx:   2,
-	stateColIdx:  3,
-
-	deviceColTitle: "Device",
-	typeColTitle:   "Type",
-	connColTitle:   "Connection",
-	stateColTitle:  "State",
-
-	deviceWidthProportion: 0.2,
-	typeWidthProportion:   0.15,
-	stateWidthProportion:  0.3,
-}
-
 type deviceState int
 
 const (
@@ -87,8 +51,7 @@ type deviceKeyMap struct {
 }
 
 type DeviceModel struct {
-	devicesTable table.Model
-	TableStyle   lipgloss.Style
+	netDevices *NetworkDevicesModel
 
 	wwan       toggle.Model
 	wifi       toggle.Model
@@ -99,6 +62,8 @@ type DeviceModel struct {
 	indicatorSpinner spinner.Model
 	indicatorState   deviceState
 	IndicatorStyle   lipgloss.Style
+
+	ControlsStyle lipgloss.Style
 
 	focus bool
 
@@ -111,30 +76,7 @@ type DeviceModel struct {
 	Style lipgloss.Style
 }
 
-func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *DeviceModel {
-	cols := make([]table.Column, 4)
-	cols[deviceCfg.deviceColIdx] = table.Column{
-		Title: deviceCfg.deviceColTitle,
-		Width: len(deviceCfg.deviceColTitle),
-	}
-	cols[deviceCfg.typeColIdx] = table.Column{
-		Title: deviceCfg.typeColTitle,
-		Width: len(deviceCfg.typeColTitle),
-	}
-	cols[deviceCfg.connColIdx] = table.Column{
-		Title: deviceCfg.connColTitle,
-		Width: len(deviceCfg.connColTitle),
-	}
-	cols[deviceCfg.stateColIdx] = table.Column{
-		Title: deviceCfg.stateColTitle,
-		Width: len(deviceCfg.stateColTitle),
-	}
-
-	t := table.New(
-		table.WithColumns(cols),
-		table.WithStyles(styles.DataTableStyles),
-	)
-
+func NewDeviceModel(networkDevices *NetworkDevicesModel, keys deviceKeyMap, deviceManager infra.DeviceManager) *DeviceModel {
 	wwan := newDefaultToggle()
 
 	wifi := newDefaultToggle()
@@ -144,9 +86,7 @@ func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *Devic
 	s := newDefaultSpinner()
 
 	model := &DeviceModel{
-		devicesTable: t,
-		TableStyle:   lipgloss.NewStyle(),
-
+		netDevices:       networkDevices,
 		indicatorSpinner: s,
 		indicatorState:   DeviceDone,
 		IndicatorStyle:   lipgloss.NewStyle(),
@@ -157,12 +97,14 @@ func NewDeviceModel(keys deviceKeyMap, deviceManager infra.DeviceManager) *Devic
 
 		connectivity: "",
 
-		connMngr: deviceManager,
-		keys:     keys,
-		Style:    lipgloss.NewStyle(),
+		ControlsStyle: lipgloss.NewStyle().Margin(1, 0),
+		connMngr:      deviceManager,
+		keys:          keys,
+		Style:         lipgloss.NewStyle(),
 	}
 
 	focuses := []focus.Focusable{
+		networkDevices,
 		&model.wwan,
 		&model.wifi,
 		&model.networking,
@@ -181,28 +123,9 @@ func (m *DeviceModel) Resize(width, height int) {
 
 	controlsHeight := lipgloss.Height(m.controlsView())
 	statuslineHeight := lipgloss.Height(m.indicatorView())
-	height -= controlsHeight + statuslineHeight
+	netDevicesHeight := height - controlsHeight - statuslineHeight
 
-	tableBorder := m.TableStyle.GetBorderStyle()
-	width -= tableBorder.GetLeftSize() + tableBorder.GetRightSize()
-	height -= tableBorder.GetBottomSize() + tableBorder.GetTopSize()
-
-	m.devicesTable.SetWidth(width)
-	m.devicesTable.SetHeight(height)
-
-	// NOTE: from padding
-	tablePaddingOffset := len(m.devicesTable.Columns()) * 2
-
-	deviceColWidth := int(float32(width) * deviceCfg.deviceWidthProportion)
-	typeColWidth := int(float32(width) * deviceCfg.typeWidthProportion)
-	stateWidth := int(float32(width) * deviceCfg.stateWidthProportion)
-	connWidth := width - typeColWidth - deviceColWidth - tablePaddingOffset - stateWidth
-
-	m.devicesTable.Columns()[deviceCfg.deviceColIdx].Width = deviceColWidth
-	m.devicesTable.Columns()[deviceCfg.typeColIdx].Width = typeColWidth
-	m.devicesTable.Columns()[deviceCfg.stateColIdx].Width = stateWidth
-	m.devicesTable.Columns()[deviceCfg.connColIdx].Width = connWidth
-	m.devicesTable.UpdateViewport()
+	m.netDevices.Resize(width, netDevicesHeight)
 }
 
 func (m *DeviceModel) Width() int { return m.Style.GetWidth() }
@@ -219,6 +142,7 @@ func (m *DeviceModel) Focused() bool { return m.focus }
 
 func (m *DeviceModel) Init() tea.Cmd {
 	return tea.Batch(
+		m.netDevices.Init(),
 		m.RescanCmd(),
 		m.focuses.FocusCurrent(),
 	)
@@ -271,7 +195,7 @@ func (m *DeviceModel) Update(msg tea.Msg) (*DeviceModel, tea.Cmd) {
 	m.networking, cmd = m.networking.Update(msg)
 	cmds = append(cmds, cmd)
 
-	m.devicesTable, cmd = m.devicesTable.Update(msg)
+	m.netDevices, cmd = m.netDevices.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
@@ -282,14 +206,14 @@ func (m *DeviceModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
 }
 
 func (m *DeviceModel) View() string {
-	table := m.TableStyle.Render(m.devicesTable.View())
+	netDevices := m.netDevices.View()
 
 	controls := m.controlsView()
 	statusline := m.indicatorView()
 
 	view := lipgloss.JoinVertical(
 		lipgloss.Center,
-		table,
+		netDevices,
 		controls,
 		statusline,
 	)
@@ -332,7 +256,7 @@ func (m *DeviceModel) controlsView() string {
 		connectivity,
 	)
 
-	return deviceCfg.controlsStyle.Render(togglers)
+	return m.ControlsStyle.Render(togglers)
 }
 
 func (m *DeviceModel) RescanCmd() tea.Cmd {
@@ -353,9 +277,9 @@ func (m *DeviceModel) RescanCmd() tea.Cmd {
 					device.State,
 				})
 			}
-			m.devicesTable.SetRows(rows)
-			m.devicesTable.GotoTop()
-			m.devicesTable.UpdateViewport()
+			m.netDevices.table.SetRows(rows)
+			m.netDevices.table.GotoTop()
+			m.netDevices.table.UpdateViewport()
 
 			radioStatus, err := m.connMngr.GetRadioStatus(context.Background())
 			if err != nil {
