@@ -454,6 +454,7 @@ func setFetchResult[T any](mu *sync.Mutex, errs *[]error, dst *T, value T, err e
 	*dst = value
 }
 
+//nolint:funlen // close undevidable operations
 func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, error) {
 	var errs []error
 	info := infra.NetworkProfile{}
