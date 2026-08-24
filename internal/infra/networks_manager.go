@@ -3,6 +3,7 @@ package infra
 import (
 	"context"
 	"errors"
+	"fmt"
 )
 
 type AvailableNetwork struct {
@@ -83,14 +84,10 @@ var (
 
 	ErrDeactivateProfile = errors.New("failed disconnecting from wifi network")
 
-	ErrListProfileNames           = errors.New("failed retrieving saved connection names")
-	ErrGetWifiPassword            = errors.New("failed retrieving wifi network password")
-	ErrGetWifiSSID                = errors.New("failed retrieving wifi network ssid")
-	ErrGetWifiAutoconnect         = errors.New("failed retrieving wifi network autoconnect state")
-	ErrGetWifiAutoconnectPriority = errors.New("failed retrieving wifi network autoconnect priority")
-	ErrGetWifiActivity            = errors.New("failed retrieving wifi network activity state")
-	ErrGetProfile                 = errors.New("failed retrieving wifi network information")
-	ErrGetNetMode                 = errors.New("failed retrieving network mode")
+	ErrListProfileNames   = errors.New("failed retrieving network profiles names")
+	ErrGetProfile         = errors.New("failed retrieving network profile information")
+	ErrGetProfileProperty = errors.New("failed retrieving network profile property")
+	ErrGetProfilePassword = fmt.Errorf("%w: password", ErrGetProfileProperty)
 
 	ErrUpdateProfile = errors.New("failed modifying wifi network information")
 

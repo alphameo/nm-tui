@@ -205,7 +205,7 @@ func (n *CLI) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, er
 		}
 
 		name := parts[0]
-		ssid, err := n.getWifiSSID(ctx, name)
+		ssid, err := n.getProfileSSID(ctx, name)
 		if err != nil {
 			ssid = ""
 		}
@@ -219,7 +219,7 @@ func (n *CLI) ListProfiles(ctx context.Context) ([]infra.NetworkProfileShort, er
 		res = append(res, wifi)
 		go func(idx int) {
 			defer wg.Done()
-			mode, err := n.getNetMode(ctx, name)
+			mode, err := n.getProfileMode(ctx, name)
 			if err != nil {
 				mode = infra.NetworkNil
 			}
@@ -301,84 +301,84 @@ func (n *CLI) GetProfilePassword(ctx context.Context, id string) (string, error)
 		"-t", "-f", "802-11-wireless-security.psk",
 		"connection", "show", id,
 	}
-	out, err := n.run(ctx, infra.ErrGetWifiPassword, args...)
+	out, err := n.run(ctx, infra.ErrGetProfilePassword, args...)
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(string(out)), nil
 }
 
-func (n *CLI) getWifiSSID(ctx context.Context, id string) (string, error) {
+func (n *CLI) getProfileSSID(ctx context.Context, id string) (string, error) {
 	args := []string{
-		"-s", "-m", "tabular",
+		"-m", "tabular",
 		"-t", "-f", "802-11-wireless.ssid",
 		"connection", "show", id,
 	}
-	out, err := n.run(ctx, infra.ErrGetWifiSSID, args...)
+	out, err := n.run(ctx, fmt.Errorf("%w: ssid", infra.ErrGetProfileProperty), args...)
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(string(out)), nil
 }
 
-func (n *CLI) getWifiAutoconnect(ctx context.Context, id string) (bool, error) {
+func (n *CLI) getProfileAutoconn(ctx context.Context, id string) (bool, error) {
 	args := []string{
-		"-s", "-m", "tabular",
+		"-m", "tabular",
 		"-t", "-f", "connection.autoconnect",
 		"connection", "show", id,
 	}
-	out, err := n.run(ctx, infra.ErrGetWifiAutoconnect, args...)
+	out, err := n.run(ctx, fmt.Errorf("%w: autoconnection", infra.ErrGetProfileProperty), args...)
 	if err != nil {
 		return false, err
 	}
 	return strings.TrimSpace(string(out)) == "yes", nil
 }
 
-func (n *CLI) getWifiAutoconnectPriority(ctx context.Context, id string) (int, error) {
+func (n *CLI) getProfileAutoconnPriority(ctx context.Context, id string) (int, error) {
 	args := []string{
-		"-s", "-m", "tabular",
+		"-m", "tabular",
 		"-t", "-f", "connection.autoconnect-priority",
 		"connection", "show", id,
 	}
-	out, err := n.run(ctx, infra.ErrGetWifiAutoconnectPriority, args...)
+	out, err := n.run(ctx, fmt.Errorf("%w: autoconnection priority", infra.ErrGetProfileProperty), args...)
 	if err != nil {
 		return 0, err
 	}
 	autoconnectResp := strings.TrimSpace(string(out))
 	autoconnectPriority, err := strconv.Atoi(autoconnectResp)
 	if err != nil {
-		return 0, fmt.Errorf("%w %s: %w", infra.ErrGetWifiAutoconnectPriority, id, err)
+		return 0, fmt.Errorf("%w: autoconnection priority: %w", infra.ErrGetProfileProperty, id, err)
 	}
 	return autoconnectPriority, nil
 }
 
-func (n *CLI) getWifiActive(ctx context.Context, id string) (bool, error) {
+func (n *CLI) getProfileActive(ctx context.Context, id string) (bool, error) {
 	args := []string{
-		"-s", "-m", "tabular",
+		"-m", "tabular",
 		"-t", "-f", "GENERAL.STATE",
 		"connection", "show", id,
 	}
-	out, err := n.run(ctx, infra.ErrGetWifiActivity, args...)
+	out, err := n.run(ctx, fmt.Errorf("%w: is active", infra.ErrGetProfileProperty), args...)
 	if err != nil {
 		return false, err
 	}
 	return strings.TrimSpace(string(out)) == "activated", nil
 }
 
-func (n *CLI) getNetMode(ctx context.Context, id string) (infra.NetworkMode, error) {
+func (n *CLI) getProfileMode(ctx context.Context, id string) (infra.NetworkMode, error) {
 	args := []string{
-		"-s", "-m", "tabular",
+		"-m", "tabular",
 		"-t", "-f", "802-11-wireless.mode",
 		"connection", "show", id,
 	}
-	out, err := n.run(ctx, infra.ErrGetNetMode, args...)
+	out, err := n.run(ctx, fmt.Errorf("%w: mode", infra.ErrGetProfileProperty), args...)
 	if err != nil {
 		return infra.NetworkNil, err
 	}
 	res := strings.TrimSpace(string(out))
 	mode, err := parseNetworkMode(res)
 	if err != nil {
-		return infra.NetworkNil, fmt.Errorf("%w: %w", infra.ErrGetNetMode, err)
+		return infra.NetworkNil, fmt.Errorf("%w: mode: %w", infra.ErrGetProfileProperty, err)
 	}
 	return mode, nil
 }
@@ -424,7 +424,7 @@ func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, 
 
 	go func() {
 		defer wg.Done()
-		ssid, err := n.getWifiSSID(ctx, id)
+		ssid, err := n.getProfileSSID(ctx, id)
 		setFetchResult(&mu, &errs, &info.SSID, ssid, err)
 	}()
 
@@ -436,25 +436,25 @@ func (n *CLI) GetProfile(ctx context.Context, id string) (infra.NetworkProfile, 
 
 	go func() {
 		defer wg.Done()
-		autoconnect, err := n.getWifiAutoconnect(ctx, id)
+		autoconnect, err := n.getProfileAutoconn(ctx, id)
 		setFetchResult(&mu, &errs, &info.Autoconnect, autoconnect, err)
 	}()
 
 	go func() {
 		defer wg.Done()
-		autoconnectPriority, err := n.getWifiAutoconnectPriority(ctx, id)
+		autoconnectPriority, err := n.getProfileAutoconnPriority(ctx, id)
 		setFetchResult(&mu, &errs, &info.AutoconnectPriority, autoconnectPriority, err)
 	}()
 
 	go func() {
 		defer wg.Done()
-		activated, err := n.getWifiActive(ctx, id)
+		activated, err := n.getProfileActive(ctx, id)
 		setFetchResult(&mu, &errs, &info.Active, activated, err)
 	}()
 
 	go func() {
 		defer wg.Done()
-		mode, err := n.getNetMode(ctx, id)
+		mode, err := n.getProfileMode(ctx, id)
 		setFetchResult(&mu, &errs, &info.Mode, mode, err)
 	}()
 
