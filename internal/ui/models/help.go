@@ -132,6 +132,10 @@ func (m *HelpModel) fullView() string {
 	netDevicesTTL = styles.AccentStyle.Render(netDevicesTTL)
 	netDevices := m.netDevicesFull()
 
+	deviceInfoTTL := "Device Info"
+	deviceInfoTTL = styles.AccentStyle.Render(deviceInfoTTL)
+	deviceInfo := m.deviceInfoFull()
+
 	availableNetworksTTL := "Available Networks"
 	availableNetworksTTL = styles.AccentStyle.Render(availableNetworksTTL)
 	availableNetworks := m.availableNetworksFull()
@@ -167,6 +171,7 @@ func (m *HelpModel) fullView() string {
 		mainTTL, m.help.FullHelpView(main), "",
 		networksTTL, m.help.FullHelpView(networks), "",
 		netDevicesTTL, m.help.FullHelpView(netDevices), "",
+		deviceInfoTTL, m.help.FullHelpView(deviceInfo), "",
 		profileCreatorTTL, m.help.FullHelpView(profileCreator), "",
 		hotspotCreatorTTL, m.help.FullHelpView(hotspotCreator), "",
 		availableNetworksTTL, m.help.FullHelpView(availableNetworks), "",
@@ -206,15 +211,35 @@ func (m *HelpModel) deviceFull() [][]key.Binding {
 	}}
 }
 
+func (m *HelpModel) deviceShort() []key.Binding {
+	k := []key.Binding{
+		m.keyMap.device.rescan,
+	}
+	return m.shortKBs(k)
+}
+
 func (m *HelpModel) netDevicesFull() [][]key.Binding {
 	return [][]key.Binding{{
 		m.fullKB(m.keyMap.networkDevices.showInfo, "Show information about selected device"),
 	}}
 }
 
-func (m *HelpModel) deviceShort() []key.Binding {
+func (m *HelpModel) netDevicesShort() []key.Binding {
 	k := []key.Binding{
-		m.keyMap.device.rescan,
+		m.keyMap.networkDevices.showInfo,
+	}
+	return m.shortKBs(k)
+}
+
+func (m *HelpModel) deviceInfoFull() [][]key.Binding {
+	return [][]key.Binding{{
+		m.fullKB(m.keyMap.main.closePopup, "Close popup with information about device"),
+	}}
+}
+
+func (m *HelpModel) deviceInfoShort() []key.Binding {
+	k := []key.Binding{
+		m.keyMap.main.closePopup,
 	}
 	return m.shortKBs(k)
 }
