@@ -76,7 +76,11 @@ type DeviceModel struct {
 	Style lipgloss.Style
 }
 
-func NewDeviceModel(networkDevices *NetworkDevicesModel, keys deviceKeyMap, deviceManager infra.DeviceManager) *DeviceModel {
+func NewDeviceModel(
+	networkDevices *NetworkDevicesModel,
+	keys deviceKeyMap,
+	deviceManager infra.DeviceManager,
+) *DeviceModel {
 	wwan := newDefaultToggle()
 
 	wifi := newDefaultToggle()

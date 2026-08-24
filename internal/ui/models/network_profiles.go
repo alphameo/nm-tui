@@ -21,7 +21,7 @@ type networkProfilesKeyMap struct {
 }
 
 type NetworkProfilesModel struct {
-	table          table.Model
+	table              table.Model
 	focusedTableStyles table.Styles
 	bluredTableStyles  table.Styles
 
@@ -86,7 +86,7 @@ func NewNetworkProfilesModel(keys networkProfilesKeyMap, networksManager infra.N
 	)
 
 	model := &NetworkProfilesModel{
-		table:          t,
+		table:              t,
 		focusedTableStyles: table.DefaultStyles(),
 		bluredTableStyles:  table.DefaultStyles(),
 
