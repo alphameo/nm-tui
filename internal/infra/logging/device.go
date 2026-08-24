@@ -84,3 +84,9 @@ func (m *DeviceMiddleware) DisableWifi(ctx context.Context) error {
 		return m.device.DisableWifi(ctx)
 	})
 }
+
+func (m *DeviceMiddleware) GetDeviceInfo(ctx context.Context, name string) (string, error) {
+	return callResult(m.middleware, "get_device_info", func() (string, error) {
+		return m.device.GetDeviceInfo(ctx, name)
+	})
+}
