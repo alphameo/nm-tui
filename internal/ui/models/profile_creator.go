@@ -76,6 +76,7 @@ func (m *ProfileCreatorModel) Reset() tea.Cmd {
 	m.name.Blur()
 
 	m.password.Reset()
+	m.password.SetValue("")
 	m.password.Blur()
 
 	m.hidden.SetValue(false)

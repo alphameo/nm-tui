@@ -70,6 +70,7 @@ func (m *HotspotCreatorModel) Reset() tea.Cmd {
 	m.name.Blur()
 
 	m.password.Reset()
+	m.password.SetValue("")
 	m.password.Blur()
 
 	return m.focuses.SetFocusIdx(0)
