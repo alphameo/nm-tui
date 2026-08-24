@@ -44,6 +44,7 @@ type MainModel struct {
 	profileCreator *ProfileCreatorModel
 	hotspotCreator *HotspotCreatorModel
 	profileEditor  *ProfileEditorModel
+	deviceInfo     *DeviceInfoModel
 
 	keys  *mainKeyMap
 	help  *HelpModel
@@ -74,6 +75,7 @@ func NewMainModel(
 	hotspotCreator.Style = styles.OverlayStyle
 	profileEditor := NewProfileEditorModel(keys.profileEditor, networksManager)
 	profileEditor.Style = styles.OverlayStyle
+	deviceInfo := NewDeviceInfoModel(deviceManager)
 
 	available := NewAvailableNetworksModel(keys.availableNetworks, networksManager)
 	available.focusedStyle = styles.BorderedFocusedStyle
@@ -126,6 +128,7 @@ func NewMainModel(
 		profileCreator: profileCreator,
 		hotspotCreator: hotspotCreator,
 		profileEditor:  profileEditor,
+		deviceInfo:     deviceInfo,
 
 		help: help,
 
