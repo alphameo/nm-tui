@@ -527,8 +527,8 @@ func (n *CLI) UpdateProfile(ctx context.Context, id string, info infra.UpdateNet
 		autoconnect = "no"
 	}
 	args := []string{
-		"connection", "modify",
-		id, "connection.id", info.Name,
+		"connection", "modify", id,
+		"connection.id", info.Name,
 		"802-11-wireless-security.key-mgmt", keyMgmgt,
 		"802-11-wireless-security.psk", info.Password,
 		"connection.autoconnect", autoconnect,
