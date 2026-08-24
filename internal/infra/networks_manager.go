@@ -57,6 +57,8 @@ type NetworkProfile struct {
 	Autoconnect         bool
 	AutoconnectPriority int
 	Mode                NetworkMode
+	Hidden              bool
+	UUID                string
 }
 
 type UpdateNetworkProfile struct {
