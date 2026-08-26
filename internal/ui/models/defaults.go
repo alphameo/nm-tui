@@ -22,6 +22,8 @@ func newDefaultInput() textinput.Model {
 func newDefaultSSIDInput() textinput.Model {
 	ssid := newDefaultInput()
 	ssid.Placeholder = "SSID"
+	ssid.Validate = ssidValidator
+	ssid.Err = passwordValidator(ssid.Value())
 	return ssid
 }
 
@@ -61,6 +63,16 @@ func passwordValidator(input string) error {
 	l := len(input)
 	if l > 0 && l < 8 {
 		return fmt.Errorf("%w: length < 8", ErrPasswordFmt)
+	}
+	return nil
+}
+
+var ErrSSIDFmt = errors.New("wrong ssid format")
+
+func ssidValidator(input string) error {
+	l := len(input)
+	if l == 0 {
+		return fmt.Errorf("%w: empty value", ErrSSIDFmt)
 	}
 	return nil
 }
