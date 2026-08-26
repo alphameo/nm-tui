@@ -6,7 +6,6 @@ import (
 
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/spinner"
-	"charm.land/bubbles/v2/table"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
@@ -270,18 +269,7 @@ func (m *DeviceModel) RescanCmd() tea.Cmd {
 				return NotifyCmd("Cannot get network devices")
 			}
 
-			rows := []table.Row{}
-			for _, device := range list {
-				rows = append(rows, table.Row{
-					device.Device,
-					device.Type,
-					device.Connection,
-					device.State,
-				})
-			}
-			m.netDevices.table.SetRows(rows)
-			m.netDevices.table.GotoTop()
-			m.netDevices.table.UpdateViewport()
+			m.netDevices.setProfiles(list)
 
 			radioStatus, err := m.connMngr.GetRadioStatus(context.Background())
 			if err != nil {

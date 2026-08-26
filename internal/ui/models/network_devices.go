@@ -199,3 +199,18 @@ func (m *NetworkDevicesModel) View() string {
 		0,
 	)
 }
+
+func (m *NetworkDevicesModel) setProfiles(list []infra.NetworkDevice) {
+	rows := []table.Row{}
+	for _, device := range list {
+		row := make([]string, 4)
+		row[networkDevicesCfg.deviceColIdx] = device.Device
+		row[networkDevicesCfg.typeColIdx] = device.Type
+		row[networkDevicesCfg.connColIdx] = device.Connection
+		row[networkDevicesCfg.stateColIdx] = device.State
+		rows = append(rows, row)
+	}
+	m.table.SetRows(rows)
+	m.table.GotoTop()
+	m.table.UpdateViewport()
+}
