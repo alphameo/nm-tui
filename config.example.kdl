@@ -8,10 +8,13 @@
 //     colors {
 //         accent "#865fff"
 //     }
+
 // How long (in seconds) connection popups/notifications stay visible.
 notification_close_time 5
+
 // After this time (in seconds) rescan will be triggered on elements of the screen
 rescan_interval 10
+
 // Colors support:
 // 1. rgb-format: e.g. "#000000"
 // 2. default value: "default" (keeps the built-in default)
@@ -28,40 +31,48 @@ colors {
     error "red"
     notification "yellow"
 }
+
 icons {
-    nerd_preset false
- // set to true to use the nerd-font variant defaults    border_style "ascii"
- // default for nerd: "rounded"    // non-nerd variants: "ascii", "markdown",
-    // nerd variants: "rounded", "square", "thick_square",
-    //                "double_square", "block",
-    //                "outer_half_block", "inner_half_block"
-    spinner_style "line"
- // default for nerd: "meter"    // non-nerd variants: "line", "ellipsis"
-    // nerd variants: "dot", "mini_dot", "jump", "pulse",
-    //                "points", "meter", "hamburger"
-    input_cursor_shape "bar"
- // variants: "bar", "underline", "block"    toggle_off "[ ]"
- // default for nerd: " "    toggle_on "[x]"
- // default for nerd: " "    password_hidden_character "*"
- // default for nerd: "•", limited to 1 character    error "!"
- // default for nerd: "✗"    check "v"
- // default for nerd: " "    connection "con"
- // default for nerd: "󱘖 "    signal "sig"
- // default for nerd: " "    saved "sav"
- // default for nerd: " "    available "o"
- // default for nerd: "⭗ "    access_point "ap"
- // default for nerd: "󰀃 "    infra "infr"
- // default for nerd: "🖳 "    mesh "#"
- // default for nerd: " "    ad_hoc "ah"
- // default for nerd: ""    separator "|"
- // default for nerd: "•"    ellipsis "_"
- // default for nerd: "…"}
+    nerd_preset false // set to true to use the nerd-font variant defaults
+
+    border_style "ascii" // default for nerd: "rounded"
+                         // non-nerd variants: "ascii", "markdown",
+                         // nerd variants: "rounded", "square", "thick_square",
+                         //                "double_square", "block",
+                         //                "outer_half_block", "inner_half_block"
+
+    spinner_style "line" // default for nerd: "meter"
+                         // non-nerd variants: "line", "ellipsis"
+                         // nerd variants: "dot", "mini_dot", "jump", "pulse",
+                         //                "points", "meter", "hamburger"
+
+    input_cursor_shape "bar" // variants: "bar", "underline", "block"
+
+    toggle_off "[ ]"              // default for nerd: " "
+    toggle_on "[x]"               // default for nerd: " "
+    password_hidden_character "*" // default for nerd: "•", limited to 1 character
+    error "!"                     // default for nerd: "✗"
+    check "v"                     // default for nerd: " "
+    connection "con"              // default for nerd: "󱘖 "
+    signal "sig"                  // default for nerd: " "
+    saved "sav"                   // default for nerd: " "
+    available "o"                 // default for nerd: "⭗ "
+    access_point "ap"             // default for nerd: "󰀃 "
+    infra "infr"                  // default for nerd: "🖳 "
+    mesh "#"                      // default for nerd: " "
+    ad_hoc "ah"                   // default for nerd: ""
+    separator "|"                 // default for nerd: "•"
+    ellipsis "_"                  // default for nerd: "…"
+}
+
 logging {
-    level "error"
- // variants: "debug", "info", "warn", "error"    // Defaults to $XDG_STATE_HOME/nm-tui/log (e.g. ~/.local/state/nm-tui/log).
+    level "error" // variants: "debug", "info", "warn", "error"
+
+    // Defaults to $XDG_STATE_HOME/nm-tui/log (e.g. ~/.local/state/nm-tui/log).
     // "~" and environment variables ($VAR) are expanded.
     file_path "~/.local/state/nm-tui/log"
 }
+
 // Every mapping can be present in several variants.
 // Overlapping: main -> dialog -> no-section -> ...
 keys {
