@@ -18,7 +18,7 @@ flake-upd:
 	nix flake update
 
 run:
-	go run $(MAIN)
+	CGO_ENABLED=0 go run $(MAIN)
 
 deps:
 	go mod tidy
