@@ -15,7 +15,6 @@ buildGoModule {
     vendorHash = "sha256-AyYJFuuURz+QDe69iAgWlN1Xd7+Ofh4hVL0Xya706N8=";
 
     nativeBuildInputs = [ makeWrapper ];
-    subPackages = [ "cmd/nm-tui" ];
 
     env = {
         CGO_ENABLED = 0;

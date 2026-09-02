@@ -1,9 +1,9 @@
 package main
 
 import (
-	cmd "github.com/alphameo/nm-tui/cmd/nm-tui"
+	run "github.com/alphameo/nm-tui/internal"
 )
 
 func main() {
-	cmd.Run()
+	run.Run()
 }
