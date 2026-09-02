@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"errors"
@@ -20,7 +20,7 @@ import (
 // Injects via `go build -ldflags "-X main.version=$(VERSION)"`.
 var version = "dev"
 
-func main() {
+func Run() {
 	if len(os.Args) > 1 && os.Args[1] == "--version" {
 		fmt.Fprintf(os.Stdout, "nm-tui %s\n", version)
 		os.Exit(0)
