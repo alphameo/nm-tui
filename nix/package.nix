@@ -2,17 +2,17 @@
     src, # flakelight
 
     lib,
-    buildGoModule,
+    buildGo127Module,
     makeWrapper,
 
     networkmanager,
 }:
-buildGoModule {
+buildGo127Module {
     inherit src;
     pname = "nm-tui";
     version = "0.2.3";
 
-    vendorHash = "sha256-AyYJFuuURz+QDe69iAgWlN1Xd7+Ofh4hVL0Xya706N8=";
+    vendorHash = "sha256-qq7dbswbq+5h1iKBpohZBGEln+SsuZFnXs0RDYDhUy4=";
 
     nativeBuildInputs = [ makeWrapper ];
 
