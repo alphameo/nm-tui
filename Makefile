@@ -1,7 +1,7 @@
 .PHONY: all clean build build-dev flake-upd run deps clean-build logs lint lint-fix format test
 
 VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo dev)
-MAIN="./cmd/nm-tui/main.go"
+MAIN="./main.go"
 
 all: build
 
