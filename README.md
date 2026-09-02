@@ -96,16 +96,16 @@ To use just `nm-tui` add the `$(go env GOPATH)/bin` directory to your `PATH`
 
 ### Nix
 
-With [Nix](https://nixos.org) and flakes enabled:
-
-```bash
-nix profile install github:alphameo/nm-tui
-```
-
-Or install into your profile:
+With [Nix](https://nixos.org) and flakes enabled to run once:
 
 ```bash
 nix run github:alphameo/nm-tui
+```
+
+Or install into your profile permanently:
+
+```bash
+nix profile install github:alphameo/nm-tui
 ```
 
 ### Binary
