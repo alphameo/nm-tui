@@ -10,8 +10,8 @@
         };
 
     inputs = {
-        nixpkgs.url = "github:NixOS/nixpkgs/master"; # go 1.26.5
-        systems.url = "github:nix-systems/default-linux";
+        nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+        systems.url = "github:nix-systems/triplet";
 
         flakelight = {
             url = "github:nix-community/flakelight";

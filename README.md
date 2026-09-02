@@ -79,7 +79,7 @@ Why `nm-tui`: built-in `nmtui` doesn't look great and there aren't many TUI alte
 Requires [Go](https://github.com/golang/go) installed.
 
 ```bash
-go install github.com/alphameo/nm-tui/cmd/nm-tui@latest
+go install github.com/alphameo/nm-tui@latest
 ```
 
 The binary is placed in `$(go env GOPATH)/bin`.
