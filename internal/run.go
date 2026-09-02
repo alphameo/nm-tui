@@ -17,10 +17,7 @@ import (
 	"github.com/alphameo/nm-tui/internal/ui/models"
 )
 
-// Injects via `go build -ldflags "-X main.version=$(VERSION)"`.
-var version = "dev"
-
-func Run() {
+func Run(version string) {
 	if len(os.Args) > 1 && os.Args[1] == "--version" {
 		fmt.Fprintf(os.Stdout, "nm-tui %s\n", version)
 		os.Exit(0)
