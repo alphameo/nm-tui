@@ -4,45 +4,45 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-type PopupModel interface {
+type PopupModel[T any] interface {
 	Init() tea.Cmd
-	UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd)
+	Update(msg tea.Msg) (PopupModel[T], tea.Cmd)
 	View() string
 }
 
-type Popup struct {
-	content PopupModel
+type Popup[T any] struct {
+	content PopupModel[T]
 	active  bool
 }
 
-func (p Popup) Init() tea.Cmd {
+func (p Popup[T]) Init() tea.Cmd {
 	return p.content.Init()
 }
 
-func (p Popup) Update(msg tea.Msg) (Popup, tea.Cmd) {
+func (p Popup[T]) Update(msg tea.Msg) (Popup[T], tea.Cmd) {
 	if !p.active {
 		return p, nil
 	}
 
 	var cmd tea.Cmd
-	p.content, cmd = p.content.UpdateAsPopup(msg)
+	p.content, cmd = p.content.Update(msg)
 	return p, cmd
 }
 
-func (p Popup) View() string {
+func (p Popup[T]) View() string {
 	return p.content.View()
 }
 
 type (
-	OpenPopupMsg struct {
-		model PopupModel
+	OpenPopupMsg[T any] struct {
+		model PopupModel[T]
 	}
 	ClosePopupMsg struct{}
 )
 
-func OpenPopupCmd(content PopupModel) tea.Cmd {
+func OpenPopupCmd[T any](content PopupModel[T]) tea.Cmd {
 	return func() tea.Msg {
-		return OpenPopupMsg{model: content}
+		return OpenPopupMsg[T]{model: content}
 	}
 }
 
