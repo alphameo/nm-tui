@@ -36,6 +36,7 @@ type MainModel struct {
 	tabs         tabview.Model
 	popup        Popup
 	notification Notification
+	confirm      *ConfirmModel
 
 	networks *NetworksModel
 	device   *DeviceModel
@@ -119,6 +120,9 @@ func NewMainModel(
 	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
 	n := Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
 
+	confirmStyle := styles.OverlayStyle
+	confirm := NewConfirmModel(confirmStyle, keys.confirm)
+
 	help := NewHelpModel(keys)
 	help.FullStyle = styles.OverlayStyle
 
@@ -126,6 +130,7 @@ func NewMainModel(
 		tabs:         tabs,
 		popup:        p,
 		notification: n,
+		confirm:      confirm,
 
 		networks: networks,
 		device:   device,
@@ -147,6 +152,7 @@ func (m *MainModel) Init() tea.Cmd {
 	return tea.Batch(m.tabs.Init(), IntervalRescanCmd(mainCfg.rescanInterval))
 }
 
+//nolint:funlen // main event loop
 func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -176,6 +182,10 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.popup.content = nil
 		m.popup.active = false
 		return m, nil
+	case ConfirmMsg:
+		m.confirm.Question = msg.question
+		m.confirm.Action = msg.cmd
+		return m, OpenPopupCmd(m.confirm)
 	case openConnectorMsg:
 		return m, tea.Batch(
 			m.connector.setNewNetworkCmd(string(msg)),
