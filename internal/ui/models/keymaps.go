@@ -29,6 +29,7 @@ type keyMaps struct {
 	connector         connectorKeyMap
 	profileCreator    profileCreatorKeyMap
 	hotspotCreator    hotspotCreatorKeyMap
+	confirm           confirmKeyMap
 	help              helpKeyMap
 }
 
@@ -99,6 +100,10 @@ func initKeys(keys config.KeyConfig) keyMaps {
 			next:               NewKey(*keys.FocusNext, "next field"),
 			create:             NewKey(*keys.Dialog.Accept, "create"),
 			togglePWVisibility: NewKey(*keys.Dialog.TogglePWVisibility, "pw visibility"),
+		},
+		confirm: confirmKeyMap{
+			accept:  NewKey(*keys.Dialog.Accept, "accept"),
+			decline: NewKey(*keys.Dialog.Close, "decline"),
 		},
 		help: helpKeyMap{
 			quit: NewKey(*keys.Main.Help, "quit help"),
