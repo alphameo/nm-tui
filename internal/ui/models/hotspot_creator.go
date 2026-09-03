@@ -175,12 +175,12 @@ func (m *HotspotCreatorModel) createHotspotProfileCmd() tea.Cmd {
 						"Cannot create hotspot %s:\n%v",
 						m.ssid.Value(), err,
 					)),
-					RescanNetworksCmd(),
+					QuickRescanNetworksCmd(),
 				)
 			}
 			return tea.Batch(
 				SetAvailableNetworksStateCmd(NetsDone),
-				RescanNetworksCmd(),
+				QuickRescanNetworksCmd(),
 			)
 		},
 	)

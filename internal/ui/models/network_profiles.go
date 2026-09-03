@@ -266,7 +266,7 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 			return tea.Batch(
 				SetNetworksStateCmd(NetsDone),
 				m.gotoTop(),
-				RescanNetworksCmd(),
+				QuickRescanNetworksCmd(),
 			)
 		},
 	)
@@ -288,7 +288,7 @@ func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
 			return tea.Batch(
 				SetNetworksStateCmd(NetsDone),
 				m.gotoTop(),
-				RescanNetworksCmd(),
+				QuickRescanNetworksCmd(),
 			)
 		})
 }
@@ -305,7 +305,7 @@ func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 		if cursor == len(m.table.Rows())-1 {
 			m.table.SetCursor(cursor - 1)
 		}
-		return RescanNetworksCmd()
+		return QuickRescanNetworksCmd()
 	}
 }
 

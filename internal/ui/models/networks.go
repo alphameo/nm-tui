@@ -341,7 +341,7 @@ func (m *NetworksModel) quickHotspot() tea.Cmd {
 		if err != nil {
 			return NotifyCmd(fmt.Sprintf("Failed enabling quick wifi hotspot:\n%v", err))
 		}
-		return RescanNetworksCmd()
+		return QuickRescanNetworksCmd()
 	}
 }
 

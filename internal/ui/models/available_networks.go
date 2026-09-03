@@ -354,7 +354,7 @@ func (m *AvailableNetworksModel) deactivateConnToSelectedCmd() tea.Cmd {
 			}
 			return tea.Batch(
 				SetNetworksStateCmd(NetsDone),
-				RescanNetworksCmd(),
+				QuickRescanNetworksCmd(),
 			)
 		})
 }
