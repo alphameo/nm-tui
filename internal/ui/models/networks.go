@@ -177,6 +177,8 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 		}
 	case RescanNetworksMsg:
 		return m, m.rescanCmd()
+	case QuickRescanNetworksMsg:
+		return m, m.quickRescanCmd()
 	case NetworksStateMsg:
 		return m, m.setStateCmd(networksState(msg))
 	}
@@ -258,6 +260,14 @@ func RescanNetworksCmd() tea.Cmd {
 	}
 }
 
+type QuickRescanNetworksMsg struct{}
+
+func QuickRescanNetworksCmd() tea.Cmd {
+	return func() tea.Msg {
+		return QuickRescanNetworksMsg{}
+	}
+}
+
 type NetworksRescannedMsg struct {
 	Available   []AvailableNetwork
 	Profiles    []NetworkProfileShort
@@ -266,6 +276,26 @@ type NetworksRescannedMsg struct {
 }
 
 func (m *NetworksModel) listNetsCmd() tea.Cmd {
+	return tea.Sequence(
+		m.setStateCmd(NetsScanning),
+		func() tea.Msg {
+			ctx := context.Background()
+			availableRecords, scanErr := m.netMngr.ListNetworks(ctx)
+			availables := convertAvailableNetworks(availableRecords)
+			profileRecords, profilesErr := m.netMngr.ListProfiles(ctx)
+			profiles := convertNetworkProfileShorts(profileRecords)
+			availableExt, profilesExt := CrossReferenceNetworks(availables, profiles)
+			return NetworksRescannedMsg{
+				Available:   availableExt,
+				Profiles:    profilesExt,
+				ScanErr:     scanErr,
+				ProfilesErr: profilesErr,
+			}
+		},
+	)
+}
+
+func (m *NetworksModel) quickRescanCmd() tea.Cmd {
 	return tea.Sequence(
 		m.setStateCmd(NetsScanning),
 		func() tea.Msg {
