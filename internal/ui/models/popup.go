@@ -4,30 +4,6 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-type PopupModel[T any] interface {
-	Init() tea.Cmd
-	Update(msg tea.Msg) (T, tea.Cmd)
-	View() string
-}
-
-type Popup[T PopupModel[T]] struct {
-	content T
-}
-
-func (p Popup[T]) Init() tea.Cmd {
-	return p.content.Init()
-}
-
-func (p Popup[T]) Update(msg tea.Msg) (Popup[T], tea.Cmd) {
-	var cmd tea.Cmd
-	p.content, cmd = p.content.Update(msg)
-	return p, cmd
-}
-
-func (p Popup[T]) View() string {
-	return p.content.View()
-}
-
 type (
 	OpenPopupMsg struct {
 		kind popupKind
