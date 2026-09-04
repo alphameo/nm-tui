@@ -5,7 +5,7 @@
 buildGo127Module (finalAttrs: {
     inherit src;
     pname = "nm-tui";
-    version = "0.3.0";
+    version = "0.3.1";
 
     vendorHash = "sha256-qq7dbswbq+5h1iKBpohZBGEln+SsuZFnXs0RDYDhUy4=";
 
