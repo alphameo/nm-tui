@@ -46,10 +46,6 @@ func (m *ConfirmModel) Update(msg tea.Msg) (*ConfirmModel, tea.Cmd) {
 	return m, nil
 }
 
-func (m *ConfirmModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
-	return m.Update(msg)
-}
-
 func (m *ConfirmModel) View() string {
 	view := m.Question
 	view = lipgloss.JoinVertical(

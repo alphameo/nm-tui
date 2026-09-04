@@ -23,6 +23,7 @@ type popupKind int
 
 const (
 	popupNo popupKind = iota
+	popupConfirm
 	popupConnector
 	popupHelp
 	popupDeviceInfo
@@ -189,7 +190,7 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ConfirmMsg:
 		m.confirm.Question = msg.question
 		m.confirm.Action = msg.cmd
-		return m, OpenPopupCmd(m.confirm)
+		return m, OpenPopupCmd(popupConfirm)
 	case openConnectorMsg:
 		return m, tea.Batch(
 			m.connector.setNewNetworkCmd(msg.ssid),
@@ -245,6 +246,8 @@ func (m *MainModel) initPopup() tea.Cmd {
 	switch m.activePopup {
 	case popupNo:
 		return nil
+	case popupConfirm:
+		return m.confirm.Init()
 	case popupConnector:
 		return m.connector.Init()
 	case popupHelp:
@@ -266,6 +269,9 @@ func (m *MainModel) updatePopup(msg tea.Msg) tea.Cmd {
 	switch m.activePopup {
 	case popupNo:
 		return nil
+	case popupConfirm:
+		m.confirm, cmd = m.confirm.Update(msg)
+		return cmd
 	case popupConnector:
 		m.connector, cmd = m.connector.Update(msg)
 		return cmd
@@ -292,6 +298,8 @@ func (m *MainModel) viewPopup() string {
 	switch m.activePopup {
 	case popupNo:
 		return ""
+	case popupConfirm:
+		return m.confirm.View()
 	case popupConnector:
 		return m.connector.View()
 	case popupHelp:
