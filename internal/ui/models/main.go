@@ -19,6 +19,18 @@ type mainConfig struct {
 	rescanInterval        time.Duration
 }
 
+type popupKind int
+
+const (
+	popupNo popupKind = iota
+	popupConnector
+	popupHelp
+	popupDeviceInfo
+	popupHotspotCreator
+	popupProfileCreator
+	popupProfileEditor
+)
+
 var mainCfg = mainConfig{
 	notificationCloseTime: 50 * time.Second,
 	rescanInterval:        10 * time.Second,
@@ -34,20 +46,20 @@ type MainModel struct {
 	ready bool
 
 	tabs         tabview.Model
-	popup        Popup
 	notification Notification
 
 	networks *NetworksModel
 	device   *DeviceModel
 
-	connector      *ConnectorModel
-	profileCreator *ProfileCreatorModel
-	hotspotCreator *HotspotCreatorModel
-	profileEditor  *ProfileEditorModel
-	deviceInfo     *DeviceInfoModel
+	connector      Popup[*ConnectorModel]
+	deviceInfo     Popup[*DeviceInfoModel]
+	help           Popup[*HelpModel]
+	hotspotCreator Popup[*HotspotCreatorModel]
+	profileCreator Popup[*ProfileCreatorModel]
+	profileEditor  Popup[*ProfileEditorModel]
+	activePopup    popupKind
 
 	keys  *mainKeyMap
-	help  *HelpModel
 	Style lipgloss.Style
 }
 
@@ -112,10 +124,6 @@ func NewMainModel(
 	tabs.SetStyles(styles.TabViewStyles)
 	tabs.Keys = keys.tabs
 
-	p := Popup{
-		active: false,
-	}
-
 	notifStyle := lipgloss.NewStyle().Inherit(styles.NotifBorderedStyle)
 	n := Notification{style: notifStyle, closeTime: mainCfg.notificationCloseTime}
 
@@ -124,19 +132,17 @@ func NewMainModel(
 
 	return &MainModel{
 		tabs:         tabs,
-		popup:        p,
 		notification: n,
 
 		networks: networks,
 		device:   device,
 
-		connector:      connector,
-		profileCreator: profileCreator,
-		hotspotCreator: hotspotCreator,
-		profileEditor:  profileEditor,
-		deviceInfo:     deviceInfo,
-
-		help: help,
+		connector:      Popup[*ConnectorModel]{content: connector},
+		deviceInfo:     Popup[*DeviceInfoModel]{content: deviceInfo},
+		help:           Popup[*HelpModel]{content: help},
+		hotspotCreator: Popup[*HotspotCreatorModel]{content: hotspotCreator},
+		profileCreator: Popup[*ProfileCreatorModel]{content: profileCreator},
+		profileEditor:  Popup[*ProfileEditorModel]{content: profileEditor},
 
 		keys:  &keys.main,
 		Style: lipgloss.NewStyle(),
@@ -169,38 +175,38 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.networks.profiles.setProfiles(msg.Profiles, msg.ProfilesErr),
 		)
 	case OpenPopupMsg:
-		m.popup.content = msg.model
-		m.popup.active = true
-		return m, m.popup.content.Init()
+		m.activePopup = msg.kind
+		return m, m.initPopup()
 	case ClosePopupMsg:
-		m.popup.content = nil
-		m.popup.active = false
+		m.activePopup = popupNo
 		return m, nil
 	case openConnectorMsg:
 		return m, tea.Batch(
-			m.connector.setNewNetworkCmd(string(msg)),
-			OpenPopupCmd(m.connector),
+			m.connector.content.setNewNetworkCmd(msg.ssid),
+			OpenPopupCmd(popupConnector),
 		)
 	case openHotspotCreatorMsg:
 		return m, tea.Batch(
-			m.hotspotCreator.Reset(),
-			OpenPopupCmd(m.hotspotCreator),
+			m.hotspotCreator.content.Reset(),
+			OpenPopupCmd(popupHotspotCreator),
 		)
 	case openProfileCreatorMsg:
 		return m, tea.Batch(
-			m.profileCreator.Reset(),
-			OpenPopupCmd(m.profileCreator),
+			m.profileCreator.content.Reset(),
+			OpenPopupCmd(popupProfileCreator),
 		)
 	case openProfileEditorMsg:
 		return m, tea.Batch(
-			m.profileEditor.setNewProfile(string(msg)),
-			OpenPopupCmd(m.profileEditor),
+			m.profileEditor.content.setNewProfile(msg.deviceID),
+			OpenPopupCmd(popupProfileEditor),
 		)
 	case openDeviceInfoMsg:
 		return m, tea.Batch(
-			m.deviceInfo.setNewDevice(string(msg)),
-			OpenPopupCmd(m.deviceInfo),
+			m.deviceInfo.content.setNewDevice(msg.deviceName),
+			OpenPopupCmd(popupDeviceInfo),
 		)
+	case openHelpMsg:
+		return m, OpenPopupCmd(popupHelp)
 	case NotificationTextMsg:
 		m.notification.message = string(msg)
 		return m, nil
@@ -219,26 +225,93 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.tabs, cmd = m.tabs.Update(msg)
 	cmds = append(cmds, cmd)
 
-	m.popup, cmd = m.popup.Update(msg)
+	cmd = m.updatePopup(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
+func (m *MainModel) initPopup() tea.Cmd {
+	switch m.activePopup {
+	case popupNo:
+		return nil
+	case popupConnector:
+		return m.connector.Init()
+	case popupHelp:
+		return m.help.Init()
+	case popupDeviceInfo:
+		return m.deviceInfo.Init()
+	case popupHotspotCreator:
+		return m.hotspotCreator.Init()
+	case popupProfileCreator:
+		return m.profileCreator.Init()
+	case popupProfileEditor:
+		return m.profileEditor.Init()
+	}
+	return nil
+}
+
+func (m *MainModel) updatePopup(msg tea.Msg) tea.Cmd {
+	var cmd tea.Cmd
+	switch m.activePopup {
+	case popupNo:
+		return nil
+	case popupConnector:
+		m.connector, cmd = m.connector.Update(msg)
+		return cmd
+	case popupHelp:
+		m.help, cmd = m.help.Update(msg)
+		return cmd
+	case popupDeviceInfo:
+		m.deviceInfo, cmd = m.deviceInfo.Update(msg)
+		return cmd
+	case popupHotspotCreator:
+		m.hotspotCreator, cmd = m.hotspotCreator.Update(msg)
+		return cmd
+	case popupProfileCreator:
+		m.profileCreator, cmd = m.profileCreator.Update(msg)
+		return cmd
+	case popupProfileEditor:
+		m.profileEditor, cmd = m.profileEditor.Update(msg)
+		return cmd
+	}
+	return nil
+}
+
+func (m *MainModel) viewPopup() string {
+	switch m.activePopup {
+	case popupNo:
+		return ""
+	case popupConnector:
+		return m.connector.View()
+	case popupHelp:
+		return m.help.View()
+	case popupDeviceInfo:
+		return m.deviceInfo.View()
+	case popupHotspotCreator:
+		return m.hotspotCreator.View()
+	case popupProfileCreator:
+		return m.profileCreator.View()
+	case popupProfileEditor:
+		return m.profileEditor.View()
+	}
+	return ""
+}
+
 func (m *MainModel) updateOnKeyPress(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	if m.popup.active {
+	if m.activePopup != popupNo {
 		if key.Matches(msg, m.keys.closePopup) {
 			return m, ClosePopupCmd()
 		}
-		m.popup, cmd = m.popup.Update(msg)
+		cmd = m.updatePopup(msg)
 		return m, cmd
 	}
 	switch {
 	case key.Matches(msg, m.keys.quit):
 		return m, tea.Quit
 	case key.Matches(msg, m.keys.help):
-		return m, OpenPopupCmd(m.help)
+		return m, OpenHelpCmd()
 	}
 	m.tabs, cmd = m.tabs.Update(msg)
 	return m, cmd
@@ -251,8 +324,8 @@ func (m *MainModel) View() tea.View {
 
 	view := m.tabs.View()
 
-	if m.popup.active {
-		popupView := m.popup.View()
+	if m.activePopup != popupNo {
+		popupView := m.viewPopup()
 		view = compositor.Compose(
 			popupView,
 			view,
@@ -305,55 +378,53 @@ func (m *MainModel) Resize(width, height int) {
 	helpHeight := lipgloss.Height(m.shortHelpView())
 
 	m.tabs.Resize(width, height-helpHeight)
-	m.help.ResizeShort(width)
-	m.help.ResizeFull(int(float32(width)*0.8), int(float32(height)*0.8))
+	m.help.content.ResizeShort(width)
+	m.help.content.ResizeFull(int(float32(width)*0.8), int(float32(height)*0.8))
 
-	m.deviceInfo.Resize(int(float32(width)*0.8), int(float32(height)*0.3))
+	m.deviceInfo.content.Resize(int(float32(width)*0.8), int(float32(height)*0.3))
 
 	m.notification.style = m.notification.style.Width(width / 2)
 }
 
 func (m *MainModel) activeBindingsShort() []key.Binding {
-	if m.popup.active {
-		switch m.popup.content.(type) {
-		case *ConnectorModel:
-			return m.help.connectorShort()
-		case *ProfileCreatorModel:
-			return m.help.profileCreatorShort()
-		case *HotspotCreatorModel:
-			return m.help.hotspotCreatorShort()
-		case *ProfileEditorModel:
-			return m.help.profileEditorShort()
-		case *DeviceInfoModel:
-			return m.help.deviceInfoShort()
-		case *HelpModel:
-			return m.help.helpShort()
-		}
-		return m.help.mainShort()
+	switch m.activePopup {
+	case popupConnector:
+		return m.help.content.connectorShort()
+	case popupProfileCreator:
+		return m.help.content.profileCreatorShort()
+	case popupHotspotCreator:
+		return m.help.content.hotspotCreatorShort()
+	case popupProfileEditor:
+		return m.help.content.profileEditorShort()
+	case popupDeviceInfo:
+		return m.help.content.deviceInfoShort()
+	case popupHelp:
+		return m.help.content.helpShort()
+	default:
 	}
 
-	keys := m.help.mainShort()
+	keys := m.help.content.mainShort()
 
 	switch m.tabs.ActiveTabIndex() {
 	case 1: // Device tab
-		keys = append(keys, m.help.deviceShort()...)
+		keys = append(keys, m.help.content.deviceShort()...)
 		if m.device.netDevices.Focused() {
-			keys = append(keys, m.help.netDevicesShort()...)
+			keys = append(keys, m.help.content.netDevicesShort()...)
 		}
 		return keys
 	default: // Networks tab: tab actions + focused window
-		keys = append(keys, m.help.networksShort()...)
+		keys = append(keys, m.help.content.networksShort()...)
 		if m.networks.available.Focused() {
-			keys = append(keys, m.help.availableNetworksShort()...)
+			keys = append(keys, m.help.content.availableNetworksShort()...)
 		} else {
-			keys = append(keys, m.help.networkProfilesShort()...)
+			keys = append(keys, m.help.content.networkProfilesShort()...)
 		}
 		return keys
 	}
 }
 
 func (m *MainModel) shortHelpView() string {
-	return m.help.ShortViewFor(m.activeBindingsShort())
+	return m.help.content.ShortViewFor(m.activeBindingsShort())
 }
 
 // NilMsg is a fictive struct, which used to send as tea.Msg instead of nil to trigger main window re-render.
