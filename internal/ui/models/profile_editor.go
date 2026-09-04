@@ -170,10 +170,6 @@ func (m *ProfileEditorModel) Update(msg tea.Msg) (*ProfileEditorModel, tea.Cmd) 
 	return m, tea.Batch(cmds...)
 }
 
-func (m *ProfileEditorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
-	return m.Update(msg)
-}
-
 func (m *ProfileEditorModel) View() string {
 	ssid := m.ssid
 	ssid = lipgloss.JoinHorizontal(

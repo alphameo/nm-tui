@@ -4,45 +4,16 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-type PopupModel interface {
-	Init() tea.Cmd
-	UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd)
-	View() string
-}
-
-type Popup struct {
-	content PopupModel
-	active  bool
-}
-
-func (p Popup) Init() tea.Cmd {
-	return p.content.Init()
-}
-
-func (p Popup) Update(msg tea.Msg) (Popup, tea.Cmd) {
-	if !p.active {
-		return p, nil
-	}
-
-	var cmd tea.Cmd
-	p.content, cmd = p.content.UpdateAsPopup(msg)
-	return p, cmd
-}
-
-func (p Popup) View() string {
-	return p.content.View()
-}
-
 type (
 	OpenPopupMsg struct {
-		model PopupModel
+		kind popupKind
 	}
 	ClosePopupMsg struct{}
 )
 
-func OpenPopupCmd(content PopupModel) tea.Cmd {
+func OpenPopupCmd(kind popupKind) tea.Cmd {
 	return func() tea.Msg {
-		return OpenPopupMsg{model: content}
+		return OpenPopupMsg{kind: kind}
 	}
 }
 
@@ -53,16 +24,17 @@ func ClosePopupCmd() tea.Cmd {
 }
 
 type (
-	openConnectorMsg      string
+	openConnectorMsg      struct{ ssid string }
 	openHotspotCreatorMsg struct{}
 	openProfileCreatorMsg struct{}
-	openProfileEditorMsg  string
-	openDeviceInfoMsg     string
+	openHelpMsg           struct{}
+	openProfileEditorMsg  struct{ deviceID string }
+	openDeviceInfoMsg     struct{ deviceName string }
 )
 
 func OpenConnectorCmd(ssid string) tea.Cmd {
 	return func() tea.Msg {
-		return openConnectorMsg(ssid)
+		return openConnectorMsg{ssid: ssid}
 	}
 }
 
@@ -78,14 +50,20 @@ func OpenProfileCreatorCmd() tea.Cmd {
 	}
 }
 
+func OpenHelpCmd() tea.Cmd {
+	return func() tea.Msg {
+		return openHelpMsg{}
+	}
+}
+
 func OpenProfileEditorCmd(name string) tea.Cmd {
 	return func() tea.Msg {
-		return openProfileEditorMsg(name)
+		return openProfileEditorMsg{deviceID: name}
 	}
 }
 
 func OpenDeviceInfoCmd(name string) tea.Cmd {
 	return func() tea.Msg {
-		return openDeviceInfoMsg(name)
+		return openDeviceInfoMsg{deviceName: name}
 	}
 }

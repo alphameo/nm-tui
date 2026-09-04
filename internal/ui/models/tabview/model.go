@@ -7,11 +7,57 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
+// TabOps is a set of operations bound to a concrete tab content. Erasing the
+// concrete type at the tabview boundary lets tabview hold heterogeneous tabs
+// while each tab's Update still returns its exact type.
+type TabOps struct {
+	init    func() tea.Cmd
+	update  func(msg tea.Msg) tea.Cmd
+	view    func() string
+	resize  func(width, height int)
+	width   func() int
+	focused func() bool
+	focus   func()
+	blur    func()
+}
+
+// tabModel describes the operations a tab content must provide to be bound
+// into a tabview. It is used only as a compile-time bound by Bind, which routes
+// Update (returning the exact concrete type T) through a closure.
+type tabModel[T any] interface {
+	Init() tea.Cmd
+	Update(msg tea.Msg) (T, tea.Cmd)
+	View() string
+	Resize(width, height int)
+	Width() int
+	Focused() bool
+	Focus()
+	Blur()
+}
+
+// Bind binds a concrete tab content model into a TabOps. Update is dispatched
+// through the content's Update, which returns the exact concrete type T.
+func Bind[T tabModel[T]](m *T) TabOps {
+	return TabOps{
+		init: (*m).Init,
+		update: func(msg tea.Msg) tea.Cmd {
+			_, cmd := (*m).Update(msg)
+			return cmd
+		},
+		view:    (*m).View,
+		resize:  (*m).Resize,
+		width:   (*m).Width,
+		focused: (*m).Focused,
+		focus:   (*m).Focus,
+		blur:    (*m).Blur,
+	}
+}
+
 type Model struct {
 	activeTab int
 
-	tabTitles   []string
-	tabContents []TabModel
+	tabTitles []string
+	tabOps    []TabOps
 
 	cachedTabBarView string
 
@@ -24,25 +70,25 @@ type Model struct {
 
 type Tab struct {
 	Title   string
-	Content TabModel
+	Content TabOps
 }
 
 func New(tabs []Tab) Model {
 	tabTitles := []string{}
-	tabContents := []TabModel{}
+	tabOps := []TabOps{}
 	for _, t := range tabs {
-		t.Content.Blur()
+		t.Content.blur()
 		tabTitles = append(tabTitles, t.Title)
-		tabContents = append(tabContents, t.Content)
+		tabOps = append(tabOps, t.Content)
 	}
 	activeTab := 0
-	tabContents[activeTab].Focus()
+	tabOps[activeTab].focus()
 	return Model{
-		tabTitles:   tabTitles,
-		tabContents: tabContents,
-		activeTab:   activeTab,
-		Keys:        DefaultKeys(),
-		styles:      DefaultStyles(),
+		tabTitles: tabTitles,
+		tabOps:    tabOps,
+		activeTab: activeTab,
+		Keys:      DefaultKeys(),
+		styles:    DefaultStyles(),
 	}
 }
 
@@ -56,8 +102,8 @@ func (m *Model) SetStyles(styles Styles) {
 func (m *Model) Resize(width, height int) {
 	height -= m.tabBarHeight
 
-	for _, m := range m.tabContents {
-		m.Resize(width, height)
+	for _, op := range m.tabOps {
+		op.resize(width, height)
 	}
 
 	m.renderTabBar()
@@ -65,41 +111,39 @@ func (m *Model) Resize(width, height int) {
 
 func (m *Model) Init() tea.Cmd {
 	var cmds []tea.Cmd
-	for _, t := range m.tabContents {
-		cmds = append(cmds, t.Init())
+	for _, op := range m.tabOps {
+		cmds = append(cmds, op.init())
 	}
 	return tea.Batch(cmds...)
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-	var cmd tea.Cmd
 	if msg, ok := msg.(tea.KeyPressMsg); ok {
 		switch {
 		case key.Matches(msg, m.Keys.Next):
-			m.tabContents[m.activeTab].Blur()
-			m.activeTab = min(m.activeTab+1, len(m.tabContents)-1)
-			m.tabContents[m.activeTab].Focus()
+			m.tabOps[m.activeTab].blur()
+			m.activeTab = min(m.activeTab+1, len(m.tabOps)-1)
+			m.tabOps[m.activeTab].focus()
 			m.renderTabBar()
-			return m, m.tabContents[m.activeTab].Init()
+			return m, m.tabOps[m.activeTab].init()
 		case key.Matches(msg, m.Keys.Prev):
-			m.tabContents[m.activeTab].Blur()
+			m.tabOps[m.activeTab].blur()
 			m.activeTab = max(m.activeTab-1, 0)
-			m.tabContents[m.activeTab].Focus()
+			m.tabOps[m.activeTab].focus()
 			m.renderTabBar()
-			return m, m.tabContents[m.activeTab].Init()
+			return m, m.tabOps[m.activeTab].init()
 		}
 	}
 
 	var cmds []tea.Cmd
-	for i := range m.tabContents {
-		m.tabContents[i], cmd = m.tabContents[i].UpdateAsTab(msg)
-		cmds = append(cmds, cmd)
+	for _, op := range m.tabOps {
+		cmds = append(cmds, op.update(msg))
 	}
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	tabView := m.tabContents[m.activeTab].View()
+	tabView := m.tabOps[m.activeTab].view()
 
 	return lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -111,7 +155,7 @@ func (m Model) View() string {
 func (m *Model) ActiveTabIndex() int { return m.activeTab }
 
 func (m *Model) renderTabBar() {
-	width := m.tabContents[m.activeTab].Width()
+	width := m.tabOps[m.activeTab].width()
 	m.cachedTabBarView = RenderTabBar(
 		m.tabTitles,
 		m.styles.ActiveTabStyle,

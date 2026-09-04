@@ -10,7 +10,6 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/alphameo/nm-tui/internal/infra"
 	"github.com/alphameo/nm-tui/internal/ui/models/focus"
-	"github.com/alphameo/nm-tui/internal/ui/models/tabview"
 	"github.com/alphameo/nm-tui/internal/ui/styles"
 )
 
@@ -198,10 +197,6 @@ func (m *NetworksModel) Update(msg tea.Msg) (*NetworksModel, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
-}
-
-func (m *NetworksModel) UpdateAsTab(msg tea.Msg) (tabview.TabModel, tea.Cmd) {
-	return m.Update(msg)
 }
 
 func (m *NetworksModel) View() string {
