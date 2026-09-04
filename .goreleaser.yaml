@@ -7,6 +7,7 @@ builds:
       - linux
     goarch:
       - amd64
+      - arm
       - arm64
       - "386"
     ldflags:
@@ -14,10 +15,12 @@ builds:
 
 archives:
   - name_template: >-
-      {{ .ProjectName }}_
-      {{ .Version }}_
-      {{ .Os }}_
-      {{- if eq .Arch "386" }}32-bit
+      {{- .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}32-bit
+      {{- else if eq .Arch "arm" }}armv6
       {{- else }}{{ .Arch }}{{ end }}
 
 changelog:
