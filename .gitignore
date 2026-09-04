@@ -34,5 +34,8 @@ go.work.sum
 # Out binaries
 bin/
 
+# Go releaser output directory
+/dist
+
 # nix
 result
