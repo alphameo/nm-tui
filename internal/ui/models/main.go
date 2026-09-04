@@ -120,8 +120,8 @@ func NewMainModel(
 	device.Style = tabContentStyle
 
 	tabs := tabview.New([]tabview.Tab{
-		{Title: networks.Title(), Content: networks},
-		{Title: device.Title(), Content: device},
+		{Title: networks.Title(), Content: tabview.Bind(&networks)},
+		{Title: device.Title(), Content: tabview.Bind(&device)},
 	})
 	tabs.SetStyles(styles.TabViewStyles)
 	tabs.Keys = keys.tabs
