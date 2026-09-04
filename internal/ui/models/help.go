@@ -165,6 +165,9 @@ func (m *HelpModel) fullView() string {
 	profileEditorTTL = styles.AccentStyle.Render(profileEditorTTL)
 	profileEditor := m.profileEditorFull()
 
+	confirmDialogsTTL := "Confirm Dialogs"
+	confirmDialogsTTL = styles.AccentStyle.Render(confirmDialogsTTL)
+	confirmDialogs := m.confirmFulll()
 	view = lipgloss.JoinVertical(
 		lipgloss.Left,
 		view,
@@ -181,6 +184,7 @@ func (m *HelpModel) fullView() string {
 		networkProfilesTTL, m.help.FullHelpView(networkProfiles), "",
 		profileEditorTTL, m.help.FullHelpView(profileEditor), "",
 		deviceTTL, m.help.FullHelpView(device), "",
+		confirmDialogsTTL, m.help.FullHelpView(confirmDialogs), "",
 	)
 
 	return view
@@ -408,6 +412,13 @@ func (m *HelpModel) profileEditorShort() []key.Binding {
 		m.keyMap.main.closePopup,
 	}
 	return m.shortKBs(k)
+}
+
+func (m *HelpModel) confirmFulll() [][]key.Binding {
+	return [][]key.Binding{{
+		m.fullKB(m.keyMap.confirm.accept, "Accept"),
+		m.fullKB(m.keyMap.confirm.decline, "Decline"),
+	}}
 }
 
 func (m *HelpModel) shortKB(kb key.Binding) key.Binding {

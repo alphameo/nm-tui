@@ -266,7 +266,7 @@ func (m *NetworkProfilesModel) activateConnToSelectedCmd() tea.Cmd {
 			return tea.Batch(
 				SetNetworksStateCmd(NetsDone),
 				m.gotoTop(),
-				RescanNetworksCmd(),
+				QuickRescanNetworksCmd(),
 			)
 		},
 	)
@@ -288,24 +288,30 @@ func (m *NetworkProfilesModel) deactivateConnToSelectedCmd() tea.Cmd {
 			return tea.Batch(
 				SetNetworksStateCmd(NetsDone),
 				m.gotoTop(),
-				RescanNetworksCmd(),
+				QuickRescanNetworksCmd(),
 			)
 		})
 }
 
 func (m *NetworkProfilesModel) deleteSelectedCmd() tea.Cmd {
 	row := m.table.SelectedRow()
+	uuid := row[networkProfilesCfg.uuidColIdx]
+	name := row[networkProfilesCfg.nameColIdx]
+	question := fmt.Sprintf("Confirm deletion of %q profile", name)
+	return ConfirmCmd(question, m.delete(uuid))
+}
+
+func (m *NetworkProfilesModel) delete(id string) tea.Cmd {
 	return func() tea.Msg {
-		name := row[networkProfilesCfg.uuidColIdx]
-		err := m.netMngr.DeleteProfile(context.Background(), name)
+		err := m.netMngr.DeleteProfile(context.Background(), id)
 		if err != nil {
-			return NotifyCmd(fmt.Sprintf("Error while deleting profile %q", name))
+			return NotifyCmd(fmt.Sprintf("Error while deleting profile %q", id))
 		}
 		cursor := m.table.Cursor()
 		if cursor == len(m.table.Rows())-1 {
 			m.table.SetCursor(cursor - 1)
 		}
-		return RescanNetworksCmd()
+		return QuickRescanNetworksCmd()
 	}
 }
 

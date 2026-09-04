@@ -192,12 +192,12 @@ func (m *ProfileCreatorModel) createProfileCmd() tea.Cmd {
 						"Cannot create connection to %s%s:\n%v",
 						hidden, m.ssid.Value(), err,
 					)),
-					RescanNetworksCmd(),
+					QuickRescanNetworksCmd(),
 				)
 			}
 			return tea.Batch(
 				SetAvailableNetworksStateCmd(NetsDone),
-				RescanNetworksCmd(),
+				QuickRescanNetworksCmd(),
 			)
 		},
 	)
