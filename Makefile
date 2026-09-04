@@ -1,4 +1,4 @@
-.PHONY: all clean build build-dev release-build release-build-snap flake-upd run deps clean-build logs lint lint-fix format test
+.PHONY: all clean build build-dev build-release build-release-snap release-local flake-upd run deps clean-build logs lint lint-fix format test
 
 VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo dev)
 MAIN="./main.go"
@@ -14,11 +14,14 @@ build:
 build-dev:
 	CGO_ENABLED=0 go build -o bin/nm-tui $(MAIN)
 
-release-build:
+build-release:
 	goreleaser build --clean
 
-release-build-snap:
+build-release-snap:
 	goreleaser build --clean --snapshot
+
+release-local:
+	goreleaser release --clean --skip=publish
 
 flake-upd:
 	nix flake update
