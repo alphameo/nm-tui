@@ -77,10 +77,6 @@ func (m *DeviceInfoModel) Update(msg tea.Msg) (*DeviceInfoModel, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *DeviceInfoModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
-	return m.Update(msg)
-}
-
 func (m *DeviceInfoModel) View() string {
 	view := m.viewport.View()
 

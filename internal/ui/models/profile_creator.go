@@ -133,10 +133,6 @@ func (m *ProfileCreatorModel) Update(msg tea.Msg) (*ProfileCreatorModel, tea.Cmd
 	return m, tea.Batch(cmds...)
 }
 
-func (m *ProfileCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
-	return m.Update(msg)
-}
-
 func (m *ProfileCreatorModel) View() string {
 	ssid := styles.ViewInputWithValidation(&m.ssid)
 	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID     ", ssid)

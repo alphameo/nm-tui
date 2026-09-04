@@ -92,10 +92,6 @@ func (m *HelpModel) Update(msg tea.Msg) (*HelpModel, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *HelpModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
-	return m.Update(msg)
-}
-
 func (m *HelpModel) View() string {
 	view := m.viewport.View()
 	title := styles.DefaultStyle.Render(renderer.RenderTitle(helpCfg.title))

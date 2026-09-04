@@ -123,10 +123,6 @@ func (m *ConnectorModel) Update(msg tea.Msg) (*ConnectorModel, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *ConnectorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
-	return m.Update(msg)
-}
-
 func (m *ConnectorModel) View() string {
 	ssid := m.ssid
 	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID      ", ssid)

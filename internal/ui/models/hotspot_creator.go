@@ -121,10 +121,6 @@ func (m *HotspotCreatorModel) Update(msg tea.Msg) (*HotspotCreatorModel, tea.Cmd
 	return m, tea.Batch(cmds...)
 }
 
-func (m *HotspotCreatorModel) UpdateAsPopup(msg tea.Msg) (PopupModel, tea.Cmd) {
-	return m.Update(msg)
-}
-
 func (m *HotspotCreatorModel) View() string {
 	ssid := styles.ViewInputWithValidation(&m.ssid)
 	ssid = lipgloss.JoinHorizontal(lipgloss.Center, "SSID     ", ssid)
