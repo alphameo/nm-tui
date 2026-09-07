@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"codeberg.org/shimeoki/kdly"
 	"github.com/alphameo/nm-tui/internal/config"
-	"github.com/calico32/kdl-go"
 )
 
 func readTestdata(t *testing.T, name string) string {
@@ -177,16 +177,30 @@ func TestKeyBindingUnmarshalKDL(t *testing.T) {
 
 	decode := func(t *testing.T, src string, kb *config.KeyBinding) error {
 		t.Helper()
-		doc, err := kdl.ParseString(src)
+		doc, err := kdly.NewParser(strings.NewReader(src)).Parse()
 		if err != nil {
 			t.Fatal(err)
 		}
 		name, _, _ := strings.Cut(src, " ")
-		node := doc.GetNode(name)
+
+		var node *kdly.Node
+		for _, n := range doc.Nodes {
+			str, err := n.Name.Resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if str == name {
+				node = &n
+				break
+			}
+		}
+
 		if node == nil {
 			t.Fatalf("node %q not found", name)
 		}
-		return kb.UnmarshalKDL(node)
+
+		return kb.UnmarshalKDLNode(node)
 	}
 
 	t.Run("single argument", func(t *testing.T) {
@@ -194,7 +208,7 @@ func TestKeyBindingUnmarshalKDL(t *testing.T) {
 
 		var kb config.KeyBinding
 		if err := decode(t, `key "space"`, &kb); err != nil {
-			t.Fatalf("UnmarshalKDL() error: %v", err)
+			t.Fatalf("UnmarshalKDLNode() error: %v", err)
 		}
 		if want := (config.KeyBinding{"space"}); !reflect.DeepEqual(kb, want) {
 			t.Errorf("got %v, want %v", kb, want)
@@ -206,7 +220,7 @@ func TestKeyBindingUnmarshalKDL(t *testing.T) {
 
 		var kb config.KeyBinding
 		if err := decode(t, `quit "esc" "ctrl+c" "q" "ctrl+q"`, &kb); err != nil {
-			t.Fatalf("UnmarshalKDL() error: %v", err)
+			t.Fatalf("UnmarshalKDLNode() error: %v", err)
 		}
 		want := config.KeyBinding{"esc", "ctrl+c", "q", "ctrl+q"}
 		if !reflect.DeepEqual(kb, want) {
@@ -219,7 +233,7 @@ func TestKeyBindingUnmarshalKDL(t *testing.T) {
 
 		var kb config.KeyBinding
 		if err := decode(t, `key`, &kb); err != nil {
-			t.Fatalf("UnmarshalKDL() error: %v", err)
+			t.Fatalf("UnmarshalKDLNode() error: %v", err)
 		}
 		if len(kb) != 0 {
 			t.Errorf("got %v, want empty binding", kb)

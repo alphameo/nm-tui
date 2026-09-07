@@ -140,7 +140,7 @@ Binary generated at `./bin/nm-tui`
 
 ## Configuration
 
-Config is placed at `$XDG_CONFIG_HOME/nm-tui/config.kdl` (e.g. `~/.config/nm-tui/config.kdl`).
+Config is written in [KDL v2](https://kdl.dev). It is placed at `$XDG_CONFIG_HOME/nm-tui/config.kdl` (e.g. `~/.config/nm-tui/config.kdl`).
 
 All settings have default values, with which the user configuration is subsequently merged.
 

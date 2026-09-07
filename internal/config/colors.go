@@ -7,11 +7,11 @@ import (
 )
 
 type ColorConfig struct {
-	Text   *string `kdl:"text"`
-	Accent *string `kdl:"accent"`
-	Muted  *string `kdl:"muted"`
-	Error  *string `kdl:"error"`
-	Notif  *string `kdl:"notification"`
+	Text   *string `kdly:"text"`
+	Accent *string `kdly:"accent"`
+	Muted  *string `kdly:"muted"`
+	Error  *string `kdly:"error"`
+	Notif  *string `kdly:"notification"`
 }
 
 func DefaultColorConfig() *ColorConfig {

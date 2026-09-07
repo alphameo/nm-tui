@@ -8,8 +8,8 @@ import (
 )
 
 type LogConfig struct {
-	Level    *string `kdl:"level"`
-	FilePath *string `kdl:"file_path"`
+	Level    *string `kdly:"level"`
+	FilePath *string `kdly:"file_path"`
 }
 
 func DefaultLogConfig() *LogConfig {
