@@ -1,11 +1,16 @@
 {
     src, # flakelight
+    inputs, # flakelight
     buildGo127Module,
 }:
+let
+    inherit (inputs) self;
+    rev = self.shortRev or self.dirtyShortRev;
+in
 buildGo127Module (finalAttrs: {
     inherit src;
     pname = "nm-tui";
-    version = "0.3.1";
+    version = "0.3.2+${rev}";
 
     vendorHash = "sha256-qq7dbswbq+5h1iKBpohZBGEln+SsuZFnXs0RDYDhUy4=";
 
@@ -14,6 +19,8 @@ buildGo127Module (finalAttrs: {
     };
 
     ldflags = [
-        "-X main.version=${finalAttrs.version}-nix"
+        "-s"
+        "-w"
+        "-X main.version=v${finalAttrs.version}"
     ];
 })

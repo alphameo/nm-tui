@@ -2,7 +2,7 @@
 
 You need to bump version in `package.nix`
 
-## If deendencies have changed
+## If dependencies have changed
 
 1. Build and get `vendorHash` on fail
 

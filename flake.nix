@@ -6,7 +6,13 @@
         flakelight ./. {
             inherit inputs;
             systems = import systems;
-            devShell.inputsFrom = pkgs: [ pkgs.nm-tui ];
+            devShell.packages =
+                pkgs: with pkgs; [
+                    go_1_27
+                    goreleaser
+                    golangci-lint
+                    gnumake
+                ];
         };
 
     inputs = {
