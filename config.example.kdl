@@ -1,3 +1,5 @@
+/- kdl-version 2
+
 // Fully-commented example config for nm-tui.
 // Copy this file to $XDG_CONFIG_HOME/nm-tui/config.kdl and adjust to your taste.
 //
@@ -33,7 +35,7 @@ colors {
 }
 
 icons {
-    nerd_preset false // set to true to use the nerd-font variant defaults
+    nerd_preset #false // set to true to use the nerd-font variant defaults
 
     border_style "ascii" // default for nerd: "rounded"
                          // non-nerd variants: "ascii", "markdown",

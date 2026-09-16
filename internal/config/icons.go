@@ -38,25 +38,25 @@ const (
 )
 
 type IconConfig struct {
-	NerdPreset       *bool   `kdl:"nerd_preset"`
-	BorderStyle      *string `kdl:"border_style"`
-	SpinnerStyle     *string `kdl:"spinner_style"`
-	InputCursorShape *string `kdl:"input_cursor_shape"`
-	ToggleOff        *string `kdl:"toggle_off"`
-	ToggleOn         *string `kdl:"toggle_on"`
-	PwHiddenChar     *string `kdl:"password_hidden_character"`
-	Error            *string `kdl:"error"`
-	Check            *string `kdl:"check"`
-	Connection       *string `kdl:"connection"`
-	Signal           *string `kdl:"signal"`
-	Saved            *string `kdl:"saved"`
-	Available        *string `kdl:"available"`
-	AccessPoint      *string `kdl:"access_point"`
-	Infra            *string `kdl:"infra"`
-	Mesh             *string `kdl:"mesh"`
-	AdHoc            *string `kdl:"ad_hoc"`
-	Ellipsis         *string `kdl:"ellipsis"`
-	Separator        *string `kdl:"separator"`
+	NerdPreset       *bool   `kdly:"nerd_preset"`
+	BorderStyle      *string `kdly:"border_style"`
+	SpinnerStyle     *string `kdly:"spinner_style"`
+	InputCursorShape *string `kdly:"input_cursor_shape"`
+	ToggleOff        *string `kdly:"toggle_off"`
+	ToggleOn         *string `kdly:"toggle_on"`
+	PwHiddenChar     *string `kdly:"password_hidden_character"`
+	Error            *string `kdly:"error"`
+	Check            *string `kdly:"check"`
+	Connection       *string `kdly:"connection"`
+	Signal           *string `kdly:"signal"`
+	Saved            *string `kdly:"saved"`
+	Available        *string `kdly:"available"`
+	AccessPoint      *string `kdly:"access_point"`
+	Infra            *string `kdly:"infra"`
+	Mesh             *string `kdly:"mesh"`
+	AdHoc            *string `kdly:"ad_hoc"`
+	Ellipsis         *string `kdly:"ellipsis"`
+	Separator        *string `kdly:"separator"`
 }
 
 func DefaultNerdIconConfig() *IconConfig {

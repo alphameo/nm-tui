@@ -6,80 +6,91 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/calico32/kdl-go"
+	"codeberg.org/shimeoki/kdly"
 )
 
 type KeyBinding []string
 
-func (k *KeyBinding) UnmarshalKDL(node *kdl.Node) error {
-	args := node.Arguments()
-	*k = make(KeyBinding, len(args))
-	for i, arg := range args {
-		(*k)[i] = arg.String()
+func (k *KeyBinding) UnmarshalKDLNode(n *kdly.Node) error {
+	kb := make(KeyBinding, 0, len(n.Entries))
+	for e := range n.Arguments() {
+		v, ok := e.Value.(kdly.String)
+		if !ok {
+			return fmt.Errorf("keybinding is strings only")
+		}
+
+		str, err := v.Resolve()
+		if err != nil {
+			return fmt.Errorf("invalid keybinding string: %w", err)
+		}
+
+		kb = append(kb, str)
 	}
+
+	*k = kb
 	return nil
 }
 
 type KeyConfig struct {
-	Toggle    *KeyBinding `kdl:"toggle"`
-	Rescan    *KeyBinding `kdl:"rescan"`
-	FocusNext *KeyBinding `kdl:"focus_next"`
-	FocusPrev *KeyBinding `kdl:"focus_prev"`
-	Focus1    *KeyBinding `kdl:"focus_1"`
-	Focus2    *KeyBinding `kdl:"focus_2"`
-	Focus3    *KeyBinding `kdl:"focus_3"`
-	Focus4    *KeyBinding `kdl:"focus_4"`
-	Focus5    *KeyBinding `kdl:"focus_5"`
-	Focus6    *KeyBinding `kdl:"focus_6"`
-	Focus7    *KeyBinding `kdl:"focus_7"`
-	Focus8    *KeyBinding `kdl:"focus_8"`
-	Focus9    *KeyBinding `kdl:"focus_9"`
-	Focus10   *KeyBinding `kdl:"focus_10"`
+	Toggle    *KeyBinding `kdly:"toggle"`
+	Rescan    *KeyBinding `kdly:"rescan"`
+	FocusNext *KeyBinding `kdly:"focus_next"`
+	FocusPrev *KeyBinding `kdly:"focus_prev"`
+	Focus1    *KeyBinding `kdly:"focus_1"`
+	Focus2    *KeyBinding `kdly:"focus_2"`
+	Focus3    *KeyBinding `kdly:"focus_3"`
+	Focus4    *KeyBinding `kdly:"focus_4"`
+	Focus5    *KeyBinding `kdly:"focus_5"`
+	Focus6    *KeyBinding `kdly:"focus_6"`
+	Focus7    *KeyBinding `kdly:"focus_7"`
+	Focus8    *KeyBinding `kdly:"focus_8"`
+	Focus9    *KeyBinding `kdly:"focus_9"`
+	Focus10   *KeyBinding `kdly:"focus_10"`
 
-	Main   *MainKeys   `kdl:"main"`
-	Dialog *DialogKeys `kdl:"dialog"`
+	Main   *MainKeys   `kdly:"main"`
+	Dialog *DialogKeys `kdly:"dialog"`
 
-	Networks          *NetworksKeys          `kdl:"networks"`
-	NetworkDevices    *NetworkDevicesKeys    `kdl:"network_devices"`
-	AvailableNetworks *AvailableNetworksKeys `kdl:"available_networks"`
-	NetworkProfiles   *NetworkProfilesKeys   `kdl:"network_profiles"`
+	Networks          *NetworksKeys          `kdly:"networks"`
+	NetworkDevices    *NetworkDevicesKeys    `kdly:"network_devices"`
+	AvailableNetworks *AvailableNetworksKeys `kdly:"available_networks"`
+	NetworkProfiles   *NetworkProfilesKeys   `kdly:"network_profiles"`
 }
 
 type MainKeys struct {
-	Help    *KeyBinding `kdl:"help"`
-	TabNext *KeyBinding `kdl:"next_tab"`
-	TabPrev *KeyBinding `kdl:"prev_tab"`
-	Quit    *KeyBinding `kdl:"quit"`
+	Help    *KeyBinding `kdly:"help"`
+	TabNext *KeyBinding `kdly:"next_tab"`
+	TabPrev *KeyBinding `kdly:"prev_tab"`
+	Quit    *KeyBinding `kdly:"quit"`
 }
 
 type DialogKeys struct {
-	TogglePWVisibility *KeyBinding `kdl:"toggle_pw_visibility"`
-	Accept             *KeyBinding `kdl:"accept"`
-	Close              *KeyBinding `kdl:"close"`
+	TogglePWVisibility *KeyBinding `kdly:"toggle_pw_visibility"`
+	Accept             *KeyBinding `kdly:"accept"`
+	Close              *KeyBinding `kdly:"close"`
 }
 
 type NetworksKeys struct {
-	CreateProfile     *KeyBinding `kdl:"create_profile"`
-	OpenCaptivePortal *KeyBinding `kdl:"open_network_login"`
-	QuickHotspot      *KeyBinding `kdl:"quick_hotspot"`
-	CreateHotspot     *KeyBinding `kdl:"create_hotspot"`
+	CreateProfile     *KeyBinding `kdly:"create_profile"`
+	OpenCaptivePortal *KeyBinding `kdly:"open_network_login"`
+	QuickHotspot      *KeyBinding `kdly:"quick_hotspot"`
+	CreateHotspot     *KeyBinding `kdly:"create_hotspot"`
 }
 
 type NetworkDevicesKeys struct {
-	ShowInfo *KeyBinding `kdl:"show_info"`
+	ShowInfo *KeyBinding `kdly:"show_info"`
 }
 
 type AvailableNetworksKeys struct {
-	Connect    *KeyBinding `kdl:"connect"`
-	Activate   *KeyBinding `kdl:"activate"`
-	Deactivate *KeyBinding `kdl:"deactivate"`
+	Connect    *KeyBinding `kdly:"connect"`
+	Activate   *KeyBinding `kdly:"activate"`
+	Deactivate *KeyBinding `kdly:"deactivate"`
 }
 
 type NetworkProfilesKeys struct {
-	Edit       *KeyBinding `kdl:"edit"`
-	Activate   *KeyBinding `kdl:"activate"`
-	Deactivate *KeyBinding `kdl:"deactivate"`
-	Delete     *KeyBinding `kdl:"delete"`
+	Edit       *KeyBinding `kdly:"edit"`
+	Activate   *KeyBinding `kdly:"activate"`
+	Deactivate *KeyBinding `kdly:"deactivate"`
+	Delete     *KeyBinding `kdly:"delete"`
 }
 
 func DefaultKeys() *KeyConfig {

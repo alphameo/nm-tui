@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/calico32/kdl-go"
+	"codeberg.org/shimeoki/kdly"
 )
 
 const (
@@ -15,12 +15,12 @@ const (
 )
 
 type Config struct {
-	Colors         *ColorConfig `kdl:"colors"`
-	Keys           *KeyConfig   `kdl:"keys"`
-	Logging        *LogConfig   `kdl:"logging"`
-	Icons          *IconConfig  `kdl:"icons"`
-	NotifCloseTime *int         `kdl:"notification_close_time"`
-	RescanInterval *int         `kdl:"rescan_interval"`
+	Colors         *ColorConfig `kdly:"colors"`
+	Keys           *KeyConfig   `kdly:"keys"`
+	Logging        *LogConfig   `kdly:"logging"`
+	Icons          *IconConfig  `kdly:"icons"`
+	NotifCloseTime *int         `kdly:"notification_close_time"`
+	RescanInterval *int         `kdly:"rescan_interval"`
 }
 
 func DefaultConfig() Config {
@@ -95,8 +95,13 @@ func Load() (*Config, error) {
 		_ = f.Close()
 	}()
 
+	doc, err := kdly.NewParser(f).Parse()
+	if err != nil {
+		return nil, fmt.Errorf("parse config: %w", err)
+	}
+
 	var cfg Config
-	if err = kdl.Decode(f, &cfg); err != nil {
+	if err = doc.Bind(&cfg); err != nil {
 		return nil, fmt.Errorf("decode config: %w", err)
 	}
 
