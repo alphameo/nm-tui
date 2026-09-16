@@ -1,11 +1,15 @@
 #!/bin/sh
 
 # USAGE:
-#     ./mp42gif <in-file.mp4> <out-file.gif>
+#     ./mp42gif <in-file.mp4> <out-file.gif> [width] [fps]
+#     example: `./mp42gif ./demo.mp4 demo.gif 800 24
+
+WIDTH=${3:-480}      # default output width
+FPS=${4:-15}         # default output fps
 
 ffmpeg \
-  -i $1 \
+  -i "$1" \
   -y \
-  -vf 'fps=50,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse' \
+  -vf "fps=${FPS},scale=${WIDTH}:-1:flags=lanczos,split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" \
   -loop 0 \
-  $2
+  "$2"
