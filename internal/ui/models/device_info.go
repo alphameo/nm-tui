@@ -18,7 +18,7 @@ type deviceInfoConfig struct {
 }
 
 var deviceInfoCfg = deviceInfoConfig{
-	title: "Saved network info",
+	title: "Device info",
 }
 
 type DeviceInfoModel struct {

@@ -22,7 +22,7 @@ type profileEditorConfig struct {
 }
 
 var profileEditorCfg = profileEditorConfig{
-	title: "Saved network info",
+	title: "Saved Network Profile",
 }
 
 type profileEditorKeyMap struct {

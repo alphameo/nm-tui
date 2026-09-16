@@ -21,7 +21,7 @@ type profileCreatorConfig struct {
 }
 
 var profileCreatorCfg = profileCreatorConfig{
-	title: "Create Network profile",
+	title: "Create Network Profile",
 }
 
 type profileCreatorKeyMap struct {

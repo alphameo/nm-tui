@@ -20,7 +20,7 @@ type hotspotCreatorConfig struct {
 }
 
 var hotspotCreatorCfg = hotspotCreatorConfig{
-	title: "Create Hotspot",
+	title: "Create Hotspot Profile",
 }
 
 type hotspotCreatorKeyMap struct {
