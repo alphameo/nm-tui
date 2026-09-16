@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# To create cast-file run `agg rec <out.file>`
+# USAGE:
+#   ./agg-convert <in-file.cast> <out-file.gif>
+
+agg \
+    --font-family="JetBrainsMono NFM" \
+    --font-size=14 \
+    $@

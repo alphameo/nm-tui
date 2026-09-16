@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# USAGE:
+#     ./mp42gif <in-file.mp4> <out-file.gif>
+
 ffmpeg \
   -i $1 \
   -y \
