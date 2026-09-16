@@ -37,30 +37,42 @@ Why `nm-tui`: built-in `nmtui` doesn't look great and there aren't many TUI alte
 
 ## Demo
 
-![Demo](../assets/demo-conn.gif)
+![Demo](../assets/demo.gif)
 
 <details>
     <summary><h2>Screenshots</h2></summary>
 
-### Main tabs
+### Device and Device Info
 
 <div style="display: flex; gap: 10px;">
-    <img src="../assets/wifi-tab.png" alt="wifi connector" width="400"/>
-    <img src="../assets/networking-tab.png" alt="wifi info" width="400"/>
+    <img src="../assets/device.png" alt="Device Tab" width="400"/>
+    <img src="../assets/device-info.png" alt="Device Info Popup" width="400"/>
 </div>
 
-### WiFi connection and Network info
+### Help Window
 
 <div style="display: flex; gap: 10px;">
-    <img src="../assets/connect-to-wifi.png" alt="wifi connector" width="400"/>
-    <img src="../assets/network-info.png" alt="wifi info" width="400"/>
+    <img src="../assets/help.png" alt="Help Window" width="800"/>
 </div>
 
-### Network and Access point creation
+### Netwoks Overview
 
 <div style="display: flex; gap: 10px;">
-    <img src="../assets/create-wifi-profile.png" alt="wifi info" width="400"/>
-    <img src="../assets/create-wifi-hotspot.png" alt="wifi connector" width="400"/>
+    <img src="../assets/networks.png" alt="Networks Tab" width="800"/>
+</div>
+
+### Connectiing to Network and Network Profile Editing
+
+<div style="display: flex; gap: 10px;">
+    <img src="../assets/connect-to-network.png" alt="Connect to Network Popup" width="400"/>
+    <img src="../assets/saved-network-profile.png" alt="Saved Network Profile" width="400"/>
+</div>
+
+### Network and Hotspot Profiles Creation
+
+<div style="display: flex; gap: 10px;">
+    <img src="../assets/create-hotspot-profile.png" alt="Create Hotspot Profile Popup" width="400"/>
+    <img src="../assets/create-network-profile.png" alt="Create Network Profile Popup" width="400"/>
 </div>
 
 </details>
@@ -152,9 +164,10 @@ colors {
 }
 keys {
     main {
-        quit "esc" "ctrl+c" "q" "ctrl+q"
+        quit esc ctrl+c q ctrl+q
     }
 }
+
 ```
 
 ## Tech Stack
